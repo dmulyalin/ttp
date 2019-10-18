@@ -1,0 +1,139 @@
+<input load="text" name="forward_dns">
+interface GigabitEthernet3/11
+ description bbc.com
+ switchport trunk allowed vlan add 111,222
+!
+</input>
+
+<group name="interfaces_dnsv4_timeout_test" input="forward_dns" output="dns_timeout_test">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | dns(record='A', servers='192.168.1.100') }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces_dnsv4" input="forward_dns" output="dns_v4_test">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | dns }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces_dnsv6" input="forward_dns" output="dnsv6_test">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | dns(record='AAAA') }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces_dnsv4_google" input="forward_dns" output="dnsv4_google_server_test">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | dns(record='A', servers='8.8.8.8') }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces_dnsv6_add_field" input="forward_dns" output="dnsv6_add_field_test">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | dns(record='AAAA', add_field='ips') }}
+!{{ _end_ }}
+</group>
+
+<output name="dns_timeout_test"
+description="test dns server timeout"
+functions="is_equal"
+load="json"
+>
+{
+"interfaces_dnsv4_timeout_test": {
+    "description": "bbc.com",
+    "interface": "GigabitEthernet3/11",
+    "trunk_vlans": "111,222"
+}}
+</output>
+
+<output name="dns_v4_test"
+description="test dns A record forward resolution"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_dnsv4": {
+        "description": [
+            "151.101.128.81",
+            "151.101.192.81",
+            "151.101.64.81",
+            "151.101.0.81"
+        ],
+        "interface": "GigabitEthernet3/11",
+        "trunk_vlans": "111,222"
+    }
+}
+</output>
+
+<output name="dnsv6_test"
+description="test dns AAAA record forward resolution"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_dnsv6": {
+        "description": [
+            "2a04:4e42:600::81",
+            "2a04:4e42:400::81",
+            "2a04:4e42:200::81",
+            "2a04:4e42::81"
+        ],
+        "interface": "GigabitEthernet3/11",
+        "trunk_vlans": "111,222"
+    }
+}
+</output>
+
+<output name="dnsv4_google_server_test"
+description="test dns A record forward resolution using 8.8.8.8 server"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_dnsv4_google": {
+        "description": [
+            "151.101.0.81",
+            "151.101.192.81",
+            "151.101.64.81",
+            "151.101.128.81"
+        ],
+        "interface": "GigabitEthernet3/11",
+        "trunk_vlans": "111,222"
+    }
+}
+</output>
+
+
+<output name="dnsv6_add_field_test"
+description="test dns A record forward resolution with additional field"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_dnsv6_add_field": {
+        "description": "bbc.com",
+        "interface": "GigabitEthernet3/11",
+        "ips": [
+            "2a04:4e42:400::81",
+            "2a04:4e42:600::81",
+            "2a04:4e42::81",
+            "2a04:4e42:200::81"
+        ],
+        "trunk_vlans": "111,222"
+    }
+}
+</output>
+
+<!--final output to put all results in tabulate table-->
+<output 
+format="tabulate"
+returner="terminal"
+format_attributes = "tablefmt='fancy_grid'"
+/>

@@ -1,0 +1,11 @@
+*.pyc
+Data/*
+Output/*
+ttp.egg-info/*
+dist/*
+build/*
+private/*
+how to upload to pypi.txt
+docs/build/*
+docs/make.bat
+docs/Makefile

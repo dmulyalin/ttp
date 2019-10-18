@@ -1,0 +1,3094 @@
+<template>
+
+<!--one more template###############################################################################################-->
+<template
+name="template-1" 
+description="Groups to test various function"
+>
+<vars>
+vlans = "unrange(rangechar='-', joinchar=',') | joinmatches(',')"
+</vars>
+
+<!--to test chain with unrange and joinmatches-->
+<input name="test1-1" load="text" groups="interfaces">
+interface GigabitEthernet3/3
+ switchport trunk allowed vlan add 138,166-173  
+ switchport trunk allowed vlan add 400,401,410	 	
+</input>
+
+<group name="interfaces" output="test1-1">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans | chain("vlans") }}
+</group>
+
+<output 
+name="test1-1" 
+load="json" 
+functions="is_equal" 
+description="test vlans unrange, joinmatches, trailing tabs/spaces" 
+>
+{
+    "interfaces": {
+        "interface": "GigabitEthernet3/3",
+        "trunk_vlans": "138,166,167,168,169,170,171,172,173,400,401,410"
+    }
+}
+</output>
+
+
+<!--test contains('vlan') for interfaces-->
+<input name="test1-2" load="text" groups="SVIs">
+interface Vlan123
+ description Desks vlan
+ ip address 192.168.123.1 255.255.255.0
+!
+interface GigabitEthernet1/1
+ description to core-1
+!
+interface Vlan222
+ description Phones vlan
+ ip address 192.168.222.1 255.255.255.0
+!
+interface Loopback0
+ description Routing ID loopback
+</input>
+
+<group name="SVIs" output="test1-2">
+interface {{ interface | contains("Vlan") }}
+ description {{ description | ORPHRASE}}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output 
+name="test1-2" 
+load="python" 
+functions="is_equal" 
+description="test that only interaces with vlan got to results"
+>
+{'SVIs': [{'interface': 'Vlan123', 'description': 'Desks vlan', 'ip': '192.168.123.1', 'mask': '255.255.255.0'}, {'interface': 'Vlan222', 'description': 'Phones vlan', 'ip': '192.168.222.1', 'mask': '255.255.255.0'}]}
+</output>
+
+
+<!--test containsall for group results-->
+<input 
+name="test1-3" 
+load="text" 
+groups="interfaces_contansall"
+>
+interface Port-Chanel11
+  description Storage Management
+!
+interface Loopback0
+  description RID
+  ip address 10.0.0.3/24
+!
+interface Vlan777
+  description Management
+  ip address 192.168.0.1/24
+  vrf MGMT
+</input>
+
+<group name="interfaces_contansall" containsall="ip, vrf" output="test1-3">
+interface {{ interface }}
+  description {{ description }}
+  ip address {{ ip }}/{{ mask }}
+  vrf {{ vrf }}
+</group>
+
+<output name="test1-3"
+load="json"
+functions="is_equal"
+description="test containsall for group"
+>
+{
+    "interfaces_contansall": {
+        "description": "Management",
+        "interface": "Vlan777",
+        "ip": "192.168.0.1",
+        "mask": "24",
+        "vrf": "MGMT"
+    }
+}
+</output>
+
+
+<!--test containsany for group results-->
+<input 
+name="test1-4" 
+load="text" 
+groups="interfaces_contains"
+>
+interface Port-Chanel11
+  description Storage Management
+!
+interface Loopback0
+  description RID
+  ip address 10.0.0.3/24
+!
+interface Vlan777
+  description Management
+  ip address 192.168.0.1/24
+  vrf MGMT
+</input>
+
+<group name="interfaces_contains" contains="ip,vrf" output="test1-4">
+interface {{ interface }}
+  description {{ description }}
+  ip address {{ ip }}/{{ mask }}
+  vrf {{ vrf }}
+</group>
+
+<output name="test1-4"
+load="json"
+functions="is_equal"
+description="test contains any for group"
+>
+{
+    "interfaces_contains": [
+        {
+            "description": "RID",
+            "interface": "Loopback0",
+            "ip": "10.0.0.3",
+            "mask": "24"
+        },
+        {
+            "description": "Management",
+            "interface": "Vlan777",
+            "ip": "192.168.0.1",
+            "mask": "24",
+            "vrf": "MGMT"
+        }
+    ]
+}
+</output>
+
+
+<!--test group table method-->
+<input 
+name="test1-5" 
+load="text" 
+groups="arp_table"
+>
+CSR1Kv-3-lab#show ip arp
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  10.1.13.1              98   0050.5685.5cd1  ARPA   GigabitEthernet2.13
+Internet  10.1.13.3               -   0050.5685.14d5  ARPA   GigabitEthernet2.13
+</input>
+
+<group name="arp_table" method="table" output="test1-5">
+Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
+Internet  {{ ip }}  -                   {{ mac }}  ARPA   {{ interface }}
+</group>
+
+<output name="test1-5"
+load="json"
+functions="is_equal"
+description="test group table method"
+>
+{
+    "arp_table": [
+        {
+            "age": "98",
+            "interface": "GigabitEthernet2.13",
+            "ip": "10.1.13.1",
+            "mac": "0050.5685.5cd1"
+        },
+        {
+            "interface": "GigabitEthernet2.13",
+            "ip": "10.1.13.3",
+            "mac": "0050.5685.14d5"
+        }
+    ]
+}
+</output>
+
+
+<!--test dynamic path-->
+<input 
+name="test1-6" 
+load="text" 
+>
+ucs-core-switch-1#show run | section bgp
+router bgp 65100
+  vrf CUST-1
+    neighbor 59.100.71.193
+      remote-as 65101
+      description peer-1
+      address-family ipv4 unicast
+        route-map RPL-1-IMPORT-v4 in
+        route-map RPL-1-EXPORT-V4 out
+      address-family ipv6 unicast
+        route-map RPL-1-IMPORT-V6 in
+        route-map RPL-1-EXPORT-V6 out
+    neighbor 59.100.71.209
+      remote-as 65102
+      description peer-2
+      address-family ipv4 unicast
+        route-map RPL-2-IMPORT-V6 in
+        route-map RPL-2-EXPORT-V6 out
+</input>
+
+<group name="router.bgp.BGP_AS_{{ asn }}" input="test1-6" output="test1-6">
+router bgp {{ asn }}
+  <group name="vrfs.{{ vrf_name }}">
+  vrf {{ vrf_name }}
+    <group name="peers.{{ peer_ip }}">
+    neighbor {{ peer_ip }}
+      remote-as {{ peer_asn }}
+      description {{ peer_description }}
+	  <group name="afi.{{ afi }}.unicast">
+      address-family {{ afi }} unicast
+        route-map {{ rpl_in }} in
+        route-map {{ rpl_out }} out
+	  </group>
+	</group>
+   </group>
+</group>
+
+<output name="test1-6"
+load="python"
+functions="is_equal"
+description="test dynamic path and highly hierarchical data"
+>
+{'router': {'bgp': {'BGP_AS_65100': {'vrfs': {'CUST-1': {'peers': {'59.100.71.193': {'peer_asn': '65101', 'peer_description': 'peer-1', 'afi': {'ipv4': {'unicast': {'rpl_in': 'RPL-1-IMPORT-v4', 'rpl_out': 'RPL-1-EXPORT-V4'}}, 'ipv6': {'unicast': {'rpl_in': 'RPL-1-IMPORT-V6', 'rpl_out': 'RPL-1-EXPORT-V6'}}}}, '59.100.71.209': {'peer_asn': '65102', 'peer_description': 'peer-2', 'afi': {'ipv4': {'unicast': {'rpl_in': 'RPL-2-IMPORT-V6', 'rpl_out': 'RPL-2-EXPORT-V6'}}}}}}}}}}}
+</output>
+
+
+<!--test set function-->
+<vars>
+mys_set_var = "my_set_value"
+</vars>
+
+<input 
+name="test1-7" 
+load="text" 
+>
+interface GigabitEthernet3/4
+ switchport mode access 
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ shutdown
+!
+interface GigabitEthernet3/7
+ switchport mode access 
+ switchport mode trunk
+ switchport nonegotiate
+!
+</input>
+
+<group name="interfacesset" input="test1-7" output="test1-7">
+interface {{ interface }}
+ switchport mode access {{ mode_access | set("True") }}
+ switchport trunk encapsulation dot1q {{ encap | set("dot1q") }}
+ switchport mode trunk {{ mode | set("Trunk") }} {{ vlans | set("all_vlans") }}
+ shutdown {{ disabled | set("True") }} {{ test_var | set("mys_set_var") }}
+!{{ _end_ }}
+</group>
+
+<output name="test1-7"
+functions="is_equal"
+description="test set function"
+load="python"
+>
+{
+    "interfacesset": [
+        {
+            "disabled": "True",
+            "encap": "dot1q",
+            "interface": "GigabitEthernet3/4",
+            "mode": "Trunk",
+            "mode_access": "True",
+            "test_var": "my_set_value",
+            "vlans": "all_vlans"
+        },
+        {
+            "interface": "GigabitEthernet3/7",
+            "mode": "Trunk",
+            "mode_access": "True",
+            "vlans": "all_vlans"
+        }
+    ]
+}
+</output>
+
+
+
+<!--test dynamic path with regex formatters-->
+<input 
+name="test1-8" 
+load="text" 
+>
+interface Port-Chanel11
+  description Storage
+!
+interface Loopback0
+  description RID
+  ip address 10.0.0.3/24
+!
+interface Vlan777
+  description Management
+  ip address 192.168.0.1/24
+  vrf MGMT
+!
+</input>
+
+<group name="interfaces*.{{ interface }}" output="test1-8" input="test1-8">
+interface {{ interface }}
+  description {{ description }}
+  ip address {{ ip }}/{{ mask }}
+  vrf {{ vrf }}
+</group>
+
+<output name="test1-8"
+functions="is_equal"
+description="test dynamic path with regex formatters"
+load="json"
+>
+{
+     "interfaces": [
+         {
+             "Loopback0": {
+                 "description": "RID",
+                 "ip": "10.0.0.3",
+                 "mask": "24"
+             },
+             "Port-Chanel11": {
+                 "description": "Storage"
+             },
+             "Vlan777": {
+                 "description": "Management",
+                 "ip": "192.168.0.1",
+                 "mask": "24",
+                 "vrf": "MGMT"
+             }
+         }
+     ]
+}
+</output>
+
+<input load="text" name="test1-9">
+interface Port-Chanel11
+  description Storage
+!
+interface Loopback0
+  description RID
+  ip address 10.0.0.3/24
+!
+interface Vlan777
+  description Management
+  ip address 192.168.0.1/24
+  vrf MGMT
+!
+</input>
+
+<group input="test1-9" output="test1-9">
+interface {{ interface }}
+  description {{ description }}
+<group name = "ips">
+  ip address {{ ip }}/{{ mask }}
+</group>
+  vrf {{ vrf }}
+!{{_end_}}
+</group>
+
+<output name="test1-9"
+functions="is_equal"
+description="test top group without name attribute with _anonymous_ path"
+load="json"
+>
+[
+    {
+        "description": "Storage",
+        "interface": "Port-Chanel11"
+    },
+    {
+        "description": "RID",
+        "interface": "Loopback0",
+        "ips": {
+            "ip": "10.0.0.3",
+            "mask": "24"
+        }
+    },
+    {
+        "description": "Management",
+        "interface": "Vlan777",
+        "ips": {
+            "ip": "192.168.0.1",
+            "mask": "24"
+        },
+        "vrf": "MGMT"
+    }
+]
+</output>
+
+
+<input name="test1-10" load="text">
+interface Vlan777
+  description Management
+  ip address 192.168.0.1/24
+  vrf MGMT
+!
+interface Vlan778
+  description Management
+  switchport mode trunk
+  switchport trunk allowed vlans 23,24,37
+  ip address 192.168.0.1/24
+  vrf MGMT
+!
+</input>
+
+<vars>
+my_var = "L2VC"
+</vars>
+
+<group name="interfaces_with_set" input="test1-10" output="test1-10">
+interface {{ interface }}
+  description {{ description }}
+  switchport mode trunk {{ mode | set("trunk") }} {{ vlans_trunk | set("1-4096") }}
+  switchport trunk allowed vlans {{ trunk_vlans | split(",") }}
+  vrf {{ vrf }}
+  {{ var1 | set("my_value1") }}
+{{ var2 | set("my_value2") }}
+{{ var3 | set("my_value3") }} {{ var4 | set("my_value4") }}
+{{ var5 | set("my_var") }}
+!{{_end_}} 
+</group>
+
+<output name="test1-10"
+functions="is_equal"
+description="test variables let function"
+load="json"
+>
+{
+    "interfaces_with_set": [
+        {
+            "description": "Management",
+            "interface": "Vlan777",
+            "var1": "my_value1",
+            "var2": "my_value2",
+            "var3": "my_value3",
+            "var4": "my_value4",
+            "var5": "L2VC",
+            "vrf": "MGMT"
+        },
+        {
+            "description": "Management",
+            "interface": "Vlan778",
+            "mode": "trunk",
+            "trunk_vlans": [
+                "23",
+                "24",
+                "37"
+            ],
+            "var1": "my_value1",
+            "var2": "my_value2",
+            "var3": "my_value3",
+            "var4": "my_value4",
+            "var5": "L2VC",
+            "vlans_trunk": "1-4096",
+            "vrf": "MGMT"
+        }
+    ]
+}
+</output>
+
+
+<input name="test1-11" load="text">
+-------------------------
+Device ID: switch-2.lab.com
+Interface: GigabitEthernet4/6,  Port ID (outgoing port): GigabitEthernet1/5
+
+-------------------------
+Device ID: switch-1.lab.com
+Interface: GigabitEthernet1/1,  Port ID (outgoing port): GigabitEthernet0/1
+</input>
+
+<group name="cdp_test_item" input="test1-11" output="test1-11">
+Device ID: {{ peer_hostname | split('.') | item(0) }} 
+Interface: {{ Interface | item(-40) }},  Port ID (outgoing port): {{ peer_interface | item(40) }}
+</group>
+
+<output name="test1-11"
+functions="is_equal"
+description="test variables 'item' function"
+load="json"
+>
+{
+    "cdp_test_item": [
+        {
+            "Interface": "G",
+            "peer_hostname": "switch-2",
+            "peer_interface": "5"
+        },
+        {
+            "Interface": "G",
+            "peer_hostname": "switch-1",
+            "peer_interface": "1"
+        }
+    ]
+}
+</output>
+
+
+<input name="test1-12" load="text"
+description="this group tests case when we have multiple regexes matched same line, the logic tested is that 
+match for current self.record path will be selected as the correct one. In addition joinmatches are tested to join
+lists as results.
+"
+>
+VRF SOMEVRF (VRF Id = 4); default RD 65100:24;
+  Old CLI format, supports IPv4 only
+  Flags: 0xC
+  Interfaces:
+    Te0/3/0.401              Te0/3/0.302              Te0/3/0.315             
+    Te0/3/0.316              Te0/3/0.327              Te0/3/0.371             
+    Te0/3/0.373              Te0/3/0.15               Te0/3/0.551             
+    Te0/3/0.552              Te0/3/0.2527             Te0/3/0.711             
+    Te0/3/0.500              Te0/3/0.325              Te0/3/0.324   
+    Te0/3/0.32787 
+Address family ipv4 unicast (Table ID = 0x4):
+  Flags: 0x0
+  Export VPN route-target communities
+    RT:65100:24              
+  Import VPN route-target communities
+    RT:65100:24               RT:65100:7544             RT:65101:17
+    RT:65101:31546            RT:65100:89900            RT:65100:650
+    RT:65100:89564            RT:65100:89611           
+  No import route-map
+  No global export route-map
+  No export route-map
+  Route limit 4000, warning limit 80% (3200), current count 1609
+  VRF label distribution protocol: not configured
+  VRF label allocation mode: per-prefix
+</input>
+
+<group name="vrf.{{ vrf_name }}" input="test1-12" output="test1-12"> 
+VRF {{ vrf_name }} (VRF Id = {{ vrf_id}}); default RD {{ vrf_rd }};
+<group name="interfaces">
+  Interfaces: {{ _start_ }}
+    {{ interfaces | joinmatches(",") | ROW | resub(" +", ",", 5) | split(',') }}
+    {{ interfaces | joinmatches(",") | split(',') }}
+</group>
+<group name="afis.{{ afi }}">
+Address family {{ afi }} unicast (Table ID = {{ ignore }}):
+<group name="export_rt">
+  Export VPN route-target communities {{ _start_ }}
+    {{ export_rt | joinmatches(",") | ROW | resub(" +", ",", 5) | split(',') }}
+    {{ export_rt | joinmatches(",") | split(',') }}
+</group>
+<group name="import_rt">
+  Import VPN route-target communities {{ _start_ }}
+    {{ import_rt | joinmatches(",") | ROW | resub(" +", ",", 5) | split(',') }}
+    {{ import_rt | joinmatches(",") | split(',') }}
+</group>
+  Import route-map: {{ import_route_map | default(None) }}
+  Export route-map: {{ export_route_map | default(None) }}
+  Route limit {{ route_limit }}, warning limit {{ route_limit_warning }}% (3200), current count {{ routes_count }}
+  VRF label distribution protocol: {{ label_dist_proto | ORPHRASE }}
+  VRF label allocation mode: {{ label_alloc_mode }}
+</group>
+</group>
+
+<output name="test1-12"
+functions="is_equal"
+description="test ROW regex, multiple matches, joinmatches"
+load="json"
+>
+{
+    "vrf": {
+        "SOMEVRF": {
+            "afis": {
+                "ipv4": {
+                    "export_route_map": null,
+                    "export_rt": {
+                        "export_rt": [
+                            "RT:65100:24"
+                        ]
+                    },
+                    "import_route_map": null,
+                    "import_rt": {
+                        "import_rt": [
+                            "RT:65100:24",
+                            "RT:65100:7544",
+                            "RT:65101:17",
+                            "RT:65101:31546",
+                            "RT:65100:89900",
+                            "RT:65100:650",
+                            "RT:65100:89564",
+                            "RT:65100:89611"
+                        ]
+                    },
+                    "label_alloc_mode": "per-prefix",
+                    "label_dist_proto": "not configured",
+                    "route_limit": "4000",
+                    "route_limit_warning": "80",
+                    "routes_count": "1609"
+                }
+            },
+            "interfaces": {
+                "interfaces": [
+                    "Te0/3/0.401",
+                    "Te0/3/0.302",
+                    "Te0/3/0.315",
+                    "Te0/3/0.316",
+                    "Te0/3/0.327",
+                    "Te0/3/0.371",
+                    "Te0/3/0.373",
+                    "Te0/3/0.15",
+                    "Te0/3/0.551",
+                    "Te0/3/0.552",
+                    "Te0/3/0.2527",
+                    "Te0/3/0.711",
+                    "Te0/3/0.500",
+                    "Te0/3/0.325",
+                    "Te0/3/0.324",
+                    "Te0/3/0.32787"
+                ]
+            },
+            "vrf_id": "4",
+            "vrf_rd": "65100:24"
+        }
+    }
+}
+</output>
+
+
+
+<input load="text" name="test1-13">
+interface Vlan777
+  description Management
+  ip address 192.168.0.1/24
+  vrf MGMT
+!
+interface Vlan778
+  description Management
+  ip address 192.168.0.1/24
+  vrf MGMT
+!
+interface Vlan779
+  ip address 192.168.0.1/24
+  vrf MGMT
+!
+</input>
+<macro>
+def check(data):
+    if data == "Vlan779":
+        return data + "1000"
+</macro>
+<macro>
+def check2(data):
+    if "778" in data:
+        return {"data": data, "key_vlan": True, "field2": 5678}
+</macro>
+<group name="interfaces_macro" default="None" input="test1-13" output="test1-13">
+interface {{ interface | macro("check") | macro("check2")}}
+  description {{ description }}
+  ip address {{ ip }}/{{ mask }}
+  vrf {{ vrf }}
+!{{_end_}}
+</group>
+<output name="test1-13"
+functions="is_equal"
+description="test match variable macro function"
+load="json"
+>
+{
+"interfaces_macro":[
+{
+    "description": "Management",
+    "interface": "Vlan777",
+    "ip": "192.168.0.1",
+    "mask": "24",
+    "vrf": "MGMT"
+},
+{
+    "description": "Management",
+    "interface": {
+        "data": "Vlan778",
+        "field2": 5678,
+        "key_vlan": true
+    },
+    "ip": "192.168.0.1",
+    "mask": "24",
+    "vrf": "MGMT"
+},
+{
+    "description": "None",
+    "interface": "Vlan7791000",
+    "ip": "192.168.0.1",
+    "mask": "24",
+    "vrf": "MGMT"
+}
+]
+}
+</output>
+
+
+
+<input load="text" name="test1-14">
+interface Vlan123
+ description Desks vlan
+ ip address 192.168.123.1 255.255.255.0
+!
+interface GigabitEthernet1/1
+ description to core-1
+!
+interface Vlan222
+ description Phones vlan
+ ip address 192.168.222.1 255.255.255.0
+!
+interface Loopback0
+ description Routing ID loopback
+!
+</input>
+
+ <macro>
+def check_if_svi(data):
+    if "Vlan" in data:
+        return data, {"is_svi": True}
+    else:
+       return data, {"is_svi": False}
+        
+def check_if_loop(data):
+    if "Loopback" in data:
+        return data, {"is_loop": True}
+    else:
+       return data, {"is_loop": False}
+ </macro>
+ 
+ <macro>
+def description_mod(data):
+    # To revert words order in descripotion
+    words_list = data.split(" ")
+    words_list_reversed = list(reversed(words_list))
+    words_reversed = " ".join(words_list_reversed) 
+    return words_reversed
+ </macro>
+ 
+<group name="interfaces_macro_more" input="test1-14" output="test1-14">
+interface {{ interface | macro("check_if_svi") | macro("check_if_loop") }}
+ description {{ description | ORPHRASE | macro("description_mod")}}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output name="test1-14"
+functions="is_equal"
+description="test more match variable macro functions"
+load="json"
+>
+{
+     "interfaces_macro_more": [
+         {
+             "description": "vlan Desks",
+             "interface": "Vlan123",
+             "ip": "192.168.123.1",
+             "is_loop": false,
+             "is_svi": true,
+             "mask": "255.255.255.0"
+         },
+         {
+             "description": "core-1 to",
+             "interface": "GigabitEthernet1/1",
+             "is_loop": false,
+             "is_svi": false
+         },
+         {
+             "description": "vlan Phones",
+             "interface": "Vlan222",
+             "ip": "192.168.222.1",
+             "is_loop": false,
+             "is_svi": true,
+             "mask": "255.255.255.0"
+         },
+         {
+             "description": "loopback ID Routing",
+             "interface": "Loopback0",
+             "is_loop": true,
+             "is_svi": false
+         }
+     ]
+ }
+ </output>
+ 
+ 
+<input load="text" name="test1-15">
+router bgp 65100
+  neighbor 10.145.1.9
+    remote-as 65101
+  !
+  neighbor 192.168.101.1
+    remote-as 65102
+</input>
+
+<lookup name="ASNs" load="csv">
+ASN,as_name,as_description
+65101,Customer_1,Private ASN for CN451275
+65102,CPEs,Private ASN for FTTB CPEs
+</lookup>
+
+<group name="bgp_config" input="test1-15" output="test1-15">
+router bgp {{ bgp_as }}
+ <group name="peers">
+  neighbor {{ peer }}
+    remote-as {{ remote_as | lookup('ASNs', add_field='asn_details') }}
+ </group>
+</group>   
+
+<output name="test1-15"
+functions="is_equal"
+description="test csv lookup"
+load="json"
+>
+{
+    "bgp_config": {
+        "bgp_as": "65100",
+        "peers": [
+            {
+                "asn_details": {
+                    "as_description": "Private ASN for CN451275",
+                    "as_name": "Customer_1"
+                },
+                "peer": "10.145.1.9",
+                "remote_as": "65101"
+            },
+            {
+                "asn_details": {
+                    "as_description": "Private ASN for FTTB CPEs",
+                    "as_name": "CPEs"
+                },
+                "peer": "192.168.101.1",
+                "remote_as": "65102"
+            }
+        ]
+    }
+}
+</output>
+
+
+
+<input load="text" name="test1-16">
+interface Vlan123
+ ip address 192.168.123.1 255.255.255.0
+!
+interface GigabitEthernet1/1
+ description to core-1
+!
+interface Vlan222
+ description Phones vlan
+!
+interface Loopback0
+ description Routing ID loopback
+!
+</input>
+
+<lookup name="AUX" load="ini">
+[interfaces]
+Vlan222 : add value to result
+</lookup>
+
+<group name="interfaces_ini_rlookup" input="test1-16" output="test1-16">
+interface {{ interface | rlookup("AUX.interfaces", "looked_up_data")}}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output name="test1-16"
+functions="is_equal"
+description="test ini rlookup"
+load="json"
+>
+{
+    "interfaces_ini_rlookup": [
+        {
+            "interface": "Vlan123",
+            "ip": "192.168.123.1",
+            "mask": "255.255.255.0"
+        },
+        {
+            "description": "to core-1",
+            "interface": "GigabitEthernet1/1"
+        },
+        {
+            "description": "Phones vlan",
+            "interface": "Vlan222",
+            "looked_up_data": "add value to result"
+        },
+        {
+            "description": "Routing ID loopback",
+            "interface": "Loopback0"
+        }
+    ]
+}
+</output>
+
+
+
+
+<input load="text" name="test1-17">
+interface GigabitEthernet1/1
+ description to core-1
+ ip address 192.168.123.1 255.255.255.0
+!
+interface Vlan222
+ description Phones vlan
+!
+interface Loopback0
+ description Routing ID loopback
+ ip address 192.168.222.1 255.255.255.0
+!
+</input>
+
+<macro>
+def check_if_svi_group(data):
+    if "Vlan" in data["interface"]:
+        data["is_svi"] = True
+    else:
+        data["is_svi"] = False
+    return data
+        
+def check_if_loop_group(data):
+    if "Loopback" in data["interface"]:
+        data["is_loop"] = True
+    else:
+        data["is_loop"] = False
+    return data
+</macro>
+ 
+ <macro>
+def description_mod_group(data):
+    # To revert words order in descripotion
+    words_list = data.get("description", "").split(" ")
+    words_list_reversed = list(reversed(words_list))
+    words_reversed = " ".join(words_list_reversed) 
+    data["description"] = words_reversed
+    return data
+ </macro>
+ 
+<group name="interfaces_functions_test" 
+functions="contains('ip') | macro('description_mod_group') | macro('check_if_svi_group') | macro('check_if_loop_group')"
+input="test1-17"
+output="test1-17"
+>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output name="test1-17"
+description="test group functions attribute"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_functions_test": [
+        {
+            "description": "core-1 to",
+            "interface": "GigabitEthernet1/1",
+            "ip": "192.168.123.1",
+            "is_loop": false,
+            "is_svi": false,
+            "mask": "255.255.255.0"
+        },
+        {
+            "description": "loopback ID Routing",
+            "interface": "Loopback0",
+            "ip": "192.168.222.1",
+            "is_loop": true,
+            "is_svi": false,
+            "mask": "255.255.255.0"
+        }
+    ]
+}
+</output>
+
+
+
+<input load="text" name="test1-18">
+interface GigabitEthernet1/1
+ description to core-1
+ ip address 192.168.123.1 255.255.255.0
+!
+</input> 
+<group name="interfaces_functions_test1_18" 
+input="test1-18"
+output="test1-18"
+>
+interface {{ interface }}
+ description {{ description | ORPHRASE | split(" ") | to_list }}
+ ip address {{ ip | to_list }} {{ mask }}
+</group>
+
+<output name="test1-18"
+description="test to_list match variable functions"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_functions_test1_18": {
+        "description": [[
+            "to",
+            "core-1"
+        ]],
+        "interface": "GigabitEthernet1/1",
+        "ip": [
+            "192.168.123.1"
+        ],
+        "mask": "255.255.255.0"
+    }
+}
+</output>
+
+
+<input load="text" name="test1-19">
+interface Loopback0
+ ip address 1.0.0.3 255.255.255.0
+!
+interface Vlan777
+ ip address 192.168.0.1/24
+!
+</input>
+
+<group name="interfaces_ip_test1_19" input="test1-19" output="test1-19">
+interface {{ interface }}
+ ip address {{ ip | PHRASE | to_ip | with_prefixlen }}
+ ip address {{ ip | to_ip | with_netmask }}
+</group>
+ 
+<output name="test1-19"
+description="test ipaddress with_prefixlen and with_netmask"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_ip_test1_19": [
+        {
+            "interface": "Loopback0",
+            "ip": "1.0.0.3/24"
+        },
+        {
+            "interface": "Vlan777",
+            "ip": "192.168.0.1/255.255.255.0"
+        }
+    ]
+}
+</output>
+
+
+
+<input load="text" name="test1-20">
+RP/0/0/CPU0:XR4#show route
+i L2 10.0.0.2/32 [115/20] via 10.0.0.2, 00:41:40, tunnel-te100
+i L2 172.16.0.3/32 [115/10] via 10.1.34.3, 00:45:11, GigabitEthernet0/0/0/0.34
+i L2 1.1.23.0/24 [115/20] via 10.1.34.3, 00:45:11, GigabitEthernet0/0/0/0.34
+</input>
+
+<group name="routes_test1_20" input="test1-20" output="test1-20">
+{{ code }} {{ subcode }} {{ net | to_net | is_private | to_str }} [{{ ad }}/{{ metric }}] via {{ nh_ip }}, {{ age }}, {{ nh_interface }}
+</group>
+
+<output name="test1-20"
+description="test ipaddress to_net and is_private funcs"
+functions="is_equal"
+load="json"
+>
+{
+    "routes_test1_20": [
+        {
+            "ad": "115",
+            "age": "00:41:40",
+            "code": "i",
+            "metric": "20",
+            "net": "10.0.0.2/32",
+            "nh_interface": "tunnel-te100",
+            "nh_ip": "10.0.0.2",
+            "subcode": "L2"
+        },
+        {
+            "ad": "115",
+            "age": "00:45:11",
+            "code": "i",
+            "metric": "10",
+            "net": "172.16.0.3/32",
+            "nh_interface": "GigabitEthernet0/0/0/0.34",
+            "nh_ip": "10.1.34.3",
+            "subcode": "L2"
+        }
+    ]
+}
+</output>
+
+
+<input load="text" name="test1-21">
+interface Loopback0
+ ip address 1.0.0.3 255.255.255.0
+!
+interface Vlan777
+ ip address 192.168.0.1/24
+!
+interface Vlan777
+ ip address fe80::fd37/124
+!
+</input>
+
+<group name="interfaces_test1_21" input="test1-21" output="test1-21">
+interface {{ interface }}
+ ip address {{ ip | to_ip | ip_info }} {{ mask }}
+ ip address {{ ip | to_ip | ip_info }}
+</group>
+
+<output name="test1-21"
+description="test ipaddress ip_info function test"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_test1_21": [
+        {
+            "interface": "Loopback0",
+            "ip": {
+                "compressed": "1.0.0.3",
+                "exploded": "1.0.0.3",
+                "ip": "1.0.0.3",
+                "is_link_local": false,
+                "is_loopback": false,
+                "is_multicast": false,
+                "is_private": false,
+                "is_reserved": false,
+                "is_unspecified": false,
+                "max_prefixlen": 32,
+                "version": 4
+            },
+            "mask": "255.255.255.0"
+        },
+        {
+            "interface": "Vlan777",
+            "ip": {
+                "broadcast_address": "192.168.0.255",
+                "compressed": "192.168.0.1/24",
+                "exploded": "192.168.0.1/24",
+                "hostmask": "0.0.0.255",
+                "hosts": 254,
+                "ip": "192.168.0.1",
+                "is_link_local": false,
+                "is_loopback": false,
+                "is_multicast": false,
+                "is_private": true,
+                "is_reserved": false,
+                "is_unspecified": false,
+                "max_prefixlen": 32,
+                "netmask": "255.255.255.0",
+                "network": "192.168.0.0/24",
+                "network_address": "192.168.0.0",
+                "num_addresses": 256,
+                "prefixlen": 24,
+                "version": 4,
+                "with_hostmask": "192.168.0.1/0.0.0.255",
+                "with_netmask": "192.168.0.1/255.255.255.0",
+                "with_prefixlen": "192.168.0.1/24"
+            }
+        },
+        {
+            "interface": "Vlan777",
+            "ip": {
+                "broadcast_address": "fe80::fd3f",
+                "compressed": "fe80::fd37/124",
+                "exploded": "fe80:0000:0000:0000:0000:0000:0000:fd37/124",
+                "hostmask": "::f",
+                "hosts": 14,
+                "ip": "fe80::fd37",
+                "is_link_local": true,
+                "is_loopback": false,
+                "is_multicast": false,
+                "is_private": true,
+                "is_reserved": false,
+                "is_unspecified": false,
+                "max_prefixlen": 128,
+                "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff0",
+                "network": "fe80::fd30/124",
+                "network_address": "fe80::fd30",
+                "num_addresses": 16,
+                "prefixlen": 124,
+                "version": 6,
+                "with_hostmask": "fe80::fd37/::f",
+                "with_netmask": "fe80::fd37/ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff0",
+                "with_prefixlen": "fe80::fd37/124"
+            }
+        }
+    ]
+}
+</output>
+
+
+
+<input load="text" name="test1-22">
+interface Loopback0
+ ip address 192.168.0.113/24
+!
+interface Loopback1
+ ip address 192.168.1.341/24
+!
+</input>
+
+<group name="interfaces_test1_22" input="test1-22" output="test1-22">
+interface {{ interface }}
+ ip address {{ ip | is_ip }}
+</group>
+
+<output name="test1-22"
+description="test ipaddress is_ip function"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_test1_22": [
+        {
+            "interface": "Loopback0",
+            "ip": "192.168.0.113/24"
+        },
+        {
+            "interface": "Loopback1"
+        }
+    ]
+}
+</output>
+
+
+<input load="text" name="test1-23">
+interface Loopback0
+ ip address 192.168.0.113/24
+!
+interface Loopback1
+ ip address 192.168.1.341/24
+!
+interface Loopback1
+ ip address 10.0.1.251/24
+!
+</input>
+
+<group name="interfaces_test1_23" input="test1-23" output="test1-23">
+interface {{ interface }}
+ ip address {{ ip | cidr_match("192.168.0.0/16") }}
+</group>
+
+<output name="test1-23"
+description="test ipaddress cidr_match function"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_test1_23": [
+        {
+            "interface": "Loopback0",
+            "ip": "192.168.0.113/24"
+        },
+        {
+            "interface": "Loopback1",
+            "ip": "192.168.1.341/24"
+        },
+        {
+            "interface": "Loopback1"
+        }
+    ]
+}
+</output>
+
+
+
+<input load="text" name="test1-24">
+interface Loopback0
+ description Management
+ ip address 192.168.0.113/24
+!
+</input>
+
+<group name="interfaces_test1_24" input="test1-24" output="test1-24">
+interface {{ interface }}
+ description {{ description | let("description_undefined") }}
+ ip address {{ ip | contains("24") | let("netmask", "255.255.255.0") }}
+</group>
+
+<output name="test1-24"
+description="test let function"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_test1_24": {
+        "description": "description_undefined",
+        "interface": "Loopback0",
+        "ip": "192.168.0.113/24",
+        "netmask": "255.255.255.0"
+    }
+}
+</output>
+
+
+
+<input load="text" name="test1-25">
+interface GigabitEthernet3/3
+ switchport trunk allowed vlan add 138,166-173 
+ switchport trunk allowed vlan add 400,401,410
+</input>
+
+<vars>
+vlans_test_1_25 = [
+   "unrange(rangechar='-', joinchar=',')",
+   "split(',')",
+   "join(':')",
+   "joinmatches(':')"
+]
+</vars>
+
+<group name="interfaces_test_1_25" input="test1-25" output="test1-25">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans | chain('vlans_test_1_25') }}
+</group>
+
+<output name="test1-25"
+description="test chain function - list"
+functions="is_equal"
+load="json"
+>
+{
+    "interfaces_test_1_25": {
+        "interface": "GigabitEthernet3/3",
+        "trunk_vlans": "138:166:167:168:169:170:171:172:173:400:401:410"
+    }
+}
+</output>
+
+
+
+
+<input load="text" name="test1-26">
+Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+Internet  10.12.13.1        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+Internet  10.12.13.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+Internet  10.12.13.4       198   0950.5C8A.5c41  ARPA   GigabitEthernet2.17
+</input>
+
+<vars>
+GE_INTF = "GigabitEthernet\S+"
+</vars>
+
+<group name="arp_test_1_26" input="test1-26" output="test1-26">
+Internet  {{ ip | re("IP")}}  {{ age | re("\d+") }}   {{ mac }}  ARPA   {{ interface | re("GE_INTF") }}
+</group>
+
+<output name="test1-26"
+description="test re regex formatter"
+functions="is_equal"
+load="json"
+>
+{
+    "arp_test_1_26": [
+        {
+            "age": "131",
+            "interface": "GigabitEthernet2.13",
+            "ip": "10.12.13.3",
+            "mac": "0150.7685.14d5"
+        },
+        {
+            "age": "198",
+            "interface": "GigabitEthernet2.17",
+            "ip": "10.12.13.4",
+            "mac": "0950.5C8A.5c41"
+        }
+    ]
+}
+</output>
+
+
+
+
+<input load="text" name="test1-27">
+interface GigabitEthernet1/1
+ description to core-1
+ ip address 192.168.123.1 255.255.255.0
+!
+interface Vlan222
+ description Phones vlan
+!
+interface Loopback0
+ description Routing ID loopback
+ ip address 192.168.222.1 255.255.255.0
+!
+</input>
+
+<macro>
+def check_if_svi_test_1_27(data):
+    if "Vlan" in data["interface"]:
+        data["is_svi"] = True
+    else:
+        data["is_svi"] = False
+    return data
+        
+def check_if_loop_test_1_27(data):
+    if "Loopback" in data["interface"]:
+        data["is_loop"] = True
+    else:
+        data["is_loop"] = False
+    return data
+</macro>
+ 
+<macro>
+def description_mod_test_1_27(data):
+    # To revert words order in description
+    words_list = data.get("description", "").split(" ")
+    words_list_reversed = list(reversed(words_list))
+    words_reversed = " ".join(words_list_reversed) 
+    data["description"] = words_reversed
+    return data
+</macro>
+ 
+<group name="interfaces_macro_test_1_27" 
+functions="contains('ip') | macro('description_mod_test_1_27') | macro('check_if_svi_test_1_27') | macro('check_if_loop_test_1_27')"
+input="test1-27" output="test1-27"
+>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+
+<output name="test1-27"
+description="test group contains and group macro"
+load="json"
+functions="is_equal"
+>
+   {
+        "interfaces_macro_test_1_27": [
+            {
+                "description": "core-1 to",
+                "interface": "GigabitEthernet1/1",
+                "ip": "192.168.123.1",
+                "is_loop": false,
+                "is_svi": false,
+                "mask": "255.255.255.0"
+            },
+            {
+                "description": "loopback ID Routing",
+                "interface": "Loopback0",
+                "ip": "192.168.222.1",
+                "is_loop": true,
+                "is_svi": false,
+                "mask": "255.255.255.0"
+            }
+        ]
+    }
+</output>
+
+
+
+
+<input load="text" name="test1-28">
+interface Vlan778
+ description some description 1
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+ description some description 2
+!
+interface Vlan780
+ switchport port-security mac 4
+!
+</input>
+
+<group name="interfaces_test_1_28" exclude="ip, description" input="test1-28" output="test1-28">
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description | ORPHRASE }}
+ switchport port-security mac {{ sec_mac }}
+</group>
+
+<output name="test1-28"
+description="test group exclude function"
+load="json"
+functions="is_equal"
+>
+    {
+        "interfaces_test_1_28": {
+            "interface": "Vlan780",
+            "sec_mac": "4"
+        }
+    }
+</output>
+
+
+
+<input load="text" name="test1-29">
+interface Vlan778
+ description some description 1
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+ description some description 2
+!
+interface Vlan780
+ switchport port-security mac 4
+!
+</input>
+
+<group name="interfaces_test_1_29" excludeall="ip, description" input="test1-29" output="test1-29">
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description | ORPHRASE }}
+ switchport port-security mac {{ sec_mac }}
+</group>
+
+<output name="test1-29"
+description="test group excludeall function"
+load="json"
+functions="is_equal"
+>
+    {
+        "interfaces_test_1_29": [
+            {
+                "description": "some description 2",
+                "interface": "Vlan779"
+            },
+            {
+                "interface": "Vlan780",
+                "sec_mac": "4"
+            }
+        ]
+    }
+</output>
+
+
+
+<input load="text" name="test1-30">
+*Virtual Server : C-AUTH.COM-NGINX-EXT 199.85.76.109   All Up
+    +port 80  http ====>C-AUTH.COM-NGINX-EXT-HTTP	State :All Up
+	+CAUTH-NGINX:80                 10.151.16.77         State : Up
+    +port 443  tcp ====>C-AUTH.COM-NGINX-EXT-HTTPS	State :All Up
+	+CAUTH-NGINX:443                10.151.16.77         State : Up
+</input>
+
+<group name="virtual-servers-test1-30*" input="test1-30" output="test1-30">
+*Virtual Server : {{ name }} {{ ip }} {{ portion }} {{ state }}
+<group name="slb-servers*">
+    +port {{ port_no }} {{ protocol }} ====>{{ internal_service_name }}	State :{{ internal_portion }} {{ internal_status }}
+	+{{internal_server_name}}:{{ internal_port }}                 {{ internal_server_ip }}         State : {{ internal_server_state }}
+</group>
+</group>
+
+<output
+name="test1-30"
+load="json"
+functions="is_equal"
+description="test leading tab charachter indentation"
+>
+    {
+        "virtual-servers-test1-30": [
+            {
+                "ip": "199.85.76.109",
+                "name": "C-AUTH.COM-NGINX-EXT",
+                "portion": "All",
+                "slb-servers": [
+                    {
+                        "internal_port": "80",
+                        "internal_portion": "All",
+                        "internal_server_ip": "10.151.16.77",
+                        "internal_server_name": "CAUTH-NGINX",
+                        "internal_server_state": "Up",
+                        "internal_service_name": "C-AUTH.COM-NGINX-EXT-HTTP",
+                        "internal_status": "Up",
+                        "port_no": "80",
+                        "protocol": "http"
+                    },
+                    {
+                        "internal_port": "443",
+                        "internal_portion": "All",
+                        "internal_server_ip": "10.151.16.77",
+                        "internal_server_name": "CAUTH-NGINX",
+                        "internal_server_state": "Up",
+                        "internal_service_name": "C-AUTH.COM-NGINX-EXT-HTTPS",
+                        "internal_status": "Up",
+                        "port_no": "443",
+                        "protocol": "tcp"
+                    }
+                ],
+                "state": "Up"
+            }
+        ]
+    }
+</output>
+
+
+
+<input load="text" name="test1-31">
+interface Vlan778
+ description some description 1
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+ description some description 2
+!
+interface Vlan780
+ switchport port-security mac 4
+!
+</input>
+
+<group name="interfaces-test1-31" del="description, ip" input="test1-31" output="test1-31">
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description | ORPHRASE }}
+ switchport port-security mac {{ sec_mac }}
+</group>
+
+<output
+name="test1-31"
+load="json"
+functions="is_equal"
+description="test group 'del' - delete - function"
+>
+    {
+        "interfaces-test1-31": [
+            {
+                "interface": "Vlan778",
+                "mask": "124"
+            },
+            {
+                "interface": "Vlan779"
+            },
+            {
+                "interface": "Vlan780",
+                "sec_mac": "4"
+            }
+        ]
+    }
+</output>
+
+
+
+<input load="text" name="test1-32">
+device-hostame uptime is 2 years, 5 months, 27 weeks, 3 days, 10 hours, 46 minutes
+device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes
+device-hostame uptime is 10 hours, 46 minutes
+device-hostame uptime is 1 minutes
+device-hostame uptime is 2535643125 times
+</input>
+
+<group name="uptime-1" input="test1-32" output="test1-32-1">
+device-hostame uptime is {{ uptime | PHRASE | uptimeparse }}
+</group>
+
+<group name="uptime-2" input="test1-32" output="test1-32-2">
+device-hostame uptime is {{ uptime | PHRASE | uptimeparse(format="dict") }}
+</group>
+
+<output
+name="test1-32-1"
+load="json"
+functions="is_equal"
+description="test match uptimeparse function, format=seconds"
+>
+    {
+        "uptime-1": [
+            {
+                "uptime": 92659560
+            },
+            {
+                "uptime": 16627560
+            },
+            {
+                "uptime": 38760
+            },
+            {
+                "uptime": 60
+            },
+            {
+                "uptime": "2535643125 times"
+            }
+        ]
+    }
+</output>
+
+<output
+name="test1-32-2"
+load="json"
+functions="is_equal"
+description="test match uptimeparse function, format=dict"
+>
+    {
+        "uptime-2": [
+            {
+                "uptime": {
+                    "days": "3",
+                    "hours": "10",
+                    "mins": "46",
+                    "months": "5",
+                    "weeks": "27",
+                    "years": "2"
+                }
+            },
+            {
+                "uptime": {
+                    "days": "3",
+                    "hours": "10",
+                    "mins": "46",
+                    "weeks": "27"
+                }
+            },
+            {
+                "uptime": {
+                    "hours": "10",
+                    "mins": "46"
+                }
+            },
+            {
+                "uptime": {
+                    "mins": "1"
+                }
+            },
+            {
+                "uptime": "2535643125 times"
+            }
+		]
+    }
+</output>
+
+<!--output to print raw python result to screen
+<output
+name="print_python"
+returner="terminal"
+format="raw"
+/>
+-->
+
+<!--final output to put all results in tabulate table-->
+<output 
+format="tabulate"
+returner="terminal"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+</template>
+
+
+<!--one more teamplte###############################################################################################-->
+<template
+name="template2"
+description="test vars path forming and saving in results"
+>
+
+<vars name="vars.info*.{{ hostname }}">
+hostname='gethostname' 
+</vars>
+
+<vars name=''>
+caps = "ORPHRASE | upper"
+</vars>
+
+<vars name="vars.info*.{{ hostname }}">
+filename='getfilename' 
+</vars>
+
+<input name="test2-1" load="text" groups="interfaces">
+router1#show run int vlan 777
+interface Vlan777
+ description Management
+ ip address 192.168.0.1/24
+ vrf MGMT
+</input>
+
+<group name="interfaces" output="test2-1">
+interface {{ interface }}
+ description {{ description }}
+ ip address {{ ip }} {{ mask }}
+ vrf {{ vrf }}
+</group>
+
+<output name="test2-1"
+load="json"
+functions="is_equal"
+description="test vars path forming and saving in results"
+>
+{
+    "interfaces": {
+        "description": "Management",
+        "interface": "Vlan777",
+        "vrf": "MGMT"
+    },
+    "vars": {
+        "info": [
+            {
+                "router1": {
+                    "filename": "text_data"
+                }
+            }
+        ]
+    }
+}
+</output>
+
+<!--final output to put all results in tabulate table-->
+<output 
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+</template>
+
+
+
+<!--one more teamplte###############################################################################################-->
+<template
+name="template3"
+description="template to test csv/tabulate group specific outputters"
+>
+<!--test csv and tabulate outputters-->
+<input name="test3-1" load="text" groups="interfaces2.trunks2, interfaces3.trunks3">
+interface GigabitEthernet3/3
+ switchport trunk allowed vlan add 138,166-173 
+ description some description
+!
+interface GigabitEthernet3/4
+ switchport trunk allowed vlan add 100-105
+!
+interface GigabitEthernet3/5
+ switchport trunk allowed vlan add 459,531,704-707
+ ip address 1.1.1.1 255.255.255.255
+ vrf forwarding ABC_VRF
+!
+</input>
+
+<!--group with group specific outputs:-->
+<group name="interfaces2.trunks2" output="out_csv2, test3-1">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ vrf forwarding {{ vrf }}
+ ip address {{ ip }} {{ mask }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces3.trunks3" output="out_tabulate2, test3-2">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ vrf forwarding {{ vrf }}
+ ip address {{ ip }} {{ mask }}
+!{{ _end_ }}
+</group>
+
+<!--group specific outputs:-->
+<out
+name="out_csv2"
+path="interfaces2.trunks2"
+format="csv"
+sep=","
+missing="undefined"
+description="group specific csv outputter"
+/>
+
+<out 
+name="test3-1"
+load="text"
+returner="self"
+functions="is_equal"
+description="test csv group specific outputter"
+>description,interface,ip,mask,trunk_vlans,vrf
+some description,GigabitEthernet3/3,undefined,undefined,138,166-173,undefined
+undefined,GigabitEthernet3/4,undefined,undefined,100-105,undefined
+undefined,GigabitEthernet3/5,1.1.1.1,255.255.255.255,459,531,704-707,ABC_VRF</out>
+
+<out
+name="out_tabulate2"
+path="interfaces3.trunks3"
+format="tabulate"
+description="group specific tabulate outputter"
+/>
+
+<out 
+name="test3-2"
+load="text"
+returner="self"
+functions="is_equal"
+description="test tabulate group specific outputter"
+>description       interface           ip       mask             trunk_vlans      vrf
+----------------  ------------------  -------  ---------------  ---------------  -------
+some description  GigabitEthernet3/3                            138,166-173
+                  GigabitEthernet3/4                            100-105
+                  GigabitEthernet3/5  1.1.1.1  255.255.255.255  459,531,704-707  ABC_VRF</out>
+
+<!--final output to put all results in tabulate table-->
+<output 
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+
+</template>
+
+
+
+
+<!--one more teamplte###############################################################################################-->
+<template
+name="template4"
+description="template to test csv/tabulate global outputters"
+>
+<!--test csv and tabulate outputters-->
+<input name="test4-1" load="text" groups="interfaces.trunks">
+interface GigabitEthernet3/3
+ switchport trunk allowed vlan add 138,166-173 
+ description some description
+!
+interface GigabitEthernet3/4
+ switchport trunk allowed vlan add 100-105
+!
+interface GigabitEthernet3/5
+ switchport trunk allowed vlan add 459,531,704-707
+ ip address 1.1.1.1 255.255.255.255
+ vrf forwarding ABC_VRF
+!
+interface GigabitEthernet3/7
+ switchport trunk allowed vlan add 138,166-173 
+ description some description
+!
+interface GigabitEthernet3/8
+ switchport trunk allowed vlan add 100-105
+!
+interface GigabitEthernet3/9
+ switchport trunk allowed vlan add 459,531,704-707
+ ip address 1.1.1.1 255.255.255.255
+ vrf forwarding ABC_VRF
+!
+</input>
+
+<!--group for global outputs:-->
+<group name="interfaces.trunks">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ vrf forwarding {{ vrf }}
+ ip address {{ ip }} {{ mask }}
+!{{ _end_ }}
+</group>
+
+<!--global outputs:-->
+<out
+name="out_csv"
+path="interfaces.trunks"
+format="csv"
+returner="self"
+sep=","
+missing="undefined"
+load="python"
+/>
+
+<out 
+name="test4-1"
+load="text"
+returner="self"
+functions="is_equal"
+description="test global csv outputter"
+>description,interface,ip,mask,trunk_vlans,vrf
+some description,GigabitEthernet3/3,undefined,undefined,138,166-173,undefined
+undefined,GigabitEthernet3/4,undefined,undefined,100-105,undefined
+undefined,GigabitEthernet3/5,1.1.1.1,255.255.255.255,459,531,704-707,ABC_VRF
+some description,GigabitEthernet3/7,undefined,undefined,138,166-173,undefined
+undefined,GigabitEthernet3/8,undefined,undefined,100-105,undefined
+undefined,GigabitEthernet3/9,1.1.1.1,255.255.255.255,459,531,704-707,ABC_VRF</out>
+
+<!--final output to put all results in tabulate table-->
+<output 
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+</template>
+
+
+
+<template
+name="template5"
+description="template to test yaml,json,python,ini,csv vars loaders"
+>
+
+<input load="text" name="test5-1">
+interface GigabitEthernet1/1
+ ip address 192.168.123.1 255.255.255.0
+!
+</input>
+
+<!--Python formatted variables data-->
+<vars name="vars_test5_1">
+python_data = ['.lab.local', '.static.on.net', '.abc']
+</vars>
+
+<!--YAML formatted variables data-->
+<vars load="yaml" name="vars_test5_1">
+yaml_data:
+  - '.lab.local'
+  - '.static.on.net'
+  - '.abc'
+</vars>
+
+<!--Json formatted variables data-->
+<vars load="json" name="vars_test5_1">
+{
+    "json_data": [
+        ".lab.local",
+        ".static.on.net",
+        ".abc"
+    ]
+}
+</vars>
+
+<!--INI formatted variables data-->
+<variables load="ini" name="vars_test5_1">
+[ini_data]
+1: '.lab.local'
+2: '.static.on.net'
+3: '.abc'
+</variables>
+
+<!--CSV formatted variables data-->
+<variables load="csv" name="vars_test5_1.csv_data">
+id, domain
+1,  .lab.local
+2,  .static.on.net
+3,  .abc
+</variables>
+
+<group name="interfaces_test5_1" output="test5-1" input="test5-1">
+interface {{ interface }}
+ ip address {{ ip }} {{ mask }}	
+</group>
+
+<output name="test5-1"
+description="test yaml,json,python,ini,csv vars loaders"
+load="python"
+functions="is_equal"
+>
+{   'interfaces_test5_1': {   'interface': 'GigabitEthernet1/1',
+                      'ip': '192.168.123.1',
+                      'mask': '255.255.255.0'},
+    'vars_test5_1': {   'csv_data': {   '1': {   ' domain': '  .lab.local'},
+                                '2': {   ' domain': '  .static.on.net'},
+                                '3': {   ' domain': '  .abc'}},
+                'ini_data': {   '1': "'.lab.local'",
+                                '2': "'.static.on.net'",
+                                '3': "'.abc'"},
+                'json_data': [  '.lab.local',
+                                '.static.on.net',
+                                '.abc'],
+                'python_data': ['.lab.local', '.static.on.net', '.abc'],
+                'yaml_data': ['.lab.local', '.static.on.net', '.abc']}}
+</output>
+
+<!--final output to put all results in tabulate table-->
+<output 
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+
+</template>
+
+
+
+<template 
+name="template6"
+description="per_template results formatting test for anonymous group"
+results="per_template"
+>
+
+<input load="text">
+switch1-1#show run interfaces
+interface Vlan163
+ description [OOB management-1]
+ ip address 10.0.10.3 255.255.255.0
+!
+interface GigabitEthernet6/41
+ description [uplink to core-1]
+ ip address 192.168.10.3 255.255.255.0
+</input>
+
+<input load="text">
+switch1-2#show run interfaces
+interface Vlan164
+ description [OOB management-2]
+ ip address 10.0.11.3 255.255.255.0
+!
+interface GigabitEthernet6/42
+ description [uplink to core-2]
+ ip address 192.168.11.3 255.255.255.0
+</input>
+
+<vars>
+hostname="gethostname"
+</vars>
+
+<group>
+interface {{ interface }}
+ description {{ description | PHRASE }}
+ ip address {{ ip }} {{ mask }}
+ {{ hostname | set("hostname") }}
+</group>
+
+<output name="test6-1"
+description="per_template results formatting - anonymous group"
+load="json"
+functions="is_equal"
+>
+[
+    [
+        {
+            "description": "[OOB management-1]",
+            "hostname": "switch1-1",
+            "interface": "Vlan163",
+            "ip": "10.0.10.3",
+            "mask": "255.255.255.0"
+        },
+        {
+            "description": "[uplink to core-1]",
+            "hostname": "switch1-1",
+            "interface": "GigabitEthernet6/41",
+            "ip": "192.168.10.3",
+            "mask": "255.255.255.0"
+        },
+        {
+            "description": "[OOB management-2]",
+            "hostname": "switch1-2",
+            "interface": "Vlan164",
+            "ip": "10.0.11.3",
+            "mask": "255.255.255.0"
+        },
+        {
+            "description": "[uplink to core-2]",
+            "hostname": "switch1-2",
+            "interface": "GigabitEthernet6/42",
+            "ip": "192.168.11.3",
+            "mask": "255.255.255.0"
+        }
+    ]
+]
+</output>
+
+<!--final output to put all results in tabulate table-->
+<output 
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+
+</template>
+
+
+
+
+<template 
+name="template7"
+description="per_template results formatting test for named group"
+results="per_template"
+>
+
+<input load="text">
+switch1-1#show run interfaces
+interface Vlan163
+ description [OOB management-1]
+ ip address 10.0.10.3 255.255.255.0
+!
+interface GigabitEthernet6/41
+ description [uplink to core-1]
+ ip address 192.168.10.3 255.255.255.0
+</input>
+
+<input load="text">
+switch1-2#show run interfaces
+interface Vlan164
+ description [OOB management-2]
+ ip address 10.0.11.3 255.255.255.0
+!
+interface GigabitEthernet6/42
+ description [uplink to core-2]
+ ip address 192.168.11.3 255.255.255.0
+</input>
+
+<vars>
+hostname="gethostname"
+</vars>
+
+<group name="interfaces.{{ interface }}">
+interface {{ interface }}
+ description {{ description | PHRASE }}
+ ip address {{ ip }} {{ mask }}
+ {{ hostname | set("hostname") }}
+</group>
+
+<output name="test7-1"
+description="per_template results formatting - named group"
+load="json"
+functions="is_equal"
+>
+[
+    {
+        "interfaces": {
+            "GigabitEthernet6/41": {
+                "description": "[uplink to core-1]",
+                "hostname": "switch1-1",
+                "ip": "192.168.10.3",
+                "mask": "255.255.255.0"
+            },
+            "GigabitEthernet6/42": {
+                "description": "[uplink to core-2]",
+                "hostname": "switch1-2",
+                "ip": "192.168.11.3",
+                "mask": "255.255.255.0"
+            },
+            "Vlan163": {
+                "description": "[OOB management-1]",
+                "hostname": "switch1-1",
+                "ip": "10.0.10.3",
+                "mask": "255.255.255.0"
+            },
+            "Vlan164": {
+                "description": "[OOB management-2]",
+                "hostname": "switch1-2",
+                "ip": "10.0.11.3",
+                "mask": "255.255.255.0"
+            }
+        }
+    }
+]
+</output>
+
+<!--final output to put all results in tabulate table-->
+<output 
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+
+</template>
+
+
+
+
+<template
+name="template8"
+description="test group specific and global inputs"
+>
+
+<input name="input_1" load="text" groups="interfaces.trunks">
+interface GigabitEthernet3/11
+ description input_1_data
+ switchport trunk allowed vlan add 111,222
+!
+</input>
+
+<input name="input_2" load="text" groups="interfaces.trunks">
+interface GigabitEthernet3/22
+ description input_2_data
+ switchport trunk allowed vlan add 222,888
+!
+</input>
+
+<input name="input_3" load="text" groups="interfaces.trunks">
+interface GigabitEthernet3/33
+ description input_3_data
+ switchport trunk allowed vlan add 333,999
+!
+</input>
+
+<input name="input_4" load="text">
+interface GigabitEthernet3/44
+ description input_4_data
+ switchport trunk allowed vlan add 444,1010
+!
+</input>
+
+<input name="input_5" load="text">
+interface GigabitEthernet3/55
+ description input_5_data
+ switchport trunk allowed vlan add 555,2020
+!
+</input>
+
+<group name="interfaces.trunks" input="input_1">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ {{ group_id | set("group_1") }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces.trunks" input="input_2">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ {{ group_id | set("group_2") }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces.trunks" input="input_2">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ {{ group_id | set("group_3") }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces.trunks">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ {{ group_id | set("group_4") }}
+!{{ _end_ }}
+</group>
+
+<group name="interfaces.trunks" input="input_5">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ {{ group_id | set("group_5") }}
+!{{ _end_ }}
+</group>
+
+<output name="test8-1"
+description="test group specific and global inputs behavior"
+load="json"
+functions="is_equal"
+>
+[
+    {
+        "interfaces": {
+            "trunks": {
+                "description": "input_1_data",
+                "group_id": "group_1",
+                "interface": "GigabitEthernet3/11",
+                "trunk_vlans": "111,222"
+            }
+        }
+    },
+    {
+        "interfaces": {
+            "trunks": [
+                {
+                    "description": "input_2_data",
+                    "group_id": "group_2",
+                    "interface": "GigabitEthernet3/22",
+                    "trunk_vlans": "222,888"
+                },
+                {
+                    "description": "input_2_data",
+                    "group_id": "group_3",
+                    "interface": "GigabitEthernet3/22",
+                    "trunk_vlans": "222,888"
+                }
+            ]
+        }
+    },
+    {
+        "interfaces": {
+            "trunks": {
+                "description": "input_3_data",
+                "group_id": "group_4",
+                "interface": "GigabitEthernet3/33",
+                "trunk_vlans": "333,999"
+            }
+        }
+    },
+    {
+        "interfaces": {
+            "trunks": {
+                "description": "input_4_data",
+                "group_id": "group_4",
+                "interface": "GigabitEthernet3/44",
+                "trunk_vlans": "444,1010"
+            }
+        }
+    },
+    {
+        "interfaces": {
+            "trunks": {
+                "description": "input_5_data",
+                "group_id": "group_5",
+                "interface": "GigabitEthernet3/55",
+                "trunk_vlans": "555,2020"
+            }
+        }
+    }
+]
+</output>
+
+<!--final output to put all results in tabulate table-->
+<output 
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+
+</template>
+
+
+
+<template
+name="test9-1"
+description="test template variables and groups runs handling, runs should be updated with lates variables only"
+>
+
+<input load="text">
+switch1# show run int
+hostname switch12345
+!
+interface GigabitEthernet3/11
+ description input_1_data
+ switchport trunk allowed vlan add 111,222
+!
+</input>
+
+<vars>
+hostname_var_test_9_1 = "gethostname"
+</vars>
+
+<group name="params_test_9_1">
+hostname {{ hostname | record("hostname_var_test_9_1") }}
+</group>
+
+<group name="interfaces_test_9_1">
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans }}
+ description {{ description | ORPHRASE }}
+ {{ hostname | set("hostname_var_test_9_1") }}
+!{{ _end_ }}
+</group>
+
+<output name="test9-1"
+description="test variables and group runs handling"
+load="json"
+functions="is_equal"
+>
+[
+    {
+        "interfaces_test_9_1": {
+            "description": "input_1_data",
+            "hostname": "switch12345",
+            "interface": "GigabitEthernet3/11",
+            "trunk_vlans": "111,222"
+        },
+        "params_test_9_1": {
+            "hostname": "switch12345"
+        }
+    }
+]
+</output>
+
+<!--final output to put all results in tabulate table-->
+<output 
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+/>
+
+
+</template>
+
+
+
+
+
+
+
+<template
+name="template10"
+description="test output traverse and dict_to_list functions"
+>
+
+<input name="in1" load="text">
+some.user@router-fw-host> show configuration interfaces | display set 
+set interfaces ge-0/0/11 unit 0 description "SomeDescription in1"
+set interfaces ge-0/0/11 unit 0 family inet address 10.0.40.121/31
+set interfaces ge-5/0/5 unit 0 description "L3VPN: somethere"
+set interfaces ge-5/0/5 unit 0 family inet address 10.0.31.48/31
+set interfaces lo0 unit 0 description "Routing Loopback"
+set interfaces lo0 unit 0 family inet address 10.0.0.254/32 primary
+set interfaces lo0 unit 0 family inet address 10.6.4.4/32
+</input>
+
+<input load="text">
+some.user@router-fw-host> show configuration interfaces | display set 
+set interfaces ge-0/0/11 unit 0 description "SomeDescription glob1"
+set interfaces ge-0/0/11 unit 0 family inet address 10.0.40.121/31
+set interfaces ge-5/0/5 unit 0 description "L3VPN: somethere"
+set interfaces ge-5/0/5 unit 0 family inet address 10.0.31.48/31
+set interfaces lo0 unit 0 description "Routing Loopback"
+set interfaces lo0 unit 0 family inet address 10.0.0.254/32 primary
+set interfaces lo0 unit 0 family inet address 10.6.4.4/32
+</input>
+
+<input load="text">
+some.user@router-fw-host> show configuration interfaces | display set 
+set interfaces ge-0/0/11 unit 0 description "SomeDescription glob2"
+set interfaces ge-0/0/11 unit 0 family inet address 10.0.40.121/31
+set interfaces ge-5/0/5 unit 0 description "L3VPN: somethere"
+set interfaces ge-5/0/5 unit 0 family inet address 10.0.31.48/31
+set interfaces lo0 unit 0 description "Routing Loopback"
+set interfaces lo0 unit 0 family inet address 10.0.0.254/32 primary
+set interfaces lo0 unit 0 family inet address 10.6.4.4/32
+</input>
+
+<vars name="vars">
+hostname = "gethostname"
+</vars>
+
+<group name="specific_out_interfaces.{{ interface }}{{ unit }}**" method="table" input="in1" output="out1">
+set interfaces {{ interface | append('.') }} unit {{ unit }} family inet address {{ ip }}
+set interfaces {{ interface | append('.') }} unit {{ unit }} description "{{ description | ORPHRASE }}"
+set interfaces {{ interface | append('.') }} unit {{ unit }} family inet address {{ ip }} primary
+{{ hostname | set("hostname") }}
+</group>
+
+<output name="out1" functions="traverse(path='specific_out_interfaces') | dict_to_list(key_name='interface')"/>
+
+<group name="glob_out_interfaces.{{ interface }}{{ unit }}**" method="table">
+set interfaces {{ interface | append('.') }} unit {{ unit }} family inet address {{ ip }}
+set interfaces {{ interface | append('.') }} unit {{ unit }} description "{{ description | ORPHRASE }}"
+set interfaces {{ interface | append('.') }} unit {{ unit }} family inet address {{ ip }} primary
+{{ hostname | set("hostname") }}
+</group>
+
+<output 
+functions="dict_to_list(key_name='interface', path='glob_out_interfaces')"
+/>
+
+<output name="test10-1-py3"
+description="py3 - test output traverse and dict_to_list functions"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    [
+        {
+            "description": "SomeDescription in1",
+            "hostname": "router-fw-host",
+            "interface": "ge-0/0/11.0",
+            "ip": "10.0.40.121/31"
+        },
+        {
+            "description": "L3VPN: somethere",
+            "hostname": "router-fw-host",
+            "interface": "ge-5/0/5.0",
+            "ip": "10.0.31.48/31"
+        },
+        {
+            "description": "Routing Loopback",
+            "hostname": "router-fw-host",
+            "interface": "lo0.0",
+            "ip": "10.6.4.4/32"
+        }
+    ],
+    [
+        {
+            "description": "SomeDescription glob1",
+            "hostname": "router-fw-host",
+            "interface": "ge-0/0/11.0",
+            "ip": "10.0.40.121/31"
+        },
+        {
+            "description": "L3VPN: somethere",
+            "hostname": "router-fw-host",
+            "interface": "ge-5/0/5.0",
+            "ip": "10.0.31.48/31"
+        },
+        {
+            "description": "Routing Loopback",
+            "hostname": "router-fw-host",
+            "interface": "lo0.0",
+            "ip": "10.6.4.4/32"
+        }
+    ],
+    [
+        {
+            "description": "SomeDescription glob2",
+            "hostname": "router-fw-host",
+            "interface": "ge-0/0/11.0",
+            "ip": "10.0.40.121/31"
+        },
+        {
+            "description": "L3VPN: somethere",
+            "hostname": "router-fw-host",
+            "interface": "ge-5/0/5.0",
+            "ip": "10.0.31.48/31"
+        },
+        {
+            "description": "Routing Loopback",
+            "hostname": "router-fw-host",
+            "interface": "lo0.0",
+            "ip": "10.6.4.4/32"
+        }
+    ]
+]
+</output>
+
+
+<output name="test10-1-py2"
+description="py2 - test output traverse and dict_to_list functions"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    [
+        {
+            "description": "Routing Loopback",
+            "hostname": "router-fw-host",
+            "interface": "lo0.0",
+            "ip": "10.6.4.4/32"
+        },
+        {
+            "description": "L3VPN: somethere",
+            "hostname": "router-fw-host",
+            "interface": "ge-5/0/5.0",
+            "ip": "10.0.31.48/31"
+        },
+        {
+            "description": "SomeDescription in1",
+            "hostname": "router-fw-host",
+            "interface": "ge-0/0/11.0",
+            "ip": "10.0.40.121/31"
+        }
+    ],
+    [
+        {
+            "description": "Routing Loopback",
+            "hostname": "router-fw-host",
+            "interface": "lo0.0",
+            "ip": "10.6.4.4/32"
+        },
+        {
+            "description": "L3VPN: somethere",
+            "hostname": "router-fw-host",
+            "interface": "ge-5/0/5.0",
+            "ip": "10.0.31.48/31"
+        },
+        {
+            "description": "SomeDescription glob1",
+            "hostname": "router-fw-host",
+            "interface": "ge-0/0/11.0",
+            "ip": "10.0.40.121/31"
+        }
+    ],
+    [
+        {
+            "description": "Routing Loopback",
+            "hostname": "router-fw-host",
+            "interface": "lo0.0",
+            "ip": "10.6.4.4/32"
+        },
+        {
+            "description": "L3VPN: somethere",
+            "hostname": "router-fw-host",
+            "interface": "ge-5/0/5.0",
+            "ip": "10.0.31.48/31"
+        },
+        {
+            "description": "SomeDescription glob2",
+            "hostname": "router-fw-host",
+            "interface": "ge-0/0/11.0",
+            "ip": "10.0.40.121/31"
+        }
+    ]
+]
+</output>
+
+</template>
+
+
+
+
+
+
+<template
+name="template11"
+description="test global variables record/set functions"
+>
+
+
+<vars>
+hostname="gethostname"
+</vars>
+
+<input load="text" name="in1">
+myswitch1#show run int
+interface Vlan778
+ description some description input 2
+ ip vrf forwarding VRF_NAME_1
+ ip address 2002:fd37::91/124
+!
+</input>
+
+<input load="text" name="in2">
+myswitch2#show run int
+interface Vlan779
+ description some description input2
+!
+interface Vlan780
+ switchport port-security mac 4
+!
+</input>
+
+<group name="interfaces" input="in1">
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+ ip vrf forwarding {{ vrf | record("VRF") }}
+ description {{ description | ORPHRASE }}
+ switchport port-security mac {{ sec_mac }}
+ {{ hostname | set("hostname") }}
+</group>
+
+<group name="interfaces" input="in2">
+interface {{ interface }}
+ description {{ description | ORPHRASE | record("my_description") }}
+ switchport port-security mac {{ sec_mac }}
+ {{ my_vrf | set("VRF") }}
+ {{ hostname | set("hostname") }}
+ {{ my_descript | set("my_description") }}
+</group>
+
+<output
+name="test11"
+description="test global variables record/set functions"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "interfaces": {
+            "description": "some description input 2",
+            "hostname": "myswitch1",
+            "interface": "Vlan778",
+            "ip": "2002:fd37::91",
+            "mask": "124",
+            "vrf": "VRF_NAME_1"
+        }
+    },
+    {
+        "interfaces": [
+            {
+                "description": "some description input2",
+                "hostname": "myswitch2",
+                "interface": "Vlan779",
+                "my_descript": "some description input2",
+                "my_vrf": "VRF_NAME_1"
+            },
+            {
+                "hostname": "myswitch2",
+                "interface": "Vlan780",
+                "my_descript": "some description input2",
+                "my_vrf": "VRF_NAME_1",
+                "sec_mac": "4"
+            }
+        ]
+    }
+]
+</output>
+
+</template>
+
+
+
+
+
+<template
+name="template12"
+description="test input 'commands' functions"
+>
+
+<input name="in1" load="text" commands="show run interfaces">
+switch1-hostname#show run interfaces
+interface Vlan778
+ description some description 1
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+ description some description 2
+!
+interface Vlan780
+ switchport port-security mac 4
+!
+switch1-hostname#show run interface
+interface Vlan888
+ description some description 888
+ ip address 2002:fd37::888/124
+!
+interface Vlan889
+ description some description 889
+!
+interface Vlan890
+ switchport port-security mac 890
+!
+</input>
+
+<input name="in2" load="text" functions="commands('show run interfaces', 'show run interface')">
+switch1-hostname#show run interfaces
+interface Vlan778
+ description some description 1
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+ description some description 2
+!
+interface Vlan780
+ switchport port-security mac 4
+!
+switch1-hostname#show run interface
+interface Vlan888
+ description some description 888
+ ip address 2002:fd37::888/124
+!
+interface Vlan889
+ description some description 889
+!
+interface Vlan890
+ switchport port-security mac 890
+!
+</input>
+
+<group name="interfaces">
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description | ORPHRASE }}
+ switchport port-security mac {{ sec_mac }}
+</group>
+
+<output
+name="test12"
+description="test input 'commands' functions"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "interfaces": [
+            {
+                "description": "some description 1",
+                "interface": "Vlan778",
+                "ip": "2002:fd37::91",
+                "mask": "124"
+            },
+            {
+                "description": "some description 2",
+                "interface": "Vlan779"
+            },
+            {
+                "interface": "Vlan780",
+                "sec_mac": "4"
+            }
+        ]
+    },
+    {
+        "interfaces": [
+            {
+                "description": "some description 1",
+                "interface": "Vlan778",
+                "ip": "2002:fd37::91",
+                "mask": "124"
+            },
+            {
+                "description": "some description 2",
+                "interface": "Vlan779"
+            },
+            {
+                "interface": "Vlan780",
+                "sec_mac": "4"
+            },
+            {
+                "description": "some description 1",
+                "interface": "Vlan778",
+                "ip": "2002:fd37::91",
+                "mask": "124"
+            },
+            {
+                "description": "some description 2",
+                "interface": "Vlan779"
+            },
+            {
+                "interface": "Vlan780",
+                "sec_mac": "4"
+            }
+        ]
+    }
+]
+</output>
+
+</template>
+
+
+
+
+<template
+name="template13"
+description="test group sformat function"
+>
+<vars>
+domain = "com"
+</vars>
+
+<input load="text" name="input_uptime">
+switch-1 uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
+</input>
+
+<input load="text" name="fqdn_dets">
+Default domain is lab.local
+</input>
+
+<group 
+input="fqdn_dets"
+name="fqdn_dets_1" 
+sformat="string='{hostname}.{fqdn},{domain}', key='fqdn'"
+>
+Default domain is {{ fqdn }}
+</group>
+
+<group 
+input="fqdn_dets"
+name="fqdn_dets_2" 
+sformat="'{hostname},{fqdn}', 'fqdn'"
+>
+Default domain is {{ fqdn }}
+</group>
+
+<group name="uptime" input="input_uptime">
+{{ hostname | record("hostname")}} uptime is {{ uptime | PHRASE }}
+</group>
+
+<output
+name="test13"
+description="test group sformat function"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "uptime": {
+            "hostname": "switch-1",
+            "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds"
+        }
+    },
+    {
+        "fqdn_dets_1": {
+            "fqdn": "switch-1.lab.local,com"
+        },
+        "fqdn_dets_2": {
+            "fqdn": "switch-1,lab.local"
+        }
+    }
+]
+</output>
+
+</template>
+
+
+
+
+<template
+name="template14"
+description="test group itemize function"
+>
+<input load="text">
+interface Vlan778
+ description some description 1
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+ description some description 2
+!
+interface Vlan780
+ switchport port-security mac 4
+ ip address 192.168.1.1/124
+!
+interface Vlan790
+ description some description 790
+ switchport port-security mac 4
+ ip address 192.168.190.1/124
+!
+</input>
+
+<group name="interfaces_list**" functions="contains('ip') | itemize(key='interface')">
+interface {{ interface | upper | append("a") }}
+ ip address {{ ip }}
+</group>
+
+<group name="ips_list" functions="contains('description') | itemize(key='ip')">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }}
+ !{{ _end_ }}
+</group>
+
+<group name="bla" functions="contains('ip') | itemize(key='interface', path='interfaces.l3')">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }}
+ !{{ _end_ }}
+</group>
+
+<output
+name="test14"
+description="test group itemize function"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "bla": [
+            {
+                "description": "some description 1",
+                "interface": "Vlan778",
+                "ip": "2002:fd37::91/124"
+            },
+            {
+                "interface": "Vlan780",
+                "ip": "192.168.1.1/124"
+            },
+            {
+                "description": "some description 790",
+                "interface": "Vlan790",
+                "ip": "192.168.190.1/124"
+            }
+        ],
+        "interfaces": {
+            "l3": [
+                "Vlan778",
+                "Vlan780",
+                "Vlan790"
+            ]
+        },
+        "interfaces_list": [
+            "VLAN778a",
+            "VLAN780a",
+            "VLAN790a"
+        ],
+        "ips_list": [
+            "2002:fd37::91/124",
+            "192.168.190.1/124"
+        ]
+    }
+]
+</output>
+
+</template>
+
+</template>
