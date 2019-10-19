@@ -555,30 +555,6 @@ class _worker(Process):
         return
 
 
-
-"""
-==============================================================================
-TTP RE PATTERNS COLLECTION CLASS
-==============================================================================
-"""
-class _ttp_patterns():
-    def __init__(self):
-        self.patterns={
-        'PHRASE'   : '(\S+ {1})+?\S+',
-        'ROW'      : '(\S+ +)+?\S+',
-        'ORPHRASE' : '\S+|(\S+ {1})+?\S+',
-        'DIGIT'    : '\d+',
-        'IP'       : '(?:[0-9]{1,3}\.){3}[0-9]{1,3}',
-        'PREFIX'   : '(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}',
-        'IPV6'     : '(?:[a-fA-F0-9]{1,4}:|:){1,7}(?:[a-fA-F0-9]{1,4}|:?)',
-        'PREFIXV6' : '(?:[a-fA-F0-9]{1,4}:|:){1,7}(?:[a-fA-F0-9]{1,4}|:?)/[0-9]{1,3}',
-        '_line_'   : '.+',
-        'WORD'     : '\S+',
-        'MAC'      : '(?:[0-9a-fA-F]{2}(:|\.)){5}([0-9a-fA-F]{2})|(?:[0-9a-fA-F]{4}(:|\.)){2}([0-9a-fA-F]{4})'
-        }
-
-
-
 """
 ==============================================================================
 TTP TEMPLATE CLASS
@@ -1376,9 +1352,6 @@ class _variable_class():
         self.skip_regex_dict = False                 # will be set to true for 'set'
         self.var_res = []                            # list of variable regexes
 
-        # add formatters:
-        self.REs = _ttp_patterns()
-
         # form attributes - list of dictionaries:
         self.attributes = _ttp_["utils"]["get_attributes"](variable)
         self.var_dict = self.attributes.pop(0)
@@ -1464,14 +1437,20 @@ class _variable_class():
                     self.functions.append(i)
             
         def extract_re(data):
-            regex = data['args'][0]
+            try:
+                # if re('my_regex') was used
+                regex = data['args'][0]
+            except IndexError:
+                # if {{ var_name | PHRASE }} used
+                regex = data['name']
             re_from_var = self.group.vars.get(regex, None)
+            re_from_patterns = _ttp_['patterns']['get'](name=regex)
             # check group variables
             if re_from_var:
                 self.var_res.append(re_from_var)
-            # check built int RE patterns
-            elif regex in self.REs.patterns:
-                self.var_res.append(self.REs.patterns[regex])
+            # check ttp patterns
+            elif re_from_patterns:
+                self.var_res.append(re_from_patterns)
             # use regex as is
             else:
                 self.var_res.append(regex)
@@ -1487,17 +1466,17 @@ class _variable_class():
         'joinmatches'   : extract_joinmatches,
         # regex formatters:
         're'       : extract_re,
-        'PHRASE'   : lambda data: self.var_res.append(self.REs.patterns['PHRASE']),
-        'ROW'      : lambda data: self.var_res.append(self.REs.patterns['ROW']),
-        'ORPHRASE' : lambda data: self.var_res.append(self.REs.patterns['ORPHRASE']),
-        'DIGIT'    : lambda data: self.var_res.append(self.REs.patterns['DIGIT']),
-        'IP'       : lambda data: self.var_res.append(self.REs.patterns['IP']),
-        'PREFIX'   : lambda data: self.var_res.append(self.REs.patterns['PREFIX']),
-        'IPV6'     : lambda data: self.var_res.append(self.REs.patterns['IPV6']),
-        'PREFIXV6' : lambda data: self.var_res.append(self.REs.patterns['PREFIXV6']),
-        'MAC'      : lambda data: self.var_res.append(self.REs.patterns['MAC']),
-        'WORD'     : lambda data: self.var_res.append(self.REs.patterns['WORD']),
-        '_line_'   : lambda data: self.var_res.append(self.REs.patterns['_line_']),
+        'PHRASE'   : extract_re,
+        'ROW'      : extract_re,
+        'ORPHRASE' : extract_re,
+        'DIGIT'    : extract_re,
+        'IP'       : extract_re,
+        'PREFIX'   : extract_re,
+        'IPV6'     : extract_re,
+        'PREFIXV6' : extract_re,
+        'MAC'      : extract_re,
+        'WORD'     : extract_re,
+        '_line_'   : extract_re
         }
         # handle _start_, _line_ etc.
         if self.var_name in extract_funcs:
@@ -1539,8 +1518,9 @@ class _variable_class():
                 self.regex = self.regex.replace(esc_var, '\S+', 1)
             elif len(data['args']) == 1:
                 pattern = data['args'][0]
-                if pattern in self.REs.patterns:
-                    self.regex = self.regex.replace(esc_var, "(?:{})".format(self.REs.patterns[pattern]), 1)
+                ttp_pattern = _ttp_['patterns']['get'](name=pattern)
+                if ttp_pattern:
+                    self.regex = self.regex.replace(esc_var, "(?:{})".format(ttp_pattern), 1)
                 else:
                     self.regex = self.regex.replace(esc_var, "(?:{})".format(pattern), 1)
 
@@ -1573,7 +1553,7 @@ class _variable_class():
          for i in self.functions if i['name'] in regexFuncs]
 
         # assign default re if variable without regex formatters:
-        if self.var_res == []: self.var_res.append(self.REs.patterns['WORD'])
+        if self.var_res == []: self.var_res.append(_ttp_['patterns']['get'](name='WORD'))
 
         # form variable regex by replacing escaped variable, if it is in regex,
         # except for the case if variable is "ignore" as it already was replaced
@@ -1587,7 +1567,7 @@ class _variable_class():
         if log.isEnabledFor(logging.DEBUG) == False:
             del self.attributes, esc_line
             del self.LINE, self.skip_defaults
-            del self.var_dict, self.REs, self.var_res
+            del self.var_dict, self.var_res
 
         return self.regex
 
