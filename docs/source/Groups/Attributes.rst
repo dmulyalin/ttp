@@ -20,7 +20,7 @@ Each group tag (<g>, <grp>, <group>) can have a number of attributes, they used 
    * - `output`_   
      - Specify group specific outputs to run group result through     
    * - `default`_   
-     - Value to supply for variables by default    	 
+     - Value to supply for variables by default         
 
 name
 ------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ Result::
             }
         }
     ]
-	
+    
 **Example-2**
 
 In this example several inputs define, by default groups set to 'all' for them, moreover, groups have identical name attribute. In this case group's *input* attribute helps to define which input should be parsed by which group.
@@ -100,7 +100,7 @@ Template::
      {{ group_id | set("group_2") }}
     !{{ _end_ }}
     </group>
-	
+    
 Result::
 
     [
@@ -132,7 +132,7 @@ default
 
 * value (optional) - string that should be used as a default value for all variables within this group.
 
-**Example**
+**Example-1**
 
 Template::
 
@@ -160,6 +160,41 @@ Result::
             }
         }
     ]
+
+Because ``default`` value used for group start regexes as well, if no matches produced by group, default values will be saved at group path.
+
+**Example-2**
+
+Group with no matches but default values.
+
+Template::
+
+    <input load="text">
+    device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
+    </input>
+    
+    <group name="uptime">
+    device-hostame uptime is {{ uptime | PHRASE }}
+    </group>
+    
+    <group name="domain" default="Uncknown">
+    Default domain is {{ fqdn }}
+    </group>
+
+Result::
+
+    [
+        {
+            "domain": {
+                "fqdn": "Uncknown"
+            },
+            "uptime": {
+                "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds"
+            }
+        }
+    ]
+    
+Because no data contained in input to match by group "domain", this group default values were saved in results.
 
 method
 ------------------------------------------------------------------------------
