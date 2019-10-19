@@ -470,9 +470,7 @@ class ttp():
                 
     def get_input_commands_list(self):
         """Method to iterate over all templates and inputs to get a 
-        list of commands that needs to be present in text data, that
-        text data will be consumed by inputs, each input will extract 
-        output for its commands and will run groups parsing for it.
+        list of commands that needs to be present in text data.
         
         **Returns**
         
@@ -489,9 +487,7 @@ class ttp():
 
     def get_input_commands_dict(self):
         """Method to iterate over all templates and inputs to get a 
-        list of commands that needs to be present in text data, that
-        text data will be consumed by inputs, each input will extract 
-        output for its commands and will run groups parsing for it.
+        list of commands that needs to be present in text data.
         
         **Returns**
         
@@ -757,9 +753,6 @@ class _template_class():
             #check if var has name attribute:
             if "name" in element.attrib:
                 path = element.attrib['name']
-                #if not path in self.vars['_vars_to_results_']:
-                #    self.vars['_vars_to_results_'][path] = []
-                #[self.vars['_vars_to_results_'][path].append(key) for key in vars.keys()]
                 [self.vars['_vars_to_results_'].setdefault(path, []).append(key) 
                  for key in vars.keys()]
 
@@ -1001,9 +994,6 @@ class _input_class():
         if self.attributes["load"] == 'text':
             self.data = [('text_data', element_text)]
             return
-        # elif not self.attributes["urls"]:
-        #     log.critical("template.parse_input: Input '{}', required 'url' parameter not given".format(self.name))
-        #     raise SystemExit()
         # load data:
         for url in self.attributes["urls"]:
             url = self.attributes["base_path"] + url.lstrip('.')
@@ -1260,7 +1250,7 @@ class _group_class():
             else:
                 self.re.append(re_dict)
                 
-        # check of has_start_re_default
+        # check if has_start_re_default
         for start_re in self.start_re:
             if self.has_start_re_default:
                 break
@@ -2406,7 +2396,7 @@ def cli_tool():
     TEMPLATE = args.TEMPLATE     # string, Template name
     output = args.output         # string, set output format
     TIMING = args.TIMING         # boolean, enabled timing
-    BASE_PATH = args.data_prefix        # string, to add to templates' inputs urls
+    BASE_PATH = args.data_prefix # string, to add to templates' inputs urls
     ONE = args.ONE               # boolean to indicate if run in single process
     MULTI = args.MULTI           # boolean to indicate if run in multi process
     LOG_LEVEL = args.LOG_LEVEL   # level of logging

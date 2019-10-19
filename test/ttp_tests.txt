@@ -3091,4 +3091,87 @@ format_attributes = "tablefmt='fancy_grid'"
 
 </template>
 
+
+
+<template
+name="test15"
+description="
+test groups without match results but with 
+group start re default values
+"
+>
+
+<input load="text">
+device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
+</input>
+
+<group name="uptime-1">
+device-hostame uptime is {{ uptime | PHRASE }}
+</group>
+
+<group name="domain" default="Uncknown">
+Default domain is {{ fqdn }}
+</group>
+
+<group name="ntp-1">
+ntp server {{ server | default('Unconfigured') }}
+ ntp source {{ source | default("undefined") }}
+</group>
+
+<group name="ntp-2">
+ntp server {{ server }}
+ ntp source {{ source | default("undefined") }}
+</group>
+
+<group name="snmp-1" default="Uncknown">
+snmp community {{ community }}
+snmp acl {{ acl }}
+</group>
+
+<group name="snmp-2-with-group-output" default="Uncknown" output="out-1">
+snmp community {{ community }}
+snmp acl {{ acl }}
+</group>
+
+<output name="out-1"/>
+
+<output
+name="test15"
+description="test groups with no matches but with defaults"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "domain": {
+            "fqdn": "Uncknown"
+        },
+        "ntp-1": {
+            "server": "Unconfigured",
+            "source": "undefined"
+        },
+        "snmp-1": {
+            "acl": "Uncknown",
+            "community": "Uncknown"
+        },
+        "uptime-1": {
+            "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds"
+        }
+    },
+    {
+        "snmp-2-with-group-output": {
+            "acl": "Uncknown",
+            "community": "Uncknown"
+        }
+    }
+]
+</output>
+
+</template>
+
+
+
 </template>
