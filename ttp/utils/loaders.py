@@ -17,8 +17,12 @@ def load_files(path, extensions=[], filters=[], read=False):
         read True, if read False return (type, url,) or []
     """
     files=[]
-    # check if path is a path to file:
-    if os.path.isfile(path):
+	# need to use path[:5000] cause if path is actually text of the template
+	# and has length more then X symbols, os.path will choke with "path too long"
+	# error, hence the safe-assumption that no os path exists longer then 5000 symbols
+	
+	# check if path is a path to file:
+    if os.path.isfile(path[:5000]):
         if read:
             try:
                 if _ttp_["python_major_version"] is 2:
@@ -29,7 +33,7 @@ def load_files(path, extensions=[], filters=[], read=False):
         else:
             return [('file_name', path,)]
     # check if path is a directory:
-    elif os.path.isdir(path):
+    elif os.path.isdir(path[0:5000]):
         from re import search as re_search
         files = [f for f in os.listdir(path) if os.path.isfile(path + f)]
         if extensions:
