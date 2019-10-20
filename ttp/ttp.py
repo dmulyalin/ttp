@@ -2367,7 +2367,7 @@ def cli_tool():
 -dp, --data-prefix     Prefix to add to template inputs' urls
 -t,  --template        OS path to templates file
 -tn, --template-name   Name of the template in templates file
--o,  --outputer        Specify output format - yaml, json, raw, pprint
+-o,  --outputter       Specify output format - yaml, json, raw, pprint
 -l,  --logging         Set logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 -lf, --log-file        Path to save log file
 -T,  --Timing          Print simple timing info

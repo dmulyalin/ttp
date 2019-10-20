@@ -7,17 +7,14 @@ Sample usage::
 
   ttp --data "/path/to/data/" --template "path/to/template.txt" --outputter json
   
-  or using short keywords
-  
-  ttp -d "/path/to/data/" -t "path/to/template.txt" -o json
-  
   results will be printed to screen in JSON format.
   
 **Available options**
 
 * ``-d, --data`` path to data file or directory with files to process
 * ``-dp, --data-prefix`` OS base path to folder with data separated across additional folders
-* ``-t, --template`` path to text file with template content or name of the template in templates.py
+* ``-t, --template`` path to text file with template content
+* ``-tn, --template-name`` name of template to load from python formatted template file
 * ``-o, --outputter`` format results data using yaml, json, raw or pprint formatter and prints them to terminal
 * ``-l, --logging`` logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 * ``-lf, --log-file`` OS path to file where to write logs instead of printing them to terminal
