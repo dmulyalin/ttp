@@ -3094,7 +3094,7 @@ format_attributes = "tablefmt='fancy_grid'"
 
 
 <template
-name="test15"
+name="template15"
 description="
 test groups without match results but with 
 group start re default values
@@ -3173,5 +3173,80 @@ format_attributes = "tablefmt='fancy_grid'"
 </template>
 
 
+
+<template
+name="template16"
+description="test _line_ indicator"
+>
+<input load="text">
+interface Loopback0
+ description Router-id-loopback
+ ip address 192.168.0.113/24
+!
+interface Gi0/37
+ description CPE_Acces
+ switchport port-security
+ switchport port-security maximum 5
+ switchport port-security mac-address sticky
+!
+</input>
+
+<group>
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description }}
+ ip vrf {{ vrf }}
+ {{ port_security_cfg | _line_ | contains("port-security") | joinmatches }}
+! {{ _end_ }}
+</group>
+
+<group>
+interface {{ interface }}
+ {{ intf_cfg | _line_  | to_list | joinmatches }}
+! {{ _end_ }}
+</group>
+
+<output
+name="test16"
+description="test _line_ indicator"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    [
+        {
+            "description": "Router-id-loopback",
+            "interface": "Loopback0",
+            "ip": "192.168.0.113",
+            "mask": "24"
+        },
+        {
+            "description": "CPE_Acces",
+            "interface": "Gi0/37",
+            "port_security_cfg": "switchport port-security\nswitchport port-security maximum 5\nswitchport port-security mac-address sticky"
+        },
+        {
+            "interface": "Loopback0",
+            "intf_cfg": [
+                "description Router-id-loopback",
+                "ip address 192.168.0.113/24"
+            ]
+        },
+        {
+            "interface": "Gi0/37",
+            "intf_cfg": [
+                "description CPE_Acces",
+                "switchport port-security",
+                "switchport port-security maximum 5",
+                "switchport port-security mac-address sticky"
+            ]
+        }
+    ]
+]
+</output>
+</template>
 
 </template>
