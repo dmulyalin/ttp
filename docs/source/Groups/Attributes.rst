@@ -36,7 +36,7 @@ input
 
 * inputN (optional) - string that contains name of the input tag that should be used to source data for this group, alternatively input string value can reference Operating System fully qualified or relative path to location of text file(s) that should be parsed by this group. OS relative path should be accompanied with template base_path attribute, that attribute will be perpended to group input to form fully qualified path.
 
-Input attribute of the group considered to be more specific in case if group name referenced in input *groups* :ref:`inputs:groups` attribute, as a result several groups can share same name, but reference different inputs with different set of data to be parsed.
+Input attribute of the group considered to be more specific in case if group name referenced in input *groups* :ref:`TTP_TAGS/Inputs:groups` attribute, as a result several groups can share same name, but reference different inputs with different set of data to be parsed.
 
 .. note:: Input attributed only supported at top group, nested groups input attributes are ignored.
 

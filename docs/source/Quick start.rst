@@ -6,6 +6,8 @@ TTP can be used as a module, as a CLI tool or as a script.
 As a module
 -----------
 
+Sample code::
+
     from ttp import ttp
     
     data_to_parse = """
@@ -59,7 +61,10 @@ As a module
     Router-id-loopback,Loopback0,192.168.0.113,24,
     CPE_Acces_Vlan,Vlan778,2002::fd37,124,CPE1
     
-As a CLI tool::
+As a CLI tool
+-------------
+
+Sample command to run in terminal::
 
     ttp --data "path/to/data_to_parse.txt" --template "path/to/ttp_template.txt" --outputter json
     
@@ -81,7 +86,7 @@ As a CLI tool::
         ]
     ]    
     
-Where path/to/data_to_parse.txt file contains::
+Where file ``path/to/data_to_parse.txt`` contains::
 
     interface Loopback0
      description Router-id-loopback
@@ -93,7 +98,7 @@ Where path/to/data_to_parse.txt file contains::
      ip vrf CPE1
     !
     
-And path/to/ttp_template.txt contains::
+And file ``path/to/ttp_template.txt`` contains::
 
     interface {{ interface }}
      ip address {{ ip }}/{{ mask }}
