@@ -1926,7 +1926,8 @@ class _results_class():
             vars_names = vars['_vars_to_results_'][path_item]
             result = {}
             for var_name in vars_names:
-                result[var_name] = vars[var_name]
+                if var_name in vars:
+                    result[var_name] = vars[var_name]
             self.record = {
                 'result'     : result,
                 'PATH'       : [i.strip() for i in path_item.split('.')],

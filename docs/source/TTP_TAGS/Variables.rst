@@ -40,8 +40,14 @@ TTP template variables also support a number of getters - functions targeted to 
      - this function tries to extract hostname out of source data prompts
    * - `getfilename`_   
      - returns a name of the source data
-   * - `gettime`_   
-     - not implemented yet
+   * - `get_time`_   
+     - returns current time
+   * - `get_date`_   
+     - returns current date
+   * - `get_timestamp`_   
+     - returns combination of current date and time
+   * - `get_timestamp_ms`_   
+     - returns combination of current date and time with milliseconds
 	 
 load
 ------------------------------------------------------------------------------
@@ -278,8 +284,26 @@ getfilename
 
 This function returns the name of input data file if data was loaded from file, if data was loaded from text it will return "text_data".
 
-gettime
+get_time
 ------------------------------------------------------------------------------
-``var_name="gettime"``	
+``var_name="get_time"``	
+
+TBD
+
+get_date
+------------------------------------------------------------------------------
+``var_name="get_date"``	
+
+TBD
+
+get_timestamp
+------------------------------------------------------------------------------
+``var_name="get_timestamp"``	
+
+TBD
+
+get_timestamp_ms
+------------------------------------------------------------------------------
+``var_name="get_timestamp_ms"``	
 
 TBD

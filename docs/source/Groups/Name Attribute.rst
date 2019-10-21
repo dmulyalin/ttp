@@ -379,7 +379,11 @@ In both cases above, ttp will automatically reconstruct <group> tag and name att
 
 .. note::
 
-    <group> tag without name attribute does have support for all the other group attributes as well as nested groups, however, nested groups *must* have name attribute set on them otherwise nested hierarchy will not be preserved leading to unpredictable results.
+    <group> tag without name attribute does have support for all the other group attributes as well as nested groups, however, nested groups *must* have name attribute set on them otherwise nested hierarchy will not be preserved leading to unpredictable results. 
+	
+.. warning::
+    
+	Template variables name attribute ignored if groups with "_anonymous_" path used, as a result template variables will not be save into results.
 
 **Example**
 
