@@ -386,33 +386,209 @@ Results::
                                                 {   'interface': 'Vlan710',
                                                     'ip': IPv6Interface('2002::fd10/124'),
                                                     'mask': '124'}]}]
-													
+                                                    
 exclude
 ------------------------------------------------------------------------------
 ``exclude="variable1, variable2, ..., variableN"``
 
-TBD
+* variableN - name of the variable on presence of which to invalidate/exclude group results
+
+This function allows to invalidate group match results based on the fact that **any** of the given variable names/keys are present. 
+
+**Example**
+
+Here groups with either ``ip`` or ``description`` variables matches, will be excluded from results.
+
+Template::
+
+    <input load="text">
+    interface Vlan778
+     description some description 1
+     ip address 2002:fd37::91/124
+    !
+    interface Vlan779
+     description some description 2
+    !
+    interface Vlan780
+     switchport port-security mac 4
+    !
+    </input>
+
+    <group name="interfaces" exclude="ip, description">
+    interface {{ interface }}
+     ip address {{ ip }}/{{ mask }}
+     description {{ description | ORPHRASE }}
+     switchport port-security mac {{ sec_mac }}
+    </group>
+    
+Results::
+
+    [
+        {
+            "interfaces": {
+                "interface": "Vlan780",
+                "sec_mac": "4"
+            }
+        }
+    ]
 
 excludeall
 ------------------------------------------------------------------------------
 ``excludeall="variable1, variable2, ..., variableN"``
 
-TBD
+* variable - name of the variable on presence of which to invalidate/exclude group results
+
+excludeall allows to invalidate group results based on the fact that **all** of the given variable names/keys are present in match results. 
 
 del
 ------------------------------------------------------------------------------
 ``del="variable1, variable2, ..., variableN"``
 
-TBD
+* variableN - name of the variable to delete results for
 
+**Example**
+
+Template::
+
+    <input load="text">
+    interface Vlan778
+     description some description 1
+     ip address 2002:fd37::91/124
+    !
+    interface Vlan779
+     description some description 2
+    !
+    interface Vlan780
+     switchport port-security mac 4
+    !
+    </input>
+    
+    <group name="interfaces-test1-31" del="description, ip">
+    interface {{ interface }}
+     ip address {{ ip }}/{{ mask }}
+     description {{ description | ORPHRASE }}
+     switchport port-security mac {{ sec_mac }}
+    </group>
+    
+Results::
+
+    [
+        {
+            "interfaces-test1-31": [
+                {
+                    "interface": "Vlan778",
+                    "mask": "124"
+                },
+                {
+                    "interface": "Vlan779"
+                },
+                {
+                    "interface": "Vlan780",
+                    "sec_mac": "4"
+                }
+            ]
+        }
+    ]
+    
 sformat
 ------------------------------------------------------------------------------
-``sformat="string='text', key='name'"`` or ``sformat="'text', 'name'"``
+``sformat="string='text', add_field='name'"`` or ``sformat="'text', 'name'"``
 
-TBD
+* string - mandatory, string to format
+* add_field - mandatory, name of new field with value produced by sformat to add to group results
+
+sformat (string format) method used to form string in certain way using template variables and group match results. The order of variables to use for formatting is:
+
+    1 global variables produced by :ref:`Match Variables/Functions:record` function
+    2 template variables as specified in <vars> tag
+    3 group match results
+    
+Next variables in above list override the previous one.
+
+**Example**
+
+Template::
+
+    <vars>
+    domain = "com"
+    </vars>
+    
+    <input load="text">
+    switch-1 uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
+    </input>
+    
+    <input load="text">
+    Default domain is lab.local
+    </input>
+    
+    <group name="uptime">
+    {{ hostname | record("hostname")}} uptime is {{ uptime | PHRASE }}
+    </group>
+    
+    <group name="fqdn_dets_1" sformat="string='{hostname}.{fqdn},{domain}', add_field='fqdn'">
+    Default domain is {{ fqdn }}
+    </group>
+
+Results::
+
+    [
+        {
+            "uptime": {
+                "hostname": "switch-1",
+                "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds"
+            }
+        },
+        {
+            "fqdn_dets_1": {
+                "fqdn": "switch-1.lab.local,com"
+            }
+        }
+    ]
+    
+string ``{hostname}.{fqdn},{domain}`` formatted using ``hostname`` variable from globally recorded vars, ``fqdn`` variable from group match results and ``domain`` variable defined in template vars. In this example ``add_field`` was set to ``fqdn`` to override fqdn match variable matched values
 
 itemize
 ------------------------------------------------------------------------------
 ``itemize="key='name', path='path.to.result'"`` or ``functions="itemize(key='name', path='path.to.result')"``
 
-TBD
+* key - mandatory, name of the key to use create a list of items from
+* path - optional, by default path taken from group name attribute, dot separated string of there to save a list of items within results tree
+
+This function allows to take single item result from group match results and place it into the list at path provided. Motivation behind this function is to be able to provide create a list of items out of match results produced by group. For instance produce a list of all IPs configured on device or VRFs or OSPF processes etc. without the need to iterate over parsing results to extract items in question.
+
+**Example**
+
+Let's say we need to extract a list of all interfaces configured on device.
+
+Template::
+
+    <input load="text">
+    interface Vlan778
+     description some description 1
+     ip address 2002:fd37::91/124
+    !
+    interface Vlan779
+     description some description 2
+    !
+    interface Vlan780
+     switchport port-security mac 4
+     ip address 192.168.1.1/124
+    !
+    </input>
+    
+    <group name="interfaces_list" itemize="interface">
+    interface {{ interface }}
+     ip address {{ ip }}
+    </group>
+
+Results::
+
+    [
+        {
+            "interfaces_list": [
+                "Vlan778",
+                "Vlan779",
+                "Vlan780"
+            ]
+        }
+    ]

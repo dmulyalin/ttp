@@ -933,7 +933,8 @@ class _input_class():
             else:
                 groups_indexes = [grp_obj.grp_index for grp_obj in self.template_obj.groups 
                                   if grp_obj.name in self.attributes["groups"] and not grp_obj.inputs] 
-            self.groups_indexes += sorted(list(set(groups_indexes)))
+            self.groups_indexes += groups_indexes
+            self.groups_indexes = sorted(list(set(self.groups_indexes)))
             
         def extract_preference(O):
             self.attributes["preference"] = O.strip()

@@ -22,7 +22,7 @@ While multiprocessing mode has obvious processing speed increase benefits, it co
 * global variables are not shared between processes and have per-process significance (name space), this is due to the fact that global vars not shared between processes
 
 
-General performance recommendations
+General performance considerations
 -----------------------------------
 
 Keep data processing out of TTP if you are after best performance, the more processing/functions TTP has to run, the more time it will take to finish parsing.

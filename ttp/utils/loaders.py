@@ -17,11 +17,11 @@ def load_files(path, extensions=[], filters=[], read=False):
         read True, if read False return (type, url,) or []
     """
     files=[]
-	# need to use path[:5000] cause if path is actually text of the template
-	# and has length more then X symbols, os.path will choke with "path too long"
-	# error, hence the safe-assumption that no os path exists longer then 5000 symbols
-	
-	# check if path is a path to file:
+    # need to use path[:5000] cause if path is actually text of the template
+    # and has length more then X symbols, os.path will choke with "path too long"
+    # error, hence the safe-assumption that no os path exists longer then 5000 symbols
+    
+    # check if path is a path to file:
     if os.path.isfile(path[:5000]):
         if read:
             try:
@@ -49,6 +49,10 @@ def load_files(path, extensions=[], filters=[], read=False):
     # check if path is a string:
     elif isinstance(path, str):
         return [('text_data', path,)]
+    # check if py2, if so check if path is unicode string:
+    elif _ttp_['python_major_version'] == 2:
+        if isinstance(path, unicode):
+            return [('text_data', path,)]   
     # check if path is a file object:
     elif hasattr(path, 'read') and hasattr(path, 'name'):
         if read:

@@ -8,7 +8,7 @@ TTP includes a number of additional tags to structure templates or provide addit
    :titlesonly:
    
    Template
-   Inputs
+   Inputs/index
    Variables
    Lookups
    Outputs/index

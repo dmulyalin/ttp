@@ -1744,7 +1744,35 @@ sformat
 ------------------------------------------------------------------------------
 ``{{ name | sformat("string_to_format") }}``
 
-TBD
+* string_to_format - string to format with match result
+
+sformat allows to embed match result within arbitrary string using syntaxis supported by python built-in format function.
+
+**Example**
+
+Template::
+
+    <input load="text">
+    interface Vlan778
+     ip address 2002:fd37::91/124
+    !
+    </input>
+    
+    <group name="interfaces">
+    interface {{ interface }}
+     ip address {{ ip | sformat("ASN 65100 IP - {}") }}
+    </group>
+
+Results::
+
+    [
+        {
+            "interfaces": {
+                "interface": "Vlan778",
+                "ip": "ASN 65100 IP - 2002:fd37::91/124"
+            }
+        }
+    ]
 
 uptimeparse
 ------------------------------------------------------------------------------

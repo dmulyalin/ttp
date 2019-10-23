@@ -18,9 +18,7 @@ Each group tag (<g>, <grp>, <group>) can have a number of attributes, they used 
    * - `method`_   
      - Indicates parsing method, supported values are *group* or *table*
    * - `output`_   
-     - Specify group specific outputs to run group result through     
-   * - `default`_   
-     - Value to supply for variables by default         
+     - Specify group specific outputs to run group result through          
 
 name
 ------------------------------------------------------------------------------
@@ -32,11 +30,11 @@ More on name attribute: Group Name Attribute
 
 input
 ------------------------------------------------------------------------------
-``input="input1"``
+``input="input1, input2, ... inputN"``
 
-* inputN (optional) - string that contains name of the input tag that should be used to source data for this group, alternatively input string value can reference Operating System fully qualified or relative path to location of text file(s) that should be parsed by this group. OS relative path should be accompanied with template base_path attribute, that attribute will be perpended to group input to form fully qualified path.
+* inputN (optional) - comma separated string that contains name(s) of the input tag(s) that should be used to source data for this group, alternatively input string value can reference Operating System fully qualified or relative path to location of text file(s) that should be parsed by this group. OS relative path should be accompanied with template base_path attribute, that attribute will be perpended to group input to form fully qualified path.
 
-Input attribute of the group considered to be more specific in case if group name referenced in input *groups* :ref:`TTP_TAGS/Inputs:groups` attribute, as a result several groups can share same name, but reference different inputs with different set of data to be parsed.
+Input attribute of the group considered to be more specific in case if group name referenced in input :ref:`TTP_TAGS/Inputs:groups` attribute, as a result several groups can share same name, but reference different inputs with different set of data to be parsed.
 
 .. note:: Input attributed only supported at top group, nested groups input attributes are ignored.
 

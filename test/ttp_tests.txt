@@ -2951,7 +2951,7 @@ Default domain is lab.local
 <group 
 input="fqdn_dets"
 name="fqdn_dets_1" 
-sformat="string='{hostname}.{fqdn},{domain}', key='fqdn'"
+sformat="string='{hostname}.{fqdn},{domain}', add_field='fqdn'"
 >
 Default domain is {{ fqdn }}
 </group>
