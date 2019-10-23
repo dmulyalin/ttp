@@ -205,7 +205,7 @@ class ttp():
         self.__datums_count = 0
         for template in self.__templates:
             # update template inputs with data
-            [template.set_input(data=i[0], input_name=i[1], groups=i[2]) for i in self.__data] 
+            [template.update_input(data=i[0], input_name=i[1], groups=i[2]) for i in self.__data] 
             # get overall data size and count
             for input_name, input_obj in template.inputs.items():
                 self.__datums_count += len(input_obj.data)
@@ -651,7 +651,7 @@ class _template_class():
         [self.vars.pop(var_name) for var_name in self.vars["_var_functions_"].keys()]
             
         
-    def set_input(self, data=None, input_name='Default_Input', groups='', preference='group_inputs'):
+    def update_input(self, data=None, input_name='Default_Input', groups=['all']):
         """
         Method to set data for template input
         Args:
@@ -660,17 +660,15 @@ class _template_class():
             groups (list): list of groups to use for that input
         """
         if input_name in self.inputs:
-            self.inputs[input_name].add_data(data=data, groups=groups, preference=preference)
-        # add new input to self.inputs:
+            self.inputs[input_name].load_data(data=data)
         else:
-            input = _input_class(input_name=input_name, base_path=self.base_path, 
-                                 template_obj=self, groups=groups, preference=preference)
-            input.add_data(data=data)
-            self.inputs.update({input.name: input})
+            # add new input to self.inputs:
+            self.inputs[input.name] = _input_class(input_name=input_name, template_obj=self, groups=groups, data=data)
+        
 
     def update_inputs_with_groups(self):
         """
-        Method to update self.inputs with groups_indexes
+        Method to update self.inputs group_inputs with group indexes
         """
         for G in self.groups:
             for input_name in G.inputs:
@@ -683,12 +681,8 @@ class _template_class():
                     # string and text_data will be returned by self.utils.load_files
                     # only if no such path exists, hence text_data does not make sense here
                     data = [i for i in data_items if 'text_data' not in i[0]]
-                    input = _input_class(input_name=input_name, template_obj=self, preference='group_inputs')
-                    input.add_data(data=data)
-                    self.inputs.update({input.name: input})
-                # add group index to input group_inputs
-                self.inputs[input_name].group_inputs.append(G.grp_index)
-        [input_obj.check_preference() for input_obj in self.inputs.values()]
+                    self.inputs[input.name] = _input_class(input_name=input_name, template_obj=self, data=data)
+                    
 
     def update_groups_with_outputs(self):
         """Method to replace output names in group with
@@ -760,10 +754,11 @@ class _template_class():
             self.outputs.append(_outputter_class(element))
 
         def parse_input(element):
-            input = _input_class(element, self.base_path, template_obj=self)
+            input = _input_class(element, template_obj=self)
             if input.name in self.inputs:
-                self.inputs[input.name].add_data(data=input.data, groups=input.attributes["groups"], 
-                                                 preference=input.attributes["preference"])
+                self.inputs[input.name].load_data(data=input.data)
+                self.inputs[input.name].groups_indexes += input.groups_indexes
+                self.inputs[input.name].groups_indexes = list(set(self.inputs[input.name].groups_indexes))
                 del input
             else:
                 self.inputs[input.name] = input
@@ -853,6 +848,7 @@ class _template_class():
             [parse_output(o) for o in tags['outputs']]
             [parse_lookup(L) for L in tags['lookups']]
             [parse_group(g, grp_index) for grp_index, g in enumerate(tags['groups'])]
+            # need to parse inputs after groups already parsed to form group inputs correctly
             [parse_input(i) for i in tags['inputs']]
 
         def parse_template_XML(template_text):
@@ -885,13 +881,10 @@ TTP INPUT CLASS
 class _input_class():
     """Template input class to hold inputs data
     """
-    def __init__(self, element=None, base_path="", template_obj=None,
-                 input_name='Default_Input', groups='all', preference='group_inputs'):
+    def __init__(self, element={}, template_obj=None, data=None,
+                 input_name='Default_Input', groups='all'):
         self.attributes = {
-            'base_path': base_path,
             'load': 'python',
-            'groups': groups,
-            'preference': preference,
             'extensions': [],
             'filters': [],
             'urls': []            
@@ -900,17 +893,22 @@ class _input_class():
         self.data = []
         self.groups_indexes = []
         self.group_inputs = []
-        self.name = input_name
+        self.input_groups = groups
         self.functions = []
-        # extract attributes from input tag
+        # extract attributes from input
         if element is not None:
+            # need to get name before getting any other attributes
+            # as name used to extract groups and depending on python dict
+            # hashing, groups can be extracted before name attribute
+            self.name = element.attrib.get("name", input_name).strip()
+            element.attrib.setdefault("groups", groups)
             self.get_attributes(data=element.attrib, element_text=element.text)
-            self.load_data(element.text)
-        # get groups indexes if not extracted so far
-        if not self.groups_indexes:
-            self.get_attributes(data={
-                'groups': self.attributes['groups']
-            })
+            self.load_data(element_text=element.text)
+        else:
+            self.name = input_name
+            self.get_attributes(data={"groups": groups})
+            self.load_data(data=data)
+            
         
     def get_attributes(self, data, element_text=""):
         
@@ -925,16 +923,24 @@ class _input_class():
         
         def extract_groups(O):
             if isinstance(O, list):
-                self.attributes["groups"] = O
+                groups_list = O
             else:
-                self.attributes["groups"] = [i.strip() for i in O.split(",")]
-            if 'all' in self.attributes["groups"]:
-                groups_indexes = [grp_obj.grp_index for grp_obj in self.template_obj.groups if not grp_obj.inputs]
+                groups_list = [i.strip() for i in O.split(",")]
+            # create a list of groups with no input attribute matched by this input groups attribute
+            if 'all' in groups_list:
+                self.input_groups = [grp_obj.grp_index for grp_obj in self.template_obj.groups
+                                     if not grp_obj.inputs]
             else:
-                groups_indexes = [grp_obj.grp_index for grp_obj in self.template_obj.groups 
-                                  if grp_obj.name in self.attributes["groups"] and not grp_obj.inputs] 
-            self.groups_indexes += groups_indexes
-            self.groups_indexes = sorted(list(set(self.groups_indexes)))
+                self.input_groups = [grp_obj.grp_index for grp_obj in self.template_obj.groups 
+                                     if (grp_obj.name in groups_list and not grp_obj.inputs)]
+            # iterate over all groups to get a list of groups that match this input in input attribute
+            self.group_inputs = [grp_obj.grp_index for grp_obj in self.template_obj.groups 
+                                  if self.name in grp_obj.inputs]
+            # form input groups_indexes - group_inputs more preferred
+            if self.group_inputs:
+                self.groups_indexes = sorted(list(set(self.group_inputs)))
+            else:
+                self.groups_indexes = sorted(list(set(self.input_groups)))
             
         def extract_preference(O):
             self.attributes["preference"] = O.strip()
@@ -979,7 +985,6 @@ class _input_class():
         functions = {
         'functions'   : extract_functions
         }
-
         # extract attributes from element tag attributes   
         for attr_name, attributes in data.items():
             if attr_name.lower() in options: options[attr_name.lower()](attributes)
@@ -991,33 +996,19 @@ class _input_class():
             else:
                 self.attributes[attr_name] = attributes
                 
-    def load_data(self, element_text):
-        if self.attributes["load"] == 'text':
+    def load_data(self, element_text=None, data=None):
+        if self.attributes["load"] == 'text' and element_text:
             self.data = [('text_data', element_text)]
+            return
+        elif data:
+            [self.data.append(d_item) for d_item in data if not d_item in self.data]
             return
         # load data:
         for url in self.attributes["urls"]:
-            url = self.attributes["base_path"] + url.lstrip('.')
+            url = self.template_obj.base_path + url.lstrip('.')
             datums = _ttp_["utils"]["load_files"](path=url, extensions=self.attributes["extensions"], 
                                                   filters=self.attributes["filters"], read=False)
-            self.data += datums
-            
-    def add_data(self, data=[], **kwargs):
-        # get attributes:
-        if kwargs:
-            self.get_attributes(kwargs)
-        # add data:
-        if data:
-            [self.data.append(d_item) for d_item in data if not d_item in self.data]
-                
-    def check_preference(self):
-        if self.attributes['preference'] == 'group_inputs' and self.group_inputs:
-            self.groups_indexes = self.group_inputs
-        elif self.attributes['preference'] == 'input_groups':
-            pass
-        elif self.attributes['preference'] == 'merge' and self.group_inputs:
-            self.groups_indexes += self.group_inputs
-        self.groups_indexes = sorted(list(set(self.groups_indexes)))
+            self.data += datums            
         
     def debug(self):
         from pprint import pformat
