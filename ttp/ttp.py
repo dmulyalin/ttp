@@ -659,11 +659,14 @@ class _template_class():
             input_name (str): name of the input
             groups (list): list of groups to use for that input
         """
-        if input_name in self.inputs:
-            self.inputs[input_name].load_data(data=data)
+        input = _input_class(input_name=input_name, template_obj=self, groups=groups, data=data)
+        if input.name in self.inputs:
+            self.inputs[input.name].load_data(data=input.data)
+            self.inputs[input.name].groups_indexes += input.groups_indexes
+            self.inputs[input.name].groups_indexes = list(set(self.inputs[input.name].groups_indexes))
+            del input
         else:
-            # add new input to self.inputs:
-            self.inputs[input.name] = _input_class(input_name=input_name, template_obj=self, groups=groups, data=data)
+            self.inputs[input.name] = input
         
 
     def update_inputs_with_groups(self):
@@ -681,7 +684,7 @@ class _template_class():
                     # string and text_data will be returned by self.utils.load_files
                     # only if no such path exists, hence text_data does not make sense here
                     data = [i for i in data_items if 'text_data' not in i[0]]
-                    self.inputs[input.name] = _input_class(input_name=input_name, template_obj=self, data=data)
+                    self.inputs[input_name] = _input_class(input_name=input_name, template_obj=self, data=data)
                     
 
     def update_groups_with_outputs(self):
@@ -881,7 +884,7 @@ TTP INPUT CLASS
 class _input_class():
     """Template input class to hold inputs data
     """
-    def __init__(self, element={}, template_obj=None, data=None,
+    def __init__(self, element=None, template_obj=None, data=None,
                  input_name='Default_Input', groups='all'):
         self.attributes = {
             'load': 'python',
