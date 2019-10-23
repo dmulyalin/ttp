@@ -675,10 +675,12 @@ class _template_class():
         """
         for G in self.groups:
             for input_name in G.inputs:
-                input_name = self.base_path + input_name.lstrip('.')
                 # add new input
                 if input_name not in self.inputs:
-                    data_items = _ttp_["utils"]["load_files"](path=input_name, read=False)
+                    data_items = _ttp_["utils"]["load_files"](
+                        path=self.base_path + input_name.lstrip('.'), 
+                        read=False
+                    )
                     # skip 'text_data' from data as if by the time this method runs
                     # no input with such name found it means that group input is os path
                     # string and text_data will be returned by self.utils.load_files
@@ -898,15 +900,16 @@ class _input_class():
         self.group_inputs = []
         self.input_groups = groups
         self.functions = []
-        # extract attributes from input
+        # extract attributes from input emenet
         if element is not None:
             # need to get name before getting any other attributes
             # as name used to extract groups and depending on python dict
-            # hashing, groups can be extracted before name attribute
+            # hashing, groups can be attempted to extract before name attribute
             self.name = element.attrib.get("name", input_name).strip()
             element.attrib.setdefault("groups", groups)
             self.get_attributes(data=element.attrib, element_text=element.text)
             self.load_data(element_text=element.text)
+        # if no input element given, use input_name and groups with data
         else:
             self.name = input_name
             self.get_attributes(data={"groups": groups})
