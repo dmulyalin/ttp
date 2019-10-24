@@ -651,7 +651,7 @@ class _template_class():
         [self.vars.pop(var_name) for var_name in self.vars["_var_functions_"].keys()]
             
         
-    def update_input(self, data=None, input_name='Default_Input', groups=['all']):
+    def update_input(self, element=None, data=None, input_name='Default_Input', groups=['all']):
         """
         Method to set data for template input
         Args:
@@ -659,7 +659,7 @@ class _template_class():
             input_name (str): name of the input
             groups (list): list of groups to use for that input
         """
-        input = _input_class(input_name=input_name, template_obj=self, groups=groups, data=data)
+        input = _input_class(element=element, input_name=input_name, template_obj=self, groups=groups, data=data)
         if input.name in self.inputs:
             self.inputs[input.name].load_data(data=input.data)
             self.inputs[input.name].groups_indexes += input.groups_indexes
@@ -677,16 +677,14 @@ class _template_class():
             for input_name in G.inputs:
                 # add new input
                 if input_name not in self.inputs:
-                    data_items = _ttp_["utils"]["load_files"](
-                        path=self.base_path + input_name.lstrip('.'), 
-                        read=False
-                    )
+                    url = self.base_path + input_name.lstrip('.')
+                    data_items = _ttp_["utils"]["load_files"](path=url, read=False)
                     # skip 'text_data' from data as if by the time this method runs
                     # no input with such name found it means that group input is os path
                     # string and text_data will be returned by self.utils.load_files
                     # only if no such path exists, hence text_data does not make sense here
                     data = [i for i in data_items if 'text_data' not in i[0]]
-                    self.inputs[input_name] = _input_class(input_name=input_name, template_obj=self, data=data)
+                    self.update_input(data=data, input_name=input_name)
                     
 
     def update_groups_with_outputs(self):
@@ -757,16 +755,6 @@ class _template_class():
 
         def parse_output(element):
             self.outputs.append(_outputter_class(element))
-
-        def parse_input(element):
-            input = _input_class(element, template_obj=self)
-            if input.name in self.inputs:
-                self.inputs[input.name].load_data(data=input.data)
-                self.inputs[input.name].groups_indexes += input.groups_indexes
-                self.inputs[input.name].groups_indexes = list(set(self.inputs[input.name].groups_indexes))
-                del input
-            else:
-                self.inputs[input.name] = input
 
         def parse_group(element, grp_index):
             self.groups.append(
@@ -854,7 +842,7 @@ class _template_class():
             [parse_lookup(L) for L in tags['lookups']]
             [parse_group(g, grp_index) for grp_index, g in enumerate(tags['groups'])]
             # need to parse inputs after groups already parsed to form group inputs correctly
-            [parse_input(i) for i in tags['inputs']]
+            [self.update_input(element=i) for i in tags['inputs']]
 
         def parse_template_XML(template_text):
             # load template from text reconstructing it if required:
@@ -948,9 +936,6 @@ class _input_class():
             else:
                 self.groups_indexes = sorted(list(set(self.input_groups)))
             
-        def extract_preference(O):
-            self.attributes["preference"] = O.strip()
-            
         def extract_extensions(O):
             if isinstance(O, str): 
                 self.attributes["extensions"] = [O]
@@ -983,7 +968,6 @@ class _input_class():
         'name'        : extract_name,
         'load'        : extract_load,
         'groups'      : extract_groups,
-        'preference'  : extract_preference,
         'extensions'  : extract_extensions,
         'filters'     : extract_filters,
         'url'         : extract_urls
