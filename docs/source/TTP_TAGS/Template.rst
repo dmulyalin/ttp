@@ -86,8 +86,15 @@ There are a number of attributes can be used with template tag, these attributes
 
 name
 ******************************************************************************     
+``name="template_name"``
 
-TBD
+Template name attribute is a string that indicates the unique name of the template. This attribute required if final results structure should be dictionary as can be indicated in ``ttp.result`` method, e.g.
+
+**Example**
+
+Consider this code::
+
+
 
 base_path
 ******************************************************************************     

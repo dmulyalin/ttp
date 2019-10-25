@@ -15,8 +15,6 @@ There are a number of attributes can be specified in input tag, these attributes
      - Specifies group(s) that should be used to parse input data
    * - `load`_   
      - Identifies loader that should be used to load text data for input tag itself
-   * - `preference`_   
-     - specify preference on how to handle inputs' groups and groups' input
 	 
 name
 ------------------------------------------------------------------------
@@ -84,21 +82,3 @@ Result::
             }
         }
     ]
-    
-preference
-------------------------------------------------------------------------
-``preference="merge|group_inputs|input_groups"``
-
-One of the main purposes of Inputs is to define data to groups mappings, in other words - to define that this set of files/data need to be parsed by this group(s). There are two ways to define that mapping:
-
-    1 Use Input tag `groups`_ attribute to list names of all groups that should be used to parse input's data, default value for input groups is ``all``
-	2 Use Groups :ref:`Groups/Attributes:input` attribute to define a list of inputs that this group should process
-	
-By default groups ``inputs`` (method 2) has higher preference compared to input groups (method 1), this is due to the fact that groups name attribute might not be unique across the template, moreover by default input ``groups`` value set to ``all``, meaning we will have overlap between the set of groups matched by input groups and group inputs. Hence decision logic in place making groups ``inputs`` more preferred. 
-
-Preference attribute helps to influence decision logic above if needed. For instance if preference set to ``input_groups`` then groups ``inputs`` will be ignored, if set to merge then combination of unique values of groups matched by input ``groups`` and groups ``input`` attributes will be used.
-
-**Example**
-
-Template::
-

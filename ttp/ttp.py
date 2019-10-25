@@ -458,10 +458,10 @@ class ttp():
             kwargs['returner'] = returner
             outputter = _outputter_class(**kwargs)
             if structure.lower() == 'list':
-                return [outputter.run(template.results, macro=template.macro) for template in templates_obj]
+                results = [template.results for template in templates_obj]
             elif structure.lower() == 'dictionary':
-                return {template.name: outputter.run(template.results, macro=template.macro) 
-                        for template in templates_obj if template.name}
+                results = {template.name: template.results for template in templates_obj if template.name}
+            return outputter.run(results)
         else:
             if structure.lower() == 'list':
                 return [template.results for template in templates_obj]
@@ -579,7 +579,7 @@ class _template_class():
         self.name = name
         self.macro = {}                   # dictionary of macro name to function mapping
         self.results_method = 'per_input' # how to join results
-        self.macro_text = []              # dict to contain macro functions text to transfer into other processes
+        self.macro_text = []              # list to contain macro functions text to transfer into other processes
 
         # load template from string:
         self.load_template_xml(template_text)
@@ -2354,6 +2354,7 @@ def cli_tool():
 -l,  --logging         Set logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 -lf, --log-file        Path to save log file
 -T,  --Timing          Print simple timing info
+-s,  --structure       Final results structure - 'list' or 'dictionary'
 --one                  Parse using single process
 --multi                Parse using multiple processes'''
     argparser = argparse.ArgumentParser(description="Template Text Parser, version 0.2.0.", formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -2368,6 +2369,7 @@ def cli_tool():
     run_options.add_argument('-o', '--outputter', action='store', dest='output', default='', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-l', '--logging', action='store', dest='LOG_LEVEL', default='WARNING', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-lf', '--log-file', action='store', dest='LOG_FILE', default=None, type=str, help=argparse.SUPPRESS)
+    run_options.add_argument('-s', '--structure', action='store', dest='STRUCTURE', default="list", type=str, help=argparse.SUPPRESS)
     
     # extract argparser arguments:
     args = argparser.parse_args()
@@ -2380,7 +2382,8 @@ def cli_tool():
     ONE = args.ONE               # boolean to indicate if run in single process
     MULTI = args.MULTI           # boolean to indicate if run in multi process
     LOG_LEVEL = args.LOG_LEVEL   # level of logging
-    LOG_FILE = args.LOG_FILE     # level of logging
+    LOG_FILE = args.LOG_FILE     # file to put the logs in
+    STRUCTURE = args.STRUCTURE
     
     def timing(message):
         if TIMING:
@@ -2416,16 +2419,16 @@ def cli_tool():
     timing("Data parsing finished")
 
     if output.lower() == 'yaml':
-        parser_Obj.result(format='yaml', returner='terminal')
+        parser_Obj.result(format='yaml', returner='terminal', structure=STRUCTURE)
         timing("YAML dumped")
     elif output.lower() == 'raw':
-        parser_Obj.result(format='raw', returner='terminal')
+        parser_Obj.result(format='raw', returner='terminal', structure=STRUCTURE)
         timing("RAW dumped")
     elif output.lower() == 'json':
-        parser_Obj.result(format='json', returner='terminal')
+        parser_Obj.result(format='json', returner='terminal', structure=STRUCTURE)
         timing("JSON dumped")
     elif output.lower() == 'pprint':
-        parser_Obj.result(format='pprint', returner='terminal')
+        parser_Obj.result(format='pprint', returner='terminal', structure=STRUCTURE)
         timing("RAW pprint dumped")
     elif output:
         log.error("cli: unsupported output format '{}', supported [yaml, json, raw, pprint]".format(output.lower()))
