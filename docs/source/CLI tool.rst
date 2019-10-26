@@ -15,7 +15,7 @@ Sample usage::
 * ``-dp, --data-prefix`` OS base path to folder with data separated across additional folders
 * ``-t, --template`` path to text file with template content
 * ``-tn, --template-name`` name of template to load from python formatted template file
-* ``-o, --outputter`` format results data using yaml, json, raw or pprint formatter and prints them to terminal
+* ``-o, --outputter`` format results using yaml, json, raw or pprint formatter and prints them to terminal
 * ``-l, --logging`` logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 * ``-lf, --log-file`` OS path to file where to write logs instead of printing them to terminal
 * ``-T, --Timing`` print simple timing information to screen about time spent on parsing data

@@ -375,7 +375,7 @@ class ttp():
                 template.form_results(results_data)     
 
 
-    def result(self, templates=[], structure="list", returner='self', **kwargs):
+    def result(self, templates=[], structure="list", **kwargs):
         """Method to get parsing results, supports basic filtering based on 
         templates' names, results can be formatted and returned to specified
         returner.
@@ -383,7 +383,6 @@ class ttp():
         **Parameters**
         
         * ``templates`` (list or str) names of the templates to return results for
-        * ``returner`` (str) returner to use to return data - self, file, terminal
         * ``structure`` (str) structure type, valid values - ``list`` or ``dictionary``
         
         **kwargs** - can contain any attributes supported by output tags, for instance:
@@ -452,16 +451,16 @@ class ttp():
         if templates:
             templates_obj = [template for template in self.__templates
                              if template.name in templates]
-        # return results:
+        # form results:
         results = []
         if kwargs:
-            kwargs['returner'] = returner
+            kwargs.setdefault('returner', 'self')
             outputter = _outputter_class(**kwargs)
             if structure.lower() == 'list':
-                results = [template.results for template in templates_obj]
+                return [outputter.run(template.results, macro=template.macro) for template in templates_obj]
             elif structure.lower() == 'dictionary':
-                results = {template.name: template.results for template in templates_obj if template.name}
-            return outputter.run(results)
+                return {template.name: outputter.run(template.results, macro=template.macro) 
+                        for template in templates_obj if template.name}
         else:
             if structure.lower() == 'list':
                 return [template.results for template in templates_obj]
@@ -1475,12 +1474,12 @@ class _variable_class():
 
         # check if regex empty, if so, make self.regex equal to escaped line, reconstruct indent and add start/end of line:
         if regex == '':
-            # form indent to honor leading space characters like \t or \s:
+            # form indent to honor leading space characters like      or \s:
             first_non_space_char_index = len(self.LINE) - len(self.LINE.lstrip())
             indent = self.LINE[:first_non_space_char_index]
             # form regex:
             self.regex = esc_line
-            self.regex = indent + self.regex               # reconstruct indent
+            self.regex = indent + self.regex                   # reconstruct indent
             self.regex = '\\n' + self.regex + '[\t ]*(?=\\n)'  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
         else:
             self.regex = regex
@@ -2366,7 +2365,7 @@ def cli_tool():
     run_options.add_argument('-dp', '--data-prefix', action='store', dest='data_prefix', default='', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-t', '--template', action='store', dest='TEMPLATE_FILE', default='', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-tn', '--template-name', action='store', dest='TEMPLATE_NAME', default='', type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-o', '--outputter', action='store', dest='output', default='', type=str, help=argparse.SUPPRESS)
+    run_options.add_argument('-o', '--outputter', action='store', dest='OUTPUTTER', default='', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-l', '--logging', action='store', dest='LOG_LEVEL', default='WARNING', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-lf', '--log-file', action='store', dest='LOG_FILE', default=None, type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-s', '--structure', action='store', dest='STRUCTURE', default="list", type=str, help=argparse.SUPPRESS)
@@ -2376,7 +2375,7 @@ def cli_tool():
     TEMPLATE_FILE = args.TEMPLATE_FILE     # string, Template file
     TEMPLATE_NAME = args.TEMPLATE_NAME     # string, Template name in template file    
     DATA = args.DATA             # string, OS path to data files to parse
-    output = args.output         # string, set output format
+    OUTPUTTER = args.OUTPUTTER   # string, set OUTPUTTER format
     TIMING = args.TIMING         # boolean, enabled timing
     BASE_PATH = args.data_prefix # string, to add to templates' inputs urls
     ONE = args.ONE               # boolean to indicate if run in single process
@@ -2384,11 +2383,13 @@ def cli_tool():
     LOG_LEVEL = args.LOG_LEVEL   # level of logging
     LOG_FILE = args.LOG_FILE     # file to put the logs in
     STRUCTURE = args.STRUCTURE
+ 
+    supporrted_cli_tool_outputters = ["json", "yaml", "raw", "pprint", ""]
     
     def timing(message):
         if TIMING:
             print(round(time.time() - t0, 5), message)
-
+        
     # setup logging
     logging_config(LOG_LEVEL, LOG_FILE)
     
@@ -2396,7 +2397,7 @@ def cli_tool():
         t0 = time.time()
     else:
         t0 = 0
-   
+       
     # create parser object
     parser_Obj = ttp(base_path=BASE_PATH)
     
@@ -2412,26 +2413,21 @@ def cli_tool():
         parser_Obj.set_input(data=DATA)
         timing("Data descriptors loaded")
     parser_Obj.add_template(template=ttp_template)
-    timing("Template loaded")
+    timing("Template(s) loaded")
 
     # parse data
     parser_Obj.parse(one=ONE, multi=MULTI)
     timing("Data parsing finished")
 
-    if output.lower() == 'yaml':
-        parser_Obj.result(format='yaml', returner='terminal', structure=STRUCTURE)
-        timing("YAML dumped")
-    elif output.lower() == 'raw':
-        parser_Obj.result(format='raw', returner='terminal', structure=STRUCTURE)
-        timing("RAW dumped")
-    elif output.lower() == 'json':
-        parser_Obj.result(format='json', returner='terminal', structure=STRUCTURE)
-        timing("JSON dumped")
-    elif output.lower() == 'pprint':
-        parser_Obj.result(format='pprint', returner='terminal', structure=STRUCTURE)
-        timing("RAW pprint dumped")
-    elif output:
-        log.error("cli: unsupported output format '{}', supported [yaml, json, raw, pprint]".format(output.lower()))
+    # print data to screen
+    if OUTPUTTER:
+        if not OUTPUTTER.lower() in supporrted_cli_tool_outputters:
+            log.error("ttp.cli: unsupported outputter '{}', supported: {}, will use 'json' outputter".format(
+                OUTPUTTER, ", ".join(supporrted_cli_tool_outputters)))
+            OUTPUTTER="json"
+        results = parser_Obj.result(structure=STRUCTURE)
+        print(_ttp_['formatters'][OUTPUTTER](results))
+        timing("{} dumped".format(OUTPUTTER))
 
     timing("Done")
     

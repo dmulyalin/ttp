@@ -5,7 +5,7 @@ Group attribute *name* used to uniquely identify group and its results within re
 
 Consider a group with this name attribute value::
 
-    <group name="interfaces.vlan.L3.vrf-enabled" containsall="ip, vrf">
+    <group name="interfaces.vlan.L3.vrf-enabled">
     interface {{ interface }}
       description {{ description }}
       ip address {{ ip }}/{{ mask }}
@@ -14,13 +14,6 @@ Consider a group with this name attribute value::
 	
 If below data parsed with that template::
 
-    interface Port-Chanel11
-      description Storage Management
-    !
-    interface Loopback0
-      description RID
-      ip address 10.0.0.3/24
-    !
     interface Vlan777
       description Management
       ip address 192.168.0.1/24
@@ -71,7 +64,7 @@ Supported path formatters \* and \*\* for group *name* attribute can be used fol
 
 Consider this group with name attribute formed in such a way that interfaces item child will be a list and child of L3 path item also will be a list.::
 
-    <group name="interfaces*.vlan.L3*.vrf-enabled" containsall="ip, vrf">
+    <group name="interfaces*.vlan.L3*.vrf-enabled">
     interface {{ interface }}
       description {{ description }}
       ip address {{ ip }}/{{ mask }}
@@ -80,13 +73,6 @@ Consider this group with name attribute formed in such a way that interfaces ite
 	
 If below data parsed with that template::
 
-    interface Port-Chanel11
-      description Storage Management
-    !
-    interface Loopback0
-      description RID
-      ip address 10.0.0.3/24
-    !
     interface Vlan777
       description Management
       ip address 192.168.0.1/24
@@ -115,9 +101,7 @@ This result will be produced::
             ]
         }
     ]
-	
-.. Note:: containsall group function in above template just to demonstrate filtering capabilities and not related to path formatters
-	
+		
 Dynamic Path
 ------------
 
