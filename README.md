@@ -8,20 +8,20 @@ TTP is a Python library for parsing semi-structured text data using templates.
 
 ## Why?
 
-Every time questions arise on how many devices has blob X configured or how many interface has QoS policy applied or to find IP overlaps in the network etc., etc., for those people who write custom scripts to answer these questions, spending hours putting fancy regexes together and learning how to use specialized libraries to prepare, parse and process text data to transform it in a format that they can make use of - TTP is the answer.
+Every time questions arise on how many devices has blob X configured or how many interface has QoS policy applied or to find IP overlaps in the network etc., etc., for those who write custom scripts to answer these questions, spending hours putting fancy regexes together and learning how to use specialized libraries to prepare, parse and process text data to transform it in a format that they can make use of - TTP is the answer.
 
 ## How?
 
-Regexes, regexes everywhere... but dynamically formed out of TTP templates structured in such a way that raw regular expressions itself rarely used.
+Regexes, regexes everywhere... but dynamically formed out of TTP templates with added capabilities to streamline process of getting desired outcome from raw text data.
 
 ## What?
 
-A lot possible with TTP but in essence it can help to:
+In essence TTP can help to:
   - Prepare, sort and load text data for parsing
   - Parse text using regexes dynamically derived from templates
   - Process matches on the fly using broad set of built-in or custom convenience functions
   - Combine match results in a structure with arbitrary hierarchy
-  - Transform results in desired format to easily consume by humans or machines
+  - Transform results in desired format to ease consumption by humans or machines
   - Return resulted data to certain destinations for storage or further processing
 
 Reference [documentation](https://ttp.readthedocs.io) for more information.
