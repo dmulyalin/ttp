@@ -1074,8 +1074,9 @@ class _group_class():
     def get_attributes(self, data):
 
         def extract_default(O):
-            if len(O.strip()) == 0: self.default='None'
-            else: self.default = O.strip()
+            # if len(O.strip()) == 0: self.default='None'
+            # else: self.default = O.strip()
+            self.default = O
 
         def extract_method(O):
             self.method=O.lower().strip()

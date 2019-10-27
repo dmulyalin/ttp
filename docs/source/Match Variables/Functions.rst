@@ -67,6 +67,8 @@ Action functions act upon match result to transform into desired state.
      - string format using python string format method
    * - `uptimeparse`_ 
      - function to parse uptime string
+   # - `mac_eui`_ 
+     - transforms mac string into EUI format
  
 Condition functions can perform various checks with match results and returns either True or False depending on check results.
 
@@ -1824,3 +1826,8 @@ Results::
             }
         }
     ]
+	
+mac_eui
+------------------------------------------------------------------------------
+
+TBD
