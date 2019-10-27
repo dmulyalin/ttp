@@ -4,10 +4,24 @@
 
 # Template Text Parser
 
-TTP is a Python library for parsing semi-structured text data using templates relying on Python built-in regular expression module and XML Etree to structure templates. TTP was mainly developed to enable programmatic access to data produced by CLI of networking devices (show commands output or configuration), however, it can be used to parse any semi-structured text that contains distinctive repetition patterns.
+TTP is a Python library for parsing semi-structured text data using templates.
 
-In the simplest case TTP takes two files as an input - data that needs to be parsed and template, returning results structure that contains extracted information.
+## Why?
 
-Templates are easy to create and users encouraged to write their own TTP templates, in addition TTP docs shipped with a set of examples applicable for parsing output of network equipment.
+Every time questions arise on how many devices has blob X configured or how many interface has QoS policy applied or to find IP overlaps in the network etc., etc., for those people who write custom scripts to answer these questions, spending hours putting fancy regexes together and learning how to use specialized libraries to prepare, parse and process text data to transform it in a format that they can make use of - TTP is the answer.
+
+## How?
+
+Regexes, regexes everywhere... but dynamically formed out of TTP templates structured in such a way that raw regular expressions itself rarely used.
+
+## What?
+
+A lot possible with TTP but in essence it can help to:
+  - Prepare, sort and load text data for parsing
+  - Parse text using regexes dynamically derived from templates
+  - Process matches on the fly using broad set of built-in or custom convenience functions
+  - Combine match results in a structure with arbitrary hierarchy
+  - Transform results in desired format to easily consume by humans or machines
+  - Return resulted data to certain destinations for storage or further processing
 
 Reference [documentation](https://ttp.readthedocs.io) for more information.
