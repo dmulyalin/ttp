@@ -1384,6 +1384,8 @@ class _variable_class():
             self.functions.append(data)
             self.SAVEACTION='join'
             self.IS_LINE=True
+            # extract _line_ regex as well
+            extract_re(data)
 
         def extract_ignore(data):
             self.skip_variable_dict = True
@@ -1448,8 +1450,7 @@ class _variable_class():
         'IPV6'     : extract_re,
         'PREFIXV6' : extract_re,
         'MAC'      : extract_re,
-        'WORD'     : extract_re,
-        '_line_'   : extract_re
+        'WORD'     : extract_re
         }
         # handle _start_, _line_ etc.
         if self.var_name in extract_funcs:
@@ -1482,7 +1483,7 @@ class _variable_class():
             # form regex:
             self.regex = esc_line
             self.regex = indent + self.regex                   # reconstruct indent
-            self.regex = '\\n' + self.regex + '[     ]*(?=\\n)'  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
+            self.regex = '\\n' + self.regex + '[\t ]*(?=\\n)'  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
         else:
             self.regex = regex
 
