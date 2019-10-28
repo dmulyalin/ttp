@@ -567,7 +567,7 @@ class _template_class():
         } 
         self.ttp_vars = ttp_vars    # need to save it to pass to child templates
         self.vars.update(ttp_vars)  
-        self.outputs = []           # list hat contains global outputs
+        self.outputs = []           # list that contains global outputs
         self.groups_outputs = []    # list that contains groups specific outputs
         self.groups = []
         self.inputs = OrderedDict()
@@ -595,6 +595,7 @@ class _template_class():
             [template_obj.debug for template_obj in self.templates]
             [input.debug() for input in self.inputs.values()]
             [group.debug() for group in self.groups]
+            [output_obj.debug() for output_obj in self.outputs]
             #log.debug("Template self.outputs: \n{}".format(dump(self.outputs)))
             #log.debug("Template self.groups_outputs: \n{}".format(dump(self.groups_outputs)))
             #log.debug("Template self.lookups: \n{}".format(self.lookups))
@@ -1481,7 +1482,7 @@ class _variable_class():
             # form regex:
             self.regex = esc_line
             self.regex = indent + self.regex                   # reconstruct indent
-            self.regex = '\\n' + self.regex + '[\t ]*(?=\\n)'  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
+            self.regex = '\\n' + self.regex + '[     ]*(?=\\n)'  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
         else:
             self.regex = regex
 
@@ -2307,7 +2308,7 @@ class _outputter_class():
             try:
                 results = _ttp_["output"][func_name](results, *args, **kwargs)
             except KeyError:
-                log.error("ttp_output.run: output '{}' function not found.".format(func_name))
+                log.error("ttp_output.run: output '{}' function not found or failed.".format(func_name))
         # format data using requested formatter
         results = _ttp_["formatters"][format](results)
         # run returners
@@ -2317,7 +2318,11 @@ class _outputter_class():
             return results        
         # return unmodified data:
         return data
-        
+
+    def debug(self):
+        from pprint import pformat
+        text = "Output Object {}, Output name '{}' content:\n{}".format(self, self.name, pformat(vars(self), indent=4))
+        log.debug(text)
         
 """
 ==============================================================================
