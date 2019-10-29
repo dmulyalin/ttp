@@ -1381,7 +1381,7 @@ class _variable_class():
             self.SAVEACTION='join'
 
         def extract__line_(data):
-            self.functions.append(data)
+            #self.functions.append(data)
             self.SAVEACTION='join'
             self.IS_LINE=True
             # extract _line_ regex as well
