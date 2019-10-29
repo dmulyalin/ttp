@@ -1861,33 +1861,43 @@ class _results_class():
                             re = item[0]
                             result_data = item[1]
                             break
-                        # pick up re with the same path as current group:
-                        elif item_re["GROUP"].path == self.record["PATH"]:
+                        # pick up non _line_ re with the same path as current group:
+                        elif item_re["GROUP"].path == self.record["PATH"] and item_re['IS_LINE'] == False:
                             re = item[0]
                             result_data = item[1]
                             break
-                        # if IS_LINE - assign it but continue iterating:
-                        elif item_re['IS_LINE'] is True:
+                        # if IS_LINE - assign it if no re assigned yet and keep iterating
+                        elif item_re['IS_LINE'] is True and re == None:
                             re = item[0]
                             result_data = item[1]
+                        # assign item to re if it is not _line_ and keep iterating
+                        elif item_re['IS_LINE'] is False:
+                            re = item[0]
+                            result_data = item[1]
+                            
                 group = re['GROUP']
+                
                 # check if result is false, lock the group if so:
                 if result_data == False:
                     self.GRPLOCK['LOCK']=True
                     self.GRPLOCK['GROUP']=group.path
-                # skip results for locked group:
-                if self.GRPLOCK['LOCK'] is True:
-                    locked_group_path=self.GRPLOCK['GROUP']
-                    # skip children of locked group only based on group.path - if group.path starts with locked group group.path
-                    # it means that this is a children and we need to skip it except for the case when RSULTHPATH is the same:
-                    if group.path[:len(locked_group_path)] == locked_group_path and group.path != locked_group_path:
-                        continue
-                    # evaluate same level or parents - RSULTHPATH is the same
-                    elif re['ACTION'].startswith('start') and result_data is not False:
-                        self.GRPLOCK['LOCK'] = False
-                        self.GRPLOCK['GROUP'] = ()
-                    else:
-                        continue
+                    continue
+                # evaluate results to check if need to unlock locked group:
+                elif self.GRPLOCK['LOCK'] is True:
+                    locked_group_path = self.GRPLOCK['GROUP']
+                    if re['ACTION'].startswith('start'):
+                        # if same level _start_ unlock this group
+                        if group.path == locked_group_path:
+                            self.GRPLOCK['LOCK'] = False
+                            self.GRPLOCK['GROUP'] = ()
+                        # check if upper or different level _start_ re
+                        elif not ".".join(group.path).startswith(".".join(locked_group_path)):
+                            self.GRPLOCK['LOCK'] = False
+                            self.GRPLOCK['GROUP'] = ()
+                    # skip all the rest non _start_ children regexes
+                    elif ".".join(group.path).startswith(".".join(locked_group_path)):
+                        continue   
+                        
                 # Save results:
                 saveFuncs[re['ACTION']](
                     result     = result_data,
@@ -2042,13 +2052,10 @@ class _results_class():
 
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
-        if self.GRPLOCK['LOCK'] == True: return
-
         if self.record['PATH'] == PATH: # if same path - save into self.record
             self.record['result'].update(result)
-        # if different path - that can happen if we have
-        # group ended and result actually belong to another group, hence have
-        # save directly into results
+        # if different path - that can happen if we have group ended and result
+        # actually belong to another group, hence have save directly into results
         else:
             processed_path = self.form_path(PATH)
             if processed_path is False:

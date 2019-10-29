@@ -3251,4 +3251,168 @@ format_attributes = "tablefmt='fancy_grid'"
 </output>
 </template>
 
+
+<template
+name="Test17"
+description="
+in below data 'remote_system_capab' matches follow _line_ matches, they should
+be correctly handled using results selection logic, in addition groups with
+_line_ has _end_ indicator set, hence group unlock logic should be correctly 
+handled to save results properly.
+"
+>
+<input load="text">
+------------------------------------------------
+Local Intf: Et0/0
+Chassis id: aabb.cc00.2000
+Port id: Et0/0
+Port Description: Ethernet0/0
+System Name: R2
+
+System Description:
+Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.7(3)M2, DEVELOPMENT TEST SOFTWARE
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2018 by Cisco Systems, Inc.
+Compiled Wed 28-Mar-18 11:18 by prod_rel_te
+
+Time remaining: 108 seconds
+System Capabilities: B,R
+Enabled Capabilities: R
+Management Addresses - not advertised
+Auto Negotiation - not supported
+Physical media capabilities - not advertised
+Media Attachment Unit type - not advertised
+Vlan ID: - not advertised
+
+
+Total entries displayed: 1
+
+------------------------------------------------
+Local Intf: Et0/0
+Chassis id: aabb.cc00.2004
+Port id: Et0/0
+Port Description: Ethernet0/0
+System Name: R4
+
+System Description:
+Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.7(3)M2, DEVELOPMENT TEST SOFTWARE
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2018 by Cisco Systems, Inc.
+Compiled Wed 28-Mar-18 11:18 by prod_rel_te
+
+Time remaining: 108 seconds
+System Capabilities: B,R
+Enabled Capabilities: R
+Management Addresses - not advertised
+Auto Negotiation - not supported
+Physical media capabilities - not advertised
+Media Attachment Unit type - not advertised
+Vlan ID: - not advertised
+
+
+Total entries displayed: 1
+
+------------------------------------------------
+Local Intf: Et0/1
+Chassis id: aabb.cc00.2001
+Port id: Et0/1
+Port Description: Ethernet0/1
+System Name: R3
+
+System Description:
+Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.7(3)M2, DEVELOPMENT TEST SOFTWARE
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2018 by Cisco Systems, Inc.
+Compiled Wed 28-Mar-18 11:18 by prod_rel_te
+
+Time remaining: 108 seconds
+System Capabilities: B,R
+Enabled Capabilities: R
+Management Addresses - not advertised
+Auto Negotiation - not supported
+Physical media capabilities - not advertised
+Media Attachment Unit type - not advertised
+Vlan ID: - not advertised
+
+
+Total entries displayed: 1
+
+</input>
+
+<group name="result**.{{ interface }}*">
+------------------------------------------------ {{ _start_ }}
+Local Intf: {{ interface }}
+Chassis id: {{ remote_chassis_id }}
+Port id: {{ remote_port }}
+Port Description: {{ remote_port_description }}
+System Name: {{ remote_system_name }}
+
+<group name="remote_system_description">
+System Description: {{ _start_ }}
+{{ remote_system_description | _line_ | joinmatches(" ") }}
+{{ _end_ }}
+</group>
+
+System Capabilities: {{ remote_system_capab }}
+Enabled Capabilities: {{ remote_system_enable_capab }}
+</group>
+
+
+<output
+name="test17"
+description="test group with _line_ with upper group following matches"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+
+    [
+        {
+            "result": {
+                "Et0/0": [
+                    {
+                        "remote_chassis_id": "aabb.cc00.2000",
+                        "remote_port": "Et0/0",
+                        "remote_port_description": "Ethernet0/0",
+                        "remote_system_capab": "B,R",
+                        "remote_system_description": {
+                            "remote_system_description": "Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.7(3)M2, DEVELOPMENT TEST SOFTWARE Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2018 by Cisco Systems, Inc. Compiled Wed 28-Mar-18 11:18 by prod_rel_te"
+                        },
+                        "remote_system_enable_capab": "R",
+                        "remote_system_name": "R2"
+                    },
+                    {
+                        "remote_chassis_id": "aabb.cc00.2004",
+                        "remote_port": "Et0/0",
+                        "remote_port_description": "Ethernet0/0",
+                        "remote_system_capab": "B,R",
+                        "remote_system_description": {
+                            "remote_system_description": "Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.7(3)M2, DEVELOPMENT TEST SOFTWARE Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2018 by Cisco Systems, Inc. Compiled Wed 28-Mar-18 11:18 by prod_rel_te"
+                        },
+                        "remote_system_enable_capab": "R",
+                        "remote_system_name": "R4"
+                    }
+                ],
+                "Et0/1": [
+                    {
+                        "remote_chassis_id": "aabb.cc00.2001",
+                        "remote_port": "Et0/1",
+                        "remote_port_description": "Ethernet0/1",
+                        "remote_system_capab": "B,R",
+                        "remote_system_description": {
+                            "remote_system_description": "Cisco IOS Software, Linux Software (I86BI_LINUX-ADVENTERPRISEK9-M), Version 15.7(3)M2, DEVELOPMENT TEST SOFTWARE Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2018 by Cisco Systems, Inc. Compiled Wed 28-Mar-18 11:18 by prod_rel_te"
+                        },
+                        "remote_system_enable_capab": "R",
+                        "remote_system_name": "R3"
+                    }
+                ]
+            }
+        }
+    ]
+
+</output>
+</template>
+
 </template>
