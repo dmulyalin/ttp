@@ -1594,7 +1594,7 @@ class _parser_class():
                 self.DATATEXT, flags = _ttp_['input'][func_name](self.DATATEXT, *args, **kwargs)
             except:
                 flags = False
-                log.error("ttp_parser.set_data: input function '{}' failed".format(func_name))
+                log.error("ttp_parser.set_data: input function '{}' not found or failed".format(func_name))
             if flags == False:
                 break
 

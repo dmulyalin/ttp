@@ -17,7 +17,7 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - checks if group result contains match at least for one of given variables
    * - `macro`_   
      - Name of the macros function to run against group result 
-   * - `group functions`_   
+   * - `functions`_   
      - String containing list of functions to run this group results through
    * - `to_ip`_   
      - transforms given values in ipaddress IPAddress object
@@ -139,13 +139,13 @@ macro
 ------------------------------------------------------------------------------
 ``macro="name1, name2, ... , nameN"``
 
-* nameN - comma separated string of macro tag names that should be used to run group results through. The sequence of macroses provided *preserved* and macroses executed in specified order, in other words macro named name2 will run after macro name1.
+* nameN - comma separated string of macro functions names that should be used to run group results through. The sequence is *preserved* and macros executed in specified order, in other words macro named name2 will run after macro name1.
 
-Macro brings Python language capabilities to match results processing and validation during ttp module execution, as it allows to run custom python functions against match results. Macro functions referenced by their name in match variable definitions.
+Macro brings Python language capabilities to group results processing and validation during TTP module execution, as it allows to run custom python functions. Macro functions referenced by their name in group tag definitions.
 
-Macro function must accept only one attribute to hold group results, for groups data supplied to macro function is a dictionary of data matched by this group.
+Macro function must accept only one attribute to hold group match results.
 
-Depending on data returned by macro function, ttp will behave differently according to these rules:
+Depending on data returned by macro function, TTP will behave differently according to these rules:
 
 * If macro returns True or False - original data unchanged, macro handled as condition functions, invalidating result on False and keeps processing result on True
 * If macro returns None - data processing continues, no additional logic associated
@@ -226,7 +226,7 @@ Result::
         }
     ]
     
-group functions
+functions
 ------------------------------------------------------------------------------
 ``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
 

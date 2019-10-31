@@ -1750,6 +1750,74 @@ description="test match uptimeparse function, format=dict"
     }
 </output>
 
+
+
+<input load="text" name="test1-33">
+interface Vlan778
+ description some description 1
+ ip address 2002:fd37::91/124
+!
+interface Loopback0
+ description some description 2
+!
+interface Vlan780
+ switchport port-security mac 4
+!
+</input>
+
+<group name="interfaces-test1-33" del="description, ip" input="test1-33" output="test1-33">
+interface {{ interface | contains("Vlan") }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description | ORPHRASE }}
+ switchport port-security mac {{ sec_mac }}
+</group>
+
+<output
+name="test1-33"
+load="json"
+functions="is_equal"
+description="test group filtering based on start re contains"
+>
+    {
+        "interfaces-test1-33": [
+            {
+                "interface": "Vlan778",
+                "mask": "124"
+            },
+            {
+                "interface": "Vlan780",
+                "sec_mac": "4"
+            }
+        ]
+    }
+</output>
+
+
+
+<input load="text" name="test1-34">
+GigabitEthernet2 is up, line protocol is up
+  Hardware is CSR vNIC, address is 0800.2779.e896 (bia 08-00-27-79-e8-96)
+</input>
+
+<group name="interface-test1-34" input="test1-34" output="test1-34">
+{{ interface }} is up, line protocol is up
+  Hardware is CSR vNIC, address is {{ mac | mac_eui }} (bia {{ bia_mac | mac_eui}})
+</group>
+
+<output 
+name="test1-34"
+load="json"
+functions="is_equal"
+description="test mac_eui function"
+>
+{
+    "interface-test1-34": {
+        "bia_mac": "08:00:27:79:e8:96",
+        "interface": "GigabitEthernet2",
+        "mac": "08:00:27:79:e8:96"
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"
@@ -3415,4 +3483,60 @@ format_attributes = "tablefmt='fancy_grid'"
 </output>
 </template>
 
+
+<template
+name="Test18"
+description="
+This template uses _ttp_ rlookup function inside of macro to 
+lookup values for matched items.
+"
+>
+<macro>
+def add_capabilities(data):
+    return [
+        _ttp_["match"]["rlookup"](data=item, name="capabilities.codes")[0] 
+        for item in data
+    ]
+</macro>
+
+<lookup name="capabilities" load="ini">
+[codes]
+B: Bridge
+R: Router
+</lookup>
+
+<input load="text">
+System Capabilities: B,R
+Enabled Capabilities: B
+</input>
+
+<group name="test18">
+System Capabilities: {{ remote_system_capab | split(",") | macro("add_capabilities") }}
+Enabled Capabilities: {{ remote_system_enable_capab | split(",") | macro("add_capabilities") }}
+</group>
+
+<output
+name="test18"
+description="test macro that uses _ttp_ function"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+    [
+        {
+            "test18": {
+                "remote_system_capab": [
+                    "Bridge",
+                    "Router"
+                ],
+                "remote_system_enable_capab": [
+                    "Bridge"
+                ]
+            }
+        }
+    ]
+</output>
+</template>
 </template>

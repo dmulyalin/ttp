@@ -1829,5 +1829,6 @@ Results::
 	
 mac_eui
 ------------------------------------------------------------------------------
+``{{ name | mac_eui }}``
 
-TBD
+This function normalizes mac address representation format by deleting ``-:. `` characters from mac address string and converting it into aa:bb:cc:dd:ee:ff. It also handles the case when mac address trailing zeros stripped by device in show commands output, by staffing zeros to make mac address 12 symbols long, e.g. aabb.ccdd.ee will be converted to aa:bb:cc:dd:ee:00
