@@ -48,7 +48,49 @@ commands
 ------------------------------------------------------------------------
 ``commands="command1, command2, ... , commandN"``	 
 
-TBD
+Purpose of this function is twofold:
+ 
+    1 For each command TTP can extract associated data from input text, so that input groups will only process data they designed to parse
+	2 TTP object methods ``get_input_commands_list`` and ``get_input_commands_dict`` can return list or dictionary of commands, output for which template expects
+	
+..note:: to be able to successfully extract show commands output, text data should contain device hostname together with command itself
+	
+**Example**
+
+In below template, only "show interfaces" command output will be processed, as only that command specified in input ``commands`` attribute.
+
+Template::
+
+    <input load="text" commands="show interfaces">
+    cpe1#show int
+    GigabitEthernet33 is up, line protocol is up
+      Hardware is CSR vNIC, address is 0800.2779.9999 (bia 0800.2779.9999)
+    cpe1#show interfaces
+    GigabitEthernet44 is up, line protocol is up
+      Hardware is CSR vNIC, address is 0800.2779.e896 (bia 0800.2779.e896)
+    cpe1#show interf
+    GigabitEthernet55 is up, line protocol is up
+      Hardware is CSR vNIC, address is 0800.2779.e888 (bia 0800.2779.e888)
+    </input>
+    
+    <group name="interfaces_status">
+    {{ interface }} is up, line protocol is up
+      Hardware is CSR vNIC, address is {{ mac }} (bia {{ bia_mac }})
+    </group>
+
+Result::
+
+    [
+        [
+            {
+                "interfaces_status": {
+                    "bia_mac": "0800.2779.e896",
+                    "interface": "GigabitEthernet44",
+                    "mac": "0800.2779.e896"
+                }
+            }
+        ]
+    ]
 
 test
 ------------------------------------------------------------------------

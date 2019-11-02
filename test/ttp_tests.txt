@@ -1818,6 +1818,71 @@ description="test mac_eui function"
     }
 }
 </output>
+
+
+
+<input name="test1-35" load="text" commands="show interfaces">
+cpe1#show interfaces status
+GigabitEthernet33 is up, line protocol is up
+  Hardware is CSR vNIC, address is 0800.2779.9993 (bia 0800.2779.9993)
+cpe1#show interfaces
+GigabitEthernet2 is up, line protocol is up
+  Hardware is CSR vNIC, address is 0800.2779.e896 (bia 0800.2779.e896)
+cpe1#show int
+GigabitEthernet34 is up, line protocol is up
+  Hardware is CSR vNIC, address is 0800.2779.9999 (bia 0800.2779.9999)
+</input>
+
+<group name="interfaces_test1_35" input="test1-35" output="test1-35">
+{{ interface }} is up, line protocol is up
+  Hardware is CSR vNIC, address is {{ mac | mac_eui }} (bia {{ bia_mac }})
+</group>
+
+<output
+name="test1-35"
+load="json"
+functions="is_equal"
+description="test input commands function"
+>
+{
+    "interfaces_test1_35": {
+        "bia_mac": "0800.2779.e896",
+        "interface": "GigabitEthernet2",
+        "mac": "08:00:27:79:e8:96"
+    }
+}
+</output>
+
+
+
+
+<input name="test1-36" load="text" commands="show run interfaces">
+cpe1#show interfaces
+interface Vlan779
+ ip address 2002:fd37::79/124
+cpe1#show run interfaces
+interface Vlan778
+ ip address 2002:fd37::91/124
+</input>
+
+<group name="interfaces_test1_36" input="test1-36" output="test1-36">
+interface {{ interface }}
+ ip address {{ ip }}
+</group>
+
+<output
+name="test1-36"
+load="json"
+functions="is_equal"
+description="test input commands function one more time"
+>
+{
+    "interfaces_test1_36": {
+        "interface": "Vlan778",
+        "ip": "2002:fd37::91/124"
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"
