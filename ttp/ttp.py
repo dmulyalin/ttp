@@ -1222,14 +1222,14 @@ class _group_class():
                 if not 'start' in re_dict['ACTION']:
                     re_dict['ACTION'] ='start'
                 self.start_re.append(re_dict)
+            elif "end" in re_dict['ACTION']:
+                self.end_re.append(re_dict)
             elif self.method == 'table':
                 if not 'start' in re_dict['ACTION']:
                     re_dict['ACTION'] = 'start'
                 self.start_re.append(re_dict)
             elif "start" in re_dict['ACTION']:
                 self.start_re.append(re_dict)
-            elif "end" in re_dict['ACTION']:
-                self.end_re.append(re_dict)
             else:
                 self.re.append(re_dict)
                 

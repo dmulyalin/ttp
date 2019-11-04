@@ -3044,18 +3044,18 @@ format_attributes = "tablefmt='fancy_grid'"
                 "sec_mac": "4"
             },
             {
-                "description": "some description 1",
-                "interface": "Vlan778",
-                "ip": "2002:fd37::91",
+                "description": "some description 888",
+                "interface": "Vlan888",
+                "ip": "2002:fd37::888",
                 "mask": "124"
             },
             {
-                "description": "some description 2",
-                "interface": "Vlan779"
+                "description": "some description 889",
+                "interface": "Vlan889"
             },
             {
-                "interface": "Vlan780",
-                "sec_mac": "4"
+                "interface": "Vlan890",
+                "sec_mac": "890"
             }
         ]
     }
