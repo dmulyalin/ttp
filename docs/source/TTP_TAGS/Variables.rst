@@ -288,22 +288,22 @@ get_time
 ------------------------------------------------------------------------------
 ``var_name="get_time"``	
 
-TBD
+Returns current time in ``%H:%M:%S`` format.
 
 get_date
 ------------------------------------------------------------------------------
 ``var_name="get_date"``	
 
-TBD
+Returns current date in ``%Y-%m-%d`` format.
 
 get_timestamp
 ------------------------------------------------------------------------------
 ``var_name="get_timestamp"``	
 
-TBD
+Returns current timestamp in ``%Y-%m-%d %H:%M:%S`` format.
 
 get_timestamp_ms
 ------------------------------------------------------------------------------
 ``var_name="get_timestamp_ms"``	
 
-TBD
+Returns current timestamp but with milliseconds precision in a format of ``%Y-%m-%d %H:%M:%S.%ms``

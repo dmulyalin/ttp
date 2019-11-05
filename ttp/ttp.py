@@ -2276,8 +2276,13 @@ class _outputter_class():
                 self.funcs.append(O)
             
         def extract_traverse(O):
-            self.funcs.append(O)
-
+            if isinstance(O, str):
+                traverse = _ttp_["utils"]["get_attributes"](
+                    'traverse({})'.format(O))
+                self.funcs.append(traverse[0])
+            elif isinstance(O, dict):
+                self.funcs.append(O)
+				
         options = {
         'name'           : extract_name,
         'returner'       : extract_returner,

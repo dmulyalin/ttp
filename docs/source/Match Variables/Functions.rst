@@ -67,7 +67,7 @@ Action functions act upon match result to transform into desired state.
      - string format using python string format method
    * - `uptimeparse`_ 
      - function to parse uptime string
-   # - `mac_eui`_ 
+   * - `mac_eui`_ 
      - transforms mac string into EUI format
  
 Condition functions can perform various checks with match results and returns either True or False depending on check results.
@@ -1645,7 +1645,7 @@ Template::
     interface {{ interface }}
      description {{ description | dns(record='AAAA', add_field='IPs') }}
     </group>
-	
+    
 Result::
 
     [
@@ -1677,7 +1677,7 @@ Result::
             }
         }
     ]
-	
+    
 rdns
 ------------------------------------------------------------------------------
 ``{{ name | dns(timeout=1, servers=[], add_field=False) }}``
@@ -1718,7 +1718,7 @@ Template::
     interface {{ interface }}
      ip address {{ ip | rdns(add_field='FQDN') }} {{ mask }}
     </group>
-	
+    
 Result::
 
     [
@@ -1741,7 +1741,7 @@ Result::
             }
         }
     ]
-	
+    
 sformat
 ------------------------------------------------------------------------------
 ``{{ name | sformat("string_to_format") }}``
@@ -1786,12 +1786,12 @@ This function can be used to parse text strings of below format to extract uptim
     27 weeks, 3 days, 10 hours, 46 minutes
     10 hours, 46 minutes
     1 minutes
-	
+    
 Arguments:
 
 * ``format`` - default is seconds, optional argument to specify format of returned results, if seconds - integer, number of seconds will be returned, if dict - will return a dictionary of extracted time
 
-	
+    
 **Example**
 
 Template::
@@ -1826,9 +1826,9 @@ Results::
             }
         }
     ]
-	
+    
 mac_eui
 ------------------------------------------------------------------------------
 ``{{ name | mac_eui }}``
 
-This function normalizes mac address representation format by deleting ``-:. `` characters from mac address string and converting it into aa:bb:cc:dd:ee:ff. It also handles the case when mac address trailing zeros stripped by device in show commands output, by staffing zeros to make mac address 12 symbols long, e.g. aabb.ccdd.ee will be converted to aa:bb:cc:dd:ee:00
+This function normalizes mac address representation format by deleting ``-:.`` characters from mac address string and converting it into aa:bb:cc:dd:ee:ff. It also handles the case when mac address trailing zeros stripped by device in show commands output, by staffing zeros to make mac address 12 symbols long, e.g. aabb.ccdd.ee will be converted to aa:bb:cc:dd:ee:00

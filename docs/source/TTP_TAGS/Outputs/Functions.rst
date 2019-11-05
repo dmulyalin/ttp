@@ -4,7 +4,7 @@ Functions
 Output system provides support for a number of functions. Functions help to process overall parsing results with intention to modify, check or filter them in certain way.
 
 .. list-table::
-   :widths: 10 90
+   :widths: 20 80
    :header-rows: 1
 
    * - Name
@@ -15,11 +15,15 @@ Output system provides support for a number of functions. Functions help to proc
      - insert arbitrary data to results at given path, replacing any existing results
    * - `dict_to_list`_
      - transforms dictionary to list of dictionaries at given path     
+   * - `traverse`_
+     - returns data at given path location of results tree
    * - `macro`_
      - passes results through macro function
+   * - `output functions`_ 
+     - pipe separated list of functions to run results through  
      
 is_equal
-******************************************************************************
+------------------------------------------------------------
 ``functions="is_equal"``
 
 Function is_equal load output tag text data into python structure (list, dictionary etc.) using given loader and performs comparison with parsing results. is equal returns a dictionary of three elements::
@@ -83,17 +87,93 @@ Results::
     }
   
 set_data
-******************************************************************************
+------------------------------------------------------------
 
-TBD
+This function not yet tested and not available for use, listed here as a placeholder.
   
 dict_to_list
-******************************************************************************
+------------------------------------------------------------
+``dict_to_list="key_name='key', path='dot.separated.path'"``
 
-TBD
+* key_name - string, name of the key to use to assign previous key as a value
+* path - string, dot separated path to data that need to be transformed
+
+This functions help to flatten dictionary data by converting it to list e.g. if data is::
+
+    {"Fa0" : {"admin": "administratively down"}, "Ge0/1": {"access_vlan": "24"}}
+
+and key_name="interface", dit_to_list function will return this list::
+
+    [ {"admin": "administratively down", "interface": "Fa0"},
+      {"access_vlan": "24", "interface": "Ge0/1"} ]
+
+Primary usecase is to produce list data out of dictionary, this function used internally by table output formatter for that purpose.
+
+**Example**
+
+Template::
+
+    <input load="text">
+    some.user@router-fw-host> show configuration interfaces | display set 
+    set interfaces ge-0/0/11 unit 0 description "SomeDescription glob1"
+    set interfaces ge-0/0/11 unit 0 family inet address 10.0.40.121/31
+    set interfaces lo0 unit 0 description "Routing Loopback"
+    set interfaces lo0 unit 0 family inet address 10.6.4.4/32
+    </input>
+    
+    <group name="{{ interface }}{{ unit }}**" method="table">
+    set interfaces {{ interface }} unit {{ unit }} family inet address {{ ip }}
+    set interfaces {{ interface }} unit {{ unit }} description "{{ description | ORPHRASE }}"
+    </group>
+    
+    <output dict_to_list="key_name='interface'"/>
+
+Result::
+
+    [
+        [
+            [
+                {
+                    "description": "SomeDescription glob1",
+                    "interface": "ge-0/0/110",
+                    "ip": "10.0.40.121/31"
+                },
+                {
+                    "description": "Routing Loopback",
+                    "interface": "lo00",
+                    "ip": "10.6.4.4/32"
+                }
+            ]
+        ]
+    ]
+
+As a comparison example, here is how results would look like without running them through dict_to_list function::
+
+    [
+        [
+            {
+                "ge-0/0/110": {
+                    "description": "SomeDescription glob1",
+                    "ip": "10.0.40.121/31"
+                },
+                "lo00": {
+                    "description": "Routing Loopback",
+                    "ip": "10.6.4.4/32"
+                }
+            }
+        ]
+    ]
+
+traverse
+------------------------------------------------------------
+``traverse="path='dot.separated.path'"``
+
+* path - string, dot separated path to data that need to be transformed
+
+traverse function walks results tree up to the level of given path and return data at given locaton.
 
 macro
-******************************************************************************
+------------------------------------------------------------
 ``macro="func_name"`` or ``functions="macro('func_name1') | macro('func_name2')"``
 
 Output macro function allows to process whole results using custom function(s) defined within <macro> tag.
@@ -148,3 +228,11 @@ Results::
             }
         ]
     ]
+	
+output functions
+------------------------------------------------------------
+``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
+
+* functionN - name of the output function together with it's attributes
+
+String, that contains pipe separated list of output functions with functions' attributes

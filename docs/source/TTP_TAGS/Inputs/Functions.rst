@@ -17,7 +17,7 @@ Input tag support functions to pre-process data.
      - Comma separated list of commands output to extract from text data
    * - `test`_   
      - Test function to verify input function handling
-	 
+     
 functions
 ------------------------------------------------------------------------
 ``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
@@ -46,15 +46,15 @@ Depending on data returned by macro function, TTP will behave differently accord
 
 commands
 ------------------------------------------------------------------------
-``commands="command1, command2, ... , commandN"``	 
+``commands="command1, command2, ... , commandN"``     
 
 Purpose of this function is twofold:
  
-    1 For each command TTP can extract associated data from input text, so that input groups will only process data they designed to parse
-	2 TTP object methods ``get_input_commands_list`` and ``get_input_commands_dict`` can return list or dictionary of commands, output for which template expects
-	
+* For each command TTP can extract associated data from input text, so that input groups will only process data they designed to parse
+* TTP object methods ``get_input_commands_list`` and ``get_input_commands_dict`` can return list or dictionary of commands, output for which template expects
+    
 ..note:: to be able to successfully extract show commands output, text data should contain device hostname together with command itself
-	
+    
 **Example**
 
 In below template, only "show interfaces" command output will be processed, as only that command specified in input ``commands`` attribute.
@@ -94,6 +94,6 @@ Result::
 
 test
 ------------------------------------------------------------------------
-``test=""``	 
+``test=""``     
 
 Test function to verify input function call, test simply prints informational message to the screen, indicating that input test function was called.

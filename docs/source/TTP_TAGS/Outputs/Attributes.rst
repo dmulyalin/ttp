@@ -3,9 +3,6 @@ Attributes
 
 There are a number of attributes that outputs system can use. Some attributes can be specific to output itself (name, description), others can be used by formatters or returners. 
 
-Output attributes
------------------
-
 .. list-table::
    :widths: 10 90
    :header-rows: 1
@@ -21,9 +18,7 @@ Output attributes
    * - `returner`_ 
      - returner to use to return data e.g. self, file, terminal
    * - `format`_ 
-     - formatter to use to format results
-   * - `functions`_ 
-     - pipe separated list of functions to run results through         
+     - formatter to use to format results        
 
 name
 ******************************************************************************
@@ -64,11 +59,3 @@ format
 ``format=formatter_name"``    
 
 Name of the formatter to use to format results.
-
-functions
-******************************************************************************
-``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
-
-* functionN - name of the output function together with it's attributes
-
-String, that contains pipe separated list of output functions with functions' attributes

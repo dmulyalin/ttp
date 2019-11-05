@@ -17,7 +17,7 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - checks if group result contains match at least for one of given variables
    * - `macro`_   
      - Name of the macros function to run against group result 
-   * - `functions`_   
+   * - `group functions`_   
      - String containing list of functions to run this group results through
    * - `to_ip`_   
      - transforms given values in ipaddress IPAddress object
@@ -226,7 +226,7 @@ Result::
         }
     ]
     
-functions
+group functions
 ------------------------------------------------------------------------------
 ``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
 

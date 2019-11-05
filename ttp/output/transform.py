@@ -6,8 +6,9 @@ def traverse(data, path):
     at given path.
     """
     result = data
+    # need to check path, in case of standalone function use
     if isinstance(path, str):
-        path = [path]
+        path = [i.strip() for i in path.split(".")]
     if isinstance(data, dict):
         for i in path:
             result = result.get(i, {})
