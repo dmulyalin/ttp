@@ -2068,6 +2068,9 @@ class _results_class():
 
 
     def join(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
+        # if path not the same, results belong to different group, skip them
+        if self.record['PATH'] != PATH:
+            return
         joinchar = '\n'
         for varname, varvalue in result.items():
             # skip vars that were added to results on the go
@@ -2099,6 +2102,9 @@ class _results_class():
 
 
     def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
+        # if path not the same, results belong to different group, skip them
+        if self.record['PATH'] != PATH:
+            return
         # action to end current group by locking it
         self.GRPLOCK['LOCK'] = True
         self.GRPLOCK['GROUP'] = list(PATH)
@@ -2282,7 +2288,7 @@ class _outputter_class():
                 self.funcs.append(traverse[0])
             elif isinstance(O, dict):
                 self.funcs.append(O)
-				
+                
         options = {
         'name'           : extract_name,
         'returner'       : extract_returner,

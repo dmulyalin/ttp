@@ -170,7 +170,67 @@ traverse
 
 * path - string, dot separated path to data that need to be transformed
 
-traverse function walks results tree up to the level of given path and return data at given locaton.
+traverse function walks results tree up to the level of given path and return data at that location.
+
+**Example**
+
+Template::
+
+    <input load="text">
+    some.user@router-fw-host> show configuration interfaces | display set 
+    set interfaces ge-0/0/11 unit 0 description "SomeDescription glob1"
+    set interfaces ge-0/0/11 unit 0 family inet address 10.0.40.121/31
+    set interfaces lo0 unit 0 description "Routing Loopback"
+    set interfaces lo0 unit 0 family inet address 10.6.4.4/32
+    </input>
+    
+    <group name="my.long.path.{{ interface }}{{ unit }}**" method="table">
+    set interfaces {{ interface }} unit {{ unit }} family inet address {{ ip }}
+    set interfaces {{ interface }} unit {{ unit }} description "{{ description | ORPHRASE }}"
+    </group>
+    
+    <output traverse="path='my.long.path'"/>
+
+Result::
+
+    [
+        [
+            {
+                "ge-0/0/110": {
+                    "description": "SomeDescription glob1",
+                    "ip": "10.0.40.121/31"
+                },
+                "lo00": {
+                    "description": "Routing Loopback",
+                    "ip": "10.6.4.4/32"
+                }
+            }
+        ]
+    ]
+    
+For comparison, without traverse TTP would return these results::
+
+    [
+        [
+            {
+                "my": {
+                    "long": {
+                        "path": {
+                            "ge-0/0/110": {
+                                "description": "SomeDescription glob1",
+                                "ip": "10.0.40.121/31"
+                            },
+                            "lo00": {
+                                "description": "Routing Loopback",
+                                "ip": "10.6.4.4/32"
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    ]
+
 
 macro
 ------------------------------------------------------------
@@ -209,7 +269,7 @@ Template::
     </group>
     
     <output macro="check_svi"/>
-	
+    
 Results::
 
     [
@@ -228,7 +288,7 @@ Results::
             }
         ]
     ]
-	
+    
 output functions
 ------------------------------------------------------------
 ``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``

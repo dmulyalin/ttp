@@ -45,6 +45,8 @@ And get these results::
             }
         ]
     ]
+	
+.. warning:: TTP match variables names used as regular expressions group names, hence they must be valid Python identifiers.
 
 Above process is very similar to writing `Jinja2 <https://palletsprojects.com/p/jinja/>`_ templates but in reverse direction - we have text and we need to transform it into structured data, as opposed to having structured data, that needs to be rendered with Jinja2 template to produce text.
 
@@ -88,3 +90,4 @@ HOW TOs
    How to parse text tables
    How to parse show commands output
    How to filter with TTP
+   How to produce time series data with TTP
