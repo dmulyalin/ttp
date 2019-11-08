@@ -1949,7 +1949,18 @@ class _results_class():
             transformed DATA with list at given PATH and appended results to it
         """
         if PATH:
-            name=str(PATH[0]).rstrip('*')
+            name = str(PATH[0]).rstrip('*')
+            # add support for null path
+            if name == '_':
+                if len(PATH) == 1:                # reached end of PATH, process DATA and return it
+                    if isinstance(DATA, dict):
+                        DATA.update(result)
+                    elif isinstance(DATA, list):
+                        DATA[-1].update(result)
+                    return DATA
+                else:                               # have more path items, need to skip null path,
+                    _ = PATH.pop(0)                 # remove null path item to skip it
+                    name = str(PATH[0]).rstrip('*') # continue processing remaining PATH items
             if isinstance(DATA, dict):
                 if name in DATA:
                     DATA[name]=self.value_to_list(DATA[name], PATH[1:], result)
@@ -1991,12 +2002,19 @@ class _results_class():
             PATH (list): list of keys in absolute path format
             ELEMENT: nested list, list of dictionaries or dictionary to get element from
         Returns:
-            last element at given PATH of transformed ELEMENT dict
+            last element at given PATH of transformed ELEMENT dictionary
         """
         if PATH == []: return ELEMENT                                # check if PATH is empty, if so - stop and return ELEMENT
 
         elif isinstance(ELEMENT, dict):
             name = str(PATH[0]).rstrip('*')
+            # add support for null path
+            if name == '_':
+                if len(PATH) == 1:                   # reached end of PATH, need to return ELEMENT
+                    return ELEMENT
+                else:                                # have more path items, need to skip null path,
+                    _ = PATH.pop(0)                  # remove null path item to skip it
+                    name = str(PATH[0]).rstrip('*')  # continue processing remaining PATH items
             if name in ELEMENT:                                      # check if first element of the list is in ELEMENT
                 return self.dict_by_path(PATH[1:], ELEMENT[name])    # run recursion with moving forward in both - PATH and ELEMENT
             else:                                                    # if first element not in dict - we found new key, update it into the dict
