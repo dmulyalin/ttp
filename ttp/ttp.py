@@ -1592,9 +1592,13 @@ class _parser_class():
             func_name, args, kwargs = item['name'], item.get('args', []), item.get('kwargs', {})
             try:
                 self.DATATEXT, flags = _ttp_['input'][func_name](self.DATATEXT, *args, **kwargs)
-            except:
+            except KeyError:
                 flags = False
-                log.error("ttp_parser.set_data: input function '{}' not found or failed".format(func_name))
+                similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["input"].keys()))
+                if similar_funcs:
+                    log.error("ttp_parser.set_data: input function '{}' not found, the most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
+                else:
+                    log.error("ttp_parser.set_data: input function '{}' not found".format(func_name))
             if flags == False:
                 break
 
@@ -1666,7 +1670,10 @@ class _parser_class():
                                     flag = None        
                             except AttributeError as e:
                                 flag = None
-                                log.error("ttp_parser.check_matches: match variable '{}' function failed, data '{}', error '{}'".format(func_name, data, e))
+                                log.error("ttp_parser.check_matches: match variable function '{}' failed, data '{}', error '{}'".format(func_name, data, e))
+                                similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["match"].keys()))
+                                if similar_funcs:
+                                    log.error("ttp_parser.check_matches: the most similar match variable function(s) - {}".format(", ".join(similar_funcs)))
                         if flag is True or flag is None:
                             continue
                         elif flag is False:
@@ -2162,7 +2169,11 @@ class _results_class():
             try: # try group functions
                 self.record['result'], flags = _ttp_["group"][func_name](self.record['result'], *args, **kwargs)
             except KeyError:
-                log.error("ttp_results.processgrp: group '{}' function failed, data '{}'".format(func_name, self.record['result']))
+                similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["group"].keys()))
+                if similar_funcs:
+                    log.error("ttp_results.processgrp: results processing failed, group function '{}' does not exists, most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
+                else:
+                    log.error("ttp_results.processgrp: results processing failed, group function '{}'".format(func_name))                    
                 flags = False
             # if conditions check been false, return False:
             if flags == False:
@@ -2256,7 +2267,11 @@ class _outputter_class():
                 if name in functions:
                     functions[name](i)
                 else:
-                    log.error('output.extract_functions: unknown output function: "{}"'.format(name))
+                    similar_funcs = _ttp_["utils"]["guess"](name, list(_ttp_["output"].keys()))
+                    if similar_funcs:
+                        log.error("output.extract_functions: unknown output function: '{}', most similar function(s) - {}".format(name, ", ".join(similar_funcs)))
+                    else:
+                        log.error('output.extract_functions: unknown output function: "{}"'.format(name))
 
         def extract_macro(O):
             if isinstance(O, str):
@@ -2337,7 +2352,7 @@ class _outputter_class():
         returners = self.attributes['returner']
         format = self.attributes['format']
         results = data
-        # run fuctions:
+        # run functions:
         for item in self.funcs:
             func_name = item['name']
             args = item.get('args', [])
@@ -2345,7 +2360,11 @@ class _outputter_class():
             try:
                 results = _ttp_["output"][func_name](results, *args, **kwargs)
             except KeyError:
-                log.error("ttp_output.run: output '{}' function not found or failed.".format(func_name))
+                similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["output"].keys()))
+                if similar_funcs:
+                    log.error("ttp_output.run: output function '{}' not found, most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
+                else:
+                    log.error("ttp_output.run: output function '{}' not found".format(func_name))
         # format data using requested formatter
         results = _ttp_["formatters"][format](results)
         # run returners
