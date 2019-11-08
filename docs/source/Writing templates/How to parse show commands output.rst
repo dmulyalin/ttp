@@ -54,7 +54,7 @@ And the goal is to get this results structure::
 		peer_hostname: str,
 		peer_interface: str,
 		peer_ip: ip,
-		peer_platform: [cap1, cap2]
+		peer_platform: [cap1, cap2],
 		peer_capabilities: str,
 		peer_software: str
 	}
@@ -69,12 +69,14 @@ Template for that might looks like this::
     ------------------------- {{ _start_ }}
     Device ID: {{ peer_hostname }}
     IP address: {{ peer_ip }}
-    Platform: {{ peer_platform | ORPHRASE}},  Capabilities: {{ peer_capabilities | ORPHRASE }} 
+    Platform: {{ peer_platform | ORPHRASE}},  Capabilities: {{ peer_capabilities | ORPHRASE | split(" ") }} 
     Interface: {{ local_interface }},  Port ID (outgoing port): {{ peer_interface }}
     {{ local_hostname | set("hostname") }}
-    <group name="peer_software">
+	
+    <group name="_">
     Version : {{ _start_ }}
     {{ peer_software | _line_ }}
     {{ _end_ }}
     </group>
+	
     </group>

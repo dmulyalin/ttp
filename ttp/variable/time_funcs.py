@@ -15,3 +15,7 @@ def get_timestamp_ms(*args, **kwargs):
 def get_timestamp(*args, **kwargs):
     strformat="%Y-%m-%d %H:%M:%S"
     return time.strftime(strformat)
+    
+def get_time_ns(*args, **kwargs):
+    # Return the current time in nanoseconds since the Epoch
+    return time.time_ns()

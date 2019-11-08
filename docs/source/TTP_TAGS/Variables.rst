@@ -48,6 +48,8 @@ TTP template variables also support a number of getters - functions targeted to 
      - returns combination of current date and time
    * - `get_timestamp_ms`_   
      - returns combination of current date and time with milliseconds
+   * - `get_time_ns`_   
+     - returns current time in nanoseconds since Epoch
 	 
 load
 ------------------------------------------------------------------------------
@@ -307,3 +309,9 @@ get_timestamp_ms
 ``var_name="get_timestamp_ms"``	
 
 Returns current timestamp but with milliseconds precision in a format of ``%Y-%m-%d %H:%M:%S.%ms``
+
+get_time_ns
+------------------------------------------------------------------------------
+``var_name="get_time_ns"``	
+
+This function uses time.time_ns method to return current time in nanoseconds since Epoch
