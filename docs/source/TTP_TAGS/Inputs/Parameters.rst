@@ -1,7 +1,7 @@
 Input parameters
 ================
 
-Apart from input attributes specified in <input> tag, text payload of <input> tag can be used to pass additional parameters. These parameters is a key value pairs and serve to provide information that should be used during input data loading. Input tag `load`_ attribute can be used to specify which loader to use to load data in tag's text, e.g. if data structured in yaml format, yaml loader can be used to convert it in Python data structure.
+Apart from input attributes specified in <input> tag, text payload of <input> tag can be used to pass additional parameters. These parameters is a key value pairs and serve to provide information that should be used during input data loading. Input tag ``load`` attribute can be used to specify which loader to use to load data in tag's text, e.g. if data structured in yaml format, yaml loader can be used to convert it in Python data structure.
 
 .. list-table:: 
    :widths: 10 90

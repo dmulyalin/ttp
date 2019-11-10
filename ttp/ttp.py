@@ -2151,7 +2151,7 @@ class _results_class():
                 elif m in self.dyn_path_cache:
                     path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
                 elif m in self.vars:
-                    path_item = re.sub(pattern, self.vars[m], path_item)
+                    path_item = re.sub(pattern, str(self.vars[m]), path_item)
                 else:
                     return False
             path[index] = path_item

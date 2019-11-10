@@ -10,7 +10,7 @@ def get_date(*args, **kwargs):
     
 def get_timestamp_ms(*args, **kwargs):
     strformat="%Y-%m-%d %H:%M:%S.{ms}"
-    return time.strftime(strformat).format(ms=str(time.time()).split(".")[-1])
+    return time.strftime(strformat).format(ms=str(time.time()).split(".")[-1][:3])
 
 def get_timestamp(*args, **kwargs):
     strformat="%Y-%m-%d %H:%M:%S"
