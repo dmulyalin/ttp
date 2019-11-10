@@ -3877,4 +3877,224 @@ format_attributes = "tablefmt='fancy_grid'"
 ]
 </output>
 </template>
+
+
+
+<template
+name="Test21"
+description="Template to test match variable count function and output macro function"
+>
+<input load="text">
+Destination Address  Address Type  VLAN  Destination Port
+-------------------  ------------  ----  --------------------
+ac3a.7a1a.ba4b          Dynamic     100     Wlan-GigabitEthernet0
+b0a7.376f.b3b4          Dynamic     100     FastEthernet7
+bc5f.f435.fa0e          Dynamic     100     FastEthernet7
+dc3a.5e67.1a98          Dynamic     100     FastEthernet7
+dc3a.5ee2.6a95          Dynamic     100     Wlan-GigabitEthernet0
+f04f.7c92.5a45          Dynamic     100     Wlan-GigabitEthernet0
+0009.b754.1a88          Dynamic     200     FastEthernet7
+10bd.1801.a0b4          Dynamic     200     FastEthernet3
+204c.9ed7.cb80          Dynamic     200     FastEthernet2
+a493.4cc1.67a7          Self        200     Vlan200
+</input>
+
+<input load="text">
+Destination Address  Address Type  VLAN  Destination Port
+-------------------  ------------  ----  --------------------
+6400.f1cf.2cc6          Dynamic       1     Wlan-GigabitEthernet0
+a493.4cc1.67a7          Self          1     Vlan1
+000c.2906.17d6          Dynamic     100     FastEthernet7
+000c.2913.421b          Dynamic     100     FastEthernet7
+0018.0ab3.59f1          Dynamic     100     FastEthernet7
+0018.dd32.1f7c          Dynamic     100     FastEthernet6
+0025.64f5.d352          Dynamic     100     FastEthernet7
+0026.abb9.a503          Dynamic     100     FastEthernet4
+a493.4cc1.67a7          Self        100     Vlan100
+</input>
+
+<vars name="counters">
+per_input_macs = 0
+per_input_fast_eth_intf = 0
+</vars>
+
+<group name="macs">
+{{ mac | count(var="per_input_macs", globvar="macs_glob") }}          {{ ignore }}       {{ ignore("\d+") }}     {{ interface }}
+</group>
+
+<group name="fast_eths">
+{{ mac }}   {{ ignore }}  {{ ignore("\d+") }}  {{ interface | contains("Fast") | count(var="per_input_fast_eth_intf", globvar="fast_eth_intf_glob") }}
+</group>
+
+<macro>
+def add_glob_counters(data):
+    for item in data:
+        item["counters"]["fast_eth_intf_glob"] = _ttp_["global_vars"]["fast_eth_intf_glob"]
+        item["counters"]["macs_glob"] = _ttp_["global_vars"]["macs_glob"]
+</macro>
+
+<output macro="add_glob_counters"/>
+
+
+<output
+name="test21"
+description="test match variable 'count' function and output macro"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+    [
+        {
+            "counters": {
+                "fast_eth_intf_glob": 12,
+                "macs_glob": 19,
+                "per_input_fast_eth_intf": 6,
+                "per_input_macs": 10
+            },
+            "fast_eths": [
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "b0a7.376f.b3b4"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "bc5f.f435.fa0e"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "dc3a.5e67.1a98"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "0009.b754.1a88"
+                },
+                {
+                    "interface": "FastEthernet3",
+                    "mac": "10bd.1801.a0b4"
+                },
+                {
+                    "interface": "FastEthernet2",
+                    "mac": "204c.9ed7.cb80"
+                }
+            ],
+            "macs": [
+                {
+                    "interface": "Wlan-GigabitEthernet0",
+                    "mac": "ac3a.7a1a.ba4b"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "b0a7.376f.b3b4"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "bc5f.f435.fa0e"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "dc3a.5e67.1a98"
+                },
+                {
+                    "interface": "Wlan-GigabitEthernet0",
+                    "mac": "dc3a.5ee2.6a95"
+                },
+                {
+                    "interface": "Wlan-GigabitEthernet0",
+                    "mac": "f04f.7c92.5a45"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "0009.b754.1a88"
+                },
+                {
+                    "interface": "FastEthernet3",
+                    "mac": "10bd.1801.a0b4"
+                },
+                {
+                    "interface": "FastEthernet2",
+                    "mac": "204c.9ed7.cb80"
+                },
+                {
+                    "interface": "Vlan200",
+                    "mac": "a493.4cc1.67a7"
+                }
+            ]
+        },
+        {
+            "counters": {
+                "fast_eth_intf_glob": 12,
+                "macs_glob": 19,
+                "per_input_fast_eth_intf": 6,
+                "per_input_macs": 9
+            },
+            "fast_eths": [
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "000c.2906.17d6"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "000c.2913.421b"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "0018.0ab3.59f1"
+                },
+                {
+                    "interface": "FastEthernet6",
+                    "mac": "0018.dd32.1f7c"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "0025.64f5.d352"
+                },
+                {
+                    "interface": "FastEthernet4",
+                    "mac": "0026.abb9.a503"
+                }
+            ],
+            "macs": [
+                {
+                    "interface": "Wlan-GigabitEthernet0",
+                    "mac": "6400.f1cf.2cc6"
+                },
+                {
+                    "interface": "Vlan1",
+                    "mac": "a493.4cc1.67a7"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "000c.2906.17d6"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "000c.2913.421b"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "0018.0ab3.59f1"
+                },
+                {
+                    "interface": "FastEthernet6",
+                    "mac": "0018.dd32.1f7c"
+                },
+                {
+                    "interface": "FastEthernet7",
+                    "mac": "0025.64f5.d352"
+                },
+                {
+                    "interface": "FastEthernet4",
+                    "mac": "0026.abb9.a503"
+                },
+                {
+                    "interface": "Vlan100",
+                    "mac": "a493.4cc1.67a7"
+                }
+            ]
+        }
+    ]
+</output>
+</template>
 </template>

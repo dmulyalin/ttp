@@ -17,10 +17,12 @@ Multiprocessing mode restrictions
 
 While multiprocessing mode has obvious processing speed increase benefits, it comes with several restrictions.
 
-* per_template results mode not supported with multiprocessing as no results shared between processes, only per_input mode supported
-* startup time for multiprocessing is slower compared to single process, as each process has to import all TTP functions separately
-* global variables are not shared between processes and have per-process significance (name space), this is due to the fact that global vars not shared between processes
+* per_template results mode not supported with multiprocessing as no results shared between processes, only per_input mode supported with multiprocessing
+* startup time for multiprocessing is slower compared to single process, as each process takes time to initiate
+* global variables space not shared between processes, as a result a number of functions will not be able to operate properly, such as:
 
+  * match variable count function - ``globvar`` will not have access to global variables
+  * match variable record function - record cannot save variables in global namespace
 
 General performance considerations
 -----------------------------------

@@ -69,6 +69,8 @@ Action functions act upon match result to transform into desired state.
      - function to parse uptime string
    * - `mac_eui`_ 
      - transforms mac string into EUI format
+   * - `count`_ 
+     - function to count matches
  
 Condition functions can perform various checks with match results and returns either True or False depending on check results.
 
@@ -1832,3 +1834,91 @@ mac_eui
 ``{{ name | mac_eui }}``
 
 This function normalizes mac address representation format by deleting ``-:.`` characters from mac address string and converting it into aa:bb:cc:dd:ee:ff. It also handles the case when mac address trailing zeros stripped by device in show commands output, by staffing zeros to make mac address 12 symbols long, e.g. aabb.ccdd.ee will be converted to aa:bb:cc:dd:ee:00
+
+count
+------------------------------------------------------------------------------
+``{{ name | count(var="per_input_counter", globvar="global_counter") }}``
+
+* var - string, name of per input variable to store count results
+* globvar - string, name of global variable to store count results across several input datums
+
+This function introduces counting capabilities, allowing to increase counter variable on every successful match. There are two types of count variables supported - per input and global, as the names imply, per input variable has input significance, while global variable can help to count matches across several inputs.
+
+**Example**
+
+Let's say we need to count a number of interfaces in up state for each device and across all devices.
+
+Template::
+
+    <input name="device-1" load="text">
+    device-1#show ip int brief
+    Interface              IP-Address      OK? Method Status                Protocol
+    GigabitEthernet0/2     unassigned      YES unset  up                    up
+    GigabitEthernet0/3     unassigned      YES unset  up                    up
+    GigabitEthernet0/4     unassigned      YES unset  down                  down
+    </input>
+    
+    <input name="device-2" load="text">
+    device-2#show ip int brief
+    Interface              IP-Address      OK? Method Status                Protocol
+    Vlan20                 172.29.50.3     YES NVRAM  down                  down
+    Vlan41                 172.29.52.34    YES NVRAM  up                    up
+    GigabitEthernet0/1     unassigned      YES unset  down                  down
+    </input>
+    
+    <vars name="counters">
+    interfaces_up = 0
+    </vars>
+    
+    <group name="interfaces*">
+    {{ interface }}  {{ ip }}  YES {{ ignore }}  {{ status | equal("up") | count(var="interfaces_up", globvar="overall_interfaces_up") }}   {{ protocol }}
+    </group>
+    
+    <output macro="add_glob_counters"/>
+    
+    <macro>
+    def add_glob_counters(data):
+        data.append({ "overall_interfaces_up": _ttp_["global_vars"]["overall_interfaces_up"] })
+    </macro>
+	
+Results::
+
+    [
+        [
+            {
+                "counters": {
+                    "interfaces_up": 2
+                },
+                "interfaces": [
+                    {
+                        "interface": "GigabitEthernet0/2",
+                        "ip": "unassigned",
+                        "protocol": "up",
+                        "status": "up"
+                    },
+                    {
+                        "interface": "GigabitEthernet0/3",
+                        "ip": "unassigned",
+                        "protocol": "up",
+                        "status": "up"
+                    }
+                ]
+            },
+            {
+                "counters": {
+                    "interfaces_up": 1
+                },
+                "interfaces": [
+                    {
+                        "interface": "Vlan41",
+                        "ip": "172.29.52.34",
+                        "protocol": "up",
+                        "status": "up"
+                    }
+                ]
+            },
+            {
+                "overall_interfaces_up": 3
+            }
+        ]
+    ]
