@@ -493,6 +493,9 @@ class ttp():
         Dictionary of {"input_name": [input commands list]} across all templates
 		
 		input_name set to input name attribute value, by default - Default_Input
+		
+		.. warning:: inputs with the same name will override one another, make sure 
+		input name attribute is unique across all loaded templates.
         """
         ret = {}
         for template_obj in self.__templates:
@@ -512,6 +515,9 @@ class ttp():
         Dictionary of {"input_name": "input load data"} across all templates.
 		
 		input_name set to input name attribute value, by default - Default_Input
+		
+		.. warning:: inputs with the same name will override one another, make sure 
+		input name attribute is unique across all loaded templates.
         """
         ret = {}
         for template_obj in self.__templates:
