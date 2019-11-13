@@ -490,7 +490,9 @@ class ttp():
         
         **Returns**
         
-        Dictionary of {"input_name": [input commands list]}
+        Dictionary of {"input_name": [input commands list]} across all templates
+		
+		input_name set to input name attribute value, by default - Default_Input
         """
         ret = {}
         for template_obj in self.__templates:
@@ -501,7 +503,23 @@ class ttp():
                         ret[input_name] += function['args']
                         ret[input_name] += function['kwargs'].get('commands', [])
         return ret
-
+        
+    def get_input_load(self):
+        """Method to retrieve input tag load data.
+        
+        **Returns**
+        
+        Dictionary of {"input_name": "input load data"} across all templates.
+		
+		input_name set to input name attribute value, by default - Default_Input
+        """
+        ret = {}
+        for template_obj in self.__templates:
+            for input_name, input_obj in template_obj.inputs.items():
+                ret[input_name] = input_obj.parameters
+        return ret
+        
+        
 """
 ==============================================================================
 TTP PARSER MULTIPROCESSING WORKER
@@ -883,6 +901,7 @@ class _input_class():
             'urls': []            
         }
         self.template_obj = template_obj
+        self.parameters = {}
         self.data = []
         self.groups_indexes = []
         self.group_inputs = []
@@ -913,6 +932,7 @@ class _input_class():
             self.attributes["load"] = O.strip()
             if self.attributes["load"] != 'text':
                 attribs = _ttp_["utils"]["load_struct"](element_text, **data)
+                self.parameters = attribs
                 self.get_attributes(data=attribs)
         
         def extract_groups(O):
