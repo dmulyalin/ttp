@@ -11,4 +11,4 @@ For further details check:
 
 * Match variables :ref:`Match Variables/Functions:macro`
 * Groups :ref:`Groups/Functions:macro`
-* Outputs :ref:`TTP_TAGS/Outputs:macro`
+* Outputs :ref:`TTP_TAGS/Outputs/Functions:macro`
