@@ -1164,11 +1164,11 @@ class _group_class():
                 else: 
                     self.funcs.append(i)
                     
-        def extract_validate(O):
+        def extract_cerberus(O):
             if isinstance(O, str):
                 attribs = _ttp_["utils"]["get_attributes"]('attribs({})'.format(O))
                 self.funcs.append({
-                    'name': 'validate',
+                    'name': 'cerberus',
                     'args': attribs[0]['args'],
                     'kwargs': attribs[0]['kwargs']
                 })
@@ -1188,7 +1188,7 @@ class _group_class():
         'functions'   : extract_functions,
         'to_ip'       : extract_to_ip,
         'sformat'     : extract_sformat,
-        'validate'    : extract_validate
+        'cerberus'    : extract_cerberus
         }
 
         for attr_name, attributes in data.items():

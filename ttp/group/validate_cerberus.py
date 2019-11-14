@@ -7,8 +7,15 @@ try:
 except ImportError:
     log.error("ttp.validate, failed to import Cerberus library, make sure it is installed")
     HAS_LIBS = False
+    
+if HAS_LIBS:
+    validator_engine = Validator()
 
-def validate(data, schema, log_errors=False, allow_unknown=True, add_errors=False):
+_name_map_ = {
+    "cerberus_validate": "cerberus"
+}
+
+def cerberus_validate(data, schema, log_errors=False, allow_unknown=True, add_errors=False):
     """Function to validate data using validation libraries, such as Cerberus.
     """
     if not HAS_LIBS:
@@ -19,8 +26,8 @@ def validate(data, schema, log_errors=False, allow_unknown=True, add_errors=Fals
         log.error("ttp.validate, schema '{}' not found".format(schema))
         return data, None          
     # run validation
-    validator_engine = Validator(schema_data, allow_unknown=allow_unknown)
-    ret = validator_engine.validate(data)
+    validator_engine.allow_unknown = allow_unknown
+    ret = validator_engine.validate(document=data, schema=schema_data)
     if ret == False:
         if log_errors:
             log.warning("ttp.validate, data: '{}', Cerberus validation errors: {}".format(data, str(validator_engine.errors))) 
