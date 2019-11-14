@@ -1163,6 +1163,17 @@ class _group_class():
                     functions[func_name](i)
                 else: 
                     self.funcs.append(i)
+                    
+        def extract_validate(O):
+            if isinstance(O, str):
+                attribs = _ttp_["utils"]["get_attributes"]('attribs({})'.format(O))
+                self.funcs.append({
+                    'name': 'validate',
+                    'args': attribs[0]['args'],
+                    'kwargs': attribs[0]['kwargs']
+                })
+            elif isinstance(O, dict):
+                self.funcs.append(O)             
 
         # group attributes extract functions dictionary:
         options = {
@@ -1176,7 +1187,8 @@ class _group_class():
         'macro'       : extract_macro,
         'functions'   : extract_functions,
         'to_ip'       : extract_to_ip,
-        'sformat'     : extract_sformat
+        'sformat'     : extract_sformat,
+        'validate'    : extract_validate
         }
 
         for attr_name, attributes in data.items():
