@@ -508,16 +508,23 @@ class ttp():
         return ret
         
     def get_input_load(self):
-        """Method to retrieve input tag load data.
+        """Method to retrieve input tag text. If input's load attribute was
+		given, text data will be loaded into python structure using one of the 
+		loaders, for instance if text data structured using YAML, YAML
+		loader can be used to produce python native structure, that structure will
+		be returned by this method.
+		
+		Primary use case is to specify parameters within TTP input that can be
+		used by other applications/scrips.
         
         **Returns**
         
         Dictionary of {"input_name": "input load data"} across all templates.
 		
-		input_name set to input name attribute value, by default - Default_Input
+		input_name is input name attribute value, by default - Default_Input
 		
-		.. warning:: inputs with the same name will override one another, make sure 
-		input name attribute is unique across all loaded templates.
+		.. warning:: inputs with same names will override one another, make sure 
+		input name attribute is unique across all templates.
         """
         ret = {}
         for template_obj in self.__templates:
