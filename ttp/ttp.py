@@ -992,7 +992,27 @@ class _input_class():
                 if func_name in functions: 
                     functions[func_name](i)
                 elif func_name in _ttp_['input']: 
-                    self.functions.append(i)            
+                    self.functions.append(i)      
+                else:
+                    similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["input"].keys()))
+                    if similar_funcs:
+                        log.error("input.get_attributes: unknown input function: '{}', most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
+                    else:
+                        log.error('input.get_attributes: unknown input function: "{}"'.format(func_name))     
+                    
+        def extract_function(func_name, args_kwargs):
+            attribs = _ttp_["utils"]["get_attributes"]('{}({})'.format(func_name, args_kwargs))
+            self.functions.append(attribs[0]) 
+            
+        def extract_commands(O):
+            if isinstance(O, str):
+                self.functions.append({
+                    "name": "commands",
+                    "args": [i.strip() for i in O.split(',') if i.strip()],
+                    "kwargs": {}
+                })
+            elif isinstance(O, dict):
+                self.functions.append(O)
         
         # group attributes extract functions dictionary:
         options = {
@@ -1004,18 +1024,16 @@ class _input_class():
         'url'         : extract_urls
         }
         functions = {
-        'functions'   : extract_functions
+        'functions'   : extract_functions,
+        'commands'    : extract_commands
         }
         # extract attributes from element tag attributes   
         for attr_name, attributes in data.items():
             if attr_name.lower() in options: options[attr_name.lower()](attributes)
             elif attr_name.lower() in functions: functions[attr_name.lower()](attributes)
-            elif attr_name.lower() in _ttp_['input']: 
-                self.functions.append({'name'  : attr_name.lower(),
-                                       'args'  : [i.strip() for i in attributes.split(',') if i.strip()],
-                                       'kwargs': {}})
-            else:
-                self.attributes[attr_name] = attributes
+            elif attr_name.lower() in _ttp_['input']: extract_function(attr_name, attributes)
+            else: self.attributes[attr_name] = attributes
+                
                 
     def load_data(self, element_text=None, data=None):
         if self.attributes["load"] == 'text' and element_text:
@@ -1092,6 +1110,8 @@ class _group_class():
         self.set_anonymous_path()
         self.get_regexes(element.text)
         self.get_children(list(element))
+        self.attributes = {}
+
 
     def set_anonymous_path(self):
         """Mthod to set anonyous path for top group without name
@@ -1121,39 +1141,7 @@ class _group_class():
 
         def extract_name(O):
             self.path = self.path + O.split(self.pathchar)
-            self.name = '.'.join(self.path)
-            
-        def extract_macro(O):
-            if isinstance(O, str):
-                for i in O.split(','):
-                    self.funcs.append({
-                        'name': 'macro',
-                        'args': [i.strip()]
-                    })
-            elif isinstance(O, dict):
-                self.funcs.append(O)          
-
-        def extract_to_ip(O):
-            if isinstance(O, str):
-                attribs = _ttp_["utils"]["get_attributes"]('attribs({})'.format(O))
-                self.funcs.append({
-                    'name': 'to_ip',
-                    'args': attribs[0]['args'],
-                    'kwargs': attribs[0]['kwargs']
-                })
-            elif isinstance(O, dict):
-                self.funcs.append(O)         
-    
-        def extract_sformat(O):
-            if isinstance(O, str):
-                attribs = _ttp_["utils"]["get_attributes"]('attribs({})'.format(O))
-                self.funcs.append({
-                    'name': 'sformat',
-                    'args': attribs[0]['args'],
-                    'kwargs': attribs[0]['kwargs']
-                })
-            elif isinstance(O, dict):
-                self.funcs.append(O)             
+            self.name = '.'.join(self.path)           
      
         def extract_functions(O):
             funcs = _ttp_["utils"]["get_attributes"](O)
@@ -1161,23 +1149,18 @@ class _group_class():
                 func_name = i['name']
                 if func_name in functions: 
                     functions[func_name](i)
-                else: 
-                    self.funcs.append(i)
-                    
-        def extract_cerberus(O):
-            if isinstance(O, str):
-                if "=" in O:
-                    attribs = _ttp_["utils"]["get_attributes"]('attribs({})'.format(O))
-                    self.funcs.append({
-                        'name': 'cerberus',
-                        'args': attribs[0]['args'],
-                        'kwargs': attribs[0]['kwargs']
-                    })
+                elif func_name in _ttp_['group']: 
+                    self.funcs.append(i)     
                 else:
-                    self.funcs.append({'name': 'cerberus',
-                                       'args': [i.strip() for i in attributes.split(',') if i.strip()]})                    
-            elif isinstance(O, dict):
-                self.funcs.append(O)             
+                    similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["group"].keys()))
+                    if similar_funcs:
+                        log.error("group.get_attributes: unknown group function: '{}', most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
+                    else:
+                        log.error('group.get_attributes: unknown group function: "{}"'.format(func_name))                
+                
+        def extract_function(func_name, args_kwargs):
+            attribs = _ttp_["utils"]["get_attributes"]('{}({})'.format(func_name, args_kwargs))
+            self.funcs.append(attribs[0])            
 
         # group attributes extract functions dictionary:
         options = {
@@ -1188,19 +1171,14 @@ class _group_class():
         'default'     : extract_default
         }
         functions = {
-        'macro'       : extract_macro,
-        'functions'   : extract_functions,
-        'to_ip'       : extract_to_ip,
-        'sformat'     : extract_sformat,
-        'cerberus'    : extract_cerberus
+        'functions'   : extract_functions
         }
 
         for attr_name, attributes in data.items():
             if attr_name.lower() in options: options[attr_name.lower()](attributes)
             elif attr_name.lower() in functions: functions[attr_name.lower()](attributes)
-            else:
-                self.funcs.append({'name': attr_name.lower(),
-                                   'args': [i.strip() for i in attributes.split(',') if i.strip()]})
+            elif attr_name.lower() in _ttp_['group']: extract_function(attr_name, attributes)
+            else: self.attributes[attr_name] = attributes
 
 
     def get_regexes(self, data, tail=False):
@@ -1637,15 +1615,7 @@ class _parser_class():
         # run input functions
         for item in input_functions:
             func_name, args, kwargs = item['name'], item.get('args', []), item.get('kwargs', {})
-            try:
-                self.DATATEXT, flags = _ttp_['input'][func_name](self.DATATEXT, *args, **kwargs)
-            except KeyError:
-                flags = False
-                similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["input"].keys()))
-                if similar_funcs:
-                    log.error("ttp_parser.set_data: input function '{}' not found, the most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
-                else:
-                    log.error("ttp_parser.set_data: input function '{}' not found".format(func_name))
+            self.DATATEXT, flags = _ttp_['input'][func_name](self.DATATEXT, *args, **kwargs)
             if flags == False:
                 break
 
@@ -2213,15 +2183,8 @@ class _results_class():
             func_name = item['name']
             args = item.get('args', [])
             kwargs = item.get('kwargs', {})
-            try: # try group functions
-                self.record['result'], flags = _ttp_["group"][func_name](self.record['result'], *args, **kwargs)
-            except KeyError:
-                similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["group"].keys()))
-                if similar_funcs:
-                    log.error("ttp_results.processgrp: results processing failed, group function '{}' does not exists, most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
-                else:
-                    log.error("ttp_results.processgrp: results processing failed, group function '{}'".format(func_name))                    
-                flags = False
+            # run group functions
+            self.record['result'], flags = _ttp_["group"][func_name](self.record['result'], *args, **kwargs)
             # if conditions check been false, return False:
             if flags == False:
                 return False
@@ -2307,33 +2270,6 @@ class _outputter_class():
                 log.critical("output.extract_method: unsupported file returner method '{}'. Supported: {}. Exiting".format(O, supported_methods))
                 raise SystemExit()
 
-        def extract_functions(O):
-            funcs = _ttp_["utils"]["get_attributes"](O)
-            for i in funcs:
-                name = i['name']
-                if name in functions:
-                    functions[name](i)
-                else:
-                    similar_funcs = _ttp_["utils"]["guess"](name, list(_ttp_["output"].keys()))
-                    if similar_funcs:
-                        log.error("output.extract_functions: unknown output function: '{}', most similar function(s) - {}".format(name, ", ".join(similar_funcs)))
-                    else:
-                        log.error('output.extract_functions: unknown output function: "{}"'.format(name))
-
-        def extract_macro(O):
-            if isinstance(O, str):
-                for i in O.split(','):
-                    self.funcs.append({
-                        'name': 'macro',
-                        'args': [i.strip()]
-                    })
-            elif isinstance(O, dict):
-                self.funcs.append(O)
-                
-        def extract_is_equal(O):
-            if isinstance(O, dict):
-                self.funcs.append(O)
-
         def extract_format_attributes(O):
             """Extract formatter attributes
             """
@@ -2353,21 +2289,24 @@ class _outputter_class():
             else:
                 self.attributes['headers'] = O
 
-        def extract_dict_to_list(O):
-            if isinstance(O, str):
-                dict_to_list_attrs = _ttp_["utils"]["get_attributes"](
-                    'dict_to_list({})'.format(O))
-                self.funcs.append(dict_to_list_attrs[0])
-            elif isinstance(O, dict):
-                self.funcs.append(O)
-            
-        def extract_traverse(O):
-            if isinstance(O, str):
-                traverse = _ttp_["utils"]["get_attributes"](
-                    'traverse({})'.format(O))
-                self.funcs.append(traverse[0])
-            elif isinstance(O, dict):
-                self.funcs.append(O)
+        def extract_functions(O):
+            funcs = _ttp_["utils"]["get_attributes"](O)
+            for i in funcs:
+                name = i['name']
+                if name in functions:
+                    functions[name](i)
+                elif name in _ttp_['output']:
+                    self.funcs.append(i)
+                else:
+                    similar_funcs = _ttp_["utils"]["guess"](name, list(_ttp_["output"].keys()))
+                    if similar_funcs:
+                        log.error("output.extract_functions: unknown output function: '{}', most similar function(s) - {}".format(name, ", ".join(similar_funcs)))
+                    else:
+                        log.error('output.extract_functions: unknown output function: "{}"'.format(name))
+                        
+        def extract_function(func_name, args_kwargs):
+            attribs = _ttp_["utils"]["get_attributes"]('{}({})'.format(func_name, args_kwargs))
+            self.funcs.append(attribs[0]) 
                 
         options = {
         'name'           : extract_name,
@@ -2381,15 +2320,12 @@ class _outputter_class():
         'headers'        : extract_headers
         }
         functions = {
-        'functions'      : extract_functions,
-        'is_equal'       : extract_is_equal,
-        'macro'          : extract_macro,
-        'dict_to_list'   : extract_dict_to_list,
-        'traverse'       : extract_traverse
+        'functions'      : extract_functions
         }     
         for attr_name, attributes in data.items():
             if attr_name.lower() in options: options[attr_name.lower()](attributes)
             elif attr_name.lower() in functions: functions[attr_name.lower()](attributes)
+            elif attr_name.lower() in _ttp_['output']: extract_function(attr_name, attributes)
             else: self.attributes[attr_name] = attributes
 
     def run(self, data, macro={}):
@@ -2404,14 +2340,7 @@ class _outputter_class():
             func_name = item['name']
             args = item.get('args', [])
             kwargs = item.get('kwargs', {})
-            try:
-                results = _ttp_["output"][func_name](results, *args, **kwargs)
-            except KeyError:
-                similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["output"].keys()))
-                if similar_funcs:
-                    log.error("ttp_output.run: output function '{}' not found, most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
-                else:
-                    log.error("ttp_output.run: output function '{}' not found".format(func_name))
+            results = _ttp_["output"][func_name](results, *args, **kwargs)
         # format data using requested formatter
         results = _ttp_["formatters"][format](results)
         # run returners
