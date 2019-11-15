@@ -1883,6 +1883,115 @@ description="test input commands function one more time"
     }
 }
 </output>
+
+
+
+
+
+<input name="test1-37" load="text">
+interface GigabitEthernet1/3.251
+ description Customer #32148
+ encapsulation dot1q 251
+ vrf forwarding Management
+ ipv6 address 2002:fd37::91/124
+!
+interface GigabitEthernet1/3.321
+ description Customer #151678
+ encapsulation dot1q 321
+ vrf forwarding Voice
+ ip address 172.16.32.10 255.255.255.128
+!
+interface Vlan779
+ description South Bank Customer #78295
+ vrf forwarding Data
+ ip address 192.168.23.53 255.255.255.0
+!
+interface TenGigabitEthernet3/1.298
+ description PDSENS Customer #783290
+ encapsulation dot1q 298
+ vrf forwarding Data
+ ipv6 address 2001:ad56::1273/64
+!
+</input>
+
+<vars>
+my_schema = {
+    "interface": {
+        "regex": ".*Gigabit.*"
+    },
+    "vrf": {
+        "allowed": ["Data", "Management"]
+    },
+    "description": {
+        "regex": ".*Customer.*"
+    },
+    "vid": {
+        "min": 200, 
+        "max": 300
+    }
+}
+</vars>
+
+<group name="test1_37_filtered_interfaces*" cerberus="schema=my_schema, add_errors=True" input="test1-37" output="test1-37">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ encapsulation dot1q {{ vid | to_int }}
+ vrf forwarding {{ vrf }}
+ ip address {[ ip }} {{ mask }}
+ ipv6 address {{ ipv6 }}/{{ maskv6 }} 
+</group>
+
+<output
+name="test1-37"
+load="json"
+functions="is_equal"
+description="test group Cerberus validation function"
+>
+{
+    "test1_37_filtered_interfaces": [
+        {
+            "description": "Customer #32148",
+            "interface": "GigabitEthernet1/3.251",
+            "ipv6": "2002:fd37::91",
+            "maskv6": "124",
+            "vid": 251,
+            "vrf": "Management"
+        },
+        {
+            "description": "Customer #151678",
+            "interface": "GigabitEthernet1/3.321",
+            "validation_errors": {
+                "vid": [
+                    "max value is 300"
+                ],
+                "vrf": [
+                    "unallowed value Voice"
+                ]
+            },
+            "vid": 321,
+            "vrf": "Voice"
+        },
+        {
+            "description": "South Bank Customer #78295",
+            "interface": "Vlan779",
+            "validation_errors": {
+                "interface": [
+                    "value does not match regex '.*Gigabit.*'"
+                ]
+            },
+            "vrf": "Data"
+        },
+        {
+            "description": "PDSENS Customer #783290",
+            "interface": "TenGigabitEthernet3/1.298",
+            "ipv6": "2001:ad56::1273",
+            "maskv6": "64",
+            "vid": 298,
+            "vrf": "Data"
+        }
+    ]
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"
