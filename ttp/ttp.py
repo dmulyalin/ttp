@@ -1166,12 +1166,16 @@ class _group_class():
                     
         def extract_cerberus(O):
             if isinstance(O, str):
-                attribs = _ttp_["utils"]["get_attributes"]('attribs({})'.format(O))
-                self.funcs.append({
-                    'name': 'cerberus',
-                    'args': attribs[0]['args'],
-                    'kwargs': attribs[0]['kwargs']
-                })
+                if "=" in O:
+                    attribs = _ttp_["utils"]["get_attributes"]('attribs({})'.format(O))
+                    self.funcs.append({
+                        'name': 'cerberus',
+                        'args': attribs[0]['args'],
+                        'kwargs': attribs[0]['kwargs']
+                    })
+                else:
+                    self.funcs.append({'name': 'cerberus',
+                                       'args': [i.strip() for i in attributes.split(',') if i.strip()]})                    
             elif isinstance(O, dict):
                 self.funcs.append(O)             
 

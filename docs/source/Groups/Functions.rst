@@ -31,6 +31,8 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - format provided string with match result and/or template variables 
    * - `itemize`_   
      - produce list of items extracted out of group match results dictionary 
+   * - `cerberus`_   
+     - function to run results through Cerberus validation engine
      
 containsall
 ------------------------------------------------------------------------------
@@ -591,4 +593,157 @@ Results::
                 "Vlan780"
             ]
         }
+    ]
+	
+cerberus
+------------------------------------------------------------------------------
+``cerberus="schema='var_name', log_errors=False, allow_unknown=True, add_errors=False"``
+
+* schema - string, mandatory, name of template variable that contains Cerberus schema structure
+* log_errors - bool, default is False, if set to True will log Cerberus validation errors with WARNING level
+* allow_unknown - bool, default is True, if set to False, Cerberus will invalidate match results with keys that are not defined in schema
+* add_errors - bool, default is False, if set to True, Cerberus validation errors will be added to results under "validation_errors" key
+
+This function uses `Cerberus validation engine <https://docs.python-cerberus.org/en/stable/>`_ to validate group results, returning True if validation succeeded and False otherwise. 
+
+This function makes use of Cerberus Validation class, and schema must be defined in one of template variables sections.
+
+**Example**
+
+Let's say we want to extract ip addresses for interfaces that has "Gigabit" in the name, word "Customer" in description, dot1q vid in 200-300 range inside vrfs "Management" and "Data"
+
+Template::
+
+    <input load="text">
+    interface GigabitEthernet1/3.251
+     description Customer #32148
+     encapsulation dot1q 251
+     vrf forwarding Management
+     ipv6 address 2002:fd37::91/124
+    !
+    interface GigabitEthernet1/3.321
+     description Customer #151678
+     encapsulation dot1q 321
+     vrf forwarding Voice
+     ip address 172.16.32.10 255.255.255.128
+    !
+    interface Vlan779
+     description South Bank Customer #78295
+     vrf forwarding Data
+     ip address 192.168.23.53 255.255.255.0
+    !
+    interface TenGigabitEthernet3/1.298
+     description PDSENS Customer #783290
+     encapsulation dot1q 298
+     vrf forwarding Data
+     ipv6 address 2001:ad56::1273/64
+    !
+    </input>
+    
+    <vars>
+    my_schema = {
+        "interface": {
+            "regex": ".*Gigabit.*"
+        },
+        "vrf": {
+            "allowed": ["Data", "Management"]
+        },
+        "description": {
+            "regex": ".*Customer.*"
+        },
+        "vid": {
+            "min": 200, 
+            "max": 300
+        }
+    }
+    </vars>
+    
+    <group name="filtered_interfaces*" cerberus="my_schema">
+    interface {{ interface }}
+     description {{ description | ORPHRASE }}
+     encapsulation dot1q {{ vid | to_int }}
+     vrf forwarding {{ vrf }}
+     ip address {[ ip }} {{ mask }}
+     ipv6 address {[ ip }}/{{ mask }} 
+    </group>
+	
+Result::
+
+    [
+        [
+            {
+                "filtered_interfaces": [
+                    {
+                        "description": "Customer #32148",
+                        "interface": "GigabitEthernet1/3.251",
+                        "vid": 251,
+                        "vrf": "Management"
+                    },
+                    {
+                        "description": "PDSENS Customer #783290",
+                        "interface": "TenGigabitEthernet3/1.298",
+                        "vid": 298,
+                        "vrf": "Data"
+                    }
+                ]
+            }
+        ]
+    ]
+	
+By defautl only results that passed validation criteria will be returned by TTP, however, if ``add_errors`` set to True::
+
+    <group name="filtered_interfaces*" cerberus="schema='my_schema', add_errors=True">
+    interface {{ interface }}
+     description {{ description | ORPHRASE }}
+     encapsulation dot1q {{ vid | to_int }}
+     vrf forwarding {{ vrf }}
+     ip address {[ ip }} {{ mask }}
+     ipv6 address {[ ip }}/{{ mask }} 
+    </group>
+	
+Results produced by TTP will contain validation errors information::
+
+    [
+        [
+            {
+                "filtered_interfaces": [
+                    {
+                        "description": "Customer #32148",
+                        "interface": "GigabitEthernet1/3.251",
+                        "vid": 251,
+                        "vrf": "Management"
+                    },
+                    {
+                        "description": "Customer #151678",
+                        "interface": "GigabitEthernet1/3.321",
+                        "validation_errors": {
+                            "vid": [
+                                "max value is 300"
+                            ],
+                            "vrf": [
+                                "unallowed value Voice"
+                            ]
+                        },
+                        "vid": 321,
+                        "vrf": "Voice"
+                    },
+                    {
+                        "description": "South Bank Customer #78295",
+                        "interface": "Vlan779",
+                        "validation_errors": {
+                            "interface": [
+                                "value does not match regex '.*Gigabit.*'"
+                            ]
+                        },
+                        "vrf": "Data"
+                    },
+                    {
+                        "description": "PDSENS Customer #783290",
+                        "interface": "TenGigabitEthernet3/1.298",
+                        "vid": 298,
+                        "vrf": "Data"
+                    }
+                ]
+            }
+        ]
     ]
