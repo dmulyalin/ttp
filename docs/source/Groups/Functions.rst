@@ -610,7 +610,12 @@ This function makes use of Cerberus Validation class, and schema must be defined
 
 **Example**
 
-Let's say we want to extract ip addresses for interfaces that has "Gigabit" in the name, word "Customer" in description, dot1q vid in 200-300 range inside vrfs "Management" and "Data"
+Let's say we want to extract information only for interfaces that satisfy these set of criteria:
+
+* has "Gigabit" in the name
+* contains "Customer" in description
+* dot1q vlan id is in 200-300 range 
+* interface belongs to one of these VRFs - "Management" or "Data"
 
 Template::
 
@@ -663,8 +668,8 @@ Template::
      description {{ description | ORPHRASE }}
      encapsulation dot1q {{ vid | to_int }}
      vrf forwarding {{ vrf }}
-     ip address {[ ip }} {{ mask }}
-     ipv6 address {[ ip }}/{{ mask }} 
+     ip address {{ ip }} {{ mask }}
+     ipv6 address {{ ipv6 }}/{{ maskv6 }} 
     </group>
 	
 Result::
@@ -676,12 +681,16 @@ Result::
                     {
                         "description": "Customer #32148",
                         "interface": "GigabitEthernet1/3.251",
+                        "ipv6": "2002:fd37::91",
+                        "maskv6": "124",
                         "vid": 251,
                         "vrf": "Management"
                     },
                     {
                         "description": "PDSENS Customer #783290",
                         "interface": "TenGigabitEthernet3/1.298",
+                        "ipv6": "2001:ad56::1273",
+                        "maskv6": "64",
                         "vid": 298,
                         "vrf": "Data"
                     }
@@ -690,7 +699,7 @@ Result::
         ]
     ]
 	
-By defautl only results that passed validation criteria will be returned by TTP, however, if ``add_errors`` set to True::
+By default only results that passed validation criteria will be returned by TTP, however, if ``add_errors`` set to True::
 
     <group name="filtered_interfaces*" cerberus="schema='my_schema', add_errors=True">
     interface {{ interface }}
@@ -698,7 +707,7 @@ By defautl only results that passed validation criteria will be returned by TTP,
      encapsulation dot1q {{ vid | to_int }}
      vrf forwarding {{ vrf }}
      ip address {[ ip }} {{ mask }}
-     ipv6 address {[ ip }}/{{ mask }} 
+     ipv6 address {{ ipv6 }}/{{ maskv6 }} 
     </group>
 	
 Results produced by TTP will contain validation errors information::
@@ -710,6 +719,8 @@ Results produced by TTP will contain validation errors information::
                     {
                         "description": "Customer #32148",
                         "interface": "GigabitEthernet1/3.251",
+                        "ipv6": "2002:fd37::91",
+                        "maskv6": "124",
                         "vid": 251,
                         "vrf": "Management"
                     },
@@ -740,6 +751,8 @@ Results produced by TTP will contain validation errors information::
                     {
                         "description": "PDSENS Customer #783290",
                         "interface": "TenGigabitEthernet3/1.298",
+                        "ipv6": "2001:ad56::1273",
+                        "maskv6": "64",
                         "vid": 298,
                         "vrf": "Data"
                     }
