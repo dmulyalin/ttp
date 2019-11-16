@@ -1992,6 +1992,51 @@ description="test group Cerberus validation function"
     ]
 }
 </output>
+
+
+<input name="test1-38" load="text">
+interface GigabitEthernet1/3.251
+ description Customer #32148
+ encapsulation dot1q 251
+ vrf forwarding Management
+ ipv6 address 2002:fd37::91/124
+!
+interface TenGigabitEthernet1/3.321
+ description Customer #151678
+ encapsulation dot1q 321
+ vrf forwarding Voice
+ ip address 172.16.32.10 255.255.255.128
+!
+</input>
+
+<group name="test1-38-no_vids" input="test1-38" output="test1-38">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ encapsulation dot1q {{ vid | void }}
+<group name="ips" void="">
+ ip address {{ ip }} {{ mask }}
+</group>
+</group>
+
+<output
+name="test1-38"
+load="json"
+functions="is_equal"
+description="test group and match variable 'void' functions"
+>
+{
+    "test1-38-no_vids": [
+        {
+            "description": "Customer #32148",
+            "interface": "GigabitEthernet1/3.251"
+        },
+        {
+            "description": "Customer #151678",
+            "interface": "TenGigabitEthernet1/3.321"
+        }
+    ]
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"

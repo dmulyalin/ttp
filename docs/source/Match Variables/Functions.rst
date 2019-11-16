@@ -71,6 +71,8 @@ Action functions act upon match result to transform into desired state.
      - transforms mac string into EUI format
    * - `count`_ 
      - function to count matches
+   * - `void`_ 
+     - returns False on results validation, allowing to skip them
  
 Condition functions can perform various checks with match results and returns either True or False depending on check results.
 
@@ -1922,3 +1924,9 @@ Results::
             }
         ]
     ]
+	
+void
+------------------------------------------------------------------------------
+``{{ name | void }}``
+
+The purpose of this function is to return False invalidating match results for this variable.

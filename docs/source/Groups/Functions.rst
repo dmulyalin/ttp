@@ -33,6 +33,8 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - produce list of items extracted out of group match results dictionary 
    * - `cerberus`_   
      - function to run results through Cerberus validation engine
+   * - `void`_   
+     - invalidates group results, allowing to skip them
      
 containsall
 ------------------------------------------------------------------------------
@@ -760,3 +762,9 @@ Results produced by TTP will contain validation errors information::
             }
         ]
     ]
+	
+void
+------------------------------------------------------------------------------
+``void=""`` or ``functions="void"``
+
+The purpose of this function is to return False on results validation, effectively skipping results for this group.

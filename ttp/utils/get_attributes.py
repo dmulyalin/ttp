@@ -45,7 +45,5 @@ def get_attributes(line):
                 log.critical("""Failed to load arg/kwargs from line '{}' for options '{}', traceback:\n""".format(line, options, traceback_error))
                 raise SystemExit()
             opts.update(args_kwargs)
-        else:
-            options = []
         result.append(opts)
     return result
