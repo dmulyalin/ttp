@@ -20,7 +20,7 @@ def _get_args_kwargs(*args, **kwargs):
 def get_attributes(line):
     """Extract attributes from variable line string.
     Example:
-        'peer | orphrase | exclude(-VM-)' -> [{'peer': []}, {'orphrase': []}, {'exclude': ['-VM-']}]
+        'exclude(-VM-)' -> [{'name': 'exclude', 'args': ['-VM-'], 'kwargs': {}}]
     Args:
         line (str): string that contains variable attributes i.e. "contains('vlan') | upper | split('.')"
     Returns:

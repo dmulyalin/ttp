@@ -2037,6 +2037,41 @@ description="test group and match variable 'void' functions"
     ]
 }
 </output>
+
+
+
+<input load="text" name="test1-39">
+interface GigabitEthernet1/3.251
+ description Customer #32148
+ encapsulation dot1q 251
+ ip address 172.16.33.10 255.255.255.128
+!
+</input>
+
+
+<group name="interfaces-test1-39" input="test1-39" output="test1-39">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ encapsulation dot1q {{ vid | to_float }}
+ ip address {{ ip | to_unicode }} {{ mask }}
+</group>
+
+<output
+name="test1-39"
+load="json"
+functions="is_equal"
+description="test match variable to_float and to_unicode functions"
+>
+{
+    "interfaces-test1-39": {
+        "description": "Customer #32148",
+        "interface": "GigabitEthernet1/3.251",
+        "ip": "172.16.33.10",
+        "mask": "255.255.255.128",
+        "vid": 251.0
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"

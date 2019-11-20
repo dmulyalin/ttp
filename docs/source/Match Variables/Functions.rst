@@ -73,6 +73,10 @@ Action functions act upon match result to transform into desired state.
      - function to count matches
    * - `void`_ 
      - returns False on results validation, allowing to skip them
+   * - `to_float`_ 
+     - converts match variable value to float integer
+   * - `to_unicode`_ 
+     - if script run by python2, converts string to unicode
  
 Condition functions can perform various checks with match results and returns either True or False depending on check results.
 
@@ -1930,3 +1934,15 @@ void
 ``{{ name | void }}``
 
 The purpose of this function is to return False invalidating match results for this variable.
+
+to_float
+------------------------------------------------------------------------------
+``{{ name | to_float }}``
+
+This function tries to convert integer expressed as int (e.g. 2) or as a string (e,f, "45") to python integer of float type, e.g. 2 will be converted to 2.0
+
+to_unicode
+------------------------------------------------------------------------------
+``{{ name | to_unicode }}``
+
+If python2 used to run TTP script, this function will try to convert match variable value to unicode string, e.g. string "abc" will become u"abc"

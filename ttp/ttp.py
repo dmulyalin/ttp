@@ -387,8 +387,8 @@ class ttp():
         
         **kwargs** - can contain any attributes supported by output tags, for instance:
         
-        * ``format`` (str) formatter name - yaml, json, raw, pprint, csv, table, tabulate
-        * ``functions`` (str) reference functions to run results through
+        * ``format`` (str) output formatter name - yaml, json, raw, pprint, csv, table, tabulate
+        * ``functions`` (str) reference output functions to run results through
         
         **Example**::
         
