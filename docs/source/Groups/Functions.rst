@@ -35,6 +35,8 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - function to run results through Cerberus validation engine
    * - `void`_   
      - invalidates group results, allowing to skip them
+   * - `str_to_unicode`_   
+     - converts python2 str srings in unicode strings
      
 containsall
 ------------------------------------------------------------------------------
@@ -767,4 +769,10 @@ void
 ------------------------------------------------------------------------------
 ``void=""`` or ``functions="void"``
 
-The purpose of this function is to return False on results validation, effectively skipping results for this group.
+The purpose of this function is to return False on group results validation, effectively allowing to skip results for this group.
+
+str_to_unicode
+------------------------------------------------------------------------------
+``str_to_unicode=""`` or ``functions="str_to_unicode"``
+
+If python2 used to run TTP, this function iterates over group results and converts strings of type ``str`` into ``unicode`` type strings. For python3 this function does nothing.
