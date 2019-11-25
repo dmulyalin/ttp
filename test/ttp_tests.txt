@@ -2083,7 +2083,7 @@ interface GigabitEthernet1/3.251
 !
 </input>
 
-<group name="interfaces-test1-40" input="test1-40" output="test1-40">
+<group name="interfaces-test1-40" input="test1-40" output="test1-40" str_to_unicode="">
 interface {{ interface }}
  description {{ description | ORPHRASE }}
  encapsulation dot1q {{ vid | to_float }}
@@ -2101,6 +2101,36 @@ description="test group str_to_unicode function"
                               'ip': u'172.16.33.10',
                               'mask': u'255.255.255.128',
                               'vid': 251.0}}
+</output>
+
+
+
+<input load="text" name="test1-41">
+interface GigabitEthernet1/3.251
+ description Customer #32148
+ encapsulation dot1q 251
+ ip address 172.16.33.10 255.255.255.128
+!
+</input>
+
+<group name="interfaces-test1-41" input="test1-41" output="test1-41" equal="description, 'Customer #32148'">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ encapsulation dot1q {{ vid }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output
+name="test1-41"
+load="python"
+functions="is_equal"
+description="test group equal function"
+>
+{   'interfaces-test1-41': {  'description': 'Customer #32148',
+                              'interface': 'GigabitEthernet1/3.251',
+                              'ip': '172.16.33.10',
+                              'mask': '255.255.255.128',
+                              'vid': '251'}}
 </output>
 <!--output to print raw python result to screen
 <output

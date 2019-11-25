@@ -36,7 +36,9 @@ Condition functions help to evaluate group results and return *False* or *True*,
    * - `void`_   
      - invalidates group results, allowing to skip them
    * - `str_to_unicode`_   
-     - converts python2 str srings in unicode strings
+     - converts Python2 str srings in unicode strings
+   * - `equal`_   
+     - verifies that key's value is equal to provided value
      
 containsall
 ------------------------------------------------------------------------------
@@ -608,6 +610,10 @@ cerberus
 * allow_unknown - bool, default is True, if set to False, Cerberus will invalidate match results with keys that are not defined in schema
 * add_errors - bool, default is False, if set to True, Cerberus validation errors will be added to results under "validation_errors" key
 
+**Prerequisites**
+
+`Cerberus <https://docs.python-cerberus.org/en/stable/>`_ library need to be installed on the system.
+
 This function uses `Cerberus validation engine <https://docs.python-cerberus.org/en/stable/>`_ to validate group results, returning True if validation succeeded and False otherwise. 
 
 This function makes use of Cerberus Validation class, and schema must be defined in one of template variables sections.
@@ -776,3 +782,43 @@ str_to_unicode
 ``str_to_unicode=""`` or ``functions="str_to_unicode"``
 
 If python2 used to run TTP, this function iterates over group results and converts strings of type ``str`` into ``unicode`` type strings. For python3 this function does nothing.
+
+equal
+------------------------------------------------------------------------------
+``equal="key, value"``
+
+* key - name of the key to verify value for
+* value - value to verify equality against
+
+This functions check if value of certain key is equal to value provided and returns True is so and False otherwise.
+
+**Example**
+
+Template::
+
+    <input load="text">
+    interface FastEthernet1/0/1
+     description Foo
+    !
+    interface FastEthernet1/0/2
+     description wlap2
+    !
+    </input>
+    
+    <group name="interfaces" equal="description, Foo">
+    interface {{ interface }}
+     description {{ description }}
+    </group>
+	
+Results::
+
+    [
+        [
+            {
+                "interfaces": {
+                    "description": "Foo",
+                    "interface": "FastEthernet1/0/1"
+                }
+            }
+        ]
+    ]

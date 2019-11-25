@@ -14,12 +14,17 @@ def gethostname(data, *args, **kwargs):
         {'ios_priv': '\n(\S+)#.*(?=\n)'},          # e.g. 'hostname#'
         {'fortigate': '\n(\S+ \(\S+\)) #.*(?=\n)'} # e.g. 'forti-hostname (Default) #'
     ]
+    UTF_BOM = ['ï»¿', 'þÿ', 'ÿþ', '\ufeff'] # byte order marks (BOM) to strip from beginning 
+											# of the hostname, some text files can have them
     for item in REs:
         name, regex = list(item.items())[0]
         match_iter = finditer(regex, data)
         try:
             match = next(match_iter)
-            return match.group(1)
+            hostname_match = match.group(1)
+            for i in UTF_BOM:
+                hostname_match = hostname_match.lstrip(i)
+            return hostname_match
         except StopIteration:
             continue
     log.error('ttp.functions.variable_gethostname: "{}" file, Hostname not found'.format(args[0]))
