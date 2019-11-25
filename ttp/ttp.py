@@ -783,7 +783,7 @@ class _template_class():
                  for key in vars.keys()]
 
         def parse_output(element):
-            self.outputs.append(_outputter_class(element))
+            self.outputs.append(_outputter_class(element, template_obj=self))
 
         def parse_group(element, grp_index):
             self.groups.append(
@@ -2211,7 +2211,7 @@ class _outputter_class():
         filename (str): name of hte file
         method (str): how to save results, in separate files or in one file
     """
-    def __init__(self, element=None, **kwargs):
+    def __init__(self, element=None, template_obj=None, **kwargs):
         from time import strftime
         ctime = strftime("%Y-%m-%d_%H-%M-%S")
         # set attributes default values:
@@ -2222,6 +2222,7 @@ class _outputter_class():
             'method'      : 'join',
             'filename'    : 'output_{}.txt'.format(ctime)
         }
+        self.template_obj = template_obj
         self.name = None
         self.return_to_self = False
         self.funcs = []
