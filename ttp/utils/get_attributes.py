@@ -11,7 +11,14 @@ class _UndefSubst(dict):
     # that is needed to support simpler syntax definition, e.g. func_name="bla, name=value"
     # instead of func_name="'bla', name='value'"
     def __missing__(self, key):
-        return key
+        if key.lower() == 'false':
+            return False
+        elif key.lower() == 'true':
+            return True
+        elif key.lower() == 'none':
+            return None
+        else:
+            return key
         
 def _get_args_kwargs(*args, **kwargs):
     # function to load args and kwargs
