@@ -298,6 +298,7 @@ output functions
 * functionN - name of the output function together with it's attributes
 
 String, that contains pipe separated list of output functions with functions' attributes
+
 deepdiff
 ------------------------------------------------------------
 ``deepdiff="before, after, add_field=difference, ignore_order=False, verbose_level=2``
@@ -344,7 +345,7 @@ Template::
     </group>
     
     <output deepdiff="input_before, input_after, add_field=difference, ignore_order=False, verbose_level=2"/>
-	
+    
 Results::
 
     [   [   {   'interfaces': [   {   'description': 'Foo',
@@ -355,8 +356,8 @@ Results::
                                       'interface': 'FastEthernet1/0/1'}]},
             {   'difference': {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'Bar',
                                                                                                 'old_value': 'Foo'}}}}]]
-	
+    
 As you can see comparison results were appended to overall results as a dictionary with top key set to ``add_field`` value ``difference`` in this case, if ``add_field`` would be omitted, parsing results will be replaced with comparison outcome and TTP will produce this output::
 
-[   {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'Bar',
-                                                                          'old_value': 'Foo'}}}]
+    [   {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'Bar',
+                                                                              'old_value': 'Foo'}}}]
