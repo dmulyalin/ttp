@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from re import finditer
 import logging
 log = logging.getLogger(__name__)

@@ -4346,4 +4346,83 @@ format_attributes = "tablefmt='fancy_grid'"
     ]
 </output>
 </template>
+
+
+<template
+name="Test22"
+description="test'deepdiff' output function"
+>
+<input name="input_before" load="text">
+interface FastEthernet1/0/1
+ description Foo
+!
+</input>
+
+<input name="one_more" load="text">
+interface FastEthernet1/0/1
+ description FooBar
+!
+</input>
+
+<input name="input_after" load="text">
+interface FastEthernet1/0/1
+ description Bar
+!
+</input>
+
+<group  
+name="interfaces*">
+interface {{ interface }}
+ description {{ description }}
+</group>
+
+<output deepdiff="input_before, input_after, add_field=difference, ignore_order=False, verbose_level=2"/>
+
+<output
+name="test22"
+description="test'deepdiff' output function"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+    [
+        {
+            "interfaces": [
+                {
+                    "description": "Foo",
+                    "interface": "FastEthernet1/0/1"
+                }
+            ]
+        },
+        {
+            "interfaces": [
+                {
+                    "description": "FooBar",
+                    "interface": "FastEthernet1/0/1"
+                }
+            ]
+        },
+        {
+            "interfaces": [
+                {
+                    "description": "Bar",
+                    "interface": "FastEthernet1/0/1"
+                }
+            ]
+        },
+        {
+            "difference": {
+                "values_changed": {
+                    "root['interfaces'][0]['description']": {
+                        "new_value": "Bar",
+                        "old_value": "Foo"
+                    }
+                }
+            }
+        }
+    ]
+</output>
+</template>
 </template>

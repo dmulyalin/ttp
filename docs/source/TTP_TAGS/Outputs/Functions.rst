@@ -21,6 +21,8 @@ Output system provides support for a number of functions. Functions help to proc
      - passes results through macro function
    * - `output functions`_ 
      - pipe separated list of functions to run results through  
+   * - `deepdiff`_ 
+     - function to compare result structures
      
 is_equal
 ------------------------------------------------------------
@@ -296,3 +298,65 @@ output functions
 * functionN - name of the output function together with it's attributes
 
 String, that contains pipe separated list of output functions with functions' attributes
+deepdiff
+------------------------------------------------------------
+``deepdiff="before, after, add_field=difference, ignore_order=False, verbose_level=2``
+
+* before - string, name of input, which results should be used to compare with
+* after - string, name of input, which results should be used for comparing
+* add_field - string, name of field to add compare results, by default is False, hence compare results will replace results data
+* kwargs - any arguments supported by deepdiff DeepDiff object, such as ignore_order or verbose_level
+
+**Prerequisites:** Python deepdiff library need to be installed.
+
+This function takes parsing results for specified inputs and compares them one against another using deepdiff DeepDiff object. 
+
+The usecase for this function might be having two folders on the hard drive, one folder with data before and second folder with data after some changes were done to network devices, TTP can be used to parse this data (can be show commands output for instance) and run results comparison using deepdiff function, which can show the differences between Python structures content, as opposed to comparing text data itself.
+
+**Example**
+
+In this example, results of inputs with names ``input_before`` and ``input_after`` will be compared one against the other.
+
+Template::
+
+    <input name="input_before" load="text">
+    interface FastEthernet1/0/1
+     description Foo
+    !
+    </input>
+    
+    <input name="one_more" load="text">
+    interface FastEthernet1/0/1
+     description FooBar
+    !
+    </input>
+    
+    <input name="input_after" load="text">
+    interface FastEthernet1/0/1
+     description Bar
+    !
+    </input>
+    
+    <group  
+    name="interfaces*">
+    interface {{ interface }}
+     description {{ description }}
+    </group>
+    
+    <output deepdiff="input_before, input_after, add_field=difference, ignore_order=False, verbose_level=2"/>
+	
+Results::
+
+    [   [   {   'interfaces': [   {   'description': 'Foo',
+                                      'interface': 'FastEthernet1/0/1'}]},
+            {   'interfaces': [   {   'description': 'FooBar',
+                                      'interface': 'FastEthernet1/0/1'}]},
+            {   'interfaces': [   {   'description': 'Bar',
+                                      'interface': 'FastEthernet1/0/1'}]},
+            {   'difference': {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'Bar',
+                                                                                                'old_value': 'Foo'}}}}]]
+	
+As you can see comparison results were appended to overall results as a dictionary with top key set to ``add_field`` value ``difference`` in this case, if ``add_field`` would be omitted, parsing results will be replaced with comparison outcome and TTP will produce this output::
+
+[   {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'Bar',
+                                                                          'old_value': 'Foo'}}}]
