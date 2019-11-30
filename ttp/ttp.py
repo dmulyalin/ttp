@@ -12,7 +12,7 @@ from collections import OrderedDict
 # Initiate global variables
 python_major_version = version_info.major
 log = logging.getLogger(__name__)
-_ttp_ = {"macro": {}, "python_major_version": python_major_version, "global_vars": {}}
+_ttp_ = {"macro": {}, "python_major_version": python_major_version, "global_vars": {}, "template_obj": {}}
 
 
 """
@@ -136,7 +136,7 @@ class ttp():
         self.__data_size = 0
         self.__datums_count = 0
         self.__data = []
-        self.__templates = []
+        self._templates = []
         self.base_path = base_path
         self.multiproc_threshold = 5242880 # in bytes, equal to 5MBytes
         self.vars = vars                   # dictionary of variables to add to each template vars
@@ -146,6 +146,8 @@ class ttp():
             logging_config(log_level, log_file)
         # lazy import all functions
         lazy_import_functions()
+        # add reference to TTP object in _ttp_
+        _ttp_['ttp_object'] = self
         # check if data given, if so - load it:
         if data is not '':
             self.add_input(data=data)
@@ -193,7 +195,7 @@ class ttp():
         self.__data = []    
         self.__data_size = 0
         self.__datums_count = 0
-        for template in self.__templates:
+        for template in self._templates:
             template.inputs = {}
         
         
@@ -203,7 +205,7 @@ class ttp():
         """
         self.__data_size = 0
         self.__datums_count = 0
-        for template in self.__templates:
+        for template in self._templates:
             # update template inputs with data
             [template.update_input(data=i[0], input_name=i[1], groups=i[2]) for i in self.__data] 
             # get overall data size and count
@@ -236,9 +238,9 @@ class ttp():
                 name=template_name)
             # if templates are empty - no 'template' tags in template:
             if template_obj.templates == []:
-                self.__templates.append(template_obj)
+                self._templates.append(template_obj)
             else:
-                self.__templates += template_obj.templates
+                self._templates += template_obj.templates
             
             
     def add_lookup(self, name, text_data="", include=None, load="python", key=None):
@@ -260,7 +262,7 @@ class ttp():
         lookup_data = _ttp_["utils"]["load_struct"](text_data=text_data,
                                                include=include, load=load, key=key)
         self.lookups.update({name: lookup_data})
-        [template.add_lookup({name: lookup_data}) for template in self.__templates]
+        [template.add_lookup({name: lookup_data}) for template in self._templates]
 
         
     def add_vars(self, vars):
@@ -272,7 +274,7 @@ class ttp():
         """
         if isinstance(vars, dict):
             self.vars.update(vars)
-            [template.add_vars(vars) for template in self.__templates]
+            [template.add_vars(vars) for template in self._templates]
             
 
     def parse(self, one=False, multi=False):
@@ -307,7 +309,7 @@ class ttp():
         else:
             self.__parse_in_one_process()
         # run outputters defined in templates:
-        [template.run_outputs() for template in self.__templates]
+        [template.run_outputs() for template in self._templates]
 
 
     def __parse_in_multiprocess(self):
@@ -317,7 +319,7 @@ class ttp():
         log.info("ttp.parse: parse using multiple processes")
         num_processes = cpu_count()
 
-        for template in self.__templates:
+        for template in self._templates:
             num_jobs = 0
             tasks = JoinableQueue()
             results_queue = Queue()
@@ -353,8 +355,9 @@ class ttp():
         against each template and results saved in results list
         """
         log.info("ttp.parse: parse using single process")
-        for template in self.__templates:
+        for template in self._templates:
             _ttp_["macro"] = template.macro
+            _ttp_["template_obj"] = template
             parserObj = _parser_class(lookups=template.lookups,
                                      vars=template.vars,
                                      groups=template.groups)
@@ -445,11 +448,11 @@ class ttp():
             }
         """
         # filter templates to run outputs for:
-        templates_obj = self.__templates
+        templates_obj = self._templates
         if isinstance(templates, str):
             templates = [templates]
         if templates:
-            templates_obj = [template for template in self.__templates
+            templates_obj = [template for template in self._templates
                              if template.name in templates]
         # form results:
         results = []
@@ -476,7 +479,7 @@ class ttp():
         List of unique commands - [command1, command2, ... , commandN]
         """
         ret = []
-        for template_obj in self.__templates:
+        for template_obj in self._templates:
             for input_name, input_obj in template_obj.inputs.items():
                 for function in input_obj.functions:
                     if function['name'] == 'commands':
@@ -497,7 +500,7 @@ class ttp():
             input name attribute is unique across all loaded templates.
         """
         ret = {}
-        for template_obj in self.__templates:
+        for template_obj in self._templates:
             for input_name, input_obj in template_obj.inputs.items():
                 ret.setdefault(input_name, [])
                 for function in input_obj.functions:
@@ -525,7 +528,7 @@ class ttp():
             input name attribute is unique across all templates.
         """
         ret = {}
-        for template_obj in self.__templates:
+        for template_obj in self._templates:
             for input_name, input_obj in template_obj.inputs.items():
                 ret[input_name] = input_obj.parameters
         return ret
@@ -2164,7 +2167,12 @@ class _results_class():
                 if m in self.record['result']:
                     self.dyn_path_cache[m] = self.record['result'][m]
                     repl = self.record['result'].pop(m)
-                    path_item = re.sub(pattern, repl, path_item)
+                    try:
+                        path_item = re.sub(pattern, repl, path_item)
+                    except TypeError as e:
+                        log.critical("ttp.form_path path re substitution failed:\npattern: {}\nreplacememnt: {}\nstring to replace in: {}\nerror: {}".format(
+                        pattern, repl, path_item, e))
+                        raise SystemExit('exiting...')
                 elif m in self.dyn_path_cache:
                     path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
                 elif m in self.vars:

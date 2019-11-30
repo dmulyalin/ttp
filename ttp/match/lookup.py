@@ -1,16 +1,33 @@
-def lookup(data, name, add_field=False):
-    path = [i.strip() for i in name.split('.')]
+def lookup(data, name=None, template=None, group=None, add_field=False):
     found_value = None
-    # get lookup dictionary/data:
+    lookup_data = {}
+    # try get lookup dictionary/data from lookup tags:
+    if name:
+        path = [i.strip() for i in name.split('.')]
+        lookup_data = _ttp_["parser_object"].lookups
+    elif template:
+        path = [i.strip() for i in template.split('.')]
+        for template in _ttp_['ttp_object']._templates:
+            if template.name == path[0]:
+                # use first input results in the template:
+                lookup_data = template.results[0]     
+                path = path[1:]
+                break
+    elif group:
+        path = [i.strip() for i in group.split('.')]
+        for result in _ttp_["template_obj"].results:
+            if path[0] in result:
+                lookup_data = result[path[0]]
+                break
+        path = path[1:]
+    else:
+        log.info("ttp.lookup no lookup data name provided, doing nothing.")
+        return Data, None
+    for i in path:
+        lookup_data = lookup_data.get(i,{})
+    # perform lookup:
     try:
-        lookup = _ttp_["parser_object"].lookups
-        for i in path:
-            lookup = lookup.get(i,{})
-    except KeyError:
-        return data, None
-    # perfrom lookup:
-    try:
-        found_value = lookup[data]
+        found_value = lookup_data[data]
     except KeyError:
         return data, None
     # decide to replace match result or add new field:
