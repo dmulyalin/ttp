@@ -4425,4 +4425,155 @@ format_attributes = "tablefmt='fancy_grid'"
     ]
 </output>
 </template>
+
+
+<template name="lookup_db_1st"
+description="this template results used by next template as a lookup table"
+>
+<input load="text">
+asa# sh object-group id aws_criticalprd_us_west_2_app
+object-group network aws_criticalprd_us_west_2_app
+ network-object 10.159.160.0 255.255.248.0
+ network-object 10.159.161.0 255.255.248.0
+asa#  sh object-group id aws_criticalprd_us_west_2_db
+object-group network aws_criticalprd_us_west_2_db
+ network-object 10.159.168.0 255.255.248.0
+</input>
+<group name="{{ network_obj }}">
+object-group network {{ network_obj }}
+ network-object {{ subnets | PHRASE | to_list | joinmatches }}
+</group>
+</template>
+
+<template name="test23"
+description="template to test lookup using another template results, lookup_db_1st in this case"
+>
+<input load="text">
+asa# sh object-group id aws_criticalprd_us_west_2_app_db
+object-group network aws_criticalprd_us_west_2_app_db
+ group-object aws_criticalprd_us_west_2_app
+ group-object aws_criticalprd_us_west_2_db
+</input>
+<group name="{{ network_obj }}">
+object-group network {{ network_obj }}
+<group name="{{ grpoup_obj }}">
+ group-object {{ grpoup_obj | lookup(template=lookup_db_1st, add_field=children) }}
+</group>
+</group>
+
+<output
+name="test23"
+description="cross template lookup test"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "aws_criticalprd_us_west_2_app_db": {
+            "aws_criticalprd_us_west_2_app": {
+                "children": {
+                    "subnets": [
+                        "10.159.160.0 255.255.248.0",
+                        "10.159.161.0 255.255.248.0"
+                    ]
+                }
+            },
+            "aws_criticalprd_us_west_2_db": {
+                "children": {
+                    "subnets": [
+                        "10.159.168.0 255.255.248.0"
+                    ]
+                }
+            }
+        }
+    }
+]
+</output>
+</template>
+
+
+
+<template
+name="lookup_across_groups"
+description="to test lokup function across group results"
+>
+<input load="text" name="test1-42_lookup_db_1st">
+asa# sh object-group id aws_criticalprd_us_west_2_app
+object-group network aws_criticalprd_us_west_2_app
+ network-object 10.159.160.0 255.255.248.0
+ network-object 10.159.161.0 255.255.248.0
+asa#  sh object-group id aws_criticalprd_us_west_2_db
+object-group network aws_criticalprd_us_west_2_db
+ network-object 10.159.168.0 255.255.248.0
+</input>
+<group name="test1-42_lookup_db_1st.{{ network_obj }}" input="test1-42_lookup_db_1st">
+object-group network {{ network_obj }}
+ network-object {{ subnets | PHRASE | to_list | joinmatches }}
+</group>
+
+<input load="text" name="test1-42_lookup_db_2nd">
+asa# sh object-group id aws_criticalprd_us_west_2_app_db
+object-group network aws_criticalprd_us_west_2_app_db
+ group-object aws_criticalprd_us_west_2_app
+ group-object aws_criticalprd_us_west_2_db
+</input>
+<group name="test1-42_lookup_db_2nd.{{ network_obj }}" input="test1-42_lookup_db_2nd">
+object-group network {{ network_obj }}
+<group name="{{ grpoup_obj }}">
+ group-object {{ grpoup_obj | lookup(group="test1-42_lookup_db_1st", add_field=children) }}
+</group>
+</group>
+
+<output
+name="test24"
+description="cross group lookup test"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "test1-42_lookup_db_1st": {
+            "aws_criticalprd_us_west_2_app": {
+                "subnets": [
+                    "10.159.160.0 255.255.248.0",
+                    "10.159.161.0 255.255.248.0"
+                ]
+            },
+            "aws_criticalprd_us_west_2_db": {
+                "subnets": [
+                    "10.159.168.0 255.255.248.0"
+                ]
+            }
+        }
+    },
+    {
+        "test1-42_lookup_db_2nd": {
+            "aws_criticalprd_us_west_2_app_db": {
+                "aws_criticalprd_us_west_2_app": {
+                    "children": {
+                        "subnets": [
+                            "10.159.160.0 255.255.248.0",
+                            "10.159.161.0 255.255.248.0"
+                        ]
+                    }
+                },
+                "aws_criticalprd_us_west_2_db": {
+                    "children": {
+                        "subnets": [
+                            "10.159.168.0 255.255.248.0"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+]
+</output>
+</template>
 </template>
