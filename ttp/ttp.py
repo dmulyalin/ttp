@@ -1873,35 +1873,43 @@ class _results_class():
             # clear LOCK between groups as LOCK has intra group significance only:
             self.GRPLOCK['LOCK'] = False
             self.GRPLOCK['GROUP'] = ()
-            # iterate over each match result for the group:
+            # iterate over each match result for the group
             for result in group_results:
                 # if result been matched by one regex only
                 if len(result) == 1:
                     re=result[0][0]
                     result_data=result[0][1]
-                # if same results captured by multiple regexes, need to do further decision checks:
+                # if same results captured by multiple regexes, need to do further decision checks
                 else:
                     re = None
-                    for item in result:
-                        item_re = item[0]
-                        # pick up first start re:
-                        if item_re['ACTION'].startswith('start'):
-                            re = item[0]
-                            result_data = item[1]
-                            break
-                        # pick up non _line_ re with the same path as current group:
-                        elif item_re["GROUP"].path == self.record["PATH"] and item_re['IS_LINE'] == False:
-                            re = item[0]
-                            result_data = item[1]
-                            break
-                        # if IS_LINE - assign it if no re assigned yet and keep iterating
-                        elif item_re['IS_LINE'] is True and re == None:
-                            re = item[0]
-                            result_data = item[1]
-                        # assign item to re if it is not _line_ and keep iterating
-                        elif item_re['IS_LINE'] is False:
-                            re = item[0]
-                            result_data = item[1]
+                    start_re, normal_re, line_re = [], [], []
+                    # sort matches across start, normal and line REs
+                    for index, item in enumerate(result):
+                        if item[0]['ACTION'].startswith('start'):
+                            start_re.append(index)
+                        elif item[0]['IS_LINE'] == True:
+                            line_re.append(index)
+                        else:
+                            normal_re.append(index)
+                    # start RE always more preferred
+                    if start_re:
+                        for index in start_re:
+                            re = result[index][0]
+                            result_data = result[index][1]
+                            # prefer result with same path as current record
+                            if re["GROUP"].path == self.record["PATH"]: break
+                    # normal REs preferred the next
+                    elif normal_re:
+                        for index in normal_re:
+                            re = result[index][0]
+                            result_data = result[index][1]
+                            if re["GROUP"].path == self.record["PATH"]: break    
+                    # line REs has the least preference
+                    elif line_re:
+                        for index in line_re:
+                            re = result[index][0]
+                            result_data = result[index][1]
+                            if re["GROUP"].path == self.record["PATH"]: break                            
                             
                 group = re['GROUP']
                 
