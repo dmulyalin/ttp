@@ -1881,6 +1881,7 @@ class _results_class():
                     result_data=result[0][1]
                 # if same results captured by multiple regexes, need to do further decision checks:
                 else:
+                    re = None
                     for item in result:
                         item_re = item[0]
                         # pick up first start re:

@@ -800,15 +800,17 @@ Result::
  
 lookup
 ------------------------------------------------------------------------------
-``{{ name | lookup('name', 'add_field') }}``
+``{{ name | lookup('name', 'group', 'template', 'add_field') }}``
 
-* name(mandatory) - lookup name and dot-separated path to data within which to perform lookup
-* add_field(optional) - default is False, can be set to string that will indicate name of the new field
+* name - name of lookup tag and dot-separated path to data within which to perform lookup
+* group - dot-separated path to group results to use for lookup
+* template - dot-separated path to template results to use for lookup
+* add_field - default is False, can be set to string that will indicate name of the new field
 
-Lookup function takes match value and perform lookup on that value in lookup table. Lookup table is a dictionary data where keys checked if they are equal to math result.
+Lookup function takes match result value and performs lookup on that value in lookup data structure. Lookup data is a dictionary where keys checked if they are equal to math result.
 
-If lookup was unsuccessful no changes introduces to match result, if it was successful we have two option on what to do with looked up values:
-* if add_field is False - match Result replaced with found values
+If lookup was unsuccessful no changes introduces to match result, if it was successful we have two option on what to do with found values:
+* if add_field is False - match result replaced with found values
 * if add_field is not False - string passed as add_field value used as a name for additional field that will be added to group match results
 
 **Example-1** *add_field* set to False
@@ -910,6 +912,15 @@ Result::
      }
  }
  
+**Example-3**
+
+Using group results to perform lookup
+
+
+**Example-4**
+
+Using template results to perform lookup
+
 rlookup
 ------------------------------------------------------------------------------
 ``{{ name | rlookup('name', 'add_field') }}``
