@@ -813,6 +813,8 @@ If lookup was unsuccessful no changes introduces to match result, if it was succ
 * if add_field is False - match result replaced with found values
 * if add_field is not False - string passed as add_field value used as a name for additional field that will be added to group match results
 
+.. warning:: if one group uses results of another group for lookup, these groups must use separate inputs, groups that parse same input data, cannot use each other results for lookup, this is due to the way how TTP combines results on a per-input basis.
+
 **Example-1** *add_field* set to False
 
 In this example, as 65101 will be looked up in the lookup table and replaced with found values
@@ -914,12 +916,175 @@ Result::
  
 **Example-3**
 
-Using group results to perform lookup
+This example uses group "interfaces_data" results to perform lookup and add additional data in results produced by "arp" group
 
+Template::
+
+    <input name="interfaces_data" load="text">
+    interface FastEthernet2.13
+     description Customer CPE interface
+     ip address 10.12.13.1 255.255.255.0
+     vrf forwarding CPE-VRF
+    !
+    interface GigabitEthernet2.13
+     description Customer CPE interface
+     ip address 10.12.14.1 255.255.255.0
+     vrf forwarding CUST1
+    !
+    </input>
+    
+    <group name="interfaces.{{ interface }}" input="interfaces_data">
+    interface {{ interface }}
+     description {{ description | ORPHRASE }}
+     ip address {{ subnet | PHRASE | to_ip | network | to_str }}
+     vrf forwarding {{ vrf }}
+    </group>
+    
+    <input name="arp_data" load="text">
+    Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+    Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+    Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+    </input>
+    
+    <group name="arp" input="arp_data">
+    Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface | lookup(group="interfaces", add_field="subnet_info") }}
+    </group>
+
+Results::
+
+    [
+        [
+            {
+                "interfaces": {
+                    "FastEthernet2.13": {
+                        "description": "Customer CPE interface",
+                        "subnet": "10.12.13.0/24",
+                        "vrf": "CPE-VRF"
+                    },
+                    "GigabitEthernet2.13": {
+                        "description": "Customer CPE interface",
+                        "subnet": "10.12.14.0/24",
+                        "vrf": "CUST1"
+                    }
+                }
+            },
+            {
+                "arp": [
+                    {
+                        "age": "98",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.2",
+                        "mac": "0950.5785.5cd1",
+                        "subnet_info": {
+                            "description": "Customer CPE interface",
+                            "subnet": "10.12.13.0/24",
+                            "vrf": "CPE-VRF"
+                        }
+                    },
+                    {
+                        "age": "131",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.14.3",
+                        "mac": "0150.7685.14d5",
+                        "subnet_info": {
+                            "description": "Customer CPE interface",
+                            "subnet": "10.12.14.0/24",
+                            "vrf": "CUST1"
+                        }
+                    }
+                ]
+            }
+        ]
+    ]
 
 **Example-4**
 
-Using template results to perform lookup
+In this example, second template uses template "interfaces_data" results to perform lookup by denoting name of the template and path to lookup data in "interfaces_data.interfaces" lookup function template argument.
+
+Template::
+
+    <template name="interfaces_data">
+    <input load="text">
+    interface FastEthernet2.13
+     description Customer CPE interface
+     ip address 10.12.13.1 255.255.255.0
+     vrf forwarding CPE-VRF
+    !
+    interface GigabitEthernet2.13
+     description Customer CPE interface
+     ip address 10.12.14.1 255.255.255.0
+     vrf forwarding CUST1
+    !
+    </input>
+    
+    <group name="interfaces.{{ interface }}">
+    interface {{ interface }}
+     description {{ description | ORPHRASE }}
+     ip address {{ subnet | PHRASE | to_ip | network | to_str }}
+     vrf forwarding {{ vrf }}
+    </group>
+    </template>
+    
+    <template>
+    <input load="text">
+    Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+    Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+    Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+    </input>
+    
+    <group name="arp">
+    Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface | lookup(template="interfaces_data.interfaces", add_field="subnet_info") }}
+    </group>
+    </template>
+	
+Results::
+
+    [
+        [
+            {
+                "interfaces": {
+                    "FastEthernet2.13": {
+                        "description": "Customer CPE interface",
+                        "subnet": "10.12.13.0/24",
+                        "vrf": "CPE-VRF"
+                    },
+                    "GigabitEthernet2.13": {
+                        "description": "Customer CPE interface",
+                        "subnet": "10.12.14.0/24",
+                        "vrf": "CUST1"
+                    }
+                }
+            }
+        ],
+        [
+            {
+                "arp": [
+                    {
+                        "age": "98",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.2",
+                        "mac": "0950.5785.5cd1",
+                        "subnet_info": {
+                            "description": "Customer CPE interface",
+                            "subnet": "10.12.13.0/24",
+                            "vrf": "CPE-VRF"
+                        }
+                    },
+                    {
+                        "age": "131",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.14.3",
+                        "mac": "0150.7685.14d5",
+                        "subnet_info": {
+                            "description": "Customer CPE interface",
+                            "subnet": "10.12.14.0/24",
+                            "vrf": "CUST1"
+                        }
+                    }
+                ]
+            }
+        ]
+    ]
 
 rlookup
 ------------------------------------------------------------------------------
