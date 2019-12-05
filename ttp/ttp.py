@@ -1108,12 +1108,12 @@ class _group_class():
         self.vars     = vars
         self.grp_index = grp_index
         self.inputs = []
+        self.attributes = {}
         # extract data:
         self.get_attributes(element.attrib)
         self.set_anonymous_path()
         self.get_regexes(element.text)
         self.get_children(list(element))
-        self.attributes = {}
 
 
     def set_anonymous_path(self):

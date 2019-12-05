@@ -39,7 +39,11 @@ def get_attributes(line):
     for item in ATTRIBUTES:
         opts = {'args': [], 'kwargs': {}, 'name': ''}
         # re search attributes like set(), upper, joinchar(',','-')
-        itemDict = re.search('^(?P<name>\S+?)\s?(\((?P<options>.*)\))?$', item).groupdict()
+        try:
+            itemDict = re.search('^(?P<name>\S+?)\s?(\((?P<options>.*)\))?$', item).groupdict()
+        except AttributeError as e:
+            log.critical("ttp.get_attributes failed to parse attributes for: '{}' with error: {};\nExiting...".format(item, e))
+            raise SystemExit()
         opts['name'] = itemDict['name']
         options = itemDict['options']
         # create options list from options string using eval:

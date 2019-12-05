@@ -2132,6 +2132,80 @@ description="test group equal function"
                               'mask': '255.255.255.128',
                               'vid': '251'}}
 </output>
+
+
+
+
+<input load="text" name="test1-42">
+Subscription ID = 1
+Version = 1
+Num Subpackets = 1
+Subpacket[0]
+   Subpacket ID = PDCP PDU with Ciphering (0xC3)
+   Subpacket Version = 26.1
+   Subpacket Size = 60,5 bytes
+   SRB Cipher Algo = LTE AES
+   DRB Cipher Algo = LTE AES
+   Num PDUs = 1
+</input>
+
+<group name="test_1_42_1" to_int="" input="test1-42" output="test1-42-1">
+Subscription ID = {{ Subscription_ID }}
+Version = {{ version }}
+Num Subpackets = {{ Num_Subpackets }}
+   Subpacket ID = {{ Subpacket_ID | PHRASE }}
+   Subpacket Version = {{ Subpacket_Version }}
+   Subpacket Size = {{ Subpacket_Size | PHRASE }}
+   SRB Cipher Algo = {{ SRB_Cipher_Algo | PHRASE }}
+   DRB Cipher Algo = {{ DRB_Cipher_Algo | PHRASE }}
+   Num PDUs = {{ Num_PDUs }}
+</group>
+
+<output
+name="test1-42-1"
+load="python"
+functions="is_equal"
+description="test group to_int function for all keys"
+>
+{   'test_1_42_1': {   'DRB_Cipher_Algo': 'LTE AES',
+                     'Num_PDUs': 1,
+                     'Num_Subpackets': 1,
+                     'SRB_Cipher_Algo': 'LTE AES',
+                     'Subpacket_ID': 'PDCP PDU with Ciphering (0xC3)',
+                     'Subpacket_Size': '60,5 bytes',
+                     'Subpacket_Version': 26.1,
+                     'Subscription_ID': 1,
+                     'version': 1}}
+</output>
+
+<group name="test_1_42_2" to_int="version, Subpacket_Version" input="test1-42" output="test1-42-2">
+Subscription ID = {{ Subscription_ID }}
+Version = {{ version }}
+Num Subpackets = {{ Num_Subpackets }}
+   Subpacket ID = {{ Subpacket_ID | PHRASE }}
+   Subpacket Version = {{ Subpacket_Version }}
+   Subpacket Size = {{ Subpacket_Size | PHRASE }}
+   SRB Cipher Algo = {{ SRB_Cipher_Algo | PHRASE }}
+   DRB Cipher Algo = {{ DRB_Cipher_Algo | PHRASE }}
+   Num PDUs = {{ Num_PDUs }}
+</group>
+
+<output
+name="test1-42-2"
+load="python"
+functions="is_equal"
+description="test group to_int function for given keys only"
+>
+{   'test_1_42_2': {   'DRB_Cipher_Algo': 'LTE AES',
+                       'Num_PDUs': '1',
+                       'Num_Subpackets': '1',
+                       'SRB_Cipher_Algo': 'LTE AES',
+                       'Subpacket_ID': 'PDCP PDU with Ciphering (0xC3)',
+                       'Subpacket_Size': '60,5 bytes',
+                       'Subpacket_Version': 26.1,
+                       'Subscription_ID': '1',
+                       'version': 1}}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"

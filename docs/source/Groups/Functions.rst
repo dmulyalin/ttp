@@ -39,6 +39,8 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - converts Python2 str srings in unicode strings
    * - `equal`_   
      - verifies that key's value is equal to provided value
+   * - `to_int`_   
+     - converts given keys to integer (int or float) or tries to convert all match result values
      
 containsall
 ------------------------------------------------------------------------------
@@ -818,6 +820,87 @@ Results::
                 "interfaces": {
                     "description": "Foo",
                     "interface": "FastEthernet1/0/1"
+                }
+            }
+        ]
+    ]
+	
+to_int
+------------------------------------------------------------------------------
+``to_int=""`` or ``to_int="key1, key2, keyN"``
+
+* keyN - name of keys to run conversion for, if omitted, all group match results items will be attempted to convert into integer.
+
+This function tries to convert string representation of digit into integer using python int() function, if fails it next tries to convert to integer using python float() function. 
+If either int() or float() conversion was successful, string converted to digit will replace match result, on failure nothing will be done with match results.
+
+**Example**
+
+Template::
+
+    <input load="text">
+    Subscription ID = 1
+    Version = 1
+    Num Subpackets = 1
+    Subpacket[0]
+       Subpacket ID = PDCP PDU with Ciphering (0xC3)
+       Subpacket Version = 26.1
+       Subpacket Size = 60,5 bytes
+       SRB Cipher Algo = LTE AES
+       DRB Cipher Algo = LTE AES
+       Num PDUs = 1
+    </input>
+    
+    <group name="all_to_int" to_int="">
+    Subscription ID = {{ Subscription_ID }}
+    Version = {{ version }}
+    Num Subpackets = {{ Num_Subpackets }}
+       Subpacket ID = {{ Subpacket_ID | PHRASE }}
+       Subpacket Version = {{ Subpacket_Version }}
+       Subpacket Size = {{ Subpacket_Size | PHRASE }}
+       SRB Cipher Algo = {{ SRB_Cipher_Algo | PHRASE }}
+       DRB Cipher Algo = {{ DRB_Cipher_Algo | PHRASE }}
+       Num PDUs = {{ Num_PDUs }}
+    </group>
+    
+    <group name="some_to_int" to_int="version, Subpacket_Version">
+    Subscription ID = {{ Subscription_ID }}
+    Version = {{ version }}
+    Num Subpackets = {{ Num_Subpackets }}
+       Subpacket ID = {{ Subpacket_ID | PHRASE }}
+       Subpacket Version = {{ Subpacket_Version }}
+       Subpacket Size = {{ Subpacket_Size | PHRASE }}
+       SRB Cipher Algo = {{ SRB_Cipher_Algo | PHRASE }}
+       DRB Cipher Algo = {{ DRB_Cipher_Algo | PHRASE }}
+       Num PDUs = {{ Num_PDUs }}
+    </group>
+	
+Results::
+
+    [
+        [
+            {
+                "all_to_int": {
+                    "DRB_Cipher_Algo": "LTE AES",
+                    "Num_PDUs": 1,
+                    "Num_Subpackets": 1,
+                    "SRB_Cipher_Algo": "LTE AES",
+                    "Subpacket_ID": "PDCP PDU with Ciphering (0xC3)",
+                    "Subpacket_Size": "60,5 bytes",
+                    "Subpacket_Version": 26.1,
+                    "Subscription_ID": 1,
+                    "version": 1
+                },
+                "some_to_int": {
+                    "DRB_Cipher_Algo": "LTE AES",
+                    "Num_PDUs": "1",
+                    "Num_Subpackets": "1",
+                    "SRB_Cipher_Algo": "LTE AES",
+                    "Subpacket_ID": "PDCP PDU with Ciphering (0xC3)",
+                    "Subpacket_Size": "60,5 bytes",
+                    "Subpacket_Version": 26.1,
+                    "Subscription_ID": "1",
+                    "version": 1
                 }
             }
         ]
