@@ -4650,4 +4650,64 @@ format_attributes = "tablefmt='fancy_grid'"
 ]
 </output>
 </template>
+
+<template
+name="test24"
+description="test handling of end when has child group">
+
+<input load="text">
+interface Port-channel6.15
+ ip address 150.101.33.91 255.255.255.254
+!
+interface Port-channel6.608
+ ip address 203.215.20.96 255.255.255.254
+!
+interface Port-channel10
+ ip address 203.215.4.22 255.255.255.254
+!
+interface Port-channel10
+ ip address 203.215.4.23 255.255.255.254
+!
+</input>
+
+<group name="interfaces**.{{ interface }}**.subinterface:{{ subinterface }}">
+interface {{ interface }}.{{ subinterface }}
+<group name="ipv4_ips.{{ ipv4 }}">
+ ip address {{ ipv4 }} {{ mask }}
+ ip address {{ ipv4 }} {{ mask }} secondary
+</group>
+!{{ _end_ }}
+</group>
+
+<output
+name="test25"
+description="test handling of end re with child groups"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[{
+    "interfaces": {
+        "Port-channel6": {
+            "subinterface:15": {
+                "ipv4_ips": {
+                    "150.101.33.91": {
+                        "mask": "255.255.255.254"
+                    }
+                }
+            },
+            "subinterface:608": {
+                "ipv4_ips": {
+                    "203.215.20.96": {
+                        "mask": "255.255.255.254"
+                    }
+                }
+            }
+        }
+    }
+}]
+</output>
+</template>
 </template>
