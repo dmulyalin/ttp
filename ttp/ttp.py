@@ -1926,14 +1926,17 @@ class _results_class():
                         if group.path == locked_group_path:
                             self.GRPLOCK['LOCK'] = False
                             self.GRPLOCK['GROUP'] = ()
-                        # check if upper or different level _start_ re
-                        elif not ".".join(group.path).startswith(".".join(locked_group_path)):
+                        # skip children even if they are _start_ re
+                        elif ".".join(group.path).startswith(".".join(locked_group_path)):
+                            continue
+                        # meaning its upper level or different path group, unlock it:
+                        else:
                             self.GRPLOCK['LOCK'] = False
                             self.GRPLOCK['GROUP'] = ()
-                    # skip all the rest non _start_ children regexes
+                    # skip children
                     elif ".".join(group.path).startswith(".".join(locked_group_path)):
                         continue   
-                        
+                                      
                 # Save results:
                 saveFuncs[re['ACTION']](
                     result     = result_data,
@@ -2156,8 +2159,11 @@ class _results_class():
 
 
     def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
-        # if path not the same, results belong to different group, skip them
-        if self.record['PATH'] != PATH:
+        # if path not the same and this is not child
+        # results belong to different group, skip them
+        if (self.record['PATH'] != PATH and 
+            # if below is true, this is child group:
+            not ".".join(self.record['PATH']).startswith(".".join(PATH))):
             return
         # action to end current group by locking it
         self.GRPLOCK['LOCK'] = True
