@@ -1244,14 +1244,14 @@ class _group_class():
 
         # form re, start re and end re lists:
         for index, re_dict in enumerate(regexes):
-            if tail == True:
+            if "end" in re_dict['ACTION']:
+                self.end_re.append(re_dict)
+            elif tail == True:
                 self.re.append(re_dict)
             elif index == 0:
                 if not 'start' in re_dict['ACTION']:
                     re_dict['ACTION'] ='start'
                 self.start_re.append(re_dict)
-            elif "end" in re_dict['ACTION']:
-                self.end_re.append(re_dict)
             elif self.method == 'table':
                 if not 'start' in re_dict['ACTION']:
                     re_dict['ACTION'] = 'start'
