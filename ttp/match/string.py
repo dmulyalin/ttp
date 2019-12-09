@@ -75,9 +75,10 @@ def sprint(data):
     print(data)
     return data, None
         
-def contains(data, pattern):
-    if pattern in data:
-        return data, True
+def contains(data, *patterns):
+    for pattern in patterns:
+        if pattern in data:
+            return data, True
     return data, False
     
 def sformat(data, string):

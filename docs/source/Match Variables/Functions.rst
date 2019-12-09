@@ -93,7 +93,7 @@ Condition functions can perform various checks with match results and returns ei
    * - `contains_re`_ 
      - checks if match contains certain string using regular expression
    * - `contains`_ 
-     - checks if match contains certain string
+     - checks if match contains certain string patterns
    * - `notstartswith_re`_ 
      - checks if match not starts with certain string using regular expression
    * - `notendswith_re`_ 
@@ -1174,15 +1174,15 @@ Python re search used to evaluate if match value contains given string pattern, 
 
 contains
 ------------------------------------------------------------------------------
-``{{ name | contains('pattern') }}``
+``{{ name | contains('pattern1, pattern2, ... , patternN') }}``
 
-* pattern(mandatory) - string pattern to check
+* patternN - string, pattern to check match result for
 
-This function evaluates if match value contains given string pattern, returns True if so and False otherwise.
+This function evaluates if match value contains one of given string patterns, returns True if so and False otherwise.
 
 **Example**
 
-*contains* can be used to filter group results based on filtering start res, for instance, if we have configuration of networking device and we want to extract information only about *Vlan* interfaces.
+*contains* can be used to filter group results based on filtering start REs, for instance, if we have configuration of networking device and we want to extract information only about *Vlan* interfaces.
 
 Data::
 
