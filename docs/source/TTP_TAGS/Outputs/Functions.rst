@@ -301,22 +301,25 @@ String, that contains pipe separated list of output functions with functions' at
 
 deepdiff
 ------------------------------------------------------------
-``deepdiff="before, after, add_field=difference, ignore_order=False, verbose_level=2``
+``deepdiff="input_before, input_after, mode=bulk, add_field=difference, **kwargs``
 
-* before - string, name of input, which results should be used to compare with
-* after - string, name of input, which results should be used for comparing
+* input_before - string, name of input, which results should be used to compare with
+* input_after - string, name of input, which results should be used for comparing
 * add_field - string, name of field to add compare results, by default is False, hence compare results will replace results data
+* mode - string, 'bulk' (default) ot 'iterate' modes supported to modify comparison behavior
 * kwargs - any arguments supported by deepdiff DeepDiff object, such as ignore_order or verbose_level
 
 **Prerequisites:** Python deepdiff library need to be installed.
 
-This function takes parsing results for specified inputs and compares them one against another using deepdiff DeepDiff object. 
+This function takes parsing results for specified inputs and compares them one against another using DeepDiff library deepdiff object. 
 
 The usecase for this function might be having two folders on the hard drive, one folder with data before and second folder with data after some changes were done to network devices, TTP can be used to parse this data (can be show commands output for instance) and run results comparison using deepdiff function, which can show the differences between Python structures content, as opposed to comparing text data itself.
 
-**Example**
+Few words about **mode**. In ``bulk`` mode overall ``input_before`` results compared with overall ``input_after`` results, in ``iterate`` mode **first** item in results for ``input_before`` compared (iterated) against each item in results for ``input_after``.
 
-In this example, results of inputs with names ``input_before`` and ``input_after`` will be compared one against the other.
+**Example-1**
+
+In this example, results of inputs with names ``input_before`` and ``input_after`` will be compared against each other using default 'bulk' comparison mode.
 
 Template::
 
@@ -361,3 +364,52 @@ As you can see comparison results were appended to overall results as a dictiona
 
     [   {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'Bar',
                                                                               'old_value': 'Foo'}}}]
+																			  
+**Example-2**
+
+This example uses ``iterate`` mode to produce a list of compare results for each item in ``input_after`` results
+
+Template::
+
+    <input name="input_before" load="text">
+    interface FastEthernet1/0/1
+     description Foo
+    !
+    </input>
+    
+    <input name="input_after" load="text">
+    interface FastEthernet1/0/1
+     description FooBar
+    !
+    </input>
+    
+    <input name="input_after" load="text">
+    interface FastEthernet1/0/2
+     description Bar
+    !
+    </input>
+    
+    <group  
+    name="interfaces*">
+    interface {{ interface }}
+     description {{ description }}
+    </group>
+    
+    <output deepdiff="input_before, input_after, add_field=difference, mode=iterate, ignore_order=False, verbose_level=2"/>
+	
+Results::
+
+    [   [   {   'interfaces': [   {   'description': 'Foo',
+                                      'interface': 'FastEthernet1/0/1'}]},
+            {   'interfaces': [   {   'description': 'FooBar',
+                                      'interface': 'FastEthernet1/0/1'}]},
+            {   'interfaces': [   {   'description': 'Bar',
+                                      'interface': 'FastEthernet1/0/2'}]},
+            {   'difference': [   {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'FooBar',
+                                                                                                        'old_value': 'Foo'}}},
+                                  {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'Bar',
+                                                                                                        'old_value': 'Foo'},
+                                                            "root['interfaces'][0]['interface']": {   'new_value': 'FastEthernet1/0/2',
+                                                                                                      'old_value': 'FastEthernet1/0/1'}}}]}]]
+																								  
+Each item input_after compared against input_before, producing difference results accordingly. 
