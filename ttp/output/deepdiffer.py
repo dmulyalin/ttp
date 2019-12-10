@@ -13,26 +13,50 @@ _name_map_ = {
 }
 
 
-def deepdiff_func(data, before, after, add_field=False, **kwargs):
+def deepdiff_func(data, input_before=None, input_after=None, mode="bulk", add_field=False, **kwargs):
     """
     Function to compare two structures.
     
+    * data - list of dictionaries, results data
     * before - name of input that contains old data
     * after - name of input that contains new data
-	* add_key - name of the key to add to data instead of replacing it
-	* kwargs - arguments supported by deepdiff DeepDiff class e.g. ignore_order or verbose_level
-    """
-    if not isinstance(data, list):
-        return data
+    * add_key - name of the key to add to data instead of replacing it
+    * kwargs - arguments supported by deepdiff DeepDiff class e.g. ignore_order or verbose_level
+    * mode - 'bulk' or 'iterate'
+    """       
     # get template object of this output
     template_obj = _ttp_['output_object'].template_obj
-    if not template_obj:
-        return data
-    # get 'before' input index
-    before_index = list(template_obj.inputs.keys()).index(before)
-    after_index = list(template_obj.inputs.keys()).index(after)
+        
+    # get data_before - data to compare with
+    if input_before:
+        # get inputs names to results index mapping, e.g.:
+        # {'input_after': [3, 4], 'input_before': [0, 1], 'one_more': [2]}
+        if template_obj.results_method.lower() == 'per_input':
+            input_to_results_index = {}
+            counter = 0
+            for input_name, details in template_obj.inputs.items():
+                data_len = len(details.data)
+                input_to_results_index[input_name] = [i + counter for i in range(data_len)]
+                counter += data_len        
+            data_before = [data[index] for index in input_to_results_index[input_before]]
+        elif template_obj.results_method.lower() == 'per_template':
+            log.error("ttp.output.deepdiff; Template 'per_template' results method not supported with input_before as a reference to source data")
+            return data
+    
+    # get data after - dat to compare against
+    if input_after:
+        data_after = [data[index] for index in input_to_results_index[input_after]]
+        
     # run compare
-    result = DeepDiff(data[before_index], data[after_index], **kwargs)
+    result = {}
+    if mode == "bulk":
+        result = DeepDiff(data_before, data_after, **kwargs)
+    elif mode == "iterate":
+        result = [DeepDiff(data_before[0], item, **kwargs) for item in data_after]   
+    else:
+        log.error("ttp.output.deepdiff; Unsupported compare mode: '{}', supported are 'bulk' or 'iterate'".format(compare_mode))
+        return data
+        
     # return results
     if add_field:
         data.append({add_field: result})

@@ -4432,6 +4432,12 @@ interface FastEthernet1/0/1
 !
 </input>
 
+<input name="input_before" load="text">
+interface FastEthernet1/0/2
+ description BarBar
+!
+</input>
+
 <input name="one_more" load="text">
 interface FastEthernet1/0/1
  description FooBar
@@ -4441,6 +4447,12 @@ interface FastEthernet1/0/1
 <input name="input_after" load="text">
 interface FastEthernet1/0/1
  description Bar
+!
+</input>
+
+<input name="input_after" load="text">
+interface FastEthernet1/0/2
+ description BarBar
 !
 </input>
 
@@ -4454,7 +4466,7 @@ interface {{ interface }}
 
 <output
 name="test22"
-description="test'deepdiff' output function"
+description="test 'deepdiff' output function in 'bulk' mode"
 load="json"
 functions="is_equal"
 returner="terminal"
@@ -4462,34 +4474,50 @@ format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
     [
-        {
-            "interfaces": [
-                {
-                    "description": "Foo",
-                    "interface": "FastEthernet1/0/1"
-                }
-            ]
-        },
-        {
-            "interfaces": [
-                {
-                    "description": "FooBar",
-                    "interface": "FastEthernet1/0/1"
-                }
-            ]
-        },
-        {
-            "interfaces": [
-                {
-                    "description": "Bar",
-                    "interface": "FastEthernet1/0/1"
-                }
-            ]
-        },
+    {
+        "interfaces": [
+            {
+                "description": "Foo",
+                "interface": "FastEthernet1/0/1"
+            }
+        ]
+    },
+    {
+        "interfaces": [
+            {
+                "description": "BarBar",
+                "interface": "FastEthernet1/0/2"
+            }
+        ]
+    },
+    {
+        "interfaces": [
+            {
+                "description": "FooBar",
+                "interface": "FastEthernet1/0/1"
+            }
+        ]
+    },
+    {
+        "interfaces": [
+            {
+                "description": "Bar",
+                "interface": "FastEthernet1/0/1"
+            }
+        ]
+    },
+    {
+        "interfaces": [
+            {
+                "description": "BarBar",
+                "interface": "FastEthernet1/0/2"
+            }
+        ]
+    },
         {
             "difference": {
                 "values_changed": {
-                    "root['interfaces'][0]['description']": {
+                    "root[0]['interfaces'][0]['description']": {
                         "new_value": "Bar",
                         "old_value": "Foo"
                     }
@@ -4708,6 +4736,112 @@ format_attributes = "tablefmt='fancy_grid'"
         }
     }
 }]
+</output>
+</template>
+
+<template
+name="Test26"
+description="test 'deepdiff' output function with iterate mode"
+>
+<input name="input_before" load="text">
+interface FastEthernet1/0/1
+ description Foo
+!
+</input>
+
+<input name="one_more" load="text">
+interface FastEthernet1/0/1
+ description FooBar
+!
+</input>
+
+<input name="input_after" load="text">
+interface FastEthernet1/0/1
+ description Bar
+!
+</input>
+
+<input name="input_after" load="text">
+interface FastEthernet1/0/2
+ description BarBar
+!
+</input>
+
+<group  
+name="interfaces*">
+interface {{ interface }}
+ description {{ description }}
+</group>
+
+<output deepdiff="input_before, input_after, mode=iterate, add_field=difference, ignore_order=False, verbose_level=2"/>
+
+<output
+name="test26"
+description="test' deepdiff' output function in 'iterate' mode"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "interfaces": [
+            {
+                "description": "Foo",
+                "interface": "FastEthernet1/0/1"
+            }
+        ]
+    },
+    {
+        "interfaces": [
+            {
+                "description": "FooBar",
+                "interface": "FastEthernet1/0/1"
+            }
+        ]
+    },
+    {
+        "interfaces": [
+            {
+                "description": "Bar",
+                "interface": "FastEthernet1/0/1"
+            }
+        ]
+    },
+    {
+        "interfaces": [
+            {
+                "description": "BarBar",
+                "interface": "FastEthernet1/0/2"
+            }
+        ]
+    },
+    {
+        "difference": [
+            {
+                "values_changed": {
+                    "root['interfaces'][0]['description']": {
+                        "new_value": "Bar",
+                        "old_value": "Foo"
+                    }
+                }
+            },
+            {
+                "values_changed": {
+                    "root['interfaces'][0]['description']": {
+                        "new_value": "BarBar",
+                        "old_value": "Foo"
+                    },
+                    "root['interfaces'][0]['interface']": {
+                        "new_value": "FastEthernet1/0/2",
+                        "old_value": "FastEthernet1/0/1"
+                    }
+                }
+            }
+        ]
+    }
+]
 </output>
 </template>
 </template>
