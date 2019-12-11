@@ -1805,6 +1805,8 @@ class _parser_class():
           [group_result[key] for key in sorted(list(group_result.keys()))]
           ) for group_result in unsort_rslts if group_result ]
         # form results for global groups:
+        # import pprint
+        # pprint.pprint(raw_results)
         RSLTSOBJ = _results_class()
         RSLTSOBJ.make_results(self.vars, raw_results, main_results=self.main_results)
         self.main_results = RSLTSOBJ.results
@@ -2104,13 +2106,19 @@ class _results_class():
             'result'     : DEFAULTS.copy(),
             'DEFAULTS'   : DEFAULTS,
             'PATH'       : PATH,
-            'FUNCTIONS' : FUNCTIONS
+            'FUNCTIONS'  : FUNCTIONS
         }
 
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
         if self.record['PATH'] == PATH: # if same path - save into self.record
-            self.record['result'].update(result)
+            #self.record['result'].update(result)
+            # update without overriding already existing values unless they are defaults:
+            for k, v in result.items():
+                if not k in self.record['result']:
+                    self.record['result'][k] = v 
+                elif DEFAULTS[k] == self.record['result'][k]:
+                        self.record['result'][k] = v
         # if different path - that can happen if we have group ended and result
         # actually belong to another group, hence have save directly into results
         else:
