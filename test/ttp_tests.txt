@@ -2206,6 +2206,53 @@ description="test group to_int function for given keys only"
                        'Subscription_ID': '1',
                        'version': 1}}
 </output>
+
+
+
+<input name="test1-43" load="text">
+/c/slb/real 3
+	ena
+	ipver v4
+	rip 1.1.1.229
+	name "vgqa6-01"
+/c/slb/group 13
+	ipver v4
+	backup g14
+	add 23
+	name "appvip1-tcp"
+</input>
+
+<group name="nodes" default="" input="test1-43" output="test1-43">
+/c/slb/real {{ node_seq | isdigit }}
+	{{ config_state }}
+	ipver {{ ipver }}
+	rip {{ node_ip | is_ip }}
+	inter {{ interval }}
+	retry {{ retry }}
+	name {{ node_name | replace('"','') }}
+<group name="node_port*">
+	addport {{ node_port | isdigit }}
+</group>
+</group>
+
+<output
+name="test1-43"
+load="python"
+functions="is_equal"
+description="test group variable multiple matches handling to save first match"
+>
+{
+    "nodes": {
+        "config_state": "ena",
+        "interval": "",
+        "ipver": "v4",
+        "node_ip": "1.1.1.229",
+        "node_name": "vgqa6-01",
+        "node_seq": "3",
+        "retry": ""
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"
