@@ -2222,7 +2222,7 @@ description="test group to_int function for given keys only"
 	name "appvip1-tcp"
 </input>
 
-<group name="nodes" default="" input="test1-43" output="test1-43">
+<group name="test1-43_nodes" default="" input="test1-43" output="test1-43">
 /c/slb/real {{ node_seq | isdigit }}
 	{{ config_state }}
 	ipver {{ ipver }}
@@ -2242,7 +2242,7 @@ functions="is_equal"
 description="test group variable multiple matches handling to save first match"
 >
 {
-    "nodes": {
+    "test1-43_nodes": {
         "config_state": "ena",
         "interval": "",
         "ipver": "v4",
@@ -2250,6 +2250,41 @@ description="test group variable multiple matches handling to save first match"
         "node_name": "vgqa6-01",
         "node_seq": "3",
         "retry": ""
+    }
+}
+</output>
+
+
+<input load="text" name="test1-44">
+Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+Internet  10.12.13.2        98   0950.5785.5cd1  1   FastEthernet2.13
+Internet  10.12.14.3       131   0150.7685.14d5  1   GigabitEthernet2.13
+</input>
+
+<group name="test1-44_arp.{{ age }}" to_int="" input="test1-44" output="test1-44">
+Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  {{ type }}  {{ interface }}
+</group>
+
+<output
+name="test1-44"
+load="python"
+functions="is_equal"
+description="test group dynamic path when match converted to int"
+>
+{
+    "test1-44_arp": {
+        "131": {
+            "interface": "GigabitEthernet2.13",
+            "ip": "10.12.14.3",
+            "mac": "0150.7685.14d5",
+            "type": 1
+        },
+        "98": {
+            "interface": "FastEthernet2.13",
+            "ip": "10.12.13.2",
+            "mac": "0950.5785.5cd1",
+            "type": 1
+        }
     }
 }
 </output>

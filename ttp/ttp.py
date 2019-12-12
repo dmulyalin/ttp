@@ -2112,6 +2112,7 @@ class _results_class():
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
         if self.record['PATH'] == PATH: # if same path - save into self.record
+            # self.record['result'].update(result)
             # update without overriding already existing values unless they are defaults:
             for k, v in result.items():
                 if not k in self.record['result']:
@@ -2192,9 +2193,12 @@ class _results_class():
                     try:
                         path_item = re.sub(pattern, repl, path_item)
                     except TypeError as e:
-                        log.critical("ttp.form_path path re substitution failed:\npattern: {}\nreplacememnt: {}\nstring to replace in: {}\nerror: {}".format(
-                        pattern, repl, path_item, e))
-                        raise SystemExit('exiting...')
+                        try:
+                            path_item = re.sub(pattern, str(repl), path_item)
+                        except:
+                            log.critical("ttp.form_path path re substitution failed:\npattern: {}\nreplacememnt: {}\nstring to replace in: {}".format(
+                                pattern, repl, path_item))
+                            raise SystemExit('exiting...')
                 elif m in self.dyn_path_cache:
                     path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
                 elif m in self.vars:
