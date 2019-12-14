@@ -2288,6 +2288,70 @@ description="test group dynamic path when match converted to int"
     }
 }
 </output>
+
+
+
+<input load="text" name="test1-45">
+router bgp 65100
+ rid 1.1.1.1
+ !
+ address-family ipv4 vrf vrf_name
+  redistribute ospf 321 match internal external 1 external 2 route-map vrf_nameSVRF-OSPF->BGP
+</input>
+
+<group name="test1-45_vrf_BGP" input="test1-45" output="test1-45">
+router bgp 65100 {{ _start_ }}
+<group name="_">
+ address-family ipv4 vrf vrf_name {{ _start_ }}
+  redistribute ospf 321 match internal external 1 external 2 route-map {{ ospf_to_bgp_redistr_rpl }}
+</group>
+</group>
+
+<output
+name="test1-45"
+load="python"
+functions="is_equal"
+description="test null path when its a child group right after start re"
+>
+{
+    "test1-45_vrf_BGP": {
+        "ospf_to_bgp_redistr_rpl": "vrf_nameSVRF-OSPF->BGP"
+    }
+}
+</output>
+
+
+
+<input load="text" name="test1-46">
+router bgp 65100
+ rid 1.1.1.1
+ !
+ address-family ipv4 vrf vrf_name
+  redistribute ospf 321 match internal external 1 external 2 route-map vrf_nameSVRF-OSPF->BGP
+</input>
+
+<group name="test1-46_vrf_BGP" input="test1-46" output="test1-46">
+router bgp 65100 {{ _start_ }}
+<group name="_.next">
+ address-family ipv4 vrf vrf_name {{ _start_ }}
+  redistribute ospf 321 match internal external 1 external 2 route-map {{ ospf_to_bgp_redistr_rpl }}
+</group>
+</group>
+
+<output
+name="test1-46"
+load="python"
+functions="is_equal"
+description="test null path when its a child group with children right after start re"
+>
+{
+    "test1-46_vrf_BGP": {
+        "next": {
+            "ospf_to_bgp_redistr_rpl": "vrf_nameSVRF-OSPF->BGP"
+        }
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"

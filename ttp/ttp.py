@@ -1990,7 +1990,7 @@ class _results_class():
             transformed DATA with list at given PATH and appended results to it
         """
         if PATH:
-            name = str(PATH[0]).rstrip('*')
+            name = PATH[0].rstrip('*')
             # add support for null path
             if name == '_':
                 if len(PATH) == 1:                # reached end of PATH, process DATA and return it
@@ -2001,7 +2001,7 @@ class _results_class():
                     return DATA
                 else:                               # have more path items, need to skip null path,
                     _ = PATH.pop(0)                 # remove null path item to skip it
-                    name = str(PATH[0]).rstrip('*') # continue processing remaining PATH items
+                    name = PATH[0].rstrip('*') # continue processing remaining PATH items
             if isinstance(DATA, dict):
                 if name in DATA:
                     DATA[name]=self.value_to_list(DATA[name], PATH[1:], result)
@@ -2025,12 +2025,16 @@ class _results_class():
             if KEYS=[1,2,3,4*], returns {1:{2:{3:{4:[]}}}}, or
             if KEYS=[1,2,3*,4], returns {1:{2:{3:[{4:{}}]}}}
         """
-        if KEYS:                                                  # check if list is not empty:
-            name=str(KEYS[0]).rstrip('*')                         # get the name of first item in PATH keys
-            if len(KEYS[0]) - len(name) == 1:                     # if one * at the end - make a list
-                if len(KEYS) == 1:                                # if KEYS=[1,2,3,4*], returns {1:{2:{3:{4:[{}]}}}}
-                    return {name: []}                             # if last item in PATH - return emplty list
-                else:                                             # if KEYS=[1,2,3*,4], returns {1:{2:{3:[{4:{}}]}}}
+        if KEYS:                               # check if list is not empty:
+            # add support for null path
+            if KEYS[0] == "_":
+                if len(KEYS) == 1: return {}
+                else: _ = KEYS.pop(0)
+            name=str(KEYS[0]).rstrip('*')      # get the name of first item in PATH keys
+            if len(KEYS[0]) - len(name) == 1:  # if one * at the end - make a list
+                if len(KEYS) == 1:             # if KEYS=[1,2,3,4*], returns {1:{2:{3:{4:[{}]}}}}
+                    return {name: []}          # if last item in PATH - return emplty list
+                else:                          # if KEYS=[1,2,3*,4], returns {1:{2:{3:[{4:{}}]}}}
                     return {name: [self.list_to_dict_fwd(KEYS[1:])]}  # run recursion if PATH has more than one element
             else:                                                 # if KEYS=[1,2,3,4], returns {1:{2:{3:{4:{}}}}}
                 return {name: self.list_to_dict_fwd(KEYS[1:])}
@@ -2045,23 +2049,22 @@ class _results_class():
         Returns:
             last element at given PATH of transformed ELEMENT dictionary
         """
-        if PATH == []: return ELEMENT                                # check if PATH is empty, if so - stop and return ELEMENT
-
+        if PATH == []: 
+            return ELEMENT                # check if PATH is empty, if so - stop and return ELEMENT
         elif isinstance(ELEMENT, dict):
-            name = str(PATH[0]).rstrip('*')
+            name = PATH[0].rstrip('*')
             # add support for null path
             if name == '_':
                 if len(PATH) == 1:                   # reached end of PATH, need to return ELEMENT
                     return ELEMENT
                 else:                                # have more path items, need to skip null path,
                     _ = PATH.pop(0)                  # remove null path item to skip it
-                    name = str(PATH[0]).rstrip('*')  # continue processing remaining PATH items
+                    name = PATH[0].rstrip('*')       # continue processing remaining PATH items
             if name in ELEMENT:                                      # check if first element of the list is in ELEMENT
                 return self.dict_by_path(PATH[1:], ELEMENT[name])    # run recursion with moving forward in both - PATH and ELEMENT
             else:                                                    # if first element not in dict - we found new key, update it into the dict
                 ELEMENT.update(self.list_to_dict_fwd(PATH))          # update new key into the nested dict with value equal to new nested dict branch
                 return self.dict_by_path(PATH[1:], ELEMENT[name])    # run recursion to reach element in the PATH
-
         elif isinstance(ELEMENT, list):
             if ELEMENT == []:
                 ELEMENT.append(self.list_to_dict_fwd(PATH))   # check if element list is empty, if so - append empty dict to it
@@ -2077,7 +2080,7 @@ class _results_class():
             E.append(result_data)
         elif isinstance(E, dict):
             # check if result_path endswith "**" - update result's ELEMENET without converting it into list:
-            if len(result_path[-1]) - len(str(result_path[-1]).rstrip('*')) == 2:
+            if len(result_path[-1]) - len(result_path[-1].rstrip('*')) == 2:
                 E.update(result_data)
             # to match all the other cases, like templates without "**" in path:
             elif E != {}:
