@@ -301,19 +301,20 @@ String, that contains pipe separated list of output functions with functions' at
 
 deepdiff
 ------------------------------------------------------------
-``deepdiff="input_before, input_after, mode=bulk, add_field=difference, **kwargs``
+``deepdiff="input_before, input_after, template_before, mode=bulk, add_field=difference, **kwargs``
 
-* input_before - string, name of input, which results should be used to compare with
-* input_after - string, name of input, which results should be used for comparing
-* add_field - string, name of field to add compare results, by default is False, hence compare results will replace results data
-* mode - string, 'bulk' (default) ot 'iterate' modes supported to modify comparison behavior
-* kwargs - any arguments supported by deepdiff DeepDiff object, such as ignore_order or verbose_level
+* ``input_before`` - string, name of input, which results should be used to compare with
+* ``input_after`` - string, name of input, which results should be used for comparing
+* ``template_before`` - string, name of template tag, results of which to use to compare with
+* ``add_field`` - string, name of field to add compare results, by default is False, hence compare results will replace results data
+* ``mode`` - string, ``bulk`` (default) or ``iterate`` modes supported to modify comparison behavior
+* ``kwargs`` - any arguments supported by deepdiff DeepDiff object, such as ignore_order or verbose_level
 
 **Prerequisites:** Python deepdiff library need to be installed.
 
-This function takes parsing results for specified inputs and compares them one against another using DeepDiff library deepdiff object. 
+This function takes parsing results for specified inputs and compares one against another using DeepDiff library deepdiff object. 
 
-The usecase for this function might be having two folders on the hard drive, one folder with data before and second folder with data after some changes were done to network devices, TTP can be used to parse this data (can be show commands output for instance) and run results comparison using deepdiff function, which can show the differences between Python structures content, as opposed to comparing text data itself.
+The usecase for this function might be having two folders on the hard drive, one folder with data before and second folder with data after changes were done to network devices, TTP can be used to parse this data and run results comparison using deepdiff function, showing the differences between Python structures content, as opposed to comparing text data itself.
 
 Few words about **mode**. In ``bulk`` mode overall ``input_before`` results compared with overall ``input_after`` results, in ``iterate`` mode **first** item in results for ``input_before`` compared (iterated) against each item in results for ``input_after``.
 
@@ -413,3 +414,70 @@ Results::
                                                                                                       'old_value': 'FastEthernet1/0/1'}}}]}]]
 																								  
 Each item input_after compared against input_before, producing difference results accordingly. 
+
+**Example-3**
+
+In this example we going to demonstrate how to use another template results to run deepdiff comparison with.
+
+Template::
+
+    <template name="data_before" results="per_template">
+    <input load="text">
+    switch-1#show run int
+    interface Vlan778
+     ip address 1.1.1.1/24
+    </input>
+    
+    <input load="text">
+    switch-2#show run int
+    interface Vlan779
+     ip address 2.2.2.1/24
+    </input>
+    
+    <vars>
+    hostname="gethostname"
+    </vars>
+    
+    <group name="{{ hostname }}.interfaces.{{ interface }}">
+    interface {{ interface }}
+     ip address {{ ip }}
+    </group>
+    </template>
+    
+    <template name="data_after" results="per_template">
+    <input load="text">
+    switch-1#show run int
+    interface Vlan778
+     ip address 1.1.1.2/24
+    </input>
+    
+    <input load="text">
+    switch-2#show run int
+    interface Vlan779
+     ip address 2.2.2.2/24
+    </input>
+    
+    <vars>
+    hostname="gethostname"
+    </vars>
+    
+    <group name="{{ hostname }}.interfaces.{{ interface }}">
+    interface {{ interface }}
+     ip address {{ ip }}
+    </group>
+    
+    <output deepdiff="template_before=data_before, add_field=difference"/>
+    </template>
+	
+Results::
+
+    [   [   {   'switch-1': {'interfaces': {'Vlan778': {'ip': '1.1.1.1/24'}}},
+                'switch-2': {'interfaces': {'Vlan779': {'ip': '2.2.2.1/24'}}}}],
+        [   {   'switch-1': {'interfaces': {'Vlan778': {'ip': '1.1.1.2/24'}}},
+                'switch-2': {'interfaces': {'Vlan779': {'ip': '2.2.2.2/24'}}}},
+            {   'difference': {   'values_changed': {   "root[0]['switch-1']['interfaces']['Vlan778']['ip']": {   'new_value': '1.1.1.2/24',
+                                                                                                                  'old_value': '1.1.1.1/24'},
+                                                        "root[0]['switch-2']['interfaces']['Vlan779']['ip']": {   'new_value': '2.2.2.2/24',
+                                                                                                                  'old_value': '2.2.2.1/24'}}}}]]
+																												  
+Above output contains results for both templates, in addition to that second template results contain item with **difference** dictionary, that outline values changed between inputs of two different templates
