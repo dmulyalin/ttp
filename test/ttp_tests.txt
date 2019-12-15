@@ -4990,4 +4990,65 @@ format_attributes = "tablefmt='fancy_grid'"
 ]
 </output>
 </template>
+
+
+<template
+name="Test27-data-before"
+description="test26 source template to test 'deepdiff' output function with template results as a data before"
+>
+<input load="text">
+switch-1#show run int
+interface Vlan778
+ description some description 1
+ ip address 1.1.1.1/24
+!
+</input>
+<vars>
+hostname="gethostname"
+</vars>
+<group name="{{ hostname }}.interfaces.{{ interface }}">
+interface {{ interface }}
+ ip address {{ ip }}
+</group>
+</template>
+
+
+<template name="test27"
+description="test 'deepdiff' output function with template results as a data before"
+>
+<input load="text">
+switch-1#show run int
+interface Vlan778
+ description some description 1
+ ip address 1.1.1.2/24
+!
+</input>
+<vars>
+hostname="gethostname"
+</vars>
+<group name="{{ hostname }}.interfaces.{{ interface }}">
+interface {{ interface }}
+ ip address {{ ip }}
+</group>
+<output deepdiff="template_before='Test27-data-before'"/>
+
+<output
+name="test27"
+description="deepdiff output function with template results as data_before, bulk mode"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+{
+    "values_changed": {
+        "root[0]['switch-1']['interfaces']['Vlan778']['ip']": {
+            "new_value": "1.1.1.2/24",
+            "old_value": "1.1.1.1/24"
+        }
+    }
+}
+</output>
+</template>
 </template>

@@ -13,7 +13,7 @@ _name_map_ = {
 }
 
 
-def deepdiff_func(data, input_before=None, input_after=None, mode="bulk", add_field=False, **kwargs):
+def deepdiff_func(data, input_before=None, input_after=None, template_before=None, mode="bulk", add_field=False, **kwargs):
     """
     Function to compare two structures.
     
@@ -42,10 +42,17 @@ def deepdiff_func(data, input_before=None, input_after=None, mode="bulk", add_fi
         elif template_obj.results_method.lower() == 'per_template':
             log.error("ttp.output.deepdiff; Template 'per_template' results method not supported with input_before as a reference to source data")
             return data
+    # if template name provided - source data from template results
+    elif template_before:
+        for template in _ttp_['ttp_object']._templates:
+            if template.name == template_before:
+                data_before = template.results 
+                break
     
-    # get data after - dat to compare against
+    # get data after - data to compare against
+    data_after = data
     if input_after:
-        data_after = [data[index] for index in input_to_results_index[input_after]]
+        data_after = [data[index] for index in input_to_results_index[input_after]]        
         
     # run compare
     result = {}
