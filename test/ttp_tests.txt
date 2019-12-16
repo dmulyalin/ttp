@@ -2352,6 +2352,66 @@ description="test null path when its a child group with children right after sta
     }
 }
 </output>
+
+
+
+<input load="text" name="test1-47">
+interface Vlan779
+ ip address 2.2.2.2/24
+!
+interface Vlan780
+ ip address 2.2.2.3/24
+!
+</input>
+
+<group name="test1-47-interfaces1" contains_val="'ip', '2.2.2.2/24'" input="test1-47" output="test1-47">
+interface {{ interface }}
+ ip address {{ ip }}
+</group>
+
+<output
+name="test1-47"
+load="python"
+functions="is_equal"
+description="test group contains_val function"
+>
+{
+    "test1-47-interfaces1": {
+        "interface": "Vlan779",
+        "ip": "2.2.2.2/24"
+    }
+}
+</output>
+
+
+
+<input load="text" name="test1-48">
+interface Vlan779
+ ip address 2.2.2.2/24
+!
+interface Vlan780
+ ip address 2.2.2.3/24
+!
+</input>
+
+<group name="test1-48-interfaces1" exclude_val="'interface', 'Vlan779'" input="test1-48" output="test1-48">
+interface {{ interface }}
+ ip address {{ ip }}
+</group>
+
+<output
+name="test1-48"
+load="python"
+functions="is_equal"
+description="test group exclude_val function"
+>
+{
+    "test1-48-interfaces1": {
+        "interface": "Vlan780",
+        "ip": "2.2.2.3/24"
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"

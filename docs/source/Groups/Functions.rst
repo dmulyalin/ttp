@@ -41,6 +41,10 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - verifies that key's value is equal to provided value
    * - `to_int`_   
      - converts given keys to integer (int or float) or tries to convert all match result values
+   * - `contains_val`_   
+     - check if certain key contains certain value, return True if so and False otherwise
+   * - `exclude_val`_   
+     - check if certain key contains certain value, return False if so and True otherwise
      
 containsall
 ------------------------------------------------------------------------------
@@ -602,7 +606,7 @@ Results::
             ]
         }
     ]
-	
+    
 cerberus
 ------------------------------------------------------------------------------
 ``cerberus="schema='var_name', log_errors=False, allow_unknown=True, add_errors=False"``
@@ -683,7 +687,7 @@ Template::
      ip address {{ ip }} {{ mask }}
      ipv6 address {{ ipv6 }}/{{ maskv6 }} 
     </group>
-	
+    
 Result::
 
     [
@@ -710,7 +714,7 @@ Result::
             }
         ]
     ]
-	
+    
 By default only results that passed validation criteria will be returned by TTP, however, if ``add_errors`` set to True::
 
     <group name="filtered_interfaces*" cerberus="schema='my_schema', add_errors=True">
@@ -721,7 +725,7 @@ By default only results that passed validation criteria will be returned by TTP,
      ip address {[ ip }} {{ mask }}
      ipv6 address {{ ipv6 }}/{{ maskv6 }} 
     </group>
-	
+    
 Results produced by TTP will contain validation errors information::
 
     [
@@ -772,7 +776,7 @@ Results produced by TTP will contain validation errors information::
             }
         ]
     ]
-	
+    
 void
 ------------------------------------------------------------------------------
 ``void=""`` or ``functions="void"``
@@ -811,7 +815,7 @@ Template::
     interface {{ interface }}
      description {{ description }}
     </group>
-	
+    
 Results::
 
     [
@@ -824,7 +828,7 @@ Results::
             }
         ]
     ]
-	
+    
 to_int
 ------------------------------------------------------------------------------
 ``to_int=""`` or ``to_int="key1, key2, keyN"``
@@ -874,7 +878,7 @@ Template::
        DRB Cipher Algo = {{ DRB_Cipher_Algo | PHRASE }}
        Num PDUs = {{ Num_PDUs }}
     </group>
-	
+    
 Results::
 
     [
@@ -905,3 +909,52 @@ Results::
             }
         ]
     ]
+    
+contains_val
+------------------------------------------------------------------------------
+``contains_val="key, value"``
+
+* ``key`` - name of key to check value for
+* ``value`` - value to check against
+
+This function checks if certain key in group results equal to value provided, returning True if so and False otherwise.
+
+**Example**
+
+Template::
+
+    <input load="text">
+    interface Vlan779
+     ip address 2.2.2.2/24
+    !
+    interface Vlan780
+     ip address 2.2.2.3/24
+    !
+    </input>
+    
+    <group name="interfaces" contains_val="'ip', '2.2.2.2/24'">
+    interface {{ interface }}
+     ip address {{ ip }}
+    </group>
+
+Result::
+
+    
+    [
+        {
+            "interfaces": {
+                "interface": "Vlan779",
+                "ip": "2.2.2.2/24"
+            }
+        }
+    ]
+    
+
+exclude_val
+------------------------------------------------------------------------------
+``exclude_val="key, value"``
+
+* ``key`` - name of key to check value for
+* ``value`` - value to check against
+
+This function checks if certain key in group results equal to value provided, returning False if so and True otherwise.
