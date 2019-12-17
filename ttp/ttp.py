@@ -2120,9 +2120,12 @@ class _results_class():
             for k, v in result.items():
                 if not k in self.record['result']:
                     self.record['result'][k] = v 
-                elif DEFAULTS[k] == self.record['result'][k]:
-                    self.record['result'][k] = v
-        # if different path - that can happen if we have group ended and result
+                try:
+                    if DEFAULTS[k] == self.record['result'][k]:
+                        self.record['result'][k] = v
+                except KeyError:
+                    continue
+        # if different path - that can happen if we have group ended and result 
         # actually belong to another group, hence have save directly into results
         else:
             processed_path = self.form_path(PATH)
