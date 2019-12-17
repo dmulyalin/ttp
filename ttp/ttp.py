@@ -605,12 +605,12 @@ class _template_class():
         self.inputs = OrderedDict()
         self.lookups = {}
         self.templates = []
-        self.base_path = base_path
+        self.base_path = base_path 
         self.results = []
         self.name = name
         self.macro = {}                   # dictionary of macro name to function mapping
         self.results_method = 'per_input' # how to join results
-        self.macro_text = []              # list to contain macro functions text to transfer into other processes
+        self.macro_text = []              # list to contain macro functions text to transfer into other processes   
 
         # load template from string:
         self.load_template_xml(template_text)
@@ -927,13 +927,17 @@ class _input_class():
             # as name used to extract groups and depending on python dict
             # hashing, groups can be attempted to extract before name attribute
             self.name = element.attrib.get("name", input_name).strip()
+            # set default attribute values
             element.attrib.setdefault("groups", groups)
+            element.attrib.setdefault("load", "python")
+            # extract attributes
             self.get_attributes(data=element.attrib, element_text=element.text)
             self.load_data(element_text=element.text)
         # if no input element given, use input_name and groups with data
+        # as well as default python loader
         else:
             self.name = input_name
-            self.get_attributes(data={"groups": groups})
+            self.get_attributes(data={"groups": groups, "load": "python"})
             self.load_data(data=data)
             
         
