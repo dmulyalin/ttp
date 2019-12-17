@@ -950,8 +950,9 @@ class _input_class():
             self.attributes["load"] = O.strip()
             if self.attributes["load"] != 'text':
                 attribs = _ttp_["utils"]["load_struct"](element_text, **data)
-                self.parameters = attribs
-                self.get_attributes(data=attribs)
+                if attribs:
+                    self.parameters = attribs
+                    self.get_attributes(data=attribs)
         
         def extract_groups(O):
             if isinstance(O, list):
