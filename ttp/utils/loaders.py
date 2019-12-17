@@ -20,7 +20,7 @@ def load_files(path, extensions=[], filters=[], read=False):
     # need to use path[:5000] cause if path is actually text of the template
     # and has length more then X symbols, os.path will choke with "path too long"
     # error, hence the safe-assumption that no os path exists longer then 5000 symbols
-    
+
     # check if path is a path to file:
     if os.path.isfile(path[:5000]):
         if read:

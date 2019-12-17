@@ -709,7 +709,7 @@ class _template_class():
             for input_name in G.inputs:
                 # add new input
                 if input_name not in self.inputs:
-                    url = self.base_path + input_name.lstrip('.')
+                    url = self.base_path + input_name
                     data_items = _ttp_["utils"]["load_files"](path=url, read=False)
                     # skip 'text_data' from data as if by the time this method runs
                     # no input with such name found it means that group input is os path
@@ -1052,7 +1052,7 @@ class _input_class():
             return
         # load data:
         for url in self.attributes["urls"]:
-            url = self.template_obj.base_path + url.lstrip('.')
+            url = self.template_obj.base_path + url
             datums = _ttp_["utils"]["load_files"](path=url, extensions=self.attributes["extensions"], 
                                                   filters=self.attributes["filters"], read=False)
             self.data += datums            
