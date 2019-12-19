@@ -8,14 +8,14 @@ Inputs can be used to specify data location and how it should be loaded or filte
 Assuming we have this folders structure to store data that needs to be parsed::
 
     /my/base/path/
-             |-Data/
-               |-Inputs/
-                 |- data-1/
-                 |---- sw-1.conf
-                 |---- sw-1.txt
-                 |- data-2/
-                 |---- sw-2.txt
-                 |---- sw3.txt                       
+        Data/
+          Inputs/
+             data-1/
+                sw-1.conf
+                sw-1.txt
+             data-2/
+                sw-2.txt
+                sw3.txt                       
 
 Where content::
 
