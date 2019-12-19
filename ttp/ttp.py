@@ -2434,6 +2434,7 @@ def cli_tool():
 -t,  --template        OS path to templates file
 -tn, --template-name   Name of the template in templates file
 -o,  --outputter       Specify output format - yaml, json, raw, pprint
+-ot, --out-template    Name of template to output results for
 -l,  --logging         Set logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 -lf, --log-file        Path to save log file
 -T,  --Timing          Print simple timing info
@@ -2450,6 +2451,7 @@ def cli_tool():
     run_options.add_argument('-t', '--template', action='store', dest='TEMPLATE_FILE', default='', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-tn', '--template-name', action='store', dest='TEMPLATE_NAME', default='', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-o', '--outputter', action='store', dest='OUTPUTTER', default='', type=str, help=argparse.SUPPRESS)
+    run_options.add_argument('-ot', '--out-template', action='store', dest='OUT_TEMPLATE', default='', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-l', '--logging', action='store', dest='LOG_LEVEL', default='WARNING', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-lf', '--log-file', action='store', dest='LOG_FILE', default=None, type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-s', '--structure', action='store', dest='STRUCTURE', default="list", type=str, help=argparse.SUPPRESS)
@@ -2467,6 +2469,7 @@ def cli_tool():
     LOG_LEVEL = args.LOG_LEVEL   # level of logging
     LOG_FILE = args.LOG_FILE     # file to put the logs in
     STRUCTURE = args.STRUCTURE
+    OUT_TEMPLATE = args.OUT_TEMPLATE
  
     supporrted_cli_tool_outputters = ["json", "yaml", "raw", "pprint", ""]
     
@@ -2505,11 +2508,15 @@ def cli_tool():
 
     # print data to screen
     if OUTPUTTER:
+        if not OUT_TEMPLATE:
+            OUT_TEMPLATE = []
+        else:
+            OUT_TEMPLATE = [i.strip() for i in OUT_TEMPLATE.split(",")]
         if not OUTPUTTER.lower() in supporrted_cli_tool_outputters:
             log.error("ttp.cli: unsupported outputter '{}', supported: {}, will use 'json' outputter".format(
                 OUTPUTTER, ", ".join(supporrted_cli_tool_outputters)))
             OUTPUTTER="json"
-        results = parser_Obj.result(structure=STRUCTURE)
+        results = parser_Obj.result(structure=STRUCTURE, templates=OUT_TEMPLATE)
         print(_ttp_['formatters'][OUTPUTTER](results))
         timing("{} dumped".format(OUTPUTTER))
 
