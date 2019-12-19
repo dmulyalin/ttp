@@ -472,7 +472,8 @@ class ttp():
                 
     def get_input_commands_list(self):
         """Method to iterate over all templates and inputs to get a 
-        list of commands that needs to be present in text data.
+        list of commands that needs to be present in text data, commands
+        retrieved from input **commands** attribute.
         
         **Returns**
         
@@ -489,7 +490,8 @@ class ttp():
 
     def get_input_commands_dict(self):
         """Method to iterate over all templates and inputs to get a 
-        list of commands that needs to be present in text data.
+        list of commands that needs to be present in text data, commands
+        retrieved from input **commands** attribute.
         
         **Returns**
         
@@ -628,9 +630,7 @@ class _template_class():
             [input.debug() for input in self.inputs.values()]
             [group.debug() for group in self.groups]
             [output_obj.debug() for output_obj in self.outputs]
-            #log.debug("Template self.outputs: \n{}".format(dump(self.outputs)))
-            #log.debug("Template self.groups_outputs: \n{}".format(dump(self.groups_outputs)))
-            #log.debug("Template self.lookups: \n{}".format(self.lookups))
+
 
     def debug(self):
         from pprint import pformat
@@ -1699,9 +1699,7 @@ class _parser_class():
                                 similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["match"].keys()))
                                 if similar_funcs:
                                     log.error("ttp_parser.check_matches: the most similar match variable function(s) - {}".format(", ".join(similar_funcs)))
-                        if flag is True or flag is None:
-                            continue
-                        elif flag is False:
+                        if flag is False:
                             result = False # if flag False - checks produced negative result
                             break
                         elif isinstance(flag, dict):
