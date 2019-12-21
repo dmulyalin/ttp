@@ -1747,11 +1747,21 @@ class _parser_class():
             start = start + s
             # if no matches found for any start REs of this group - skip the rest of REs
             if not group_start_found:
-                # if empty group - tag only, no start REs - run children:
+                # if empty group - tag only, no start REs - run children to fill in results
                 if not group.start_re:
-                    # run recursion:
                     [run_re(child_group, results, start, end) for child_group in group.children]
-                return {}
+                # handle group with no matches but with start re default values
+                elif group.has_start_re_default:
+                    key = -1; stop = False
+                    while stop == False:
+                        if not key in results:
+                            results[key] = [(group.start_re[0], {},)]
+                            stop = True
+                        else:
+                            key -= 1
+                    # run recursion to fill in results for children
+                    [run_re(child_group, results, start, end) for child_group in group.children]
+                return results
 
             # run end REs:
             for R in group.end_re:
@@ -1780,24 +1790,13 @@ class _parser_class():
             # get results for groups with global only outputs:
             if group.outputs == []:
                 unsort_rslts.append(run_re(group, results={}))
-                # handle group with no matches but with start re default values
-                if not unsort_rslts[-1]:
-                    if group.has_start_re_default:
-                        unsort_rslts[-1][0] = [(group.start_re[0], {},)]
             # get results for groups with group specific results:
             else:
                 # form a tuple of ({results}, [group.outputs],)
                 grps_unsort_rslts.append(
                     (run_re(group, results={}), group.outputs,)
                 )
-                # handle group with no matches but with start re default values
-                if not grps_unsort_rslts[-1][0]:
-                    if group.has_start_re_default:
-                        grps_unsort_rslts[-1] = (
-                            {0: [(group.start_re[0], {},)]}, 
-                            group.outputs,
-                            )
-        
+
         # update groups runs (group default values) with global variables
         self.update_groups_runs(_ttp_["global_vars"])
         # update groups runs (group default values) with group specific/local variables
@@ -1808,8 +1807,6 @@ class _parser_class():
           [group_result[key] for key in sorted(list(group_result.keys()))]
           ) for group_result in unsort_rslts if group_result ]
         # form results for global groups:
-        # import pprint
-        # pprint.pprint(raw_results)
         RSLTSOBJ = _results_class()
         RSLTSOBJ.make_results(self.vars, raw_results, main_results=self.main_results)
         self.main_results = RSLTSOBJ.results
