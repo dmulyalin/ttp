@@ -159,7 +159,7 @@ Result::
         }
     ]
 
-Because ``default`` value used for group start regexes as well, if no matches produced by group, default values will be saved at group path.
+Because ``default`` value used for group start regexes, if no matches produced by group, default values will be saved at group path, same is true for child groups
 
 **Example-2**
 
@@ -171,8 +171,11 @@ Template::
     device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
     </input>
     
-    <group name="uptime">
+    <group name="uptime**">
     device-hostame uptime is {{ uptime | PHRASE }}
+	<group name="software">
+	 software version {{ version | default("uncknown") }}
+	</group>
     </group>
     
     <group name="domain" default="Uncknown">
@@ -182,17 +185,22 @@ Template::
 Result::
 
     [
-        {
-            "domain": {
-                "fqdn": "Uncknown"
-            },
-            "uptime": {
-                "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds"
+        [
+            {
+                "domain": {
+                    "fqdn": "Uncknown"
+                },
+                "uptime": {
+                    "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds",
+                    "software": {
+                        "version": "uncknown"
+                    }
+                }
             }
-        }
+        ]
     ]
     
-Because no data contained in input to match by group "domain", this group default values were saved in results.
+In above example in input there is not data to match by group ``domain``, this group default values were saved in results. Same is for child group ``software`` - no data to match in input, hence default values appears in results, because match variable ``software`` is start RE.
 
 method
 ------------------------------------------------------------------------------

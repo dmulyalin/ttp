@@ -5177,7 +5177,7 @@ snmp acl {{ acl }}
 
 <output
 name="test28"
-description="groups with defaults only children"
+description="groups with children with start re defaults"
 load="json"
 functions="is_equal"
 returner="terminal"
