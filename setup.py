@@ -7,7 +7,7 @@ __author__ = "Denis Mulyalin <d.mulyalin@gmail.com>"
 
 setup(
     name="ttp",
-    version="0.2.0",
+    version="0.3.0",
     author="Denis Mulyalin",
     author_email="d.mulyalin@gmail.com",
     description="Template Text Parser",
