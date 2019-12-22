@@ -618,7 +618,7 @@ cerberus
 
 **Prerequisites**
 
-`Cerberus <https://docs.python-cerberus.org/en/stable/>`_ library need to be installed on the system.
+`Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
 
 This function uses `Cerberus validation engine <https://docs.python-cerberus.org/en/stable/>`_ to validate group results, returning True if validation succeeded and False otherwise. 
 
