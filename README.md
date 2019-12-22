@@ -22,6 +22,53 @@ In essence TTP can help to:
   - Process matches on the fly using broad set of built-in or custom convenience functions
   - Combine match results in a structure with arbitrary hierarchy
   - Transform results in desired format to ease consumption by humans or machines
-  - Return resulted data to certain destinations for storage or further processing
+  - Return results to various destinations for storage or further processing
 
 Reference [documentation](https://ttp.readthedocs.io) for more information.
+
+## Example
+
+```python
+from ttp import ttp
+
+data_to_parse = """
+interface Loopback0
+ description Router-id-loopback
+ ip address 192.168.0.113/24
+!
+interface Vlan778
+ description CPE_Acces_Vlan
+ ip address 2002::fd37/124
+ ip vrf CPE1
+!
+"""
+
+ttp_template = """
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description }}
+ ip vrf {{ vrf }}
+"""
+
+parser = ttp(data=data_to_parse, template=ttp_template)
+parser.parse()
+print(parser.result(format='json')[0])
+
+[
+    [
+        {
+            "description": "Router-id-loopback",
+            "interface": "Loopback0",
+            "ip": "192.168.0.113",
+            "mask": "24"
+        },
+        {
+            "description": "CPE_Acces_Vlan",
+            "interface": "Vlan778",
+            "ip": "2002::fd37",
+            "mask": "124",
+            "vrf": "CPE1"
+        }
+    ]
+]
+```
