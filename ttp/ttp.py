@@ -1443,6 +1443,9 @@ class _variable_class():
                     extract_funcs[name](i)
                 else:
                     self.functions.append(i)
+                    
+        def extract__exact_(data):
+            pass
             
         def extract_re(data):
             try:
@@ -1468,6 +1471,7 @@ class _variable_class():
         '_start_'       : extract__start_,
         '_end_'         : extract__end_,
         '_line_'        : extract__line_,
+        '_exact_'       : extract__exact_,
         'chain'         : extract_chain,
         'set'           : extract_set,
         'default'       : extract_default,
@@ -1496,21 +1500,18 @@ class _variable_class():
     def form_regex(self, regex):
         """Method to form regular expression for template line.
         """
-        # form escapedVariable:
-        esc_var='\\{\\{' + re.escape(self.variable) + '\\}\\}' # escape all special chars in variable like (){}[].* etc.
-        if not '_exact_' in  esc_var:
-            esc_var=re.sub('\d+', r'\\d+', esc_var)  # replace all numbers with \d+ in regex in variable, skip it if EXACT in variable
-        esc_var=re.sub(r'(\\ )+', r'\\ +', esc_var)  # replace all spaces with ' +' in regex in variable
-        
-        # form escaped line:
-        esc_line=re.escape(self.LINE.lstrip())         # escape all special chars in line like (){} [].* etc. and strip leading spaces to preserve indent
-        if not '_exact_' in  esc_line:
-            esc_line=re.sub('\d+',r'\\d+', esc_line)   # to replace all numbers with \d+ in regex
-        esc_line=re.sub(r'(\\ )+',r'\\ +', esc_line)   # to replace all spaces with ' +' in regex
-
+        # form escaped variable and line:
+        esc_var = '\\{\\{' + re.escape(self.variable) + '\\}\\}' # escape all special chars in variable like (){}[].* etc.
+        esc_line = re.escape(self.LINE.lstrip())         # escape all special chars in line like (){} [].* etc. and strip leading spaces to preserve indent
+        if not '_exact_' in  self.LINE:
+            esc_var = re.sub('\d+', r'\\d+', esc_var)  # replace all numbers with \d+ in regex in variable, skip it if _exact_ in line pattern
+            esc_line = re.sub('\d+',r'\\d+', esc_line) # to replace all numbers with \d+ in regex
+        esc_var = re.sub(r'(\\ )+', r'\\ +', esc_var)  # replace all spaces with ' +' in regex in variable
+        esc_line = re.sub(r'(\\ )+',r'\\ +', esc_line) # to replace all spaces with ' +' in regex         
+      
         # check if regex empty, if so, make self.regex equal to escaped line, reconstruct indent and add start/end of line:
         if regex == '':
-            # form indent to honor leading space characters like      or \s:
+            # form indent to honor leading space characters like \t or \s:
             first_non_space_char_index = len(self.LINE) - len(self.LINE.lstrip())
             indent = self.LINE[:first_non_space_char_index]
             # form regex:
@@ -1556,18 +1557,17 @@ class _variable_class():
         'set'      : regex_deleteVar
         }
         # go over all keywords to form regex:
-        [regexFuncs[i['name']](i)
-         for i in self.functions if i['name'] in regexFuncs]
+        [regexFuncs[i['name']](i) for i in self.functions if i['name'] in regexFuncs]
 
         # assign default re if variable without regex formatters:
-        if self.var_res == []: self.var_res.append(_ttp_['patterns']['get'](name='WORD'))
+        if self.var_res == []: 
+            self.var_res.append(_ttp_['patterns']['get'](name='WORD'))
         # form variable regex by replacing escaped variable, if it is in regex,
         # except for the case if variable is "ignore" as it already was replaced
         # in regex_ignore function:
         if self.var_name != "ignore":
             self.regex = self.regex.replace(esc_var,
-                '(?P<{}>(?:{}))'.format(self.var_name, ')|(?:'.join(self.var_res),1)
-            )
+                '(?P<{}>(?:{}))'.format(self.var_name, ')|(?:'.join(self.var_res),1))
         # after regexes formed we can delete unnecessary variables:
         if log.isEnabledFor(logging.DEBUG) == False:
             del self.attributes, esc_line
