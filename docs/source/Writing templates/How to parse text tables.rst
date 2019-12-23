@@ -11,8 +11,8 @@ Parsing text tables is fairly simple as long as they are regular - meaning there
 is a table and is easy to parse with TTP using this single pattern::
 
     Internet  {{ ip | IP }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
-	
-IP and DIGIT are gegular expression formatters, indicating special regexes need to be use to match ip and age variables. If we add additional entries in above text, that are different from existing ones, we will have to add more patterns in template and combine them in group. For instance this text::
+    
+``IP`` and ``DIGIT`` are regular expression formatters, indicating that special regexes need to be use to match ip and age variables. If we add additional entries in above text, that are different from existing ones, we will have to add more patterns in template and combine them in a group. For instance this text::
 
     Protocol  Address     Age (min)  Hardware Addr   Type   Interface
     Internet  10.12.13.1        98   0950.5785.5cd1  ARPA   FastEthernet2.13
@@ -20,23 +20,23 @@ IP and DIGIT are gegular expression formatters, indicating special regexes need 
     Internet  10.12.13.4       198   0950.5C8A.5c41  ARPA   GigabitEthernet2.17
     Internet  10.12.14.5       -     0950.5C8A.5d42  ARPA   GigabitEthernet3
     Internet  10.12.15.6       164   0950.5C8A.5e43  ARPA   GigabitEthernet4.21  *
-	
+    
 would require two additional patterns to match all the lines::
   
     <group name="table_data">
     Internet  {{ ip | IP | _start_ }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     Internet  {{ ip | IP | _start_ }}  -                   {{ mac }}  ARPA   {{ interface }}
     Internet  {{ ip | IP | _start_ }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}  *
-	</group>
-	
-We also have to use _start_ indicator, as each line is a complete match and on each subsequent match we need to save previous match in results. Above template can be simplified a bit::
+    </group>
+    
+We also have to use _start_ indicator, as each line is a complete match and on each subsequent match we need to save previous matches in results. However, above template can be simplified a bit::
 
     <group name="table_data" method="table">
     Internet  {{ ip | IP }}  {{ age }}   {{ mac }}  ARPA   {{ interface }}
     Internet  {{ ip | IP }}  {{ age }}   {{ mac }}  ARPA   {{ interface }}  *
-	</group>
+    </group>
 
-Excluding DIGIT regex formatters still will allow us to match all the digits but will match hyphen symbol as well, in addition to that, TTP groups tag has ``method`` attribute, this attribute makes every pattern in group to be group start regex without the need to specify _start_ explicitly. Parsing text table data with above template will produce these results::
+Excluding DIGIT regex formatters will still allow to match all digits but will match hyphen symbol as well, in addition to that, TTP groups tag has ``method`` attribute, this attribute makes every pattern in a group to be group start regex without the need to specify _start_ explicitly. Parsing text table data with above template will produce these results::
 
     [   [   {   'table_data': [   {   'age': '98',
                                       'interface': 'FastEthernet2.13',
@@ -58,7 +58,7 @@ Excluding DIGIT regex formatters still will allow us to match all the digits but
                                       'interface': 'GigabitEthernet4.21',
                                       'ip': '10.12.15.6',
                                       'mac': '0950.5C8A.5e43'}]}]]
-									  
+                                      
 TTP can help parsing text tables data for one more specific usecase, for example this data::
 
     VRF VRF-CUST-1 (VRF Id = 4); default RD 12345:241;
@@ -78,7 +78,7 @@ has text table embedded into it, and if we want to extract all the interfaces th
     </group>
     </group>
 
-In above temple ROW regex formatter will help to match all lines with words separated by 2 or more spaces between them, producing this results::
+In above temple ``ROW`` regex formatter will help to match all lines with words separated by 2 or more spaces between them, producing this results::
 
     [
         [
@@ -95,7 +95,7 @@ In above temple ROW regex formatter will help to match all lines with words sepa
             }
         ]
     ]
-	
+    
 While TTP extracted all interfaces, they are combined in a single string, below template can be used to produce list of interfaces instead::
 
     <group name="vrf.{{ vrf_name }}"> 
@@ -105,7 +105,7 @@ While TTP extracted all interfaces, they are combined in a single string, below 
         {{ interfaces | ROW | resub(" +", ",", 20) | split(',') | joinmatches }}
     </group>
     </group>
-	
+    
 In this template same match result processed inline using ``resub`` function to replace all consequential occurrence of spaces with singe comma character, after substitution, results processing continues through ``split`` function, that split string into a list of items using comma character, finally, ``joinmatches`` function tells TTP to join all matches in single list, producing these results::
 
     [
