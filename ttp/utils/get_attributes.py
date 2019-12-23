@@ -35,7 +35,7 @@ def get_attributes(line):
     """
 
     result=[]
-    ATTRIBUTES=[i.strip() for i in line.split('|')]
+    ATTRIBUTES=[i.strip() for i in line.split('|') if i.strip()]
     for item in ATTRIBUTES:
         opts = {'args': [], 'kwargs': {}, 'name': ''}
         # re search attributes like set(), upper, joinchar(',','-')

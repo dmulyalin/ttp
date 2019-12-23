@@ -2436,7 +2436,7 @@ def cli_tool():
 -s,  --structure       Final results structure - 'list' or 'dictionary'
 --one                  Parse using single process
 --multi                Parse using multiple processes'''
-    argparser = argparse.ArgumentParser(description="Template Text Parser, version 0.2.0.", formatter_class=argparse.RawDescriptionHelpFormatter)
+    argparser = argparse.ArgumentParser(description="Template Text Parser, version 0.3.0.", formatter_class=argparse.RawDescriptionHelpFormatter)
     run_options=argparser.add_argument_group(description=description_text)
     run_options.add_argument('--one', action='store_true', dest='ONE', default=False, help=argparse.SUPPRESS)
     run_options.add_argument('--multi', action='store_true', dest='MULTI', default=False, help=argparse.SUPPRESS)
