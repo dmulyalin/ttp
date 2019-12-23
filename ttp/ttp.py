@@ -1561,7 +1561,6 @@ class _variable_class():
 
         # assign default re if variable without regex formatters:
         if self.var_res == []: self.var_res.append(_ttp_['patterns']['get'](name='WORD'))
-
         # form variable regex by replacing escaped variable, if it is in regex,
         # except for the case if variable is "ignore" as it already was replaced
         # in regex_ignore function:
@@ -1569,7 +1568,6 @@ class _variable_class():
             self.regex = self.regex.replace(esc_var,
                 '(?P<{}>(?:{}))'.format(self.var_name, ')|(?:'.join(self.var_res),1)
             )
-
         # after regexes formed we can delete unnecessary variables:
         if log.isEnabledFor(logging.DEBUG) == False:
             del self.attributes, esc_line

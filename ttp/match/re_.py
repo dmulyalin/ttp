@@ -31,6 +31,9 @@ def exclude_re(data, pattern):
     return data, False
     
 def resub(data, old, new, count=1):
+    vars = _ttp_["parser_object"].vars
+    if old in vars:
+        return re.sub(re.escape(vars[old]), new, data, count=count), None
     return re.sub(old, new, data, count=count), None
     
 def resuball(data, *args):
@@ -52,6 +55,8 @@ def resuball(data, *args):
                                 data = re.sub(i, newVal, data)
                     elif isinstance(oldVal, str):
                         data = re.sub(oldVal, newVal, data)
+            elif isinstance(vars[oldValue], str):
+                data = re.sub(re.escape(vars[oldValue]), new, data)
         else:
             data = re.sub(oldValue, new, data)
     return data, None
