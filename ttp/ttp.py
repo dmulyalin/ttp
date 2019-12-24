@@ -1501,14 +1501,31 @@ class _variable_class():
         """Method to form regular expression for template line.
         """
         # form escaped variable and line:
-        esc_var = '\\{\\{' + re.escape(self.variable) + '\\}\\}' # escape all special chars in variable like (){}[].* etc.
-        esc_line = re.escape(self.LINE.lstrip())         # escape all special chars in line like (){} [].* etc. and strip leading spaces to preserve indent
-        if not '_exact_' in  self.LINE:
-            esc_var = re.sub('\d+', r'\\d+', esc_var)  # replace all numbers with \d+ in regex in variable, skip it if _exact_ in line pattern
-            esc_line = re.sub('\d+',r'\\d+', esc_line) # to replace all numbers with \d+ in regex
-        esc_var = re.sub(r'(\\ )+', r'\\ +', esc_var)  # replace all spaces with ' +' in regex in variable
-        esc_line = re.sub(r'(\\ )+',r'\\ +', esc_line) # to replace all spaces with ' +' in regex         
-      
+        esc_var = '{{' + self.variable + '}}' # escape all special chars in variable like (){}[].* etc.
+        line_chunks = []; vars_chunks_indexes = []
+        vars_spans = [i.span() for i in re.finditer('{{([\S\s]+?)}}', self.LINE)]
+        for index, var_span in enumerate(vars_spans): 
+            if index == 0: # first item in list
+                string_before_var = self.LINE[:var_span[0]].lstrip()            
+            else: # other items
+                previous_var_span = vars_spans[index - 1]
+                string_before_var = self.LINE[previous_var_span[1]:var_span[0]]
+            if string_before_var:
+                line_chunks.append(string_before_var)
+            line_chunks.append(self.LINE[var_span[0]:var_span[1]])
+            vars_chunks_indexes.append(len(line_chunks) - 1)
+            if index == len(vars_spans) - 1: # last item in list
+                string_after_last_var = self.LINE[var_span[1]:]
+                line_chunks.append(string_after_last_var)
+        for index, line_chunk in enumerate(line_chunks):
+            if index in vars_chunks_indexes: continue
+            line_chunk = re.escape(line_chunk)
+            line_chunk = re.sub(r'(\\ )+', r'\\ +', line_chunk)
+            if not '_exact_' in  self.LINE:
+                line_chunk = re.sub('\d+', r'\\d+', line_chunk)
+            line_chunks[index] = line_chunk
+        esc_line = "".join(line_chunks)      
+
         # check if regex empty, if so, make self.regex equal to escaped line, reconstruct indent and add start/end of line:
         if regex == '':
             # form indent to honor leading space characters like \t or \s:
