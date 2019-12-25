@@ -1447,6 +1447,9 @@ class _variable_class():
         def extract__exact_(data):
             pass
             
+        def extract__exact_space_(data):
+            pass
+            
         def extract_re(data):
             try:
                 # if re('my_regex') was used
@@ -1472,6 +1475,7 @@ class _variable_class():
         '_end_'         : extract__end_,
         '_line_'        : extract__line_,
         '_exact_'       : extract__exact_,
+        '_exact_space_' : extract__exact_space_,
         'chain'         : extract_chain,
         'set'           : extract_set,
         'default'       : extract_default,
@@ -1500,31 +1504,25 @@ class _variable_class():
     def form_regex(self, regex):
         """Method to form regular expression for template line.
         """
-        # form escaped variable and line:
-        esc_var = '{{' + self.variable + '}}' # escape all special chars in variable like (){}[].* etc.
-        line_chunks = []; vars_chunks_indexes = []
-        vars_spans = [i.span() for i in re.finditer('{{([\S\s]+?)}}', self.LINE)]
-        for index, var_span in enumerate(vars_spans): 
-            if index == 0: # first item in list
-                string_before_var = self.LINE[:var_span[0]].lstrip()            
-            else: # other items
-                previous_var_span = vars_spans[index - 1]
-                string_before_var = self.LINE[previous_var_span[1]:var_span[0]]
+        # form escaped line by finding all spans of match variables in line,
+        # after that split line in chunks and escape special chars, replace spaces and digits
+        # for chunks that are not match variable, join chunks in esc_line string after that
+        line_chunks = []; no_indent_line = self.LINE.lstrip(); llen = len(self.LINE)
+        vars_spans = [(0,0,)] + [i.span() for i in re.finditer('{{([\S\s]+?)}}', no_indent_line)] + [(llen, llen,)]
+        for index, var_span in enumerate(vars_spans[1:]): 
+            previous_var_span = vars_spans[index]
+            string_before_var = no_indent_line[previous_var_span[1]:var_span[0]]
             if string_before_var:
+                string_before_var = re.escape(string_before_var)
+                if not '_exact_space_' in self.LINE:
+                    string_before_var = re.sub(r'(\\ )+', r'\\ +', string_before_var)
+                if not '_exact_' in  self.LINE:
+                    string_before_var = re.sub('\d+', r'\\d+', string_before_var)
                 line_chunks.append(string_before_var)
-            line_chunks.append(self.LINE[var_span[0]:var_span[1]])
-            vars_chunks_indexes.append(len(line_chunks) - 1)
-            if index == len(vars_spans) - 1: # last item in list
-                string_after_last_var = self.LINE[var_span[1]:]
-                line_chunks.append(string_after_last_var)
-        for index, line_chunk in enumerate(line_chunks):
-            if index in vars_chunks_indexes: continue
-            line_chunk = re.escape(line_chunk)
-            line_chunk = re.sub(r'(\\ )+', r'\\ +', line_chunk)
-            if not '_exact_' in  self.LINE:
-                line_chunk = re.sub('\d+', r'\\d+', line_chunk)
-            line_chunks[index] = line_chunk
-        esc_line = "".join(line_chunks)      
+			# append current match variable to chunks
+            line_chunks.append(no_indent_line[var_span[0]:var_span[1]])
+        esc_line = "".join(line_chunks)   
+        esc_var = '{{' + self.variable + '}}'
 
         # check if regex empty, if so, make self.regex equal to escaped line, reconstruct indent and add start/end of line:
         if regex == '':
