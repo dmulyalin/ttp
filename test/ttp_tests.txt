@@ -2412,6 +2412,76 @@ description="test group exclude_val function"
     }
 }
 </output>
+
+
+
+<input load="text" name="test1-49">
+H20123456789 Tuesday Eastern
+L1John Smith's Apple Store   1234 Wall Street    New York, New York 01234
+D17777777               20191126 2507   0000000000001
+D28888888           6789012             9876520000002
+D17777777               20191126 3424   0000000000002
+D28888888           6789012             9876520000002
+HT00000000000000000000000000000000000000000000000000000001
+L1Mark Sloan's Flower Store  1235 23rd Street    Dallas,   Texas    01234
+D17777777               20191126 1307   0000000000003
+D26666666           6789012             9876520000002
+HT00000000000000000000000000000000000000000000000000000001
+FT0382927439297843+099876333453
+</input>
+
+<group name="top" input="test1-49" output="test1-49">
+H2{{ h2 | DIGIT | _exact_ }} {{ date | PHRASE }}
+<group name="second">
+L1{{ person | PHRASE }}   {{ street | PHRASE }}    {{ state | ORPHRASE }}, {{ city | ORPHRASE }} {{ postcode | DIGIT }}
+D1{{ d1 | DIGIT }}  {{ d1_1 | DIGIT }}  {{ d1_2 | DIGIT }}   {{ d1_c | DIGIT }}
+D2{{ d2 | DIGIT | _exact_ }}  {{ d2_a | DIGIT }}  {{ d2_b | DIGIT }}
+</group>
+</group>
+
+<output
+name="test1-49"
+load="python"
+functions="is_equal"
+description="test match varible names with digit and _exact_ indicator"
+>
+{
+    "top": {
+        "date": "Tuesday Eastern",
+        "h2": "0123456789",
+        "second": [
+            {
+                "city": "New York",
+                "d1": "7",
+                "d1_1": "20191126",
+                "d1_2": "2507",
+                "d1_c": "0000000000001",
+                "d2": "8888888",
+                "d2_a": "6789012",
+                "d2_b": "9876520000002",
+                "person": "John Smith's Apple Store",
+                "postcode": "01234",
+                "state": "New York",
+                "street": "1234 Wall Street"
+            },
+            {
+                "city": "Texas",
+                "d1": "7",
+                "d1_1": "20191126",
+                "d1_2": "1307",
+                "d1_c": "0000000000003",
+                "d2": "6666666",
+                "d2_a": "6789012",
+                "d2_b": "9876520000002",
+                "person": "Mark Sloan's Flower Store",
+                "postcode": "01234",
+                "state": "Dallas",
+                "street": "1235 23rd Street"
+            }
+        ]
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"
