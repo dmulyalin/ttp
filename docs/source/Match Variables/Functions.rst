@@ -230,9 +230,83 @@ record
 ------------------------------------------------------------------------------
 ``{{ name | record(var_name) }}``
 
-* var_name (mandatory) - a string containing variable name where to record match results
+* var_name (mandatory) - template variable name that should be used to record match result
 
-Records match results in template variable with given name after all functions run finished for match result. That recorded variable can be referenced within other functions such as `set`_ 
+Record match results in template variable with given name. That recorded variable can be referenced within other functions such as `set`_ or retrieved from _ttp_ dictionary within macro.
+
+Variables are recorded in two scopes:
+  1. Per-Input scope - all groups that parse this particular input will have access to recorded variable; variable stored in ``_ttp_["parser_object"].vars`` dictionary
+  2. Global scope - variable available from any group at any template; variable stored in ``_ttp_["global_vars"]`` dictionary
+
+.. warning:: record results override one another, meaning if several match variable record result in same template variable, match variable that was matched later will override previous match result.
+
+**Example**
+
+Template::
+
+    <input load="text" name="in1">
+    myswitch1#show run int
+    interface Vlan778
+     ip vrf forwarding VRF_NAME_1
+     ip address 2002:fd37::91/124
+    !
+    </input>
+    
+    <input load="text" name="in2">
+    myswitch2#show run int
+    interface Vlan779
+     description some description input2
+    !
+    interface Vlan780
+     switchport port-security mac 4
+    !
+    </input>
+    
+    <group name="interfaces" input="in1">
+    interface {{ interface }}
+     ip address {{ ip }}/{{ mask }}
+     ip vrf forwarding {{ vrf | record("VRF") }}
+     switchport port-security mac {{ sec_mac }}
+    </group>
+    
+    <group name="interfaces" input="in2">
+    interface {{ interface }}
+     description {{ description | ORPHRASE | record("my_description") }}
+     switchport port-security mac {{ sec_mac }}
+     {{ my_vrf | set("VRF") }}
+     {{ my_descript | set("my_description") }}
+    </group>
+
+Result::
+
+    [
+        {
+            "interfaces": {
+                "interface": "Vlan778",
+                "ip": "2002:fd37::91",
+                "mask": "124",
+                "vrf": "VRF_NAME_1"
+            }
+        },
+        {
+            "interfaces": [
+                {
+                    "description": "some description input2",
+                    "interface": "Vlan779",
+                    "my_descript": "some description input2",
+                    "my_vrf": "VRF_NAME_1"
+                },
+                {
+                    "interface": "Vlan780",
+                    "my_descript": "some description input2",
+                    "my_vrf": "VRF_NAME_1",
+                    "sec_mac": "4"
+                }
+            ]
+        }
+    ]
+    
+In above example ``{{ my_vrf | set("VRF") }}`` uses "VRF" variable from Global scope, while ``{{ my_descript | set("my_description") }}`` retrieves "my_description" variable value from per-input scope. 
 
 let
 ------------------------------------------------------------------------------
@@ -1036,7 +1110,7 @@ Template::
     Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface | lookup(template="interfaces_data.interfaces", add_field="subnet_info") }}
     </group>
     </template>
-	
+    
 Results::
 
     [
@@ -2062,7 +2136,7 @@ Template::
     def add_glob_counters(data):
         data.append({ "overall_interfaces_up": _ttp_["global_vars"]["overall_interfaces_up"] })
     </macro>
-	
+    
 Results::
 
     [
@@ -2104,7 +2178,7 @@ Results::
             }
         ]
     ]
-	
+    
 void
 ------------------------------------------------------------------------------
 ``{{ name | void }}``
