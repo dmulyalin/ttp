@@ -1148,7 +1148,12 @@ class _group_class():
             if self.top: self.outputs = [(i.strip()) for i in O.split(',')]
 
         def extract_name(O):
-            self.path = self.path + O.split(self.pathchar)
+            # check if absolute path given
+            if O.startswith("/"):
+                self.path = O.lstrip("/").split(self.pathchar)
+            # threat relative path
+            else:
+                self.path = self.path + O.split(self.pathchar)
             self.name = '.'.join(self.path)           
      
         def extract_functions(O):
@@ -1519,7 +1524,7 @@ class _variable_class():
                 if not '_exact_' in  self.LINE:
                     string_before_var = re.sub('\d+', r'\\d+', string_before_var)
                 line_chunks.append(string_before_var)
-			# append current match variable to chunks
+            # append current match variable to chunks
             line_chunks.append(no_indent_line[var_span[0]:var_span[1]])
         esc_line = "".join(line_chunks)   
         esc_var = '{{' + self.variable + '}}'
