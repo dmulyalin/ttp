@@ -1,4 +1,8 @@
-def set(data, value, match_line):
+_name_map_ = {
+"set_func": "set"
+}
+
+def set_func(data, value, match_line):
     vars = _ttp_["parser_object"].vars
     if data.rstrip() == match_line:
         if isinstance(value, str):
