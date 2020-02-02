@@ -2482,6 +2482,107 @@ description="test match varible names with digit and _exact_ indicator"
     }
 }
 </output>
+
+
+
+
+<input load="text" name="test1-50-1">
+router bgp 65123
+ !
+ address-family ipv4 vrf VRF2
+  neighbor 10.100.100.212 activate
+  neighbor 10.227.147.122 activate
+ exit-address-family
+ !
+ address-family ipv4 vrf VRF1
+  neighbor 10.61.254.67 activate
+  neighbor 10.61.254.68 activate
+ exit-address-family
+</input>
+
+<group name="test1-50-1_bgp_config" input="test1-50-1" output="test1-50-1">
+router bgp {{ bgp_asn }}
+
+<group name="VRFs" record="vrf_test1_50_1">
+ address-family {{ afi }} vrf {{ vrf_test1_50_1 }}
+  <group name="neighbors**.{{ neighbor }}**" method="table" set="vrf_test1_50_1">
+  neighbor {{ neighbor | let("afi_activated", True) }} activate
+  </group>
+ exit-address-family {{ _end_ }}
+</group>
+
+</group>
+
+<output
+name="test1-50-1"
+load="python"
+functions="is_equal"
+description="test group record and set functions test-1"
+>
+{   'test1-50-1_bgp_config': {   'VRFs': [   {   'afi': 'ipv4',
+                                                 'neighbors': {   '10.100.100.212': {   'afi_activated': True,
+                                                                                        'vrf_test1_50_1': 'VRF2'},
+                                                                  '10.227.147.122': {   'afi_activated': True,
+                                                                                        'vrf_test1_50_1': 'VRF2'}},
+                                                 'vrf_test1_50_1': 'VRF2'},
+                                             {   'afi': 'ipv4',
+                                                 'neighbors': {   '10.61.254.67': {   'afi_activated': True,
+                                                                                      'vrf_test1_50_1': 'VRF1'},
+                                                                  '10.61.254.68': {   'afi_activated': True,
+                                                                                      'vrf_test1_50_1': 'VRF1'}},
+                                                 'vrf_test1_50_1': 'VRF1'}],
+                                 'bgp_asn': '65123'}}
+</output>
+
+
+
+<input load="text" name="test1-50-2">
+router bgp 65123
+ !
+ address-family ipv4 vrf VRF2
+  neighbor 10.100.100.212 activate
+  neighbor 10.227.147.122 activate
+ exit-address-family
+ !
+ address-family ipv4 vrf VRF1
+  neighbor 10.61.254.67 activate
+  neighbor 10.61.254.68 activate
+ exit-address-family
+</input>
+
+<group name="test1-50-2_bgp_config" input="test1-50-2" output="test1-50-2">
+router bgp {{ bgp_asn }}
+
+<group name="VRFs" record="vrf, vrf_test1_50_2">
+ address-family {{ afi }} vrf {{ vrf }}
+  <group name="neighbors**.{{ neighbor }}**" method="table" set="vrf_test1_50_2, peer_vrf">
+  neighbor {{ neighbor | let("afi_activated", True) }} activate
+  </group>
+ exit-address-family {{ _end_ }}
+</group>
+
+</group>
+
+<output
+name="test1-50-2"
+load="python"
+functions="is_equal"
+description="test group record and set functions test-2 with variables renaming"
+>
+{   'test1-50-2_bgp_config': {   'VRFs': [   {   'afi': 'ipv4',
+                                                 'neighbors': {   '10.100.100.212': {   'afi_activated': True,
+                                                                                        'peer_vrf': 'VRF2'},
+                                                                  '10.227.147.122': {   'afi_activated': True,
+                                                                                        'peer_vrf': 'VRF2'}},
+                                                 'vrf': 'VRF2'},
+                                             {   'afi': 'ipv4',
+                                                 'neighbors': {   '10.61.254.67': {   'afi_activated': True,
+                                                                                      'peer_vrf': 'VRF1'},
+                                                                  '10.61.254.68': {   'afi_activated': True,
+                                                                                      'peer_vrf': 'VRF1'}},
+                                                 'vrf': 'VRF1'}],
+                                 'bgp_asn': '65123'}}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"
