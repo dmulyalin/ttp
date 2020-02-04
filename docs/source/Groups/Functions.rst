@@ -45,6 +45,10 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - check if certain key contains certain value, return True if so and False otherwise
    * - `exclude_val`_   
      - check if certain key contains certain value, return False if so and True otherwise
+   * - `record`_   
+     - save (record) variable value in results object and global scope dictionaries
+   * - `set`_   
+     - get value from results object variables dictionary and assign it to variable
      
 containsall
 ------------------------------------------------------------------------------
@@ -958,3 +962,375 @@ exclude_val
 * ``value`` - value to check against
 
 This function checks if certain key in group results equal to value provided, returning False if so and True otherwise.
+
+
+record
+------------------------------------------------------------------------------
+``record="source, target"``
+
+* ``source`` - name of variable to source value from
+* ``target`` - optional, name of variable to assign value to
+
+Depending on requirements match variable ``record`` might not be enough due to the fact that it can only record values during parsing phase, group ``record`` function on the other hand can record variable values during results processing phase. Group `set`_ function can make use of this recorded variables adding them to produced results.
+
+Group ``record`` function saved variable value in two dictionaries that represent different scopes of access:
+  1. Per-input scope - this dictionary available during processing of all groups for this particular input; ``_ttp_["results_object"].vars`` dictionary
+  2. Global scope - this dictionary available across all templates, inputs and groups; ``_ttp_["global_vars"]`` dictionary
+
+**Example-0**
+
+In this example match variable ``record`` function used to save match values, however, due to the way how data structured, only last match value got recorded, overriding previous matches, i.e. "VRF1" vrf was matched first and recorded by match variable ``record`` function, following with "VRF2" being matched and recorded as well, overriding previous value of "VRF1"
+
+Template::
+
+    <input load="text">
+    router bgp 65123
+     !
+     address-family ipv4 vrf VRF1
+      neighbor 10.1.100.212 activate
+     exit-address-family
+     !
+     address-family ipv4 vrf VRF2
+      neighbor 10.6.254.67 activate
+     exit-address-family
+    </input>
+    
+    <group name="bgp_config">
+    router bgp {{ bgp_asn }}
+    
+    <group name="VRFs" record="vrf">
+     address-family {{ afi }} vrf {{ vrf | record(vrf) }}
+      <group name="neighbors**.{{ neighbor }}**" method="table">
+      neighbor {{ neighbor | let("afi_activated", True) }} activate
+      {{ vrf | set(vrf) }}
+      </group>
+     exit-address-family {{ _end_ }}
+    </group>
+    
+    </group>
+    
+Result::
+
+    [
+        [
+            {
+                "bgp_config": {
+                    "VRFs": [
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.1.100.212": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF2"
+                                }
+                            },
+                            "vrf": "VRF1"
+                        },
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.6.254.67": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF2"
+                                }
+                            },
+                            "vrf": "VRF2"
+                        }
+                    ],
+                    "bgp_asn": "65123"
+                }
+            }
+        ]
+    ]
+
+**Example-1** 
+
+In this example same data was parsed by same template, using group ``record`` function to record match results. To keep it simple same name "vrf" used as a source and target name for variables.
+
+Template::
+
+    <input load="text">
+    router bgp 65123
+     !
+     address-family ipv4 vrf VRF2
+      neighbor 10.100.100.212 activate
+      neighbor 10.227.147.122 activate
+     exit-address-family
+     !
+     address-family ipv4 vrf VRF1
+      neighbor 10.61.254.67 activate
+      neighbor 10.61.254.68 activate
+     exit-address-family
+    </input>
+    
+    <group name="bgp_config">
+    router bgp {{ bgp_asn }}
+    
+    <group name="VRFs" record="vrf">
+     address-family {{ afi }} vrf {{ vrf }}
+      <group name="neighbors**.{{ neighbor }}**" method="table" set="vrf">
+      neighbor {{ neighbor | let("afi_activated", True) }} activate
+      </group>
+     exit-address-family {{ _end_ }}
+    </group>
+    
+    </group>
+
+Results::
+
+    [
+        [
+            {
+                "bgp_config": {
+                    "VRFs": [
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.100.100.212": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF2"
+                                },
+                                "10.227.147.122": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF2"
+                                }
+                            },
+                            "vrf": "VRF2"
+                        },
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.61.254.67": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF1"
+                                },
+                                "10.61.254.68": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF1"
+                                }
+                            },
+                            "vrf": "VRF1"
+                        }
+                    ],
+                    "bgp_asn": "65123"
+                }
+            }
+        ]
+    ]
+
+**Example-3**
+
+In this example source and target name of variables being changed.
+
+Template::
+
+    <input load="text">
+    router bgp 65123
+     !
+     address-family ipv4 vrf VRF2
+      neighbor 10.100.100.212 activate
+      neighbor 10.227.147.122 activate
+     exit-address-family
+     !
+     address-family ipv4 vrf VRF1
+      neighbor 10.61.254.67 activate
+      neighbor 10.61.254.68 activate
+     exit-address-family
+    </input>
+    
+    <group name="bgp_config">
+    router bgp {{ bgp_asn }}
+    
+    <group name="VRFs" record="vrf, vrf_name">
+     address-family {{ afi }} vrf {{ vrf }}
+      <group name="neighbors**.{{ neighbor }}**" method="table" set="vrf_name, peer_vrf">
+      neighbor {{ neighbor | let("afi_activated", True) }} activate
+      </group>
+     exit-address-family {{ _end_ }}
+    </group>
+    
+    </group>
+
+Results::
+
+    [
+        [
+            {
+                "bgp_config": {
+                    "VRFs": [
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.100.100.212": {
+                                    "afi_activated": true,
+                                    "peer_vrf": "VRF2"
+                                },
+                                "10.227.147.122": {
+                                    "afi_activated": true,
+                                    "peer_vrf": "VRF2"
+                                }
+                            },
+                            "vrf": "VRF2"
+                        },
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.61.254.67": {
+                                    "afi_activated": true,
+                                    "peer_vrf": "VRF1"
+                                },
+                                "10.61.254.68": {
+                                    "afi_activated": true,
+                                    "peer_vrf": "VRF1"
+                                }
+                            },
+                            "vrf": "VRF1"
+                        }
+                    ],
+                    "bgp_asn": "65123"
+                }
+            }
+        ]
+    ]
+
+set
+------------------------------------------------------------------------------
+``set="source, target, default"``
+
+* ``source`` - name of variable to get value from
+* ``target`` - optional, name of variable to assign value to
+* ``default`` - optional, default value to assign to target variable if no source variable found
+
+This function uses ``_ttp_["results_object"].vars`` dictionary to retrieve values and assign them to variable with name provided. Reference group `record`_ function for examples.
+
+**Example**
+
+This example demonstrates how to use set function default value. In particular, we specify default vrf value as a 'global', as a result groups that does not have vrf match, will use this default value.
+
+Template::
+
+    <input load="text">
+    router bgp 65123
+     !
+     address-family ipv4
+      neighbor 10.100.100.212 activate
+      neighbor 10.227.147.122 activate
+     exit-address-family
+     !
+     address-family ipv4 vrf VRF1
+      neighbor 10.61.254.67 activate
+      neighbor 10.61.254.68 activate
+     exit-address-family
+    </input>
+    
+    <group name="bgp_config">
+    router bgp {{ bgp_asn }}
+    
+    <group name="VRFs" record="vrf">
+     address-family {{ afi }} vrf {{ vrf }}
+     address-family {{ afi | _start_ }}
+      <group name="neighbors**.{{ neighbor }}**" method="table" set="vrf, default='global'">
+      neighbor {{ neighbor | let("afi_activated", True) }} activate
+      </group>
+     exit-address-family {{ _end_ }}
+    </group>
+    
+    </group>
+
+Results::
+
+    [
+        [
+            {
+                "bgp_config": {
+                    "VRFs": [
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.100.100.212": {
+                                    "afi_activated": true,
+                                    "vrf": "global"
+                                },
+                                "10.227.147.122": {
+                                    "afi_activated": true,
+                                    "vrf": "global"
+                                }
+                            }
+                        },
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.61.254.67": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF1"
+                                },
+                                "10.61.254.68": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF1"
+                                }
+                            },
+                            "vrf": "VRF1"
+                        }
+                    ],
+                    "bgp_asn": "65123"
+                }
+            }
+        ]
+    ]
+	
+.. warning:: default value will not be used as long as variable with given name found in ``_ttp_["results_object"].vars`` dictionary. 
+
+For instance, reordering text data above as::
+
+    router bgp 65123
+     !
+     address-family ipv4 vrf VRF1
+      neighbor 10.61.254.67 activate
+      neighbor 10.61.254.68 activate
+     exit-address-family
+     !
+     address-family ipv4
+      neighbor 10.100.100.212 activate
+      neighbor 10.227.147.122 activate
+     exit-address-family
+
+will lead to improper results::
+
+    [
+        [
+            {
+                "bgp_config": {
+                    "VRFs": [
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.61.254.67": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF1"
+                                },
+                                "10.61.254.68": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF1"
+                                }
+                            },
+                            "vrf": "VRF1"
+                        },
+                        {
+                            "afi": "ipv4",
+                            "neighbors": {
+                                "10.100.100.212": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF1"
+                                },
+                                "10.227.147.122": {
+                                    "afi_activated": true,
+                                    "vrf": "VRF1"
+                                }
+                            }
+                        }
+                    ],
+                    "bgp_asn": "65123"
+                }
+            }
+        ]
+    ]
