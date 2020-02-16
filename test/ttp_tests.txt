@@ -3525,7 +3525,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "description": "Routing Loopback",
             "hostname": "router-fw-host",
             "interface": "lo0.0",
-            "ip": "10.6.4.4/32"
+            "ip": "10.0.0.254/32"
         }
     ],
     [
@@ -3545,7 +3545,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "description": "Routing Loopback",
             "hostname": "router-fw-host",
             "interface": "lo0.0",
-            "ip": "10.6.4.4/32"
+            "ip": "10.0.0.254/32"
         }
     ],
     [
@@ -3565,7 +3565,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "description": "Routing Loopback",
             "hostname": "router-fw-host",
             "interface": "lo0.0",
-            "ip": "10.6.4.4/32"
+            "ip": "10.0.0.254/32"
         }
     ]
 ]
@@ -3586,7 +3586,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "description": "Routing Loopback",
             "hostname": "router-fw-host",
             "interface": "lo0.0",
-            "ip": "10.6.4.4/32"
+            "ip": "10.0.0.254/32"
         },
         {
             "description": "L3VPN: somethere",
@@ -3606,7 +3606,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "description": "Routing Loopback",
             "hostname": "router-fw-host",
             "interface": "lo0.0",
-            "ip": "10.6.4.4/32"
+            "ip": "10.0.0.254/32"
         },
         {
             "description": "L3VPN: somethere",
@@ -3626,7 +3626,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "description": "Routing Loopback",
             "hostname": "router-fw-host",
             "interface": "lo0.0",
-            "ip": "10.6.4.4/32"
+            "ip": "10.0.0.254/32"
         },
         {
             "description": "L3VPN: somethere",

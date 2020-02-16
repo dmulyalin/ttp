@@ -1824,6 +1824,10 @@ class _parser_class():
         [ raw_results.append(
           [group_result[key] for key in sorted(list(group_result.keys()))]
           ) for group_result in unsort_rslts if group_result ]
+          
+        # import pprint
+        # pprint.pprint(raw_results)
+        
         # form results for global groups:
         RSLTSOBJ = _results_class()
         RSLTSOBJ.make_results(self.vars, raw_results, main_results=self.main_results)
@@ -1869,7 +1873,8 @@ class _results_class():
         self.record={
             'result'     : {},
             'PATH'       : [],
-            'FUNCTIONS' : []
+            'FUNCTIONS'  : [],
+            'DEFAULTS'   : {}
         }
         self.dyn_path_cache={}
         _ttp_["results_object"] = self
@@ -1966,7 +1971,8 @@ class _results_class():
                     REDICT     = re
                 )
         # check the last group:
-        if self.record['result'] and self.processgrp() is not False:
+        # if self.record['result'] and self.processgrp() is not False:
+        if self.processgrp() is not False:
             self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
 
 
@@ -1984,6 +1990,7 @@ class _results_class():
             self.record = {
                 'result'     : result,
                 'PATH'       : [i.strip() for i in path_item.split('.')],
+                'DEFAULTS'   : {}
             }
             processed_path = self.form_path(self.record['PATH'])
             if processed_path:
@@ -2092,40 +2099,50 @@ class _results_class():
     def save_curelements(self, result_data, result_path):
         """Method to save current group results in self.results
         """
+        # do nothing if DEFAULTS and result_data are empty:
+        if not result_data and not self.record['DEFAULTS']:
+            return
+        # fill in temp item to hold results
+        temp = self.record['DEFAULTS']
+        try:
+            temp.update(result_data)
+        # ValueError happens when result is not dict, for instance when itemize group function used
+        except ValueError:
+            temp = result_data
         # get ELEMENT from self.results by result_path
         E = self.dict_by_path(PATH=result_path, ELEMENT=self.results)
         if isinstance(E, list):
-            E.append(result_data)
+            E.append(temp)
         elif isinstance(E, dict):
             # check if result_path endswith "**" - update result's ELEMENET without converting it into list:
             if len(result_path[-1]) - len(result_path[-1].rstrip('*')) == 2:
-                E.update(result_data)
+                temp.update(E)
+                E.update(temp)
             # to match all the other cases, like templates without "**" in path:
             elif E != {}:
                 # transform ELEMENT dict to list and append data to it:
-                self.results = self.value_to_list(DATA=self.results, PATH=result_path, result=result_data)
+                self.results = self.value_to_list(DATA=self.results, PATH=result_path, result=temp)
             else:
-                E.update(result_data)
-
+                E.update(temp)
+                
 
     def start(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
-        if self.record['result'] and self.processgrp() != False:
+        if self.processgrp() != False:
             self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
         self.record = {
-            'result'     : DEFAULTS.copy(),
-            'DEFAULTS'   : DEFAULTS,
+            'result'     : result,
+            'DEFAULTS'   : DEFAULTS.copy(),
             'PATH'       : PATH,
-            'FUNCTIONS' : FUNCTIONS
+            'FUNCTIONS'  : FUNCTIONS
         }
-        self.record['result'].update(result)
 
 
     def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
-        if self.record['result'] and self.processgrp() != False:
+        if self.processgrp() != False:
             self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
         self.record = {
-            'result'     : DEFAULTS.copy(),
-            'DEFAULTS'   : DEFAULTS,
+            'result'     : {},
+            'DEFAULTS'   : DEFAULTS.copy(),
             'PATH'       : PATH,
             'FUNCTIONS'  : FUNCTIONS
         }
@@ -2133,16 +2150,9 @@ class _results_class():
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
         if self.record['PATH'] == PATH: # if same path - save into self.record
-            # self.record['result'].update(result)
-            # update without overriding already existing values unless they are defaults:
-            for k, v in result.items():
-                if not k in self.record['result']:
-                    self.record['result'][k] = v 
-                try:
-                    if DEFAULTS[k] == self.record['result'][k]:
-                        self.record['result'][k] = v
-                except KeyError:
-                    continue
+            # update without overriding already existing values:
+            result.update(self.record['result'])
+            self.record['result'] = result
         # if different path - that can happen if we have group ended and result 
         # actually belong to another group, hence have save directly into results
         else:
@@ -2173,10 +2183,6 @@ class _results_class():
         # join results:
         for k in result.keys():
             if k in self.record['result']:                           # if we already have results
-                if k in DEFAULTS:
-                    if self.record['result'][k] == DEFAULTS[k]:      # check if we have default value
-                        self.record['result'][k] = result[k]         # replace default value with new value
-                        continue
                 if isinstance(self.record['result'][k], str):
                     self.record['result'][k] += joinchar + result[k] # join strings
                 elif isinstance(self.record['result'][k], list):
