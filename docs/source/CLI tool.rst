@@ -11,13 +11,15 @@ Sample usage::
   
 **Available options**
 
-* ``-d, --data`` path to data file or directory with files to process
-* ``-dp, --data-prefix`` OS base path to folder with data separated across additional folders
-* ``-t, --template`` path to text file with template content
-* ``-tn, --template-name`` name of template to load from python formatted template file
-* ``-o, --outputter`` format results using yaml, json, raw or pprint formatter and prints them to terminal
-* ``-l, --logging`` logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+* ``-d, --data`` Path to data file or directory with files to process
+* ``-dp, --data-prefix`` OS base path to folder with data separated across additional folders as specified in TTP input tags
+* ``-t, --template`` Path to text file with template content
+* ``-tn, --template-name`` Name of template within file referenced by -t option if file has python (.py) extension
+* ``-o, --outputter`` Format results using yaml, json, raw or pprint formatter and prints them to terminal
+* ``-ot, --out-template`` Name of template to output results for
+* ``-l, --logging`` Logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 * ``-lf, --log-file`` OS path to file where to write logs instead of printing them to terminal
-* ``-T, --Timing`` print simple timing information to screen about time spent on parsing data
-* ``--one`` forcefully run parsing using single process
-* ``--multi`` forcefully run parsing in multiple processes
+* ``-T, --Timing`` Print simple timing information to screen about time spent on parsing data
+* ``s,  --structure`` Final results structure - 'list' or 'dictionary'
+* ``--one`` Forcefully run parsing using single process
+* ``--multi`` Forcefully run parsing in multiple processes

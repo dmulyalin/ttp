@@ -245,7 +245,7 @@ ignore
 * template variable name - name of template variable that contains regular expression to use
 * built in re pattern name - name of regex patter to use, for example :ref:`Match Variables/Patterns:WORD`
 
-Primary use case of this indicator is to ignore changing data in text we need to parse, for example consider below output::
+Primary use case of this indicator is to ignore changing alpha-numerical characters, for example consider below output::
 
     FastEthernet0/0 is up, line protocol is up
       Hardware is Gt96k FE, address is c201.1d00.0000 (bia c201.1d00.1234)
