@@ -1464,7 +1464,7 @@ class _variable_class():
                 regex = data['name']
             re_from_var = self.group.vars.get(regex, None)
             re_from_patterns = _ttp_['patterns']['get'](name=regex)
-            # check group variables
+            # check template variables
             if re_from_var:
                 self.var_res.append(re_from_var)
             # check ttp patterns
@@ -1546,9 +1546,12 @@ class _variable_class():
                 self.regex = self.regex.replace(esc_var, '\S+', 1)
             elif len(data['args']) == 1:
                 pattern = data['args'][0]
-                ttp_pattern = _ttp_['patterns']['get'](name=pattern)
-                if ttp_pattern:
-                    self.regex = self.regex.replace(esc_var, "(?:{})".format(ttp_pattern), 1)
+                re_from_patterns = _ttp_['patterns']['get'](name=pattern)
+                re_from_var = self.group.vars.get(pattern, None)
+                if re_from_var:
+                    self.regex = self.regex.replace(esc_var, "(?:{})".format(re_from_var), 1)
+                elif re_from_patterns:
+                    self.regex = self.regex.replace(esc_var, "(?:{})".format(re_from_patterns), 1)
                 else:
                     self.regex = self.regex.replace(esc_var, "(?:{})".format(pattern), 1)
 

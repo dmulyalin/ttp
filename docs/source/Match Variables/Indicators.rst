@@ -238,9 +238,12 @@ Results::
 
 ignore
 ------------------------------------------------------------------------------
-``{{ ignore }}`` or ``{{ ignore("regular_expression") }}``
+``{{ ignore }}`` or ``{{ ignore("value") }}``
 
-* regular_expression (optional) - regex to use to substitute portion of the string, default is "\S+", meaning any non-space character one or more times.
+``value`` can be of:
+* regular expression string - regex to use to substitute portion of the string, default is "\S+", meaning any non-space character one or more times.
+* template variable name - name of template variable that contains regular expression to use
+* built in re pattern name - name of regex patter to use, for example :ref:`Match Variables/Patterns:WORD`
 
 Primary use case of this indicator is to ignore changing data in text we need to parse, for example consider below output::
 
@@ -251,6 +254,10 @@ Primary use case of this indicator is to ignore changing data in text we need to
       Hardware is Gt96k FE, address is b20a.1e00.8777 (bia c201.1d00.1111)
       MTU 1500 bytes, BW 100000 Kbit/sec, DLY 1000 usec,
   
+.. note:: use template_variable_name if ignore pattern contains ``|`` (pipe) character, as pipe character used by TTP to separate match variable functions.
+
+**Example-1**
+
 What if only need to extract bia MAC address within parenthesis, below template will **not** work for all cases::
 
     {{ interface }} is up, line protocol is up
@@ -273,7 +280,7 @@ Result::
         ]
     ]
 	
-As we can see MAC address for FastEthernet0/1 was not matched, to fix it we need to ignore MAC address before parenthesis as it keeps changing across the source data::
+As we can see MAC address for FastEthernet0/1 was not matched due to the fact that "c201.1d00.0000" text was used in template, to fix it we need to ignore MAC address before parenthesis as it keeps changing across the source data::
 
     {{ interface }} is up, line protocol is up
       Hardware is Gt96k FE, address is {{ ignore }} (bia {{MAC}})
@@ -292,6 +299,52 @@ Result::
                 "MAC": "c201.1d00.1111",
                 "interface": "FastEthernet0/1",
                 "mtu": "1500"
+            }
+        ]
+    ]
+	
+**Example-2**
+
+In this example template variable "pattern_var" used together with ignore, that variable reference regular expression pattern that contains pipe symbol.
+
+Template::
+
+    <input load="text">
+    FastEthernet0/0 is up, line protocol is up
+      Hardware is Gt96k FE, address is c201.1d00.0000 (bia c201.1d00.1234)
+      MTU 1500 bytes, BW 100000 Kbit/sec, DLY 1000 usec,
+    FastEthernet0/1 is up, line protocol is up
+      Hardware is Gt96k FE, address is b20a.1e00.8777 (bia c201.1d00.1111)
+      MTU 1500 bytes, BW 100000 Kbit/sec, DLY 1000 usec,
+    </input>
+    
+    <vars>
+    pattern_var = "\S+|\d+"
+    </vars>
+    
+    <group name="interfaces">
+    {{ interface }} is up, line protocol is up
+      Hardware is Gt96k FE, address is {{ ignore("pattern_var") }} (bia {{MAC}})
+      MTU {{ mtu }} bytes, BW 100000 Kbit/sec, DLY 1000 usec,
+    </group>
+	
+Results::
+
+    [
+        [
+            {
+                "interfaces": [
+                    {
+                        "MAC": "c201.1d00.1234",
+                        "interface": "FastEthernet0/0",
+                        "mtu": "1500"
+                    },
+                    {
+                        "MAC": "c201.1d00.1111",
+                        "interface": "FastEthernet0/1",
+                        "mtu": "1500"
+                    }
+                ]
             }
         ]
     ]
