@@ -2691,6 +2691,57 @@ description="test group absolute path and record and set functions"
     }
 }
 </output>
+
+
+<input load="text" name="test1-52">
+router bgp 64100
+ !
+ address-family ipv4 vrf TPGUCN
+  neighbor 1.1.1.1 password 7 blabla
+  neighbor 1.1.1.1 update-source Loopback0
+ exit-address-family
+</input>
+
+<group name="test1_52_bgp_config" input="test1-52" output="test1-52">
+router bgp {{ bgp_asn }}
+
+<!-- VRF and per-vrf afi peerings section -->
+<group name="vrf_config**.{{ vrf }}**" functions="record('afi') | record('vrf')">
+ address-family {{ afi | ORPHRASE }} vrf {{ vrf }}
+ <group name="/test1_52_bgp_config.neighbors**.{{ neighbor }}**" method="table" functions="set('vrf')">
+  neighbor {{ neighbor }} update-source {{ session_source_interface | resuball("IfsNormalize") }}
+  neighbor {{ neighbor | let("authentication_mode", "md5") }} password 7 {{ ignore }}
+  {{ authentication_mode | set("null") }}
+ </group>
+ exit-address-family {{ _end_ }}
+</group>
+
+</group>
+
+<output
+name="test1-52"
+load="json"
+functions="is_equal"
+description="test let vs set behavior"
+>
+{
+    "test1_52_bgp_config": {
+        "bgp_asn": "64100",
+        "neighbors": {
+            "1.1.1.1": {
+                "authentication_mode": "md5",
+                "session_source_interface": "Loopback0",
+                "vrf": "TPGUCN"
+            }
+        },
+        "vrf_config": {
+            "TPGUCN": {
+                "afi": "ipv4"
+            }
+        }
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"
