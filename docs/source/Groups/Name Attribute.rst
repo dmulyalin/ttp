@@ -555,9 +555,9 @@ For instance for below template::
     
     </group>
 	
-Paths for child groups will be expanded to the list of absolute path items::
+Paths for child groups will be expanded to the list of absolute path items:
 
-.. list-table:: group functions
+.. list-table::
    :widths: 30 70
    :header-rows: 1
 
@@ -642,38 +642,38 @@ Example Template::
 	
 In above template, note the name of this child group - `name="/neighbors**.{{ neighbor }}**"` - it is prepended with forward slash character and treated as absolute path. Result structure for above template will be::
 
-[
     [
-        {
-            "bgp_config": {
-                "VRFs": [
-                    {
-                        "afi": "ipv4",
-                        "vrf": "VRF1"
+        [
+            {
+                "bgp_config": {
+                    "VRFs": [
+                        {
+                            "afi": "ipv4",
+                            "vrf": "VRF1"
+                        },
+                        {
+                            "afi": "ipv4",
+                            "vrf": "VRF2"
+                        }
+                    ],
+                    "bgp_asn": "65123"
+                },
+                "neighbors": {
+                    "10.100.100.212": {
+                        "ingreass_rpl": "DENY_ALL"
                     },
-                    {
-                        "afi": "ipv4",
-                        "vrf": "VRF2"
+                    "10.227.147.122": {
+                        "ingreass_rpl": "DENY_ALL"
+                    },
+                    "10.61.254.67": {
+                        "ingreass_rpl": "DENY_ALL"
+                    },
+                    "10.61.254.68": {
+                        "ingreass_rpl": "DENY_ALL"
                     }
-                ],
-                "bgp_asn": "65123"
-            },
-            "neighbors": {
-                "10.100.100.212": {
-                    "ingreass_rpl": "DENY_ALL"
-                },
-                "10.227.147.122": {
-                    "ingreass_rpl": "DENY_ALL"
-                },
-                "10.61.254.67": {
-                    "ingreass_rpl": "DENY_ALL"
-                },
-                "10.61.254.68": {
-                    "ingreass_rpl": "DENY_ALL"
                 }
             }
-        }
+        ]
     ]
-]
 
 This is because path attribute will not be expanded for `neighbors` child group and will be treated as is, effectively shortening the hierarchy of results structure and flattening it.

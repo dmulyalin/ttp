@@ -2742,6 +2742,37 @@ description="test let vs set behavior"
     }
 }
 </output>
+
+
+<input load="text" name="test1-53">
+FastEthernet0/0 is up, line protocol is up
+  Hardware is Gt96k FE, address is c201.1d00.0000 (bia c201.1d00.1234)
+FastEthernet0/1 is up,   line protocol is up
+  Hardware is Gt96k FE, address is b20a.1e00.8777 (bia c201.1d00.1111)
+</input>
+
+<vars>
+test1_53_pattern_var = "\S+|\d+"
+</vars>
+
+<group name="interfaces_test1_53" input="test1-53" output="test1-53">
+{{ interface | _exact_space_ }} is up,   line protocol is up
+  Hardware is Gt96k FE, address is {{ ignore("test1_53_pattern_var") }} (bia {{MAC}})
+</group>
+
+<output
+name="test1-53"
+load="json"
+functions="is_equal"
+description="test _exact_space_ indicator behavior"
+>
+{
+    "interfaces_test1_53": {
+        "MAC": "c201.1d00.1111",
+        "interface": "FastEthernet0/1"
+    }
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"

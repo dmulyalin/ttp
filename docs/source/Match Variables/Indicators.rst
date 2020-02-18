@@ -14,7 +14,9 @@ Indicators or directives can be used to change parsing logic or indicate certain
    * - Name
      - Description  
    * - `_exact_`_ 
-     - Threats digits as is without replacing them with '\d+' pattern
+     - Threats digits as is without replacing them with ``\d+`` pattern
+   * - `_exact_space_`_ 
+     - Leave space characters in place without replacing them with ``r(\\ +)`` pattern
    * - `_start_`_ 
      - Explicitly indicates start of the group
    * - `_end_`_ 
@@ -24,11 +26,12 @@ Indicators or directives can be used to change parsing logic or indicate certain
    * - `ignore`_ 
      - Substitute string at given position with regular expression without matching results
 
+
 _exact_
 ------------------------------------------------------------------------------
 ``{{ name | _exact_ }}``
 
-By default all digits in template replaced with '\d+' pattern, if _exact_ present, digits will stay unchanged and will be used for parsing.
+By default all digits in template replaced with '\d+' pattern, if _exact_ present, digits will stay unchanged and will be used for parsing as is.
 
 **Example**
 
@@ -95,6 +98,12 @@ Result will be::
      }
  }
  
+_exact_space_
+------------------------------------------------------------------------------
+``{{ name | _exact_space_ }}``
+
+By default all space characters in template replaced with '\\ +' pattern, if _exact_space_ present, space characters will stay unchanged and will be used for parsing as is.
+
 _start_
 ------------------------------------------------------------------------------
 ``{{ name | _start_ }}`` or {{ _start_ }}
