@@ -219,13 +219,14 @@ class ttp():
                         self.__data_size += getsizeof(i[1])
 
 
-    def add_template(self, template, template_name=None):
+    def add_template(self, template, template_name=None, filter=[]):
         """Method to load TTP templates into the parser.
         
         **Parameters**
         
         * ``template`` file object or OS path to text file with template
         * ``template_name`` (str) name of the template
+        * ``filter`` (list) list of child templates' names to load
         """
         log.debug("ttp.add_template - loading template")
         # get a list of [(type, text,)] tuples or empty list []
@@ -235,7 +236,8 @@ class ttp():
                 template_text=i[1],
                 base_path=self.base_path, 
                 ttp_vars=self.vars,
-                name=template_name)
+                name=template_name,
+                filter=filter)
             # if templates are empty - no 'template' tags in template:
             if template_obj.templates == []:
                 self._templates.append(template_obj)
@@ -592,7 +594,7 @@ TTP TEMPLATE CLASS
 class _template_class():
     """Template class to hold template data
     """
-    def __init__(self, template_text, base_path='', ttp_vars={}, name=None):
+    def __init__(self, template_text, base_path='', ttp_vars={}, name=None, filter=[]):
         self.PATHCHAR = '.'         # character to separate path items, like ntp.clock.time, '.' is pathChar here
         self.vars = {               # dictionary to store template variables
             "_vars_to_results_":{}, # to indicate variables and patch where they should be saved in results
@@ -613,6 +615,7 @@ class _template_class():
         self.macro = {}                   # dictionary of macro name to function mapping
         self.results_method = 'per_input' # how to join results
         self.macro_text = []              # list to contain macro functions text to transfer into other processes   
+        self.filter = filter              # list that contains names of child templates to extract
 
         # load template from string:
         self.load_template_xml(template_text)
@@ -811,6 +814,10 @@ class _template_class():
             self.lookups[name] = lookup_data
 
         def parse_template(element):
+            # skip child templates that are not in requested children list
+            if self.filter:
+                if not element.attrib.get("name", None) in self.filter:
+                    return
             self.templates.append(
                 _template_class(
                     template_text=ET.tostring(element, encoding="UTF-8"),
