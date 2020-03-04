@@ -226,7 +226,12 @@ class ttp():
         
         * ``template`` file object or OS path to text file with template
         * ``template_name`` (str) name of the template
-        * ``filter`` (list) list of child templates' names to load
+        * ``filter`` (list) list of templates' names to load,
+        
+        ``filter`` attribute used to specify a list of template names that should be loaded, 
+        checks done against child templates as well, if no name of given template specified
+        in filter list, that template groups/macro/inputs/etc. will not be loaded and no 
+        results will be produced for that template.
         """
         log.debug("ttp.add_template - loading template")
         # get a list of [(type, text,)] tuples or empty list []
@@ -897,6 +902,12 @@ class _template_class():
             except ET.ParseError as e:
                 template_ET = ET.XML("<template>\n{}\n</template>".format(template_text))
 
+            # filter templates based on names filter provided - do not load template groups
+            # if template name not listed in filter
+            if self.filter:
+                if not self.name in self.filter:
+                    return
+                    
             # check if template has children:
             if not list(template_ET):
                 parse__anonymous_(template_ET)
