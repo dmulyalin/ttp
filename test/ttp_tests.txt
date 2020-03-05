@@ -3159,7 +3159,6 @@ load="json"
 functions="is_equal"
 >
 [
-    [
         {
             "description": "[OOB management-1]",
             "hostname": "switch1-1",
@@ -3188,7 +3187,6 @@ functions="is_equal"
             "ip": "192.168.11.3",
             "mask": "255.255.255.0"
         }
-    ]
 ]
 </output>
 
@@ -3248,7 +3246,6 @@ description="per_template results formatting - named group"
 load="json"
 functions="is_equal"
 >
-[
     {
         "interfaces": {
             "GigabitEthernet6/41": {
@@ -3277,7 +3274,6 @@ functions="is_equal"
             }
         }
     }
-]
 </output>
 
 <!--final output to put all results in tabulate table-->
