@@ -1173,7 +1173,11 @@ class _group_class():
         def extract_name(O):
             # check if absolute path given
             if O.startswith("/"):
-                self.path = O.lstrip("/").split(self.pathchar)
+                # check if parent group is _anonymous_
+                if "_anonymous_" in self.path:
+                    self.path = ["_anonymous_"] + O.lstrip("/").split(self.pathchar)
+                else:
+                    self.path = O.lstrip("/").split(self.pathchar)
             # threat relative path
             else:
                 self.path = self.path + O.split(self.pathchar)
