@@ -667,8 +667,6 @@ class _template_class():
     def form_results(self, result):
         """Method to add results to self.results
         """
-        """Method to add results to self.results
-        """
         if not result:
             return
         if '_anonymous_' in result:
