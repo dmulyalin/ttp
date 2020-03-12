@@ -671,6 +671,8 @@ class _template_class():
             return
         if '_anonymous_' in result:
             if self.results_method == "per_template":
+                if isinstance(result['_anonymous_'], dict):
+                    result['_anonymous_'] = [result['_anonymous_']]
                 self.results = result['_anonymous_']
             else:
                 self.results.append(result['_anonymous_'])
