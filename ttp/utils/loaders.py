@@ -76,6 +76,8 @@ def load_struct(text_data="", **kwargs):
     include = kwargs.get('include', None)
     if not text_data and include is None:
         return None        
+    elif text_data is None and include:
+        text_data = ""
     # dispatcher:
     loaders = {
         'ini'   : load_ini,
