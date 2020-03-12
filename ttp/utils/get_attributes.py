@@ -53,7 +53,7 @@ def get_attributes(line):
             except:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 traceback_error = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
-                log.critical("""Failed to load arg/kwargs from line '{}' for options '{}', traceback:\n""".format(line, options, traceback_error))
+                log.critical("""Failed to load arg/kwargs from line '{}' for options '{}', traceback:\n{}""".format(line, options, traceback_error))
                 raise SystemExit()
             opts.update(args_kwargs)
         result.append(opts)
