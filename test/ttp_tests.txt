@@ -2773,6 +2773,42 @@ description="test _exact_space_ indicator behavior"
     }
 }
 </output>
+
+
+
+<input load="text" name="test1-54">
+interface Vlan779
+ description some long description-bla
+!
+interface Vlan780
+ description some_short_description-bla
+</input>
+
+<group name="interfaces1_test1_54" input="test1-54" output="test1-54">
+interface {{ interface }}
+ description {{ description | ORPHRASE | truncate(2) }}
+</group>
+
+<output
+name="test1-54"
+load="json"
+functions="is_equal"
+description="test truncate match variable function"
+>
+{
+    "interfaces1_test1_54": [
+        {
+            "description": "some long",
+            "interface": "Vlan779"
+        },
+        {
+            "description": "some_short_description-bla",
+            "interface": "Vlan780"
+        }
+    ]
+}
+</output>
+
 <!--output to print raw python result to screen
 <output
 name="print_python"

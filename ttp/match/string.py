@@ -110,8 +110,6 @@ def replaceall(data, *args):
 
 def truncate(data, truncate):
     d_split=data.split(' ')
-    if len(truncate) == 1:
-        t_len=int(truncate[0])
-        if len(d_split) >= t_len:
-            data = ' '.join(d_split[0:t_len])
+    if len(d_split) >= truncate:
+        data = ' '.join(d_split[0:truncate])
     return data, None
