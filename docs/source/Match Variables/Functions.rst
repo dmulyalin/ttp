@@ -41,6 +41,8 @@ Action functions act upon match result to transform into desired state.
      - find match value in lookup table and return result
    * - `rlookup`_ 
      - find rlookup table key in match result and return associated values
+   * - `gpvlookup`_ 
+     - Glob Patterns Values lookup uses glob patterns testing against match result
    * - `item`_ 
      - returns item at given index on match result
    * - `macro`_ 
@@ -1222,6 +1224,157 @@ Result::
      }
  }
  
+gpvlookup
+------------------------------------------------------------------------------
+``{{ name | gpvlookup('name', 'add_field', 'record', 'multimatch') }}``
+
+* name - name of lookup tag and dot-separated path to data within which to perform lookup
+* add_field - default is False, can be set to string that will indicate name of the new field to add with lookup results
+* record - default is False, if True will record lookup results in TTP global and parsing object variables for reference by 'set' function
+* multimatch - default is False, will return first match only as lookup result, if True will iterate over all pasterns and return all found lookup matches
+
+Glob Patterns Values Lookup (gpvookup) function takes match result value and performs lookup on it using lookup data structure. This function can be useful to classify matching results and en-reach parsing output with additional information.
+
+Lookup data is a dictionary of key value pairs, where value is a list of Unix glob patterns to check, if at least one pattern matches, key added to found values list. Found values list is a result produced by this function.
+
+If lookup was unsuccessful no changes introduces to match result, if it was successful we have two option on what to do with found values:
+* if add_field is False - match result replaced with found values list
+* if add_field is not False - string passed as add_field value used as a name for additional field that will be added to group match results
+
+If record set to True, gpvlookup function will record found values list in TTP parser and global variables scopes.
+
+**Example-1**
+
+Basic example of gpvlookup usage. Here matched hostnames got classified by network domain based on glob patterns matching against them.
+
+Template::
+
+    <input load="text">
+    hostname DC1-SW-2
+    hostname A1-CORP-SW-2
+    hostname WIFI-CORE-RT-1
+    hostname DC2-CORP-FW-02
+    </input>
+    
+    <lookup name="domains" load="python">
+    {
+    	"NETWORK_DOMAINS": {
+    		"corporate": ["*CORP*", "WIFI-*"],
+    		"datacentre": ["DC1-*", "DC2-*"]
+    	}
+    }
+    </lookup>
+    
+    <group name="devices">
+    hostname {{ hostname | gpvlookup("domains.NETWORK_DOMAINS", add_field="Network Domains") }}
+    </group>
+
+Results::
+
+    [
+        [
+            {
+                "devices": [
+                    {
+                        "Network Domains": [
+                            "datacentre"
+                        ],
+                        "hostname": "DC1-SW-2"
+                    },
+                    {
+                        "Network Domains": [
+                            "corporate"
+                        ],
+                        "hostname": "A1-CORP-SW-2"
+                    },
+                    {
+                        "Network Domains": [
+                            "corporate"
+                        ],
+                        "hostname": "WIFI-CORE-RT-1"
+                    },
+                    {
+                        "Network Domains": [
+                            "corporate"
+                        ],
+                        "hostname": "DC2-CORP-FW-02"
+                    }
+                ]
+            }
+        ]
+    ]
+	
+Because lookup data is actually a dictionary, first match will be non-deterministic. For instance, in above example hostname DC2-CORP-FW-02 was matched by "corporate" patterns, but not by "datacentre" patterns, even though "datacentre" patterns would produce positive match as well.
+
+**Example-2**
+
+In this example multimatch used to collect all matches, in addition to that values found by lookup will be recorded in variable "domain" using "record" argument.
+
+Template::
+
+    <input load="text">
+    hostname DC1-WIFI-CORE-RT-1
+    !
+    interface Lo0
+     ip address 5.3.3.3/32
+    </input>
+    
+    <input load="text">
+    hostname WIFI-CORE-RT-1
+    !
+    interface Lo0
+     ip address 6.3.3.3/32
+    </input>
+    
+    <lookup name="domains" load="python">
+    {
+    	"NETWORK_DOMAINS": {
+    		"corporate": ["*WIFI-*"],
+    		"datacentre": ["DC1-*"]
+    	}
+    }
+    </lookup>
+    
+    <group void="">
+    hostname {{ hostname | gpvlookup("domains.NETWORK_DOMAINS", multimatch=True, record="domain") }}
+    </group>
+    
+    <group name="device.{{ interface }}">
+    interface {{ interface }}
+     ip address {{ ip }}
+     {{ domain | set(domain) }}
+    </group>
+	
+Results::
+
+    [
+        [
+            {
+                "device": {
+                    "Lo0": {
+                        "domain": [
+                            "corporate",
+                            "datacentre"
+                        ],
+                        "ip": "5.3.3.3/32"
+                    }
+                }
+            },
+            {
+                "device": {
+                    "Lo0": {
+                        "domain": [
+                            "corporate"
+                        ],
+                        "ip": "6.3.3.3/32"
+                    }
+                }
+            }
+        ]
+    ]
+	
+Group function "void" used to deny match results for this particular group to make output cleaner.
+
 startswith_re
 ------------------------------------------------------------------------------
 ``{{ name | startswith_re('pattern') }}``

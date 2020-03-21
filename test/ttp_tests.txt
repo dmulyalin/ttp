@@ -5616,4 +5616,322 @@ format_attributes = "tablefmt='fancy_grid'"
 ]
 </output>
 </template>
+
+
+<template name="test29-1"
+description="test 'gpvlookup' match variable function Python3"
+>
+
+<input load="text">
+hostname DC1-SW-2
+!
+interface Vlan779
+ ip address 2.2.2.2/24
+</input>
+
+<input load="text">
+hostname rt-corp-01
+!
+interface Vlan333
+ ip address 3.3.3.3/24
+</input>
+
+<input load="text">
+hostname rt-edge-01
+!
+interface Vlan444
+ ip address 4.3.3.3/24
+</input>
+
+<input load="text">
+hostname DC1-edge-corp-01
+!
+interface Vlan555
+ ip address 5.3.3.3/24
+</input>
+
+<lookup name="domains" load="python">
+{
+	"NETWORK_DOMAINS": {
+		"DC1": ["DC1-*"],
+		"CORP": ["*corp*"]
+	}
+}
+</lookup>
+
+<group void="">
+hostname {{ hostname | record(hostname) | gpvlookup("domains.NETWORK_DOMAINS", record="network_domain") }}
+</group>
+
+<group name="hostnames_single_match_add_field">
+hostname {{ hostname | gpvlookup("domains.NETWORK_DOMAINS", add_field="network_domain") }}
+</group>
+
+<group name="hostnames_multi_match_no_add_field">
+hostname {{ hostname | gpvlookup("domains.NETWORK_DOMAINS", multimatch=True) }}
+</group>
+
+<group name="interfaces_record_test.{{ interface }}">
+interface {{ interface }}
+ ip address {{ ip }}
+ {{ hostname | set(hostname) }}
+ {{ network_domain | set(network_domain) }}
+</group>
+
+
+
+<output
+name="test29-1"
+description="test 'gpvlookup' match variable function - Python3"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "hostnames_multi_match_no_add_field": {
+            "hostname": [
+                "DC1"
+            ]
+        },
+        "hostnames_single_match_add_field": {
+            "hostname": "DC1-SW-2",
+            "network_domain": [
+                "DC1"
+            ]
+        },
+        "interfaces_record_test": {
+            "Vlan779": {
+                "hostname": "DC1-SW-2",
+                "ip": "2.2.2.2/24",
+                "network_domain": [
+                    "DC1"
+                ]
+            }
+        }
+    },
+    {
+        "hostnames_multi_match_no_add_field": {
+            "hostname": [
+                "CORP"
+            ]
+        },
+        "hostnames_single_match_add_field": {
+            "hostname": "rt-corp-01",
+            "network_domain": [
+                "CORP"
+            ]
+        },
+        "interfaces_record_test": {
+            "Vlan333": {
+                "hostname": "rt-corp-01",
+                "ip": "3.3.3.3/24",
+                "network_domain": [
+                    "CORP"
+                ]
+            }
+        }
+    },
+    {
+        "hostnames_multi_match_no_add_field": {
+            "hostname": "rt-edge-01"
+        },
+        "hostnames_single_match_add_field": {
+            "hostname": "rt-edge-01"
+        },
+        "interfaces_record_test": {
+            "Vlan444": {
+                "hostname": "rt-edge-01",
+                "ip": "4.3.3.3/24",
+                "network_domain": []
+            }
+        }
+    },
+    {
+        "hostnames_multi_match_no_add_field": {
+            "hostname": [
+                "DC1",
+                "CORP"
+            ]
+        },
+        "hostnames_single_match_add_field": {
+            "hostname": "DC1-edge-corp-01",
+            "network_domain": [
+                "DC1"
+            ]
+        },
+        "interfaces_record_test": {
+            "Vlan555": {
+                "hostname": "DC1-edge-corp-01",
+                "ip": "5.3.3.3/24",
+                "network_domain": [
+                    "DC1"
+                ]
+            }
+        }
+    }
+]
+</output>
+</template>
+
+
+
+<template name="test29-2"
+description="test 'gpvlookup' match variable function Python2"
+>
+
+<input load="text">
+hostname DC1-SW-2
+!
+interface Vlan779
+ ip address 2.2.2.2/24
+</input>
+
+<input load="text">
+hostname rt-corp-01
+!
+interface Vlan333
+ ip address 3.3.3.3/24
+</input>
+
+<input load="text">
+hostname rt-edge-01
+!
+interface Vlan444
+ ip address 4.3.3.3/24
+</input>
+
+<input load="text">
+hostname DC1-edge-corp-01
+!
+interface Vlan555
+ ip address 5.3.3.3/24
+</input>
+
+<lookup name="domains" load="python">
+{
+	"NETWORK_DOMAINS": {
+		"DC1": ["DC1-*"],
+		"CORP": ["*corp*"]
+	}
+}
+</lookup>
+
+<group void="">
+hostname {{ hostname | record(hostname) | gpvlookup("domains.NETWORK_DOMAINS", record="network_domain") }}
+</group>
+
+<group name="hostnames_single_match_add_field">
+hostname {{ hostname | gpvlookup("domains.NETWORK_DOMAINS", add_field="network_domain") }}
+</group>
+
+<group name="hostnames_multi_match_no_add_field">
+hostname {{ hostname | gpvlookup("domains.NETWORK_DOMAINS", multimatch=True) }}
+</group>
+
+<group name="interfaces_record_test.{{ interface }}">
+interface {{ interface }}
+ ip address {{ ip }}
+ {{ hostname | set(hostname) }}
+ {{ network_domain | set(network_domain) }}
+</group>
+
+<output
+name="test29-2"
+description="test 'gpvlookup' match variable function - Python2"
+load="json"
+functions="is_equal"
+returner="terminal"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+   [
+        {
+            "hostnames_multi_match_no_add_field": {
+                "hostname": [
+                    "DC1"
+                ]
+            },
+            "hostnames_single_match_add_field": {
+                "hostname": "DC1-SW-2",
+                "network_domain": [
+                    "DC1"
+                ]
+            },
+            "interfaces_record_test": {
+                "Vlan779": {
+                    "hostname": "DC1-SW-2",
+                    "ip": "2.2.2.2/24",
+                    "network_domain": [
+                        "DC1"
+                    ]
+                }
+            }
+        },
+        {
+            "hostnames_multi_match_no_add_field": {
+                "hostname": [
+                    "CORP"
+                ]
+            },
+            "hostnames_single_match_add_field": {
+                "hostname": "rt-corp-01",
+                "network_domain": [
+                    "CORP"
+                ]
+            },
+            "interfaces_record_test": {
+                "Vlan333": {
+                    "hostname": "rt-corp-01",
+                    "ip": "3.3.3.3/24",
+                    "network_domain": [
+                        "CORP"
+                    ]
+                }
+            }
+        },
+        {
+            "hostnames_multi_match_no_add_field": {
+                "hostname": "rt-edge-01"
+            },
+            "hostnames_single_match_add_field": {
+                "hostname": "rt-edge-01"
+            },
+            "interfaces_record_test": {
+                "Vlan444": {
+                    "hostname": "rt-edge-01",
+                    "ip": "4.3.3.3/24",
+                    "network_domain": []
+                }
+            }
+        },
+        {
+            "hostnames_multi_match_no_add_field": {
+                "hostname": [
+                    "CORP",
+                    "DC1"
+                ]
+            },
+            "hostnames_single_match_add_field": {
+                "hostname": "DC1-edge-corp-01",
+                "network_domain": [
+                    "CORP"
+                ]
+            },
+            "interfaces_record_test": {
+                "Vlan555": {
+                    "hostname": "DC1-edge-corp-01",
+                    "ip": "5.3.3.3/24",
+                    "network_domain": [
+                        "CORP"
+                    ]
+                }
+            }
+        }
+    ]
+</output>
+</template>
+
 </template>
