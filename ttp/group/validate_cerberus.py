@@ -5,7 +5,7 @@ try:
     from cerberus import Validator
     HAS_LIBS = True
 except ImportError:
-    log.error("ttp.validate, failed to import Cerberus library, make sure it is installed")
+    log.error("ttp.cerberus, failed to import Cerberus library, make sure it is installed")
     HAS_LIBS = False
     
 if HAS_LIBS:

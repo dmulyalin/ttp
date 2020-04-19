@@ -823,6 +823,8 @@ class _template_class():
             lookup_data = _ttp_["utils"]["load_struct"](element.text, **element.attrib)
             if lookup_data is None:
                 return
+            if element.attrib.get("database", "").lower() == "geoip2": 
+                lookup_data = _ttp_["lookup"]["geoip2_db_loader"](lookup_data)
             self.lookups[name] = lookup_data
 
         def parse_template(element):

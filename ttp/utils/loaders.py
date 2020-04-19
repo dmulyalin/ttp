@@ -157,7 +157,10 @@ def load_python(text_data, include=None, **kwargs):
         log.error("ttp_utils.load_struct: Unable to load Python formatted data\n'{}'Make sure that correct loader used to load data, error:\n{}".format(text_data, e))
         
 def load_yaml(text_data, include=None, **kwargs):
-    from yaml import safe_load
+    try:
+        from yaml import safe_load
+    except ModuleNotFoundError:
+        log.error("loaders.load_yaml: failed to import yaml module, install: 'python -m pip install pyyaml'")
     data = {}
     if include:
         files = load_files(path=include, extensions=[], filters=[], read=True)
@@ -165,9 +168,9 @@ def load_yaml(text_data, include=None, **kwargs):
             text_data += "\n" + datum[1]
     try:
         data = safe_load(text_data)
-        return data
     except:
         log.error("ttp_utils.load_struct: Unable to load YAML formatted data\n'{}'".format(text_data))
+    return data
 
 def load_json(text_data, include=None, **kwargs):
     from json import loads

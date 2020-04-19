@@ -6,7 +6,7 @@ try:
     HAS_LIBS = True
 except ImportError:
     HAS_LIBS = False
-    log.error('ttp.output failed to import deepdiff library, make sure it is installed')
+    log.error("ttp.output failed to import deepdiff library, install 'pip install deepdiff'")
 
 _name_map_ = {
 "deepdiff_func": "deepdiff"
@@ -24,6 +24,8 @@ def deepdiff_func(data, input_before=None, input_after=None, template_before=Non
     * kwargs - arguments supported by deepdiff DeepDiff class e.g. ignore_order or verbose_level
     * mode - 'bulk' or 'iterate'
     """       
+    if HAS_LIBS is False:
+        return data
     # get template object of this output
     template_obj = _ttp_['output_object'].template_obj
         
