@@ -10,7 +10,6 @@ def geoip_lookup(data, db_name, add_field="geoip_lookup"):
         lookup_data = lookup_data.get(i,{})
     if not lookup_data:
         return data, None
-    # perform lookup:
     found_value = None
     # lookup country
     if path[-1].lower() == "country":
@@ -24,7 +23,7 @@ def geoip_lookup(data, db_name, add_field="geoip_lookup"):
                     "network"             : found_value.traits.network.with_prefixlen            
                 }
         except:
-            log.error("ttp.match.geoip_lookup: something went wrong searching for '{}' in database '{}'".format(data, db_name)) 
+            log.error("ttp.match.geoip_lookup: something went wrong searching for '{}' IP in database '{}'".format(data, db_name)) 
     # lookup city
     elif path[-1].lower() == "city":
         try:  
@@ -43,7 +42,7 @@ def geoip_lookup(data, db_name, add_field="geoip_lookup"):
                     "network"             : found_value.traits.network.with_prefixlen
                 }
         except:
-            log.error("ttp.match.geoip_lookup: something went wrong searching for '{}' in database '{}'".format(data, db_name)) 
+            log.error("ttp.match.geoip_lookup: something went wrong searching for '{}' IP in database '{}'".format(data, db_name)) 
     # lookup asn
     elif path[-1].lower() == "asn":
         try:  
@@ -54,7 +53,7 @@ def geoip_lookup(data, db_name, add_field="geoip_lookup"):
                     "network"       : found_value.network.with_prefixlen,
                 }
         except:
-            log.error("ttp.match.geoip_lookup: something went wrong searching for '{}' in database '{}'".format(data, db_name)) 
+            log.error("ttp.match.geoip_lookup: something went wrong searching for '{}' IP in database '{}'".format(data, db_name)) 
     # return data
     if found_value:
         return data, {'new_field': {add_field: found_value}}       

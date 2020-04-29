@@ -2809,6 +2809,39 @@ description="test truncate match variable function"
 }
 </output>
 
+
+<input load="text" name="test1-55">
+ntp server 1.2.3.4
+</input>
+<macro>
+def test1_55_macro_1(data):
+    data["check_1"] = True
+    return data
+</macro>
+<macro>
+def test1_55_macro_2(data):
+    data["check_2"] = False
+    return data
+</macro>
+<group name="test1-55_interfaces_macro*" input="test1-55" output="test1-55" macro="test1_55_macro_1, test1_55_macro_2">
+ntp server {{ ntp_server }}
+</group>
+<output name="test1-55"
+load="json"
+functions="is_equal"
+description="test group multiple comma separated macro"
+>
+{
+    "test1-55_interfaces_macro": [
+        {
+            "check_1": true,
+            "check_2": false,
+            "ntp_server": "1.2.3.4"
+        }
+    ]
+}
+</output>
+
 <!--output to print raw python result to screen
 <output
 name="print_python"

@@ -1187,6 +1187,11 @@ class _group_class():
                 self.path = self.path + O.split(self.pathchar)
             self.name = '.'.join(self.path)           
      
+        def extract_macro(O):
+            macro_names = [i.strip() for i in O.split(",")]
+            for macro in macro_names:
+                self.funcs.append({'args': [macro], 'kwargs': {}, 'name': 'macro'})
+     
         def extract_functions(O):
             funcs = _ttp_["utils"]["get_attributes"](O)
             for i in funcs:
@@ -1208,14 +1213,15 @@ class _group_class():
 
         # group attributes extract functions dictionary:
         options = {
-        'method'      : extract_method,
-        'input'       : extract_input,
-        'output'      : extract_output,
-        'name'        : extract_name,
-        'default'     : extract_default
+            'method'      : extract_method,
+            'input'       : extract_input,
+            'output'      : extract_output,
+            'name'        : extract_name,
+            'default'     : extract_default,
+            'macro'       : extract_macro
         }
         functions = {
-        'functions'   : extract_functions
+            'functions'   : extract_functions
         }
 
         for attr_name, attributes in data.items():
