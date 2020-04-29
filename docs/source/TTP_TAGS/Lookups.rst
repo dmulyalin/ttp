@@ -17,7 +17,9 @@ Lookups tag allows to define a lookup table that will be transformed into lookup
      - specifies location of the file to load lookup table from
    * - `key`_   
      - If csv loader used, *key* specifies column name to use as a key
-
+   * - `database`_   
+     - Name of database loader touse to load lookup data
+	 
 name
 ------------------------------------------------------------------------------
 ``name="lookup_table_name"``
@@ -218,3 +220,36 @@ Result::
             }
         }
     ]  
+	
+database
+------------------------------------------------------------------------------
+``database="db name"``
+
+Name of database to use to populate lookup data. 
+
+Below is a list of supported databases
+
+geoip2 database
+***************
+
+Loads GeoIP2 .mmdb files to use with match variable "geoip_lookup" function. Supports City, ASN and Country databases. Databases can be found at `MaxMind <https://www.maxmind.com/>`_ website.
+
+**Example**
+
+Sample template lookup tag to define geoip2 .mmdb files location::
+
+    <lookup name="geoip2_test" database="geoip2">
+    citY    = 'C:/path/to/GeoLite2-City.mmdb'
+    AsN     = 'C:/path/to/GeoLite2-ASN.mmdb'
+    Country = 'C:/path/to/GeoLite2-Country.mmdb'
+    </lookup>
+	
+To correctly load databases TTP expects "City", "ASN", "Country" arguments to be defined within lookup tag data, argument names are not case sensetive, each argument should contain OS patch to respective databse file.
+
+Above example contains Python formatted data, but it can be YAML or JSON as well, for instance YAML formatted data::
+
+    <lookup name="geoip2_test" database="geoip2" load="YAML">
+    citY: 'C:/path/to/GeoLite2-City.mmdb'
+    AsN: 'C:/path/to/GeoLite2-ASN.mmdb'
+    Country: 'C:/path/to/GeoLite2-Country.mmdb'
+    </lookup>

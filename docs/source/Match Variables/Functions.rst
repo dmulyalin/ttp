@@ -43,6 +43,8 @@ Action functions act upon match result to transform into desired state.
      - find rlookup table key in match result and return associated values
    * - `gpvlookup`_ 
      - Glob Patterns Values lookup uses glob patterns testing against match result
+   * - `geoip_lookup`_ 
+     - Uses GeoIP2 database to lookup ASN, Country or City information
    * - `item`_ 
      - returns item at given index on match result
    * - `macro`_ 
@@ -1374,6 +1376,100 @@ Results::
     ]
 	
 Group function "void" used to deny match results for this particular group to make output cleaner.
+
+geoip_lookup
+------------------------------------------------------------------------------
+``{{ name | geoip_lookup(db_name, add_field) }}``
+
+* db_name - Name of the input that contains GeoIP2 database OS absolute path, supporteddatabases are ASN, Country or City
+* add_field - default is "geoip_lookup", can be set to string that will indicate name of new field to use for lookup results
+
+geoip_lookup function use GeoIP2 databases to create Python geoip2 module lookup objects that can be used to enreach results output with information about BGP ASN, Country or City associated with given IP address. db_name reference to lookup tag name with database type separated by dot, such as `lookup_tag_name.database_name`, reference :ref:`TTP_TAGS/Lookups:geoip2 database` on how to properly structure lookup tag.
+
+This function need valid IPv4 orIPv6 address as an input to perfrom lookup against. 
+
+**Prerequisites**
+
+Relies on Python `geoip2 <https://pypi.org/project/geoip2/>`_ module, hence it need to be installed on the system.
+
+**Example**
+
+Template::
+
+    <input load="text">
+    interface Lo0
+     ip address 123.209.0.1 32
+    </input>
+    
+    <lookup name="geoip2_test" database="geoip2">
+    citY    = 'C:/path/to/GeoLite2-City.mmdb'
+    AsN     = 'C:/path/to/GeoLite2-ASN.mmdb'
+    Country = 'C:/path/to/GeoLite2-Country.mmdb'
+    </lookup>
+    
+    <group name="intf_with_city_data">
+    interface {{ interface }}
+     ip address {{ ip | geoip_lookup(db_name="geoip2_test.citY", add_field="city_data") }} {{ mask }}
+    </group>
+    
+    <group name="intf_with_asn_data">
+    interface {{ interface }}
+     ip address {{ ip | geoip_lookup("geoip2_test.AsN", add_field="asn_data") }} {{ mask }}
+    </group>
+    
+    <group name="intf_with_country_data">
+    interface {{ interface }}
+     ip address {{ ip | geoip_lookup("geoip2_test.Country", "country_data") }} {{ mask }}
+    </group>
+
+Results::
+
+    [
+        [
+            {
+                "intf_with_asn_data": {
+                    "asn_data": {
+                        "ASN": 1221,
+                        "network": "123.209.0.0/16",
+                        "organization": "Telstra Corporation Ltd"
+                    },
+                    "interface": "Lo0",
+                    "ip": "123.209.0.1",
+                    "mask": "32"
+                },
+                "intf_with_city_data": {
+                    "city_data": {
+                        "accuracy_radius": 100,
+                        "city": "Olinda",
+                        "continent": "Oceania",
+                        "country": "Australia",
+                        "country_iso_code": "AU",
+                        "latitude": -37.8596,
+                        "longitude": 145.3711,
+                        "network": "123.209.0.0/19",
+                        "postal_code": "3788",
+                        "state": "Victoria",
+                        "state_iso_code": "VIC"
+                    },
+                    "interface": "Lo0",
+                    "ip": "123.209.0.1",
+                    "mask": "32"
+                },
+                "intf_with_country_data": {
+                    "country_data": {
+                        "continent": "Oceania",
+                        "continent_code": "OC",
+                        "country": "Australia",
+                        "country_iso_code": "AU",
+                        "network": "123.208.0.0/14"
+                    },
+                    "interface": "Lo0",
+                    "ip": "123.209.0.1",
+                    "mask": "32"
+                }
+            }
+        ]
+    ]
 
 startswith_re
 ------------------------------------------------------------------------------
