@@ -1242,7 +1242,7 @@ class _group_class():
             # strip leading spaces as they will be reconstructed in regex
             line = line.rstrip()
             # parse line against variable regexes
-            match=re.findall('{{([\S\s]+?)}}', line)
+            match=re.findall(r'{{([\S\s]+?)}}', line)
             if not match:
                 log.warning("group.get_regexes: variable not found in line: '{}'".format(line))
                 continue
@@ -1432,7 +1432,7 @@ class _variable_class():
             self.SAVEACTION='end'
 
         def extract_set(data):
-            match_line=re.sub('{{([\S\s]+?)}}', '', self.LINE).rstrip()
+            match_line=re.sub(r'{{([\S\s]+?)}}', '', self.LINE).rstrip()
             # handle conditional set when we have line to match
             if match_line:
                 data['kwargs']['match_line'] = '\n' + match_line
@@ -1550,7 +1550,7 @@ class _variable_class():
         # after that split line in chunks and escape special chars, replace spaces and digits
         # for chunks that are not match variable, join chunks in esc_line string after that
         line_chunks = []; no_indent_line = self.LINE.lstrip(); llen = len(self.LINE)
-        vars_spans = [(0,0,)] + [i.span() for i in re.finditer('{{([\S\s]+?)}}', no_indent_line)] + [(llen, llen,)]
+        vars_spans = [(0,0,)] + [i.span() for i in re.finditer(r'{{([\S\s]+?)}}', no_indent_line)] + [(llen, llen,)]
         for index, var_span in enumerate(vars_spans[1:]): 
             previous_var_span = vars_spans[index]
             string_before_var = no_indent_line[previous_var_span[1]:var_span[0]]
@@ -1559,7 +1559,7 @@ class _variable_class():
                 if not '_exact_space_' in self.LINE:
                     string_before_var = re.sub(r'(\\ )+', r'\\ +', string_before_var)
                 if not '_exact_' in  self.LINE:
-                    string_before_var = re.sub('\d+', r'\\d+', string_before_var)
+                    string_before_var = re.sub(r'\d+', r'\\d+', string_before_var)
                 line_chunks.append(string_before_var)
             # append current match variable to chunks
             line_chunks.append(no_indent_line[var_span[0]:var_span[1]])
@@ -1580,17 +1580,17 @@ class _variable_class():
 
         def regex_ignore(data):
             if len(data['args']) == 0:
-                self.regex = self.regex.replace(esc_var, '\S+', 1)
+                self.regex = self.regex.replace(esc_var, r'\S+', 1)
             elif len(data['args']) == 1:
                 pattern = data['args'][0]
                 re_from_patterns = _ttp_['patterns']['get'](name=pattern)
                 re_from_var = self.group.vars.get(pattern, None)
                 if re_from_var:
-                    self.regex = self.regex.replace(esc_var, "(?:{})".format(re_from_var), 1)
+                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(re_from_var), 1)
                 elif re_from_patterns:
-                    self.regex = self.regex.replace(esc_var, "(?:{})".format(re_from_patterns), 1)
+                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(re_from_patterns), 1)
                 else:
-                    self.regex = self.regex.replace(esc_var, "(?:{})".format(pattern), 1)
+                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(pattern), 1)
 
         def regex_deleteVar(data):
             result = None
@@ -1599,7 +1599,7 @@ class _variable_class():
                 # slice regex string before esc_var start:
                 result = self.regex[:index]
                 # delete "\ +" from end of line and add " *(?=\\n)":
-                result = re.sub('(\\\\ \+)$', '', result) + ' *(?=\\n)'
+                result = re.sub(r'(\\\\ \+)$', '', result) + r' *(?=\\n)'
             if result:
                 self.regex = result
 
@@ -2252,11 +2252,11 @@ class _results_class():
         """Method to form dynamic path
         """
         for index, path_item in enumerate(path):
-            match=re.findall('{{\s*(\S+)\s*}}', path_item)
+            match=re.findall(r'{{\s*(\S+)\s*}}', path_item)
             if not match:
                 continue
             for m in match:
-                pattern='{{\s*' + m + '\s*}}'
+                pattern=r'{{\s*' + m + r'\s*}}'
                 if m in self.record['result']:
                     self.dyn_path_cache[m] = self.record['result'][m]
                     repl = self.record['result'].pop(m)
