@@ -1373,7 +1373,7 @@ GE_INTF = r"GigabitEthernet\S+"
 </vars>
 
 <group name="arp_test_1_26" input="test1-26" output="test1-26">
-Internet  {{ ip | re("IP")}}  {{ age | re("\d+") }}   {{ mac }}  ARPA   {{ interface | re("GE_INTF") }}
+Internet  {{ ip | re("IP")}}  {{ age | re(r"\d+") }}   {{ mac }}  ARPA   {{ interface | re("GE_INTF") }}
 </group>
 
 <output name="test1-26"
@@ -4874,11 +4874,11 @@ per_input_fast_eth_intf = 0
 </vars>
 
 <group name="macs">
-{{ mac | count(var="per_input_macs", globvar="macs_glob") }}          {{ ignore }}       {{ ignore("\d+") }}     {{ interface }}
+{{ mac | count(var="per_input_macs", globvar="macs_glob") }}          {{ ignore }}       {{ ignore(r"\d+") }}     {{ interface }}
 </group>
 
 <group name="fast_eths">
-{{ mac }}   {{ ignore }}  {{ ignore("\d+") }}  {{ interface | contains("Fast") | count(var="per_input_fast_eth_intf", globvar="fast_eth_intf_glob") }}
+{{ mac }}   {{ ignore }}  {{ ignore(r"\d+") }}  {{ interface | contains("Fast") | count(var="per_input_fast_eth_intf", globvar="fast_eth_intf_glob") }}
 </group>
 
 <macro>

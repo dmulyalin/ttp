@@ -1587,11 +1587,11 @@ class _variable_class():
                 re_from_patterns = _ttp_['patterns']['get'](name=pattern)
                 re_from_var = self.group.vars.get(pattern, None)
                 if re_from_var:
-                    self.regex = self.regex.replace(esc_var, "(?:{})".format(re_from_var), 1)
+                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(re_from_var), 1)
                 elif re_from_patterns:
-                    self.regex = self.regex.replace(esc_var, "(?:{})".format(re_from_patterns), 1)
+                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(re_from_patterns), 1)
                 else:
-                    self.regex = self.regex.replace(esc_var, "(?:{})".format(pattern), 1)
+                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(pattern), 1)
 
         def regex_deleteVar(data):
             result = None
@@ -1628,7 +1628,7 @@ class _variable_class():
         # in regex_ignore function:
         if self.var_name != "ignore":
             self.regex = self.regex.replace(esc_var,
-                '(?P<{}>(?:{}))'.format(self.var_name, ')|(?:'.join(self.var_res),1))
+                r'(?P<{}>(?:{}))'.format(self.var_name, r')|(?:'.join(self.var_res),1))
         # after regexes formed we can delete unnecessary variables:
         if log.isEnabledFor(logging.DEBUG) == False:
             del self.attributes, esc_line
@@ -2253,11 +2253,11 @@ class _results_class():
         """Method to form dynamic path
         """
         for index, path_item in enumerate(path):
-            match=re.findall(r'{{\s*(\S+)\s*}}', path_item)
+            match = re.findall(r'{{\s*(\S+)\s*}}', path_item)
             if not match:
                 continue
             for m in match:
-                pattern=r'{{\s*' + m + r'\s*}}'
+                pattern = r'{{\s*' + m + r'\s*}}'
                 if m in self.record['result']:
                     self.dyn_path_cache[m] = self.record['result'][m]
                     repl = self.record['result'].pop(m)
