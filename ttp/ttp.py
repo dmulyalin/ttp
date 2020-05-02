@@ -101,6 +101,7 @@ def lazy_import_functions():
             name = _name_map_.get(func_name, func_name)
             path = "{}.{}".format(parent_dir, filename.replace(".py", ""))
             _ttp_.setdefault(parent_dir, {})[name] = CachedModule(path, parent_dir, name, functions)
+        module_file.close()
     log.info("ttp.lazy_import_functions: finished functions lazy import")
         
             
@@ -852,7 +853,7 @@ class _template_class():
                 log.error("template.parse_macro: syntax error, failed to load macro: \n{},\nError: {}".format(element.text, e))
             
         def parse__anonymous_(element):
-            elem = ET.XML('<g name="_anonymous_">\n{}\n</g>'.format(element.text))
+            elem = ET.XML(r'<g name="_anonymous_">\n{}\n</g>'.format(element.text))
             parse_group(elem, grp_index=0)
 
         def invalid(C):
@@ -909,7 +910,7 @@ class _template_class():
                 else:
                     self.get_template_attributes(template_ET)
             except ET.ParseError as e:
-                template_ET = ET.XML("<template>\n{}\n</template>".format(template_text))
+                template_ET = ET.XML(r"<template>\n{}\n</template>".format(template_text))
 
             # filter templates based on names filter provided - do not load template groups
             # if template name not listed in filter
@@ -1242,7 +1243,7 @@ class _group_class():
             # strip leading spaces as they will be reconstructed in regex
             line = line.rstrip()
             # parse line against variable regexes
-            match=re.findall('{{([\S\s]+?)}}', line)
+            match=re.findall(r'{{([\S\s]+?)}}', line)
             if not match:
                 log.warning("group.get_regexes: variable not found in line: '{}'".format(line))
                 continue
@@ -1432,10 +1433,10 @@ class _variable_class():
             self.SAVEACTION='end'
 
         def extract_set(data):
-            match_line=re.sub('{{([\S\s]+?)}}', '', self.LINE).rstrip()
+            match_line=re.sub(r'{{([\S\s]+?)}}', '', self.LINE).rstrip()
             # handle conditional set when we have line to match
             if match_line:
-                data['kwargs']['match_line'] = '\n' + match_line
+                data['kwargs']['match_line'] = '\n' + match_line # need to treat it as newline here
                 self.functions.append(data)
             # handle unconditional set without line to match
             else:
@@ -1550,7 +1551,7 @@ class _variable_class():
         # after that split line in chunks and escape special chars, replace spaces and digits
         # for chunks that are not match variable, join chunks in esc_line string after that
         line_chunks = []; no_indent_line = self.LINE.lstrip(); llen = len(self.LINE)
-        vars_spans = [(0,0,)] + [i.span() for i in re.finditer('{{([\S\s]+?)}}', no_indent_line)] + [(llen, llen,)]
+        vars_spans = [(0,0,)] + [i.span() for i in re.finditer(r'{{([\S\s]+?)}}', no_indent_line)] + [(llen, llen,)]
         for index, var_span in enumerate(vars_spans[1:]): 
             previous_var_span = vars_spans[index]
             string_before_var = no_indent_line[previous_var_span[1]:var_span[0]]
@@ -1559,7 +1560,7 @@ class _variable_class():
                 if not '_exact_space_' in self.LINE:
                     string_before_var = re.sub(r'(\\ )+', r'\\ +', string_before_var)
                 if not '_exact_' in  self.LINE:
-                    string_before_var = re.sub('\d+', r'\\d+', string_before_var)
+                    string_before_var = re.sub(r'\d+', r'\\d+', string_before_var)
                 line_chunks.append(string_before_var)
             # append current match variable to chunks
             line_chunks.append(no_indent_line[var_span[0]:var_span[1]])
@@ -1574,13 +1575,13 @@ class _variable_class():
             # form regex:
             self.regex = esc_line
             self.regex = indent + self.regex                   # reconstruct indent
-            self.regex = '\\n' + self.regex + '[\t ]*(?=\\n)'  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
+            self.regex = r'\n' + self.regex + r'[\t ]*(?=\n)'  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
         else:
             self.regex = regex
 
         def regex_ignore(data):
             if len(data['args']) == 0:
-                self.regex = self.regex.replace(esc_var, '\S+', 1)
+                self.regex = self.regex.replace(esc_var, r'\S+', 1)
             elif len(data['args']) == 1:
                 pattern = data['args'][0]
                 re_from_patterns = _ttp_['patterns']['get'](name=pattern)
@@ -1599,7 +1600,7 @@ class _variable_class():
                 # slice regex string before esc_var start:
                 result = self.regex[:index]
                 # delete "\ +" from end of line and add " *(?=\\n)":
-                result = re.sub('(\\\\ \+)$', '', result) + ' *(?=\\n)'
+                result = re.sub(r'(\\ \+)$', '', result) + r' *(?=\n)'
             if result:
                 self.regex = result
 
@@ -1638,7 +1639,7 @@ class _variable_class():
 
     def debug(self):
         from pprint import pformat
-        text = "Variable object {}, Variable name '{}' content:\n{}".format(
+        text = r"Variable object {}, Variable name '{}' content:\n{}".format(
             self, self.var_name, pformat(vars(self), indent=4)
         )
         log.debug(text)            
@@ -2252,11 +2253,11 @@ class _results_class():
         """Method to form dynamic path
         """
         for index, path_item in enumerate(path):
-            match=re.findall('{{\s*(\S+)\s*}}', path_item)
+            match=re.findall(r'{{\s*(\S+)\s*}}', path_item)
             if not match:
                 continue
             for m in match:
-                pattern='{{\s*' + m + '\s*}}'
+                pattern=r'{{\s*' + m + r'\s*}}'
                 if m in self.record['result']:
                     self.dyn_path_cache[m] = self.record['result'][m]
                     repl = self.record['result'].pop(m)

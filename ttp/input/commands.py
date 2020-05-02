@@ -7,7 +7,7 @@ def commands(data, *commands):
     hostname = _ttp_['variable']['gethostname'](data, "input find_command function")
     if hostname:
         for command in commands:
-            regex = "{}[#>] *{} *\\n([\S\s]+?)(?={}[#>]|$)".format(hostname, command, hostname)
+            regex = r"{}[#>] *{} *\n([\S\s]+?)(?={}[#>]|$)".format(hostname, command, hostname)
             match = search(regex, data)
             if match:
                 ret += "\n{}\n".format(match.group())

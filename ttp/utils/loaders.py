@@ -26,8 +26,10 @@ def load_files(path, extensions=[], filters=[], read=False):
         if read:
             try:
                 if _ttp_["python_major_version"] is 2:
-                    return [('text_data', open(path, 'r').read(),)]
-                return [('text_data', open(path, 'r', encoding='utf-8').read(),)]
+                    with open(path, 'r') as file_obj:
+                        return [('text_data', file_obj.read(),)]
+                with open(path, 'r', encoding='utf-8') as file_obj:
+                    return [('text_data', file_obj.read(),)]
             except UnicodeDecodeError:
                 log.warning('ttp_utils.load_files: Unicode read error, file "{}"'.format(path))
         else:
@@ -41,9 +43,15 @@ def load_files(path, extensions=[], filters=[], read=False):
         for filter in filters:
             files=[f for f in files if re_search(filter, f)]
         if read:
-            if _ttp_["python_major_version"] is 2:
-                return [('text_data', open((path + f), 'r').read(),) for f in files]
-            return [('text_data', open((path + f), 'r', encoding='utf-8').read(),) for f in files]
+            ret = []
+            for f in files:
+                if _ttp_["python_major_version"] is 2:  
+                    with open((path + f), 'r') as file_obj:
+                        ret.append(('text_data', file_obj.read(),))
+                elif _ttp_["python_major_version"] is 3:
+                    with open((path + f), 'r', encoding='utf-8') as file_obj:
+                        ret.append(('text_data', file_obj.read(),))
+            return ret
         else:
             return [('file_name', path + f,) for f in files]
     # check if path is a string:

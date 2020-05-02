@@ -1369,7 +1369,7 @@ Internet  10.12.13.4       198   0950.5C8A.5c41  ARPA   GigabitEthernet2.17
 </input>
 
 <vars>
-GE_INTF = "GigabitEthernet\S+"
+GE_INTF = r"GigabitEthernet\S+"
 </vars>
 
 <group name="arp_test_1_26" input="test1-26" output="test1-26">
@@ -2752,7 +2752,7 @@ FastEthernet0/1 is up,   line protocol is up
 </input>
 
 <vars>
-test1_53_pattern_var = "\S+|\d+"
+test1_53_pattern_var = r"\S+|\d+"
 </vars>
 
 <group name="interfaces_test1_53" input="test1-53" output="test1-53">

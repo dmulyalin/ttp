@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-This function based on 'parsetime' python library:
+This function took most of the code from 'parsetime' python library:
+https://pypi.org/project/python-parsetime/
 
 but code was stripped to provide matching for required time formats only
 """
