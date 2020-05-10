@@ -921,9 +921,9 @@ contains_val
 * ``key`` - name of key to check value for
 * ``value`` - value to check against
 
-This function checks if certain key in group results equal to value provided, returning True if so and False otherwise.
+This function checks if certain key in group results equal to value provided, returning True if so and False otherwise. Value can be compared as is, or can be a reference to variable from ``<vars>`` tag.
 
-**Example**
+**Example-1**
 
 Template::
 
@@ -953,6 +953,42 @@ Result::
         }
     ]
     
+**Example-2**
+
+In this example, value to check for defined as a variable. This can be useful if veriables need to be set dynamically.
+
+Template::
+
+    <input load="text">
+    interface Lo0
+    ip address 124.171.238.50 32
+    !
+    interface Lo1
+    ip address 1.1.1.1 32
+    </input>
+    
+    <vars>
+    ip_in_question="1.1.1.1"
+    </vars>
+    
+    <group contains_val="ip, ip_in_question">
+    interface {{ interface }}
+    ip address {{ ip }} {{ mask }}
+    </group>
+    
+Results::
+
+    [
+        [
+            {
+                "interface": "Lo1",
+                "ip": "1.1.1.1",
+                "mask": "32"
+            }
+        ]
+    ]
+
+ip_in_question - name of thevariable from <vars> tag.
 
 exclude_val
 ------------------------------------------------------------------------------
@@ -961,9 +997,43 @@ exclude_val
 * ``key`` - name of key to check value for
 * ``value`` - value to check against
 
-This function checks if certain key in group results equal to value provided, returning False if so and True otherwise.
+This function checks if certain key in group results equal to value provided, returning False if so and True otherwise. Value can be compared as is, or can be a reference to variable from ``<vars>`` tag.
 
+**Example-2**
 
+In this example, value to check for defined as a variable. This can be useful if veriables need to be set dynamically.
+
+Template::
+
+    <input load="text">
+    interface Lo0
+    ip address 124.171.238.50 32
+    !
+    interface Lo1
+    ip address 1.1.1.1 32
+    </input>
+    
+    <vars>
+    ip_in_question="1.1.1.1"
+    </vars>
+    
+    <group exclude_val="ip, ip_in_question">
+    interface {{ interface }}
+    ip address {{ ip }} {{ mask }}
+    </group>
+    
+Results::
+
+    [
+        [
+            {
+                "interface": "Lo0",
+                "ip": "124.171.238.50",
+                "mask": "32"
+            }
+        ]
+    ]
+    
 record
 ------------------------------------------------------------------------------
 ``record="source, target"``
@@ -1277,7 +1347,7 @@ Results::
             }
         ]
     ]
-	
+    
 .. warning:: default value will not be used as long as variable with given name found in ``_ttp_["results_object"].vars`` dictionary. 
 
 For instance, reordering text data above as::

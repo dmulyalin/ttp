@@ -3,16 +3,22 @@ _name_map_ = {
 }
 
 def exclude(data, pattern):
+    # try to get value from TTP vars variables
+    pattern = _ttp_["parser_object"].vars.get(pattern, pattern)
     if not pattern in data:
         return data, True
     return data, False
 
 def equal(data, value):
+    # try to get value from TTP vars variables
+    value = _ttp_["parser_object"].vars.get(value, value)
     if data == value:
         return data, True
     return data, False
 
 def notequal(data, value):
+    # try to get value from TTP vars variables
+    value = _ttp_["parser_object"].vars.get(value, value)
     if data != value:
         return data, True
     return data, False
@@ -77,6 +83,8 @@ def sprint(data):
         
 def contains(data, *patterns):
     for pattern in patterns:
+        # try to get value from TTP vars variables
+        pattern = _ttp_["parser_object"].vars.get(pattern, pattern)
         if pattern in data:
             return data, True
     return data, False

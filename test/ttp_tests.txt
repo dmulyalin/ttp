@@ -2842,6 +2842,64 @@ description="test group multiple comma separated macro"
 }
 </output>
 
+
+<input load="text" name="test1-56">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ ip address 1.1.1.1 32
+</input>
+<vars>
+test1_56_subnet="1.1.1.0/24"
+</vars>
+<group name="test1_56_cidr_match_vars" input="test1-56" output="test1-56" contains="ip">
+interface {{ interface }}
+ ip address {{ ip | cidr_match(test1_56_subnet) }} {{ mask }}
+</group>
+<output name="test1-56"
+load="json"
+functions="is_equal"
+description="test match variable cidr_match function referencing variable"
+>
+{
+    "test1_56_cidr_match_vars": {
+        "interface": "Lo1",
+        "ip": "1.1.1.1",
+        "mask": "32"
+    }
+}
+</output>
+
+
+<input load="text" name="test1-57">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ ip address 1.1.1.1 32
+</input>
+<vars>
+test1_57_ip_in_question="1.1.1.1"
+</vars>
+<group name="test1_57_contains_val_vars" input="test1-57" output="test1-57" contains_val="ip, test1_57_ip_in_question">
+interface {{ interface }}
+ ip address {{ ip }} {{ mask }}
+</group>
+<output name="test1-57"
+load="json"
+functions="is_equal"
+description="test group contains_val function referencing variable"
+>
+{
+    "test1_57_contains_val_vars": {
+        "interface": "Lo1",
+        "ip": "1.1.1.1",
+        "mask": "32"
+    }
+}
+</output>
+
 <!--output to print raw python result to screen
 <output
 name="print_python"

@@ -2499,6 +2499,7 @@ def cli_tool():
 -lf, --log-file        Path to save log file
 -T,  --Timing          Print simple timing info
 -s,  --structure       Final results structure - 'list' or 'dictionary'
+-v,  --vars            Json string containing variables to add to TTP object
 --one                  Parse using single process
 --multi                Parse using multiple processes'''
     argparser = argparse.ArgumentParser(description="Template Text Parser, version 0.3.0.", formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -2515,6 +2516,7 @@ def cli_tool():
     run_options.add_argument('-l', '--logging', action='store', dest='LOG_LEVEL', default='WARNING', type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-lf', '--log-file', action='store', dest='LOG_FILE', default=None, type=str, help=argparse.SUPPRESS)
     run_options.add_argument('-s', '--structure', action='store', dest='STRUCTURE', default="list", type=str, help=argparse.SUPPRESS)
+    run_options.add_argument('-v', '--vars', action='store', dest='VARS', default="", type=str, help=argparse.SUPPRESS)
     
     # extract argparser arguments:
     args = argparser.parse_args()
@@ -2530,6 +2532,7 @@ def cli_tool():
     LOG_FILE = args.LOG_FILE     # file to put the logs in
     STRUCTURE = args.STRUCTURE
     OUT_TEMPLATE = args.OUT_TEMPLATE
+    VARS = args.VARS
  
     supporrted_cli_tool_outputters = ["json", "yaml", "raw", "pprint", ""]
     
@@ -2545,8 +2548,18 @@ def cli_tool():
     else:
         t0 = 0
        
+    # extract vars
+    ttp_vars = {}
+    if VARS:
+        from json import loads
+        VARS = VARS.replace("'", '"')
+        ttp_vars = loads(VARS)
+        if not isinstance(ttp_vars, dict):
+            log.error("cli_tool: Error with -v/--vars argument, value type is '{}', value is '{}', expecting dictionary, exiting...".format(type(ttp_vars), ttp_vars))
+            raise SystemExit()
+        
     # create parser object
-    parser_Obj = ttp(base_path=BASE_PATH)
+    parser_Obj = ttp(base_path=BASE_PATH, vars=ttp_vars)
     
     # load templates file
     if TEMPLATE_FILE:

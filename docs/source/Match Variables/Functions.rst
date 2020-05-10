@@ -1260,10 +1260,10 @@ Template::
     
     <lookup name="domains" load="python">
     {
-    	"NETWORK_DOMAINS": {
-    		"corporate": ["*CORP*", "WIFI-*"],
-    		"datacentre": ["DC1-*", "DC2-*"]
-    	}
+        "NETWORK_DOMAINS": {
+            "corporate": ["*CORP*", "WIFI-*"],
+            "datacentre": ["DC1-*", "DC2-*"]
+        }
     }
     </lookup>
     
@@ -1305,7 +1305,7 @@ Results::
             }
         ]
     ]
-	
+    
 Because lookup data is actually a dictionary, first match will be non-deterministic. For instance, in above example hostname DC2-CORP-FW-02 was matched by "corporate" patterns, but not by "datacentre" patterns, even though "datacentre" patterns would produce positive match as well.
 
 **Example-2**
@@ -1330,10 +1330,10 @@ Template::
     
     <lookup name="domains" load="python">
     {
-    	"NETWORK_DOMAINS": {
-    		"corporate": ["*WIFI-*"],
-    		"datacentre": ["DC1-*"]
-    	}
+        "NETWORK_DOMAINS": {
+            "corporate": ["*WIFI-*"],
+            "datacentre": ["DC1-*"]
+        }
     }
     </lookup>
     
@@ -1346,7 +1346,7 @@ Template::
      ip address {{ ip }}
      {{ domain | set(domain) }}
     </group>
-	
+    
 Results::
 
     [
@@ -1374,7 +1374,7 @@ Results::
             }
         ]
     ]
-	
+    
 Group function "void" used to deny match results for this particular group to make output cleaner.
 
 geoip_lookup
@@ -1588,7 +1588,7 @@ equal
 ------------------------------------------------------------------------------
 ``{{ name | equal('value') }}``
 
-* value(mandatory) - string pattern to check
+* value(mandatory) - string pattern to check or name of variable from <vars> tag.
 
 This function evaluates if match is equal to given value, returns True if so and False otherwise
 
@@ -1596,7 +1596,7 @@ notequal
 ------------------------------------------------------------------------------
 ``{{ name | notequal('value') }}``
 
-* value(mandatory) - string pattern to check
+* value(mandatory) - string pattern to check  or name of variable from <vars> tag.
 
 This function evaluates if match is equal to given value, returns False if so and True otherwise
 
@@ -2070,11 +2070,13 @@ cidr_match
 ------------------------------------------------------------------------------
 ``{{ name | cidr_match(prefix) }}``
 
-This function allows to convert provided prefix in ipaddress IPNetwork object and convert match_result into IPInterface object, after that, cidr_match will run *overlaps* check to see if provided prefix and match result ip address overlapping. 
+* ``prefix`` - IPv4 or IPv6 prefix string, for instance '10.0.0.0/16' or name of <vars> tag variable.
 
-**Example**
+This function allows to convert provided prefix in ipaddress IPNetwork object and convert match_result into IPInterface object, after that, cidr_match will run *overlaps* check to see if provided prefix and match result ip address overlapping, returning Trueif so and False otherwise, allowing to filter match results based on that.
 
-In example below IP of Loopback1 interface is not overlapping with 192.168.0.0/16 range, hence it will be invalidated.
+**Example-1**
+
+In example below, IP of Loopback1 interface is not overlapping with 192.168.0.0/16 range, hence it will be invalidated.
 
 Template::
 
@@ -2105,6 +2107,41 @@ Result::
             }
         ]
     }]
+
+**Example-1**
+
+In example below, cidr_match references <vars> tag variable - subnet
+
+Template::
+
+    <input load="text">
+    interface Lo0
+    ip address 124.171.238.50 32
+    !
+    interface Lo1
+    ip address 1.1.1.1 32
+    </input>
+    
+    <vars>
+    subnet="1.1.1.0/24"
+    </vars>
+    
+    <group contains="ip">
+    interface {{ interface }}
+    ip address {{ ip | cidr_match(subnet) }} {{ mask }}
+    </group>
+
+Result::
+
+    [
+        [
+            {
+                "interface": "Lo1",
+                "ip": "1.1.1.1",
+                "mask": "32"
+            }
+        ]
+    ]
 
 dns
 ------------------------------------------------------------------------------
