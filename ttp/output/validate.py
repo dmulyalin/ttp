@@ -12,7 +12,7 @@ except ImportError:
 if HAS_LIBS:
     validator_engine = Validator()
 
-def validate(data):
+def validate(data, add_errors=False, allow_unknown=True, add_fields="", test_info=""):
     if not HAS_LIBS:
         return data
     # get validation schema from output load
@@ -21,24 +21,21 @@ def validate(data):
         log.error("ttp.output.validate: output '{}' no validation schema load found, make sure 'load' attribute specified".format(_ttp_["output_object"].name))
         return data
     # run validation
-    validator_engine.allow_unknown = True
+    validator_engine.allow_unknown = allow_unknown
     if "_anonymous_" in data:
         validation_result = validator_engine.validate(document=data["_anonymous_"], schema=schema_data)   
     else:
         validation_result = validator_engine.validate(document=data, schema=schema_data)  
     # form result
     ret = {
-        'output_name'        : _ttp_["output_object"].name,
-        'description' : _ttp_["output_object"].attributes.get('description', 'None'),
-        'compliant'          : validation_result,
-        'reason'             : ""
+        'valid': validation_result
     }
-    if validator_engine.errors:
-        ret["reason"] = json.dumps(validator_engine.errors, sort_keys=True, indent=4, separators=(',', ': '))
+    if add_errors:
+        ret["errors"] = json.dumps(validator_engine.errors, sort_keys=True, separators=(',', ': '))
+    if test_info.strip():
+        ret["test_info"] = test_info
     # add additional fields
-    add_fields = []
-    if _ttp_["output_object"].attributes.get("add_fields"):
-        add_fields = [i.strip() for i in _ttp_["output_object"].attributes["add_fields"].split(",")]
+    add_fields = [i.strip() for i in add_fields.split(",")]
     for field_name in add_fields:
         if "_anonymous_" in data:
             if data["_anonymous_"].get(field_name):
