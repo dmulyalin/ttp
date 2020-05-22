@@ -2903,7 +2903,7 @@ description="test group contains_val function referencing variable"
 <!--output to print raw python result to screen
 <output
 name="print_python"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="raw"
 />
 -->
@@ -2911,7 +2911,7 @@ format="raw"
 <!--final output to put all results in tabulate table-->
 <output 
 format="tabulate"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format_attributes = "tablefmt='fancy_grid'"
 />
 </template>
@@ -2975,7 +2975,7 @@ description="test vars path forming and saving in results"
 
 <!--final output to put all results in tabulate table-->
 <output 
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 />
@@ -3065,7 +3065,7 @@ some description  GigabitEthernet3/3                            138,166-173
 
 <!--final output to put all results in tabulate table-->
 <output 
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 />
@@ -3145,7 +3145,7 @@ undefined,GigabitEthernet3/9,1.1.1.1,255.255.255.255,459,531,704-707,ABC_VRF</ou
 
 <!--final output to put all results in tabulate table-->
 <output 
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 />
@@ -3232,7 +3232,7 @@ functions="is_equal"
 
 <!--final output to put all results in tabulate table-->
 <output 
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 />
@@ -3319,7 +3319,7 @@ functions="is_equal"
 
 <!--final output to put all results in tabulate table-->
 <output 
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 />
@@ -3405,7 +3405,7 @@ functions="is_equal"
 
 <!--final output to put all results in tabulate table-->
 <output 
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 />
@@ -3566,7 +3566,7 @@ functions="is_equal"
 
 <!--final output to put all results in tabulate table-->
 <output 
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 />
@@ -3628,7 +3628,7 @@ functions="is_equal"
 
 <!--final output to put all results in tabulate table-->
 <output 
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 />
@@ -3708,7 +3708,7 @@ functions="dict_to_list(key_name='interface', path='glob_out_interfaces')"
 description="py3 - test output traverse and dict_to_list functions"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -3781,7 +3781,7 @@ format_attributes = "tablefmt='fancy_grid'"
 description="py2 - test output traverse and dict_to_list functions"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -3908,7 +3908,7 @@ name="test11"
 description="test global variables record/set functions"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4017,7 +4017,7 @@ name="test12"
 description="test input 'commands' functions"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4121,7 +4121,7 @@ name="test13"
 description="test group sformat function"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4195,7 +4195,7 @@ name="test14"
 description="test group itemize function"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4288,7 +4288,7 @@ name="test15"
 description="test groups with no matches but with defaults"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4359,7 +4359,7 @@ name="test16"
 description="test _line_ indicator"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4509,7 +4509,7 @@ name="test17"
 description="test group with _line_ with upper group following matches"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4598,7 +4598,7 @@ name="test18"
 description="test macro that uses _ttp_ function"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4700,7 +4700,7 @@ name="test19"
 description="test _line_ and _end_ indicators when match belongs to different groups"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4830,7 +4830,7 @@ name="test20"
 description="test null '_' path handling"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -4954,7 +4954,7 @@ name="test21"
 description="test match variable 'count' function and output macro"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5159,7 +5159,7 @@ name="test22"
 description="test 'deepdiff' output function in 'bulk' mode"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5258,7 +5258,7 @@ name="test23"
 description="cross template lookup test"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5324,7 +5324,7 @@ name="test24"
 description="cross group lookup test"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5402,7 +5402,7 @@ name="test25"
 description="test handling of end re with child groups"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5470,7 +5470,7 @@ name="test26"
 description="test' deepdiff' output function in 'iterate' mode"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5581,7 +5581,7 @@ name="test27"
 description="deepdiff output function with template results as data_before, bulk mode"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5664,7 +5664,7 @@ name="test28"
 description="groups with children with start re defaults"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5776,7 +5776,7 @@ name="test29-1"
 description="test 'gpvlookup' match variable function - Python3"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
@@ -5934,7 +5934,7 @@ name="test29-2"
 description="test 'gpvlookup' match variable function - Python2"
 load="json"
 functions="is_equal"
-returner="terminal"
+returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >

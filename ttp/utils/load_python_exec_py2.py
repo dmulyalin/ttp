@@ -6,7 +6,7 @@ def load_python_exec(text_data, builtins=None):
     run code below.
     """
     data = {} 
-    globals_dict = {"__builtins__" : builtins, "_ttp_": _ttp_}
+    globals_dict = {"__builtins__" : builtins, "_ttp_": _ttp_, "False": False, "True": True, "None": None}
     # below can run on python2.7 as exec is a statements not function for python2.7:
     try:
         exec compile(text_data, '<string>', 'exec') in globals_dict, data

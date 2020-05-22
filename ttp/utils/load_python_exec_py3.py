@@ -6,7 +6,7 @@ def load_python_exec(text_data, builtins=None):
     run code below.
     """
     data = {}
-    globals_dict = {"__builtins__" : builtins, "_ttp_": _ttp_} 
+    globals_dict = {"__builtins__" : builtins, "_ttp_": _ttp_, "False": False, "True": True, "None": None} 
     # below can run on python3.7 as exec is a function not statement for python3.7:
     exec(compile(text_data, '<string>', 'exec'), globals_dict, data)
     # add extracted functions to globals for recursion to work
