@@ -2900,6 +2900,56 @@ description="test group contains_val function referencing variable"
 }
 </output>
 
+
+<input load="text" name="test1-58">
+device1#
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+<vars>
+test1_58_intf_validate = {
+    'description': {'required': True, 'type': 'string'}
+}
+test1_58_hostname="device1"
+</vars>
+<group name="test1-58_validate_checks" input="test1-58" output="test1-58"
+validate="test1_58_intf_validate, info='{hostname}:{interface} has description', result='result'">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+ {{ hostname | set(test1_58_hostname) }}
+</group>
+<output name="test1-58"
+load="json"
+functions="is_equal"
+description="test group validate function"
+>
+{
+    "test1-58_validate_checks": [
+        {
+            "hostname": "device1",
+            "info": "device1:Lo0 has description",
+            "interface": "Lo0",
+            "ip": "124.171.238.50",
+            "mask": "32",
+            "result": false
+        },
+        {
+            "description": "this interface has description",
+            "hostname": "device1",
+            "info": "device1:Lo1 has description",
+            "interface": "Lo1",
+            "ip": "1.1.1.1",
+            "mask": "32",
+            "result": true
+        }
+    ]
+}
+</output>
 <!--output to print raw python result to screen
 <output
 name="print_python"

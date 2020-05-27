@@ -36,14 +36,21 @@ def cerberus_validate(data, schema, log_errors=False, allow_unknown=True, add_er
             return data, None
     return data, ret
     
-def validate(data, schema, add_field="", test_info="", add_errors=False, log_errors=False, allow_unknown=True):
-    """Function to validate data using Cerberus validation library and either return dictionary of:
+def validate(data, schema, result="valid", info="", errors="", allow_unknown=True):
+    """Function to validate data using Cerberus validation library and 
+    updated data with this dictionary
     {
-        valid: True:False
-        check_info: check_info
+        result field: True|False
+        "info": check_info
+        errors field: validation errors        
     }
-    or, if add_field is not empty, add new field to data with True|False 
-    value depending on validation    results
+    Args::
+        * schema - schema template variable name
+        * result - name of the field to assign validation result
+        * info - string, contain additionalinformation about test, 
+            will be formatted using <info sting>.format(data)
+        * errors - name of the field to assign validation errors
+        * allow_unknown - informs cerberus to ignore uncknown keys
     """
     if not HAS_LIBS:
         return data, None
@@ -55,19 +62,21 @@ def validate(data, schema, add_field="", test_info="", add_errors=False, log_err
     # run validation
     validator_engine.allow_unknown = allow_unknown
     ret = validator_engine.validate(document=data, schema=schema_data)
-    # log errors if told to do so
-    if ret == False and log_errors:
-        log.warning("ttp.validate, data: '{}', Cerberus validation errors: {}".format(data, str(validator_engine.errors))) 
-    # decide to add new field or replace results
-    if add_field.strip() != "":  
-        data[add_field] = ret
-    else:
-        data = {
-            "valid": ret
-        }
+    # form results
+    data[result] = ret
     # add validation errors ifrequested to do so
-    if add_errors:
-        data["validation_errors"] = validator_engine.errors
-    if test_info.strip():
-        data["test_info"] = test_info
+    if info:
+        try:
+            info = info.format(**data)
+        except KeyError: # KeyError happens when not enough keys in **kwargs supplied to format method
+            kwargs = _ttp_["global_vars"].copy()
+            kwargs.update(_ttp_["parser_object"].vars)
+            kwargs.update(data)
+            try:
+                info = info.format(**kwargs)
+            except:
+                pass
+        data["info"] = info
+    if errors:
+        data[errors] = validator_engine.errors
     return data, None  

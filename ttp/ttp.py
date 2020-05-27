@@ -2012,7 +2012,6 @@ class _results_class():
                     REDICT     = re
                 )
         # check the last group:
-        # if self.record['result'] and self.processgrp() is not False:
         if self.processgrp() is not False:
             self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
 
@@ -2040,7 +2039,7 @@ class _results_class():
                 continue
             self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
         # set record to default value:
-        self.record={'result': {}, 'PATH': [], 'FUNCTIONS': []}
+        self.record={'result': {}, 'PATH': [], 'FUNCTIONS': [], 'DEFAULTS': {}}
 
 
     def value_to_list(self, DATA, PATH, result):
@@ -2143,28 +2142,21 @@ class _results_class():
         # do nothing if DEFAULTS and result_data are empty:
         if not result_data and not self.record['DEFAULTS']:
             return
-        # fill in temp item to hold results
-        temp = self.record['DEFAULTS']
-        try:
-            temp.update(result_data)
-        # ValueError happens when result is not dict, for instance when itemize group function used
-        except ValueError:
-            temp = result_data
         # get ELEMENT from self.results by result_path
         E = self.dict_by_path(PATH=result_path, ELEMENT=self.results)
         if isinstance(E, list):
-            E.append(temp)
+            E.append(result_data)
         elif isinstance(E, dict):
             # check if result_path endswith "**" - update result's ELEMENET without converting it into list:
             if len(result_path[-1]) - len(result_path[-1].rstrip('*')) == 2:
-                temp.update(E)
-                E.update(temp)
+                result_data.update(E)
+                E.update(result_data)
             # to match all the other cases, like templates without "**" in path:
             elif E != {}:
                 # transform ELEMENT dict to list and append data to it:
-                self.results = self.value_to_list(DATA=self.results, PATH=result_path, result=temp)
+                self.results = self.value_to_list(DATA=self.results, PATH=result_path, result=result_data)
             else:
-                E.update(temp)
+                E.update(result_data)
                 
 
     def start(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
@@ -2283,6 +2275,9 @@ class _results_class():
     def processgrp(self):
         """Method to process group results
         """
+        # add default values to group results
+        for k, v in self.record['DEFAULTS'].items():
+            self.record['result'].setdefault(k,v)
         # process group functions
         for item in self.record['FUNCTIONS']:
             func_name = item['name']
@@ -2439,7 +2434,7 @@ class _outputter_class():
         if macro:
             _ttp_["macro"] = macro
         returners = self.attributes['returner']
-        format = self.attributes['format']
+        format_type = self.attributes['format']
         results = data
         # run functions:
         for item in self.funcs:
@@ -2448,7 +2443,7 @@ class _outputter_class():
             kwargs = item.get('kwargs', {})
             results = _ttp_["output"][func_name](results, *args, **kwargs)
         # format data using requested formatter
-        results = _ttp_["formatters"][format](results)
+        results = _ttp_["formatters"][format_type](results)
         # run returners
         [_ttp_["returners"][returner](results) for returner in returners]
         # check if need to return processed data:
