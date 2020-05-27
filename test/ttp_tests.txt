@@ -6025,4 +6025,91 @@ format_attributes = "tablefmt='fancy_grid'"
 </output>
 </template>
 
+
+<template
+name="test30"
+description="test results forming for template with anonymous and named group"
+>
+
+<input name="1" load="text">
+csw1# show ip ospf nei
+ OSPF Process ID 1 VRF default
+ Total number of neighbors: 2
+csw1#
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+1.1.1.1         4 1234   20114   20119      555    0    0     1w6d 1         
+1.1.1.2         4 4321   20275   20152      555    0    0     1w6d 13        
+</input>
+
+<input name="1" load="text">
+csw2# show ip ospf nei
+ OSPF Process ID 1 VRF default
+ Total number of neighbors: 3
+csw2#
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+2.2.2.2         4 4567   20114   20119      555    0    0     1w6d 1         
+2.2.2.3         4 7654   20275   20152      555    0    0     1w6d 13        
+</input>
+ 
+<group input="1">
+ Total number of neighbors: {{ ospf_neighbour_count }}
+</group>
+
+<group name="bgp_peers" input="1">
+{{ peer }}  4 {{ peer_as }}   20114   20119      555    0    0     {{ uptime }} {{ state }} 
+</group>
+
+<output
+name="test30"
+description="Results forming for template with anonymous and named group"
+load="json"
+functions="is_equal"
+returner="terminal" colour=""  red="False" green="True"
+format="tabulate"
+format_attributes = "tablefmt='fancy_grid'"
+>
+[
+    {
+        "ospf_neighbour_count": "2"
+    },
+    {
+        "bgp_peers": [
+            {
+                "peer": "1.1.1.1",
+                "peer_as": "1234",
+                "state": "1",
+                "uptime": "1w6d"
+            },
+            {
+                "peer": "1.1.1.2",
+                "peer_as": "4321",
+                "state": "13",
+                "uptime": "1w6d"
+            }
+        ]
+    },
+    {
+        "ospf_neighbour_count": "3"
+    },
+    {
+        "bgp_peers": [
+            {
+                "peer": "2.2.2.2",
+                "peer_as": "4567",
+                "state": "1",
+                "uptime": "1w6d"
+            },
+            {
+                "peer": "2.2.2.3",
+                "peer_as": "7654",
+                "state": "13",
+                "uptime": "1w6d"
+            }
+        ]
+    }
+]
+</output>
+</template>
+
+
 </template>

@@ -668,16 +668,16 @@ class _template_class():
     def form_results(self, result):
         """Method to add results to self.results
         """
-        if not result:
-            return
+        # handle _anonymous_ groups results
         if '_anonymous_' in result:
             if self.results_method == "per_template":
                 if isinstance(result['_anonymous_'], dict):
-                    result['_anonymous_'] = [result['_anonymous_']]
-                self.results = result['_anonymous_']
+                    self.results = [result.pop('_anonymous_')]
+                self.results = result.pop('_anonymous_')
             else:
-                self.results.append(result['_anonymous_'])
-        else:
+                self.results.append(result.pop('_anonymous_'))
+        # handle remaining results
+        if result:
             if isinstance(result, list):
                 self.results += result
             elif self.results_method == "per_template" and isinstance(result, dict):
