@@ -66,17 +66,7 @@ def validate(data, schema, result="valid", info="", errors="", allow_unknown=Tru
     data[result] = ret
     # add validation errors ifrequested to do so
     if info:
-        try:
-            info = info.format(**data)
-        except KeyError: # KeyError happens when not enough keys in **kwargs supplied to format method
-            kwargs = _ttp_["global_vars"].copy()
-            kwargs.update(_ttp_["parser_object"].vars)
-            kwargs.update(data)
-            try:
-                info = info.format(**kwargs)
-            except:
-                pass
-        data["info"] = info
+        data, _ = _ttp_["group"]["sformat"](data, string=info, add_field="info")
     if errors:
         data[errors] = validator_engine.errors
     return data, None  
