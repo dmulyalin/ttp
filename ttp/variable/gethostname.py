@@ -9,11 +9,11 @@ def gethostname(data, *args, **kwargs):
     command output, uses symbols '# ', '<', '>' to find hostname
     """
     REs = [ # ios-xr prompt re must go before ios privilege prompt re
-        {'juniper': r'\n\S*@(\S+)>.*(?=\n)'},       # e.g. 'some.user@router-fw-host>'
-        {'huawei': r'\n\S*<(\S+)>.*(?=\n)'},        # e.g. '<hostname>'
-        {'ios_exec': r'\n(\S+)>.*(?=\n)'},          # e.g. 'hostname>'
         {'ios_xr': r'\n\S+:(\S+)#.*(?=\n)'},        # e.g. 'RP/0/4/CPU0:hostname#'
         {'ios_priv': r'\n(\S+)#.*(?=\n)'},          # e.g. 'hostname#'
+        {'juniper': r'\n\S*@(\S+)>.*(?=\n)'},       # e.g. 'some.user@router-fw-host>'
+        {'huawei': r'\n<(\S+)>.*(?=\n)'},           # e.g. '<hostname>'
+        {'ios_exec': r'\n(\S+)>.*(?=\n)'},          # e.g. 'hostname>'
         {'fortigate': r'\n(\S+ \(\S+\)) #.*(?=\n)'} # e.g. 'forti-hostname (Default) #'
     ]
     UTF_BOM = ['ï»¿', 'þÿ', 'ÿþ', '\ufeff'] # byte order marks (BOM) to strip from beginning 
