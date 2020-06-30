@@ -48,6 +48,8 @@ TTP template variables also support a number of getters - functions targeted to 
      - returns combination of current date and time
    * - `get_timestamp_ms`_   
      - returns combination of current date and time with milliseconds
+   * - `get_timestamp_iso`_   
+     - returns timestamp in ISO format in UTC timezone
    * - `get_time_ns`_   
      - returns current time in nanoseconds since Epoch
 	 
@@ -309,6 +311,12 @@ get_timestamp_ms
 ``var_name="get_timestamp_ms"``	
 
 Returns current timestamp but with milliseconds precision in a format of ``%Y-%m-%d %H:%M:%S.%ms``
+
+get_timestamp_iso
+------------------------------------------------------------------------------
+``var_name="get_timestamp_iso"``	
+
+Returns current timestamp in ISO format with UTC timezone e.g. ``2020-06-30T11:07:01.212349+00:00``. Uses python datetime function to produce timestamp.
 
 get_time_ns
 ------------------------------------------------------------------------------
