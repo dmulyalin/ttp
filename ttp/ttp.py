@@ -463,7 +463,6 @@ class ttp():
             templates_obj = [template for template in self._templates
                              if template.name in templates]
         # form results:
-        results = []
         if kwargs:
             kwargs.setdefault('returner', 'self')
             outputter = _outputter_class(**kwargs)
@@ -472,11 +471,36 @@ class ttp():
             elif structure.lower() == 'dictionary':
                 return {template.name: outputter.run(template.results, macro=template.macro) 
                         for template in templates_obj if template.name}
+            elif structure.lower() == 'flat_list':
+                ret = []
+                for template in templates_obj:
+                    out_run = outputter.run(template.results, macro=template.macro) 
+                    if isinstance(out_run, list):
+                        for item in out_run:
+                            if isinstance(item, list):
+                                ret += item
+                            else:
+                                ret.append(item)
+                    else:
+                        ret.append(out_run)         
+                return ret
         else:
             if structure.lower() == 'list':
                 return [template.results for template in templates_obj]
             elif structure.lower() == 'dictionary':
                 return {template.name: template.results for template in templates_obj if template.name}
+            elif structure.lower() == 'flat_list':
+                ret = []
+                for template in templates_obj:
+                    if isinstance(template.results, list):
+                        for item in template.results:
+                            if isinstance(item, list):
+                                ret += item
+                            else:
+                                ret.append(item)
+                    else:
+                        ret.append(template.results)
+                return ret
                 
     def get_input_commands_list(self):
         """Method to iterate over all templates and inputs to get a 
