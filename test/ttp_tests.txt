@@ -1821,7 +1821,7 @@ description="test mac_eui function"
 
 
 
-<input name="test1-35" load="text" commands="show interfaces">
+<input name="test1-35" load="text" extract_commands="show interfaces">
 cpe1#show interfaces status
 GigabitEthernet33 is up, line protocol is up
   Hardware is CSR vNIC, address is 0800.2779.9993 (bia 0800.2779.9993)
@@ -1842,7 +1842,7 @@ GigabitEthernet34 is up, line protocol is up
 name="test1-35"
 load="json"
 functions="is_equal"
-description="test input commands function"
+description="test input extract_commands function"
 >
 {
     "interfaces_test1_35": {
@@ -1856,7 +1856,7 @@ description="test input commands function"
 
 
 
-<input name="test1-36" load="text" commands="show run interfaces">
+<input name="test1-36" load="text" extract_commands="show run interfaces">
 cpe1#show interfaces
 interface Vlan779
  ip address 2002:fd37::79/124
@@ -1874,7 +1874,7 @@ interface {{ interface }}
 name="test1-36"
 load="json"
 functions="is_equal"
-description="test input commands function one more time"
+description="test input extract_commands function one more time"
 >
 {
     "interfaces_test1_36": {
@@ -4002,10 +4002,10 @@ format_attributes = "tablefmt='fancy_grid'"
 
 <template
 name="template12"
-description="test input 'commands' functions"
+description="test input 'extract_commands' functions"
 >
 
-<input name="in1" load="text" commands="show run interfaces">
+<input name="in1" load="text" extract_commands="show run interfaces">
 switch1-hostname#show run interfaces
 interface Vlan778
  description some description 1
@@ -4030,7 +4030,7 @@ interface Vlan890
 !
 </input>
 
-<input name="in2" load="text" functions="commands('show run interfaces', 'show run interface')">
+<input name="in2" load="text" functions="extract_commands('show run interfaces', 'show run interface')">
 switch1-hostname#show run interfaces
 interface Vlan778
  description some description 1
@@ -4064,7 +4064,7 @@ interface {{ interface }}
 
 <output
 name="test12"
-description="test input 'commands' functions"
+description="test input 'extract_commands' functions"
 load="json"
 functions="is_equal"
 returner="terminal" colour=""  red="False" green="True"

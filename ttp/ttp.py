@@ -505,7 +505,7 @@ class ttp():
     def get_input_commands_list(self):
         """Method to iterate over all templates and inputs to get a 
         list of commands that needs to be present in text data, commands
-        retrieved from input **commands** attribute.
+        retrieved from input **extract_commands** attribute.
         
         **Returns**
         
@@ -515,15 +515,15 @@ class ttp():
         for template_obj in self._templates:
             for input_name, input_obj in template_obj.inputs.items():
                 for function in input_obj.functions:
-                    if function['name'] == 'commands':
+                    if function['name'] == 'extract_commands':
                         ret += function['args']
-                        ret += function['kwargs'].get('commands', [])
+                        ret += function['kwargs'].get('extract_commands', [])
         return list(set(ret))
 
     def get_input_commands_dict(self):
         """Method to iterate over all templates and inputs to get a 
         list of commands that needs to be present in text data, commands
-        retrieved from input **commands** attribute.
+        retrieved from input **extract_commands** attribute.
         
         **Returns**
         
@@ -538,9 +538,9 @@ class ttp():
             for input_name, input_obj in template_obj.inputs.items():
                 ret.setdefault(input_name, [])
                 for function in input_obj.functions:
-                    if function['name'] == 'commands':
+                    if function['name'] == 'extract_commands':
                         ret[input_name] += function['args']
-                        ret[input_name] += function['kwargs'].get('commands', [])
+                        ret[input_name] += function['kwargs'].get('extract_commands', [])
         return ret
         
     def get_input_load(self):
@@ -1067,7 +1067,7 @@ class _input_class():
         def extract_commands(O):
             if isinstance(O, str):
                 self.functions.append({
-                    "name": "commands",
+                    "name": "extract_commands",
                     "args": [i.strip() for i in O.split(',') if i.strip()],
                     "kwargs": {}
                 })
@@ -1085,7 +1085,7 @@ class _input_class():
         }
         functions = {
         'functions'   : extract_functions,
-        'commands'    : extract_commands
+        'extract_commands'    : extract_commands
         }
         # extract attributes from element tag attributes   
         for attr_name, attributes in data.items():
@@ -1098,6 +1098,11 @@ class _input_class():
     def load_data(self, element_text=None, data=None):
         if self.attributes["load"] == 'text' and element_text:
             self.data = [('text_data', element_text)]
+            return
+        # try to source data by calling external module
+        elif self.attributes.get("source", "") in _ttp_['input']:
+            datums = _ttp_['input'][self.attributes["source"]](self.name, **self.attributes)
+            self.data = [('text_data', datum) for datum in datums]
             return
         elif data:
             [self.data.append(d_item) for d_item in data if not d_item in self.data]

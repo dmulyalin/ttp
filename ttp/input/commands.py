@@ -1,6 +1,6 @@
 from re import search
 
-def commands(data, *commands):
+def extract_commands(data, *commands):
     """Input function to find commands output in the "data" text
     """
     ret = ""

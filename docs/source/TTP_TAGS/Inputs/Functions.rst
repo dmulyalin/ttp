@@ -13,7 +13,7 @@ Input tag support functions to pre-process data.
      - String with functions defined int it
    * - `macro`_   
      - Name of macro function to run input data through
-   * - `commands`_   
+   * - `extract_commands`_   
      - Comma separated list of commands output to extract from text data
    * - `test`_   
      - Test function to verify input function handling
@@ -44,9 +44,9 @@ Depending on data returned by macro function, TTP will behave differently accord
 * If macro returns None - data processing continues, no additional logic associated
 * If macro returns single item - that item replaces original data supplied to macro and processed further by other input tag functions, if any
 
-commands
+extract_commands
 ------------------------------------------------------------------------
-``commands="command1, command2, ... , commandN"``     
+``extract_commands="command1, command2, ... , commandN"``     
 
 Purpose of this function is twofold:
  
@@ -57,11 +57,11 @@ Purpose of this function is twofold:
     
 **Example**
 
-In below template, only "show interfaces" command output will be processed, as only that command specified in input ``commands`` attribute.
+In below template, only "show interfaces" command output will be processed, as only that command specified in input ``extract_commands`` attribute.
 
 Template::
 
-    <input load="text" commands="show interfaces">
+    <input load="text" extract_commands="show interfaces">
     cpe1#show int
     GigabitEthernet33 is up, line protocol is up
       Hardware is CSR vNIC, address is 0800.2779.9999 (bia 0800.2779.9999)
