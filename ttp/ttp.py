@@ -2376,7 +2376,7 @@ class _outputter_class():
                 raise SystemExit()
 
         def extract_format(O):
-            supported_formats = ['raw', 'yaml', 'json', 'csv', 'jinja2', 'pprint', 'tabulate', 'table', 'excel', "graph"]
+            supported_formats = ['raw', 'yaml', 'json', 'csv', 'jinja2', 'pprint', 'tabulate', 'table', 'excel', 'graph', 'n2g']
             if O in supported_formats:
                 self.attributes['format'] = O
             else:

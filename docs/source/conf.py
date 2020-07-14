@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, "C:/Users/Denis/YandexDisk/Python/TPG/Text Template Parser/ttp/!USECASES/!GitHub/")
+sys.path.insert(0, "C:/Users/Denis/YandexDisk/Python/TTP/ttp/")
 
 
 # -- Project information -----------------------------------------------------
@@ -56,8 +56,15 @@ import os
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if not on_rtd:
     html_theme = 'classic'
-#html_theme = 'alabaster'
-#html_theme = 'classic'
+else:
+    html_theme = 'sphinx_rtd_theme'
+    # add level to nav bar - https://stackoverflow.com/questions/27669376/show-entire-toctree-in-read-the-docs-sidebar
+    # and this - https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html#table-of-contents-options
+    html_theme_options = {
+        'navigation_depth': 4,
+        'collapse_navigation': True,
+        'sticky_navigation': False
+    }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

@@ -72,3 +72,6 @@ print(parser.result(format='json')[0])
     ]
 ]
 ```
+
+# Contributions
+Feel free to submit an issue, to report a bug or ask a question, feature requests are welcomed or [buy](https://paypal.me/dmulyalin) Author a coffee
