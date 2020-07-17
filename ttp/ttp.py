@@ -501,47 +501,6 @@ class ttp():
                     else:
                         ret.append(template.results)
                 return ret
-                
-    def get_input_commands_list(self):
-        """Method to iterate over all templates and inputs to get a 
-        list of commands that needs to be present in text data, commands
-        retrieved from input **extract_commands** attribute.
-        
-        **Returns**
-        
-        List of unique commands - [command1, command2, ... , commandN]
-        """
-        ret = []
-        for template_obj in self._templates:
-            for input_name, input_obj in template_obj.inputs.items():
-                for function in input_obj.functions:
-                    if function['name'] == 'extract_commands':
-                        ret += function['args']
-                        ret += function['kwargs'].get('extract_commands', [])
-        return list(set(ret))
-
-    def get_input_commands_dict(self):
-        """Method to iterate over all templates and inputs to get a 
-        list of commands that needs to be present in text data, commands
-        retrieved from input **extract_commands** attribute.
-        
-        **Returns**
-        
-        Dictionary of {"input_name": [input commands list]} across all templates,
-        where input_name set to input name attribute value, by default it is "Default_Input"
-        
-        .. warning:: inputs with the same name will override one another, make sure 
-            input name attribute is unique across all loaded templates.
-        """
-        ret = {}
-        for template_obj in self._templates:
-            for input_name, input_obj in template_obj.inputs.items():
-                ret.setdefault(input_name, [])
-                for function in input_obj.functions:
-                    if function['name'] == 'extract_commands':
-                        ret[input_name] += function['args']
-                        ret[input_name] += function['kwargs'].get('extract_commands', [])
-        return ret
         
     def get_input_load(self):
         """Method to retrieve input tag text. If input's load attribute was
