@@ -8,7 +8,7 @@ TTP is a Python library for semi-structured text parsing using templates.
 
 ## Why?
 
-Every time questions arise on how many devices has blob X configured or how many interface has QoS policy applied or to find IP overlaps in the network etc., etc., for those who write custom scripts to answer these questions, spending hours putting fancy regexes together and learning how to use specialized libraries to prepare, parse and process text data to transform it in a format that they can make use of - have a look at TTP, it can help with most of it.
+Every time questions arise on how many devices have blob X configured or how many interface have QoS policy applied or to find IP overlaps in the network etc., etc., for those who write custom scripts to answer these questions, spending hours putting fancy regexes together and learning how to use specialized libraries to prepare, parse and process text data to transform it in a format that they can make use of - have a look at TTP, it can help with most of it.
 
 ## How?
 
@@ -74,4 +74,4 @@ print(parser.result(format='json')[0])
 ```
 
 # Contributions
-Feel free to submit an issue, to report a bug or ask a question, feature requests are welcomed or [buy](https://paypal.me/dmulyalin) Author a coffee
+Feel free to submit an issue or report a bug or ask a question or [buy](https://paypal.me/dmulyalin) Author a coffee. Feature requests are welcomed.
