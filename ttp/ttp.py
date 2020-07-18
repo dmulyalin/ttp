@@ -503,8 +503,8 @@ class ttp():
                 return ret
         
     def get_input_load(self):
-        """Method to retrieve input tag text. If input's load attribute was
-        given, text data will be loaded into python structure using one of the 
+        """Method to retrieve input tag text load. Using input ``load`` attribute,
+        text data can be loaded into python structure using one of the supported
         loaders, for instance if text data structured using YAML, YAML
         loader can be used to produce python native structure, that structure will
         be returned by this method.
@@ -526,6 +526,22 @@ class ttp():
                 ret[input_name] = input_obj.parameters
         return ret
         
+    def clear_result(self, templates=[]):
+        """Method to clear parsing results for templates.
+        
+        **Parameters**
+        
+        * ``templates`` (list or str) - name of template(s) to clear results for,
+          if not provided will clear results for all templates.
+        """
+        # filter templates objects to clear results for
+        templates = [templates] if isinstance(templates, str) else templates
+        # clear results
+        if templates:
+            [t_obj.results.clear() for t_obj in self._templates if t_obj.name in templates]
+        else:
+            [t_obj.results.clear() for t_obj in self._templates]        
+            
         
 """
 ==============================================================================
