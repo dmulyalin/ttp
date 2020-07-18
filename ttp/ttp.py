@@ -394,7 +394,7 @@ class ttp():
         **Parameters**
         
         * ``templates`` (list or str) names of the templates to return results for
-        * ``structure`` (str) structure type, valid values - ``list`` or ``dictionary``
+        * ``structure`` (str) structure type, valid values - ``list``, ``dictionary`` or ``flat_list``
         
         **kwargs** - can contain any attributes supported by output tags, for instance:
         
@@ -448,59 +448,65 @@ class ttp():
                  ...
             }      
 
-        If template results set to *per_template* and structure set to *dictionary*, returns dictionary such as::
+        If template results set to *per_template* and structure set to *dictionary*, 
+        returns dictionary such as::
         
             {
                template_1_name: input_1_2...N_joined_results,
                template_2_name: input_1_2...N_joined_results
             }
+            
+        If structure set to *flat_list*, results will be combined across 
+        all templates in a list of dictionaries. For instance, with structure 
+        set to *list* result might look like this::
+        
+            [[[{'interface': 'Lo0', 'ip': '192.168.0.1', 'mask': '32'},
+               {'interface': 'Lo1', 'ip': '1.1.1.1', 'mask': '32'}],
+              [{'interface': 'Lo2', 'ip': '2.2.2.2', 'mask': '32'},
+               {'interface': 'Lo3', 'ip': '3.3.3.3', 'mask': '32'}]]]
+              
+        But with structure set to *flat_list* it will be flattened to this::
+        
+            [{'interface': 'Lo0', 'ip': '192.168.0.1', 'mask': '32'},
+             {'interface': 'Lo1', 'ip': '1.1.1.1', 'mask': '32'},
+             {'interface': 'Lo2', 'ip': '2.2.2.2', 'mask': '32'},
+             {'interface': 'Lo3', 'ip': '3.3.3.3', 'mask': '32'}]
         """
         # filter templates to run outputs for:
+        templates = [templates] if isinstance(templates, str) else templates
         templates_obj = self._templates
-        if isinstance(templates, str):
-            templates = [templates]
         if templates:
             templates_obj = [template for template in self._templates
                              if template.name in templates]
-        # form results:
+        # checkif kwargs privided, create outputter if so
         if kwargs:
             kwargs.setdefault('returner', 'self')
             outputter = _outputter_class(**kwargs)
-            if structure.lower() == 'list':
+        # form results structure    
+        if structure.lower() == 'list':
+            if kwargs:
                 return [outputter.run(template.results, macro=template.macro) for template in templates_obj]
-            elif structure.lower() == 'dictionary':
+            else:
+                return [template.results for template in templates_obj]
+        elif structure.lower() == 'dictionary':
+            if kwargs:
                 return {template.name: outputter.run(template.results, macro=template.macro) 
                         for template in templates_obj if template.name}
-            elif structure.lower() == 'flat_list':
-                ret = []
-                for template in templates_obj:
-                    out_run = outputter.run(template.results, macro=template.macro) 
-                    if isinstance(out_run, list):
-                        for item in out_run:
-                            if isinstance(item, list):
-                                ret += item
-                            else:
-                                ret.append(item)
-                    else:
-                        ret.append(out_run)         
-                return ret
-        else:
-            if structure.lower() == 'list':
-                return [template.results for template in templates_obj]
-            elif structure.lower() == 'dictionary':
+            else:
                 return {template.name: template.results for template in templates_obj if template.name}
-            elif structure.lower() == 'flat_list':
-                ret = []
-                for template in templates_obj:
-                    if isinstance(template.results, list):
-                        for item in template.results:
-                            if isinstance(item, list):
-                                ret += item
-                            else:
-                                ret.append(item)
-                    else:
-                        ret.append(template.results)
-                return ret
+        elif structure.lower() == 'flat_list':
+            ret = []
+            for template in templates_obj:
+                rslt = outputter.run(template.results, macro=template.macro) if kwargs else template.results
+                if isinstance(rslt, list):
+                    for item in rslt:
+                        if isinstance(item, list):
+                            ret += item
+                        else:
+                            ret.append(item)
+                else:
+                    ret.append(rslt)         
+            return ret
         
     def get_input_load(self):
         """Method to retrieve input tag text load. Using input ``load`` attribute,
