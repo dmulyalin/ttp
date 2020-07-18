@@ -1415,7 +1415,12 @@ class _variable_class():
         self.attributes = _ttp_["utils"]["get_attributes"](variable)
         self.var_dict = self.attributes.pop(0)
         self.var_name = self.var_dict['name']
-
+        
+        # add support for var name expansion to dictionary using dot character,
+        # need to replace dot with __dot_char__. Var name must be a valid
+        # python identifier - re.groupdict restriction - hence dot prohibited
+        self.var_name = self.var_name.replace(".", "__dot_char__")
+        
         # list of variables names that should not have defaults:
         self.skip_defaults = ["_end_", "_line_", "ignore", "_start_"]
         # add defaults

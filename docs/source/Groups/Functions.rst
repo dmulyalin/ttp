@@ -49,6 +49,8 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - save (record) variable value in results object and global scope dictionaries
    * - `set`_   
      - get value from results object variables dictionary and assign it to variable
+   * - `expand`_   
+     - expand match variable dot separated name to dictionary
      
 containsall
 ------------------------------------------------------------------------------
@@ -1401,6 +1403,71 @@ will lead to improper results::
                     ],
                     "bgp_asn": "65123"
                 }
+            }
+        ]
+    ]
+	
+expand
+------------------------------------------------------------------------------
+``expand=""``
+
+This function can be used to expand dot separated match variable names to nested dictionary within this particular group.
+
+.. warning:: match variables can be expanded up to the same level only, meaning all except last item in match variable name should be the same, non-deterministic results will be produced otherwise.
+
+**Example**
+
+In this tamplate target.x match variables will be expanded/transformed to nested dictionary
+
+	<input load="text">
+	switch-1#show cdp neighbors detail 
+	-------------------------
+	Device ID: switch-2
+	Entry address(es): 
+	  IP address: 10.13.1.7
+	Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP 
+	Interface: GigabitEthernet4/6,  Port ID (outgoing port): GigabitEthernet1/5
+	
+	-------------------------
+	Device ID: switch-3
+	Entry address(es): 
+	  IP address: 10.17.14.1
+	Platform: cisco WS-C3560-48TS,  Capabilities: Switch IGMP 
+	Interface: GigabitEthernet1/1,  Port ID (outgoing port): GigabitEthernet0/1
+	</input>
+	
+	<group name="cdp*" expand="">
+    Device ID: {{ target.id }}
+      IP address: {{ target.top_label }}
+    Platform: {{ target.bottom_label | ORPHRASE }},  Capabilities: {{ ignore(ORPHRASE) }} 
+    Interface: {{ src_label | resuball(IfsNormalize) }},  Port ID (outgoing port): {{ trgt_label | ORPHRASE | resuball(IfsNormalize) }}
+	</group>
+
+Result::
+
+    [
+        [
+            {
+                "cdp": [
+                    {
+                        "src_label": "GigabitEthernet4/6",
+                        "target": {
+                            "bottom_label": "cisco WS-C6509",
+                            "id": "switch-2",
+                            "top_label": "10.13.1.7"
+                        },
+                        "trgt_label": "GigabitEthernet1/5"
+                    },
+                    {
+                        "src_label": "GigabitEthernet1/1",
+                        "target": {
+                            "bottom_label": "cisco WS-C3560-48TS",
+                            "id": "switch-3",
+                            "top_label": "10.17.14.1"
+                        },
+                        "trgt_label": "GigabitEthernet0/1"
+                    }
+                ]
             }
         ]
     ]

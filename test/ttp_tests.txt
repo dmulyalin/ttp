@@ -2950,6 +2950,61 @@ description="test group validate function"
     ]
 }
 </output>
+
+
+<input load="text" name="test1-59">
+switch-1#show cdp neighbors detail 
+-------------------------
+Device ID: switch-2
+Entry address(es): 
+  IP address: 10.13.1.7
+Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP 
+Interface: GigabitEthernet4/6,  Port ID (outgoing port): GigabitEthernet1/5
+
+-------------------------
+Device ID: switch-3
+Entry address(es): 
+  IP address: 10.17.14.1
+Platform: cisco WS-C3560-48TS,  Capabilities: Switch IGMP 
+Interface: GigabitEthernet1/1,  Port ID (outgoing port): GigabitEthernet0/1
+</input>
+<group name="test1-59_expand_check" input="test1-59" output="test1-59" expand="">
+Device ID: {{ target.id }}
+  IP address: {{ target.top_label }}
+Platform: {{ target.bottom_label | ORPHRASE }},  Capabilities: {{ ignore | ORPHRASE }} 
+Interface: {{ src_label | resuball(IfsNormalize) }},  Port ID (outgoing port): {{ trgt_label | ORPHRASE | resuball(IfsNormalize) }}
+{{ source | set("hostname") }}
+</group>
+<output name="test1-59"
+load="json"
+functions="is_equal"
+description="test group expand function"
+>
+{
+    "test1-59_expand_check": [
+        {
+            "source": "hostname",
+            "src_label": "GigabitEthernet4/6",
+            "target": {
+                "id": "switch-2",
+                "top_label": "10.13.1.7"
+            },
+            "trgt_label": "GigabitEthernet1/5"
+        },
+        {
+            "source": "hostname",
+            "src_label": "GigabitEthernet1/1",
+            "target": {
+                "id": "switch-3",
+                "top_label": "10.17.14.1"
+            },
+            "trgt_label": "GigabitEthernet0/1"
+        }
+    ]
+}
+</output>
+
+
 <!--output to print raw python result to screen
 <output
 name="print_python"

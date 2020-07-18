@@ -4,7 +4,7 @@
 
 # Template Text Parser
 
-TTP is a Python library for parsing semi-structured text data using templates.
+TTP is a Python library for semi-structured text parsing using templates.
 
 ## Why?
 
