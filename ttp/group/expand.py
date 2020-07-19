@@ -13,7 +13,7 @@ def expand(data):
         keys = key.split("__dot_char__")
         while True:
             new_key = keys.pop(0)
-            #handle last item in keys
+            # handle last item in keys
             if not keys:
                 if isinstance(ref, dict):
                     ref[new_key] = value

@@ -142,9 +142,8 @@ class ttp():
         self.multiproc_threshold = 5242880 # in bytes, equal to 5MBytes
         self.vars = vars                   # dictionary of variables to add to each template vars
         self.lookups = {}
-        # setup logging if used as a module
-        if __name__ != '__main__':
-            logging_config(log_level, log_file)
+        # setup logging
+        logging_config(log_level, log_file)
         # lazy import all functions
         lazy_import_functions()
         # add reference to TTP object in _ttp_
@@ -2479,7 +2478,13 @@ TTP LOGGING SETUP
 """
 def logging_config(LOG_LEVEL, LOG_FILE):
     valid_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-    if LOG_LEVEL.upper() in valid_log_levels:
+    if not LOG_LEVEL.upper() in valid_log_levels:
+        return
+    # if used as a module - only set log level to requested level
+    if __name__ != '__main__':
+        log.setLevel(LOG_LEVEL.upper())
+    # if used as a CLI tool - setup global logging config using custom formatter
+    else:
         logging.basicConfig(
             format='%(asctime)s.%(msecs)d [TTP %(levelname)s] %(lineno)d; %(message)s', 
             datefmt='%m/%d/%Y %I:%M:%S',
