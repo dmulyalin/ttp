@@ -857,7 +857,7 @@ class _template_class():
                 log.error("template.parse_macro: syntax error, failed to load macro: \n{},\nError: {}".format(element.text, e))
             
         def parse__anonymous_(element):
-            elem = ET.XML(r'<g name="_anonymous_">\n{}\n</g>'.format(element.text))
+            elem = ET.XML('<g name="_anonymous_">\n{}\n</g>'.format(element.text))
             parse_group(elem, grp_index=0)
 
         def invalid(C):
@@ -914,7 +914,7 @@ class _template_class():
                 else:
                     self.get_template_attributes(template_ET)
             except ET.ParseError as e:
-                template_ET = ET.XML(r"<template>\n{}\n</template>".format(template_text))
+                template_ET = ET.XML("<template>\n{}\n</template>".format(template_text))
 
             # filter templates based on names filter provided - do not load template groups
             # if template name not listed in filter
@@ -1246,6 +1246,7 @@ class _group_class():
         regexes=[]
 
         for line in data.splitlines():
+            print("line: {}".format([line]))
             # skip empty lines and comments:
             if not line.strip(): continue
             elif line.startswith('##'): continue
