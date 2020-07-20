@@ -1246,7 +1246,6 @@ class _group_class():
         regexes=[]
 
         for line in data.splitlines():
-            print("line: {}".format([line]))
             # skip empty lines and comments:
             if not line.strip(): continue
             elif line.startswith('##'): continue
