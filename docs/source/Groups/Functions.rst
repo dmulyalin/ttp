@@ -1406,7 +1406,7 @@ will lead to improper results::
             }
         ]
     ]
-	
+    
 expand
 ------------------------------------------------------------------------------
 ``expand=""``
@@ -1417,31 +1417,33 @@ This function can be used to expand dot separated match variable names to nested
 
 **Example**
 
-In this tamplate target.x match variables will be expanded/transformed to nested dictionary
+In this template target.x match variables will be expanded/transformed to nested dictionary
 
-	<input load="text">
-	switch-1#show cdp neighbors detail 
-	-------------------------
-	Device ID: switch-2
-	Entry address(es): 
-	  IP address: 10.13.1.7
-	Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP 
-	Interface: GigabitEthernet4/6,  Port ID (outgoing port): GigabitEthernet1/5
-	
-	-------------------------
-	Device ID: switch-3
-	Entry address(es): 
-	  IP address: 10.17.14.1
-	Platform: cisco WS-C3560-48TS,  Capabilities: Switch IGMP 
-	Interface: GigabitEthernet1/1,  Port ID (outgoing port): GigabitEthernet0/1
-	</input>
-	
-	<group name="cdp*" expand="">
+Template::
+
+    <input load="text">
+    switch-1#show cdp neighbors detail 
+    -------------------------
+    Device ID: switch-2
+    Entry address(es): 
+      IP address: 10.13.1.7
+    Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP 
+    Interface: GigabitEthernet4/6,  Port ID (outgoing port): GigabitEthernet1/5
+    
+    -------------------------
+    Device ID: switch-3
+    Entry address(es): 
+      IP address: 10.17.14.1
+    Platform: cisco WS-C3560-48TS,  Capabilities: Switch IGMP 
+    Interface: GigabitEthernet1/1,  Port ID (outgoing port): GigabitEthernet0/1
+    </input>
+    
+    <group name="cdp*" expand="">
     Device ID: {{ target.id }}
       IP address: {{ target.top_label }}
     Platform: {{ target.bottom_label | ORPHRASE }},  Capabilities: {{ ignore(ORPHRASE) }} 
     Interface: {{ src_label | resuball(IfsNormalize) }},  Port ID (outgoing port): {{ trgt_label | ORPHRASE | resuball(IfsNormalize) }}
-	</group>
+    </group>
 
 Result::
 
