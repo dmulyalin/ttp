@@ -14,7 +14,11 @@ def lookup(data, name=None, template=None, group=None, add_field=False):
         for template in _ttp_['ttp_object']._templates:
             if template.name == path[0]:
                 # use first input results in the template:
-                lookup_data = template.results[0]     
+                if isinstance(template.results, list):
+                    lookup_data = template.results[0]     
+                # if not list its dictionary, per_template results mode used
+                else:
+                    lookup_data = template.results
                 path = path[1:]
                 break
     # get lookup data from group results
@@ -27,7 +31,7 @@ def lookup(data, name=None, template=None, group=None, add_field=False):
         path = path[1:]
     else:
         log.info("ttp.lookup no lookup data name provided, doing nothing.")
-        return Data, None
+        return data, None
     for i in path:
         lookup_data = lookup_data.get(i,{})
     # perform lookup:

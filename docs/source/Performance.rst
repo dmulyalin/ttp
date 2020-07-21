@@ -23,7 +23,8 @@ While multiprocessing mode has obvious processing speed increase benefits, it co
 
   * match variable count function - ``globvar`` will not have access to global variables
   * match variable record function - record cannot save variables in global namespace
-
+  * match variable lookup function - will not work if reference group that parse different inputs due to ``_ttp_['template_obj']`` not shared between processes
+  
 General performance considerations
 -----------------------------------
 
