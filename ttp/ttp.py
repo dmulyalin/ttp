@@ -2480,10 +2480,10 @@ def logging_config(LOG_LEVEL, LOG_FILE):
     valid_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     if not LOG_LEVEL.upper() in valid_log_levels:
         return
-    # if used as a module and already have log handlers - only set logs to requested level
-    if __name__ != '__main__' and log.hasHandlers():
+    # if used as a module - only set logs to requested level
+    if __name__ != '__main__':
         log.setLevel(LOG_LEVEL.upper())
-    # if used as a CLI tool or no log handlers - setup logging config using custom formatter
+    # if used as a CLI tool - setup logging config using custom formatter
     else:
         logging.basicConfig(
             format='%(asctime)s.%(msecs)d [TTP %(levelname)s] %(lineno)d; %(message)s', 
