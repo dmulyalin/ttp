@@ -40,20 +40,17 @@ Macro function must accept only one attribute to hold input data text.
 
 Depending on data returned by macro function, TTP will behave differently according to these rules:
 
-* If macro returns True or False - original data unchanged, macro handled as condition functions, stopping further macros execution on False and keeps processing input data on True
+* If macro returns True or False - original data unchanged, macro handled as condition functions, stopping further functions execution on False and keeps processing input data on True
 * If macro returns None - data processing continues, no additional logic associated
-* If macro returns single item - that item replaces original data supplied to macro and processed further by other input tag functions, if any
+* If macro returns single item - that item replaces original data supplied to macro and processed further by other input tag functions
 
 extract_commands
 ------------------------------------------------------------------------
 ``extract_commands="command1, command2, ... , commandN"``     
 
-Purpose of this function is twofold:
- 
-* For each command TTP can extract associated data from input text, so that input groups will only process data they designed to parse
-* TTP object methods ``get_input_commands_list`` and ``get_input_commands_dict`` can return list or dictionary of commands, output for which template expects
+Purpose of this function is for each network device command string TTP can extract associated data from input text, so that input groups will only process data they designed to parse
     
-..note:: to be able to successfully extract show commands output, text data should contain device hostname together with command itself
+..note:: to be able to successfully extract show commands output, text data should contain device hostname together with command itself. ``gethostname`` function will be called on data to extract hostname
     
 **Example**
 

@@ -13,5 +13,8 @@ def csv_formatter(data):
     # from results:
     result = sep.join(table[0])
     for row in table[1:]:
-        result += "\n" + sep.join(row)
+        try:
+            result += "\n" + sep.join(row)
+        except TypeError: # might happen if not all values in row are strings
+            result += "\n" + sep.join([str(i) for i in row])            
     return result
