@@ -626,6 +626,7 @@ class _template_class():
         self.results_method = 'per_input' # how to join results
         self.macro_text = []              # list to contain macro functions text to transfer into other processes   
         self.filter = filter              # list that contains names of child templates to extract
+        self.doc = ""                     # string to contain template doc/description
 
         # load template from string:
         self.load_template_xml(template_text)
@@ -859,6 +860,9 @@ class _template_class():
         def parse__anonymous_(element):
             elem = ET.XML('<g name="_anonymous_">\n{}\n</g>'.format(element.text))
             parse_group(elem, grp_index=0)
+            
+        def parse_doc(element):
+            self.doc += element.text
 
         def invalid(C):
             log.warning("template.parse: invalid tag '{}'".format(C.tag))
@@ -887,7 +891,8 @@ class _template_class():
             'input'     : lambda C: tags['inputs'].append(C),
             'lookup'    : lambda C: tags['lookups'].append(C),
             'template'  : parse_template,
-            'macro'     : parse_macro
+            'macro'     : parse_macro,
+            'doc'       : parse_doc
             }
 
             # fill in tags dictionary:
