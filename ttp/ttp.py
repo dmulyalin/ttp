@@ -1164,8 +1164,7 @@ class _group_class():
 
 
     def set_anonymous_path(self):
-        """Mthod to set anonyous path for top group without name
-        attribute.
+        """Method to set anonymous path for top group without name attribute.
         """
         if self.top is True:
             if self.path == []:
@@ -1176,8 +1175,6 @@ class _group_class():
     def get_attributes(self, data):
 
         def extract_default(O):
-            # if len(O.strip()) == 0: self.default='None'
-            # else: self.default = O.strip()
             self.default = O
 
         def extract_method(O):
@@ -1203,7 +1200,7 @@ class _group_class():
             self.name = '.'.join(self.path)                         
                 
         def extract_chain(var_name):
-            """add items from chain to variable attributes and functions
+            """add items from chain to group functions
             """
             variable_value = self.vars.get(var_name, var_name)
             if isinstance(variable_value, str):
