@@ -149,10 +149,10 @@ class ttp():
         # add reference to TTP object in _ttp_
         _ttp_['ttp_object'] = self
         # check if data given, if so - load it:
-        if data is not '':
+        if data != '':
             self.add_input(data=data)
         # check if template given, if so - load it
-        if template is not '':
+        if template != '':
             self.add_template(template=template)
             
 
@@ -1426,7 +1426,7 @@ class _variable_class():
         # list of variables names that should not have defaults:
         self.skip_defaults = ["_end_", "_line_", "ignore", "_start_"]
         # add defaults
-        if self.group.default is not "_Not_Given_":
+        if self.group.default != "_Not_Given_":
             if self.var_name not in self.group.defaults:
                 if self.var_name not in self.skip_defaults:
                     self.group.defaults.update({self.var_name: self.group.default})
@@ -1848,7 +1848,7 @@ class _parser_class():
                 # if e is smaller, make it bigger
                 if e < matches[-1].span()[1]:
                     e = matches[-1].span()[1]
-            if e is not -1:
+            if e != -1:
                 end = start + e
 
             # run normal REs:
