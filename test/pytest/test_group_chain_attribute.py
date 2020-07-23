@@ -109,3 +109,89 @@ interface {{ interface }}
                       'test_macro3': 'DONE',
                       'test_macro4': 'DONE'}]]]
 					  
+def test_group_chain_attribute_string_var():
+    template_1 = """
+<input load="text">
+interface Port-Chanel11
+  vlan 10
+interface Loopback0
+  vlan 20
+  description test loopback0
+interface Loopback1
+  vlan 30
+  description test loopback1
+</input>
+
+<vars>
+chain1 = "del(vlan) | set('set_value', 'set_key') | contains_val(interface, 'Loop') | macro('test_macro')"
+</vars>
+
+<macro>
+def test_macro(data):
+    data["test_macro"] = "DONE"
+    return data
+</macro>
+
+<group chain="chain1">
+interface {{ interface }}
+  vlan {{ vlan | to_int }}
+  description {{ description | ORPHRASE }}
+</group>
+"""
+    parser = ttp(template=template_1)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'description': 'test loopback0',
+                      'interface': 'Loopback0',
+                      'set_key': 'set_value',
+                      'test_macro': 'DONE'},
+                     {'description': 'test loopback1',
+                      'interface': 'Loopback1',
+                      'set_key': 'set_value',
+                      'test_macro': 'DONE'}]]]
+					  
+def test_group_chain_attribute_string_inline():
+    template_1 = """
+<input load="text">
+interface Port-Chanel11
+  vlan 10
+interface Loopback0
+  vlan 20
+  description test loopback0
+interface Loopback1
+  vlan 30
+  description test loopback1
+</input>
+
+<macro>
+def test_macro(data):
+    data["test_macro"] = "DONE"
+    return data
+	
+def test_macro1(data):
+    data["test_macro1"] = "DONE"
+    return data
+</macro>
+
+<group chain="del(vlan) | set('set_value', 'set_key') | contains_val(interface, 'Loop') | macro('test_macro, test_macro1')">
+interface {{ interface }}
+  vlan {{ vlan | to_int }}
+  description {{ description | ORPHRASE }}
+</group>
+"""
+    parser = ttp(template=template_1)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'description': 'test loopback0',
+                      'interface': 'Loopback0',
+                      'set_key': 'set_value',
+                      'test_macro': 'DONE',
+                      'test_macro1': 'DONE'},
+                     {'description': 'test loopback1',
+                      'interface': 'Loopback1',
+                      'set_key': 'set_value',
+                      'test_macro': 'DONE',
+                      'test_macro1': 'DONE'}]]]
+					  

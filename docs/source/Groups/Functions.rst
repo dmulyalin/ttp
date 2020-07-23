@@ -17,7 +17,7 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - checks if group result contains match at least for one of given variables
    * - `macro`_   
      - Name of the macros function to run against group result 
-   * - `group functions`_   
+   * - `functions or chain`_ 
      - String containing list of functions to run this group results through
    * - `to_ip`_   
      - transforms given values in ipaddress IPAddress object
@@ -246,13 +246,26 @@ Result::
         }
     ]
     
-group functions
+functions or chain
 ------------------------------------------------------------------------------
 ``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
 
-* functionN - name of the group function together with it's attributes
+``chain="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
 
-The main advantage of using string of functions against defining functions directly in the group tag is the fact that it allows to define sequence of functions to run group results through and that order will be honored. For instance we have two below group definitions:
+``chain="template_variable_name"``
+
+* functionN - name of the group function together with it's attributes
+* template_variable_name - template variable that contains pipe-separated string of functions or a list
+
+``chain`` and ``functions`` attributes are doing exactly the same, just two different names to reference same functionality, hence can be used interchangeably.
+
+The advantages of using string or list of functions versus defining them directly in the group tag are:
+
+* it allows to define sequence of functions to run group results through and that order will be honored
+* chain of functions can also reference template variable that contains string or list of functions strings, that allows to reuse same chain across several groups
+* improved readability as multiple functions definitions can go to template variable
+
+For instance we have two below group definitions:
 
 Group1::
 
@@ -274,7 +287,9 @@ While above groups have same set of functions defined, for Group1 function will 
 
 .. warning:: pipe '|' symbol must be used to separate function names, not comma
 
-**Example**
+**Example-1**
+
+Using functions within group tag.
 
 Template::
 
@@ -348,6 +363,80 @@ Result::
             ]
         }
     ]
+
+**Example-2**
+
+Using template variables to chain functions.
+
+Template::
+
+    <input load="text">
+    interface Port-Chanel11
+      vlan 10
+    interface Loopback0
+      vlan 20
+      description test loopback0
+    interface Loopback1
+      vlan 30
+      description test loopback1
+    </input>
+    
+    <vars>
+    chain1 = [
+        "del(vlan) | set('set_value', 'set_key')",
+        "contains_val(interface, 'Loop')",
+        "macro('test_macro')",
+        "macro('test_macro1, test_macro2')",
+        "macro(test_macro3, test_macro4)",
+    ]
+    </vars>
+    
+    <macro>
+    def test_macro(data):
+        data["test_macro"] = "DONE"
+        return data
+    
+    def test_macro1(data):
+        data["test_macro1"] = "DONE"
+        return data
+        
+    def test_macro2(data):
+        data["test_macro2"] = "DONE"
+        return data
+    	
+    def test_macro3(data):
+        data["test_macro3"] = "DONE"
+        return data
+    	
+    def test_macro4(data):
+        data["test_macro4"] = "DONE"
+        return data
+    </macro>
+    
+    <group chain="chain1">
+    interface {{ interface }}
+      vlan {{ vlan | to_int }}
+      description {{ description | ORPHRASE }}
+    </group>
+	
+Result::
+
+    [[[{'description': 'test loopback0',
+        'interface': 'Loopback0',
+        'set_key': 'set_value',
+        'test_macro': 'DONE',
+        'test_macro1': 'DONE',
+        'test_macro2': 'DONE',
+        'test_macro3': 'DONE',
+        'test_macro4': 'DONE'},
+       {'description': 'test loopback1',
+        'interface': 'Loopback1',
+        'set_key': 'set_value',
+        'test_macro': 'DONE',
+        'test_macro1': 'DONE',
+        'test_macro2': 'DONE',
+        'test_macro3': 'DONE',
+        'test_macro4': 'DONE'}]]]
 
 to_ip
 ------------------------------------------------------------------------------
