@@ -1,4 +1,9 @@
 def equal(data, key, value):
-    if data.get(key, None) == value:
-        return data, True
-    return data, False
+    """
+    check if certain key has certain value, return true if so and false otherwise
+    """
+    # try to get value variable from parser specific variables
+    value = _ttp_["parser_object"].vars.get(value, value)
+    if data.get(key) != value:
+        return data, False
+    return data, None

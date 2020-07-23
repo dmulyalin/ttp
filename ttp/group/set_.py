@@ -9,6 +9,8 @@ def set_func(data, source, target="_use_source_", default="_no_default_value_"):
         source_var_value = _ttp_["results_object"].vars[source]
     elif default != "_no_default_value_":
         source_var_value = default
+    else:
+        source_var_value = source
     # get target var name:
     if target == "_use_source_":
         target = source

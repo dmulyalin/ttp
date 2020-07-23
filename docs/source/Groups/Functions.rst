@@ -923,7 +923,7 @@ contains_val
 * ``key`` - name of key to check value for
 * ``value`` - value to check against
 
-This function checks if certain key in group results equal to value provided, returning True if so and False otherwise. Value can be compared as is, or can be a reference to variable from ``<vars>`` tag.
+This function checks if value for certain key in group results contains value provided, returning None if so and False otherwise. Value can be checked as is, or can be a reference to variable from ``<vars>`` tag. Function evaluates to None if no such key found in group results.
 
 **Example-1**
 

@@ -1200,28 +1200,32 @@ class _group_class():
             # threat relative path
             else:
                 self.path = self.path + O.split(self.pathchar)
-            self.name = '.'.join(self.path)           
-     
-        def extract_macro(O):
-            macro_names = [i.strip() for i in O.split(",")]
-            for macro in macro_names:
-                self.funcs.append({'args': [macro], 'kwargs': {}, 'name': 'macro'})
-     
-        def extract_functions(O):
-            funcs = _ttp_["utils"]["get_attributes"](O)
-            for i in funcs:
+            self.name = '.'.join(self.path)                         
+                
+        def extract_chain(var_name):
+            """add items from chain to variable attributes and functions
+            """
+            variable_value = self.vars.get(var_name, var_name)
+            if isinstance(variable_value, str):
+                attributes =  _ttp_["utils"]["get_attributes"](variable_value)
+            elif isinstance(variable_value, list):
+                attributes = []
+                for i in variable_value:
+                    i_attribs = _ttp_["utils"]["get_attributes"](i)
+                    attributes += i_attribs
+            for i in attributes:
                 func_name = i['name']
-                if func_name in functions: 
-                    functions[func_name](i)
-                elif func_name in _ttp_['group']: 
-                    self.funcs.append(i)     
+                if func_name in options:
+                    options[func_name](i)
+                elif func_name in _ttp_['group']:
+                    self.funcs.append(i)   
                 else:
                     similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["group"].keys()))
                     if similar_funcs:
-                        log.error("group.get_attributes: unknown group function: '{}', most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
+                        log.error("group.extract_chain: unknown group function: '{}', most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
                     else:
-                        log.error('group.get_attributes: unknown group function: "{}"'.format(func_name))                
-                
+                        log.error('group.extract_chain: unknown group function: "{}"'.format(func_name))   
+                    
         def extract_function(func_name, args_kwargs):
             attribs = _ttp_["utils"]["get_attributes"]('{}({})'.format(func_name, args_kwargs))
             self.funcs.append(attribs[0])            
@@ -1233,15 +1237,12 @@ class _group_class():
             'output'      : extract_output,
             'name'        : extract_name,
             'default'     : extract_default,
-            'macro'       : extract_macro
-        }
-        functions = {
-            'functions'   : extract_functions
+            'chain'       : extract_chain,
+            'functions'   : extract_chain
         }
 
         for attr_name, attributes in data.items():
             if attr_name.lower() in options: options[attr_name.lower()](attributes)
-            elif attr_name.lower() in functions: functions[attr_name.lower()](attributes)
             elif attr_name.lower() in _ttp_['group']: extract_function(attr_name, attributes)
             else: self.attributes[attr_name] = attributes
 
