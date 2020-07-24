@@ -1438,9 +1438,7 @@ class _variable_class():
     def extract_functions(self):
         """Method to extract variable actions and conditions.
         """
-        #
-        # Helper functions:
-        #
+
         def extract__start_(data):
             self.SAVEACTION='start'
             if self.var_name == '_start_':
@@ -1530,35 +1528,27 @@ class _variable_class():
                 self.var_res.append(regex)
             
         extract_funcs = {
-        'ignore'        : extract_ignore,
-        '_start_'       : extract__start_,
-        '_end_'         : extract__end_,
-        '_line_'        : extract__line_,
-        '_exact_'       : extract__exact_,
-        '_exact_space_' : extract__exact_space_,
-        'chain'         : extract_chain,
-        'set'           : extract_set,
-        'default'       : extract_default,
-        'joinmatches'   : extract_joinmatches,
-        # regex formatters:
-        're'       : extract_re,
-        'PHRASE'   : extract_re,
-        'ROW'      : extract_re,
-        'ORPHRASE' : extract_re,
-        'DIGIT'    : extract_re,
-        'IP'       : extract_re,
-        'PREFIX'   : extract_re,
-        'IPV6'     : extract_re,
-        'PREFIXV6' : extract_re,
-        'MAC'      : extract_re,
-        'WORD'     : extract_re
+            'ignore'        : extract_ignore,
+            '_start_'       : extract__start_,
+            '_end_'         : extract__end_,
+            '_line_'        : extract__line_,
+            '_exact_'       : extract__exact_,
+            '_exact_space_' : extract__exact_space_,
+            'chain'         : extract_chain,
+            'set'           : extract_set,
+            'default'       : extract_default,
+            'joinmatches'   : extract_joinmatches,
+            're'            : extract_re
         }
         # handle _start_, _line_ etc.
         if self.var_name in extract_funcs:
             extract_funcs[self.var_name](self.var_dict)
         # go over attribute extract function:
-        [ extract_funcs[i['name']](i) if i['name'] in extract_funcs
-          else self.functions.append(i) for i in self.attributes ]
+        for i in self.attributes:
+            name = i['name']
+            if name in extract_funcs: extract_funcs[name](i)
+            elif _ttp_['patterns']['get'](name=name): extract_re(i)
+            else: self.functions.append(i)
 
 
     def form_regex(self, regex):

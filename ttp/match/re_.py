@@ -1,5 +1,5 @@
 import re
-
+	
 def startswith_re(data, pattern):
     if re.search('^{}'.format(pattern), data):
         return data, True
