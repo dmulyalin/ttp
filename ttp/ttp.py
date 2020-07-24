@@ -136,7 +136,6 @@ class ttp():
     def __init__(self, data='', template='', log_level="WARNING", log_file=None, base_path='', vars={}):
         self.__data_size = 0
         self.__datums_count = 0
-        self.__data = []
         self._templates = []
         self.base_path = base_path
         self.multiproc_threshold = 5242880 # in bytes, equal to 5MBytes
@@ -148,15 +147,15 @@ class ttp():
         lazy_import_functions()
         # add reference to TTP object in _ttp_
         _ttp_['ttp_object'] = self
-        # check if data given, if so - load it:
-        if data != '':
-            self.add_input(data=data)
         # check if template given, if so - load it
         if template != '':
             self.add_template(template=template)
+        # check if data given, if so - load it:
+        if data != '':
+            self.add_input(data=data)
             
 
-    def add_input(self, data, input_name='Default_Input', groups=['all']):
+    def add_input(self, data, input_name='Default_Input', template_name="_root_template_", groups=['all']):
         """Method to load additional data to be parsed. This data will be used
         to fill in template input with input_name and parse that data against
         a list of provided groups.
@@ -166,48 +165,54 @@ class ttp():
         * ``data`` file object or OS path to text file or directory with text files with data to parse
         * ``input_name`` (str) name of the input to put data in, default is *Default_Input*
         * ``groups`` (list) list of group names to use to parse this input data
+        * ``template_name`` (str) name of the template to add input for
         """
         # form a list of ((type, url|text,), input_name, groups,) tuples
         data_items = _ttp_["utils"]["load_files"](path=data, read=False)
         if data_items:
-            self.__data.append((data_items, input_name, groups,))
+            [template.update_input(data=data_items, input_name=input_name, groups=groups) 
+             for template in self._templates if template.name == template_name]                    
 
 
-    def set_input(self, data, input_name='Default_Input', groups=['all']):
-        """Method to replace existing templates data with new set of data. This 
-        method run clear_input first and add_input method after that.
+    def set_input(self, data, input_name='Default_Input', template_name="_root_template_", groups=['all']):
+        """Method to replace existing templates inputs data with new set of data. This 
+        method is alias to ``clear_input`` first and ``add_input`` method after that.
         
         **Parameters**        
         
         * ``data`` file object or OS path to text file or directory with text files with data to parse
         * ``input_name`` (str) name of the input to put data in, default is *Default_Input*
-        * ``groups`` (list) list of group names to use to parse this input data        
+        * ``groups`` (list) list of group names to use to parse this input data 
+        * ``template_name`` (str) name of the template to set input for
         """
-        self.clear_input()
-        self.add_input(data=data, input_name=input_name, groups=groups)
+        self.clear_input(template_name=template_name)
+        self.add_input(data=data, input_name=input_name, groups=groups, template_name=template_name)
         
         
-    def clear_input(self):
-        """Method to delete all input data for all templates, can be used prior
-        to adding new set of data to parse with same templates, instead of
-        re-initializing ttp object.
-        """
-        self.__data = []    
-        self.__data_size = 0
-        self.__datums_count = 0
-        for template in self._templates:
-            template.inputs = {}
+    def clear_input(self, template_name=None):
+        """Method to delete all input data for all or some templates, can be used prior to adding new 
+        set of data to parse with same templates, instead of re-initializing ttp object.
+
+        **Parameters**        
         
-        
-    def _update_templates_with_data(self):
-        """Method to add data to templates from self.__data and calculate
-        overall data size and count
+        * ``template_name`` (str) name of the template to clear input for, clears for all templates 
+          by default
         """
         self.__data_size = 0
         self.__datums_count = 0
         for template in self._templates:
-            # update template inputs with data
-            [template.update_input(data=i[0], input_name=i[1], groups=i[2]) for i in self.__data] 
+            if template_name is None:
+                template.inputs = {}
+            elif template.name == template_name:
+                template.inputs = {}    
+        
+        
+    def _calculate_overall_data_size(self):
+        """Method to calculate overall data size and count
+        """
+        self.__data_size = 0
+        self.__datums_count = 0
+        for template in self._templates:
             # get overall data size and count
             for input_name, input_obj in template.inputs.items():
                 self.__datums_count += len(input_obj.data)
@@ -219,7 +224,7 @@ class ttp():
                         self.__data_size += getsizeof(i[1])
 
 
-    def add_template(self, template, template_name=None, filter=[]):
+    def add_template(self, template, template_name="_root_template_", filter=[]):
         """Method to load TTP templates into the parser.
         
         **Parameters**
@@ -233,7 +238,7 @@ class ttp():
         in filter list, that template groups/macro/inputs/etc. will not be loaded and no 
         results will be produced for that template.
         """
-        log.debug("ttp.add_template - loading template")
+        log.debug("ttp.add_template - loading template '{}'".format(template_name))
         # get a list of [(type, text,)] tuples or empty list []
         items = _ttp_["utils"]["load_files"](path=template, read=True)
         for i in items:
@@ -242,12 +247,10 @@ class ttp():
                 base_path=self.base_path, 
                 ttp_vars=self.vars,
                 name=template_name,
-                filter=filter)
-            # if templates are empty - no 'template' tags in template:
-            if template_obj.templates == []:
-                self._templates.append(template_obj)
-            else:
-                self._templates += template_obj.templates
+                filter=filter
+            )
+            # if not template_obj.templates - no 'template' tags in template
+            self._templates += template_obj.templates if template_obj.templates else [template_obj]
             
             
     def add_lookup(self, name, text_data="", include=None, load="python", key=None):
@@ -302,7 +305,7 @@ class ttp():
         multiple processes will be used and one process otherwise.
         """
         # add self.__data to templates and get file count and size:
-        self._update_templates_with_data()
+        self._calculate_overall_data_size()
         log.info("ttp.parse: loaded datums - {}, overall size - {} bytes".format(self.__datums_count, self.__data_size))
         if one is True and multi is True:
             log.critical("ttp.parse - choose one or multiprocess parsing")
@@ -527,8 +530,9 @@ class ttp():
         """
         ret = {}
         for template_obj in self._templates:
+            ret[template_obj.name] = {}
             for input_name, input_obj in template_obj.inputs.items():
-                ret[input_name] = input_obj.parameters
+                ret[template_obj.name][input_name] = input_obj.parameters
         return ret
         
     def clear_result(self, templates=[]):
@@ -604,7 +608,7 @@ TTP TEMPLATE CLASS
 class _template_class():
     """Template class to hold template data
     """
-    def __init__(self, template_text, base_path='', ttp_vars={}, name=None, filter=[]):
+    def __init__(self, template_text, base_path='', ttp_vars={}, name="_root_template_", filter=[]):
         self.PATHCHAR = '.'         # character to separate path items, like ntp.clock.time, '.' is pathChar here
         self.vars = {               # dictionary to store template variables
             "_vars_to_results_":{}, # to indicate variables and patch where they should be saved in results
@@ -771,8 +775,7 @@ class _template_class():
     def get_template_attributes(self, element):
 
         def extract_name(O):
-            if not self.name:
-                self.name = O
+            self.name = O
             
         def extract_base_path(O):
             self.base_path = O
@@ -784,10 +787,10 @@ class _template_class():
             self.PATHCHAR = str(O)
 
         opt_funcs = {
-        'name'      : extract_name,
-        'base_path' : extract_base_path,
-        'results'   : extract_results_method,
-        'pathchar'  : extract_pathchar
+            'name'      : extract_name,
+            'base_path' : extract_base_path,
+            'results'   : extract_results_method,
+            'pathchar'  : extract_pathchar
         }
 
         [opt_funcs[name](options) for name, options in element.attrib.items()
@@ -833,7 +836,7 @@ class _template_class():
                 lookup_data = _ttp_["lookup"]["geoip2_db_loader"](lookup_data)
             self.lookups[name] = lookup_data
 
-        def parse_template(element):
+        def parse_template(element, template_index):
             # skip child templates that are not in requested children list
             if self.filter:
                 if not element.attrib.get("name", None) in self.filter:
@@ -842,7 +845,8 @@ class _template_class():
                 _template_class(
                     template_text=ET.tostring(element, encoding="UTF-8"),
                     base_path=self.base_path,
-                    ttp_vars=self.ttp_vars
+                    ttp_vars=self.ttp_vars,
+                    name=str(template_index)
                 )
             )
 
@@ -872,27 +876,27 @@ class _template_class():
             # parse variablse fist after that all the rest
             tags = {
                 'vars': [], 'groups': [], 'inputs': [], 'outputs': [],
-                'lookups': [], 'macro': []
+                'lookups': [], 'macro': [], 'template': []
             }
 
             # functions to append tag elements to tags dictionary:
             tags_funcs = { # C - child
-            'v'         : lambda C: tags['vars'].append(C),
-            'vars'      : lambda C: tags['vars'].append(C),
-            'variables' : lambda C: tags['vars'].append(C),
-            'g'         : lambda C: tags['groups'].append(C),
-            'grp'       : lambda C: tags['groups'].append(C),
-            'group'     : lambda C: tags['groups'].append(C),
-            'o'         : lambda C: tags['outputs'].append(C),
-            'out'       : lambda C: tags['outputs'].append(C),
-            'output'    : lambda C: tags['outputs'].append(C),
-            'i'         : lambda C: tags['inputs'].append(C),
-            'in'        : lambda C: tags['inputs'].append(C),
-            'input'     : lambda C: tags['inputs'].append(C),
-            'lookup'    : lambda C: tags['lookups'].append(C),
-            'template'  : parse_template,
-            'macro'     : parse_macro,
-            'doc'       : parse_doc
+                'v'         : lambda C: tags['vars'].append(C),
+                'vars'      : lambda C: tags['vars'].append(C),
+                'variables' : lambda C: tags['vars'].append(C),
+                'g'         : lambda C: tags['groups'].append(C),
+                'grp'       : lambda C: tags['groups'].append(C),
+                'group'     : lambda C: tags['groups'].append(C),
+                'o'         : lambda C: tags['outputs'].append(C),
+                'out'       : lambda C: tags['outputs'].append(C),
+                'output'    : lambda C: tags['outputs'].append(C),
+                'i'         : lambda C: tags['inputs'].append(C),
+                'in'        : lambda C: tags['inputs'].append(C),
+                'input'     : lambda C: tags['inputs'].append(C),
+                'lookup'    : lambda C: tags['lookups'].append(C),
+                'template'  : lambda C: tags['template'].append(C),
+                'macro'     : parse_macro,
+                'doc'       : parse_doc
             }
 
             # fill in tags dictionary:
@@ -900,6 +904,7 @@ class _template_class():
              for child in list(element)]
 
             # perform tags parsing:
+            [parse_template(t, t_index) for t_index, t in enumerate(tags['template'])]
             [parse_vars(v) for v in tags['vars']]
             [parse_output(o) for o in tags['outputs']]
             [parse_lookup(L) for L in tags['lookups']]
