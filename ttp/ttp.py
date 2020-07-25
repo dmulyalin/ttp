@@ -12,7 +12,12 @@ from collections import OrderedDict
 # Initiate global variables
 python_major_version = version_info.major
 log = logging.getLogger(__name__)
-_ttp_ = {"macro": {}, "python_major_version": python_major_version, "global_vars": {}, "template_obj": {}}
+_ttp_ = {
+    "macro": {},
+    "python_major_version": python_major_version,
+    "global_vars": {},
+    "template_obj": {},
+}
 
 
 """
@@ -20,13 +25,15 @@ _ttp_ = {"macro": {}, "python_major_version": python_major_version, "global_vars
 TTP LAZY IMPORT SYSTEM
 ==============================================================================
 """
-class CachedModule():
+
+
+class CachedModule:
     """Class that contains name of the function and path to module/file
     that contains that function, on first call to this class, function
     will be imported into _ttp_ dictionary, subsequent calls we call 
     function directly
     """
-    
+
     def __init__(self, import_path, parent_dir, function_name, functions):
         self.import_path = import_path
         self.parent_dir = parent_dir
@@ -36,25 +43,31 @@ class CachedModule():
     def load(self):
         # import cached function and insert it into _ttp_ dictionary
         abs_import = "ttp."
-        if __name__ == "__main__" or __name__ == "__mp_main__": 
+        if __name__ == "__main__" or __name__ == "__mp_main__":
             abs_import = ""
         path = "{abs}{imp}".format(abs=abs_import, imp=self.import_path)
         module = __import__(path, fromlist=[None])
         setattr(module, "_ttp_", _ttp_)
-        try: _name_map_ = getattr(module, "_name_map_")
-        except AttributeError: _name_map_ = {}
+        try:
+            _name_map_ = getattr(module, "_name_map_")
+        except AttributeError:
+            _name_map_ = {}
         for func_name in self.parent_module_functions:
             name = _name_map_.get(func_name, func_name)
             _ttp_[self.parent_dir][name] = getattr(module, func_name)
-            
+
     def __call__(self, *args, **kwargs):
         # this method invoked on CachedModule class call, triggering function import
-        log.info("calling CachedModule: module '{}', function '{}'".format(self.import_path, self.function_name))
+        log.info(
+            "calling CachedModule: module '{}', function '{}'".format(
+                self.import_path, self.function_name
+            )
+        )
         self.load()
         # call original function
         return _ttp_[self.parent_dir][self.function_name](*args, **kwargs)
 
-    
+
 def lazy_import_functions():
     """function to collect a list of all files/directories within ttp module,
     parse .py files using ast and extract information about all functions
@@ -62,7 +75,8 @@ def lazy_import_functions():
     """
     log.info("ttp.lazy_import_functions: starting functions lazy import")
     import ast
-    # get exclusion suffix     
+
+    # get exclusion suffix
     if python_major_version == 2:
         exclude = "_py3.py"
     elif python_major_version == 3:
@@ -72,9 +86,16 @@ def lazy_import_functions():
     # create a list of all ttp module files
     for item in os.walk(os.path.dirname(__file__)):
         root, dirs, files = item
-        module_files += [open("{}/{}".format(root, f), "r") for f in files if (
-            f.endswith(".py") and not f.startswith("_") and not f.endswith(exclude)
-            and not f in exclude_modules)]
+        module_files += [
+            open("{}/{}".format(root, f), "r")
+            for f in files
+            if (
+                f.endswith(".py")
+                and not f.startswith("_")
+                and not f.endswith(exclude)
+                and not f in exclude_modules
+            )
+        ]
     log.info("ttp.lazy_import_functions: files loaded, starting ast parsing")
     # get all functions from modules and cache them in _ttp_
     for module_file in module_files:
@@ -86,31 +107,37 @@ def lazy_import_functions():
         _name_map_ = {}
         for assignment in assignments:
             # stop if _name_map_ already found
-            if _name_map_: 
+            if _name_map_:
                 break
             for target in assignment.targets:
                 if target.id == "_name_map_":
-                    _name_map_.update({
-                        key.s: assignment.value.values[index].s
-                        for index, key in enumerate(assignment.value.keys)
-                    })   
+                    _name_map_.update(
+                        {
+                            key.s: assignment.value.values[index].s
+                            for index, key in enumerate(assignment.value.keys)
+                        }
+                    )
         # fill in _ttp_ dictionary with CachedModule class
         parent_path, filename = os.path.split(module_file.name)
         _, parent_dir = os.path.split(parent_path)
         for func_name in functions:
             name = _name_map_.get(func_name, func_name)
             path = "{}.{}".format(parent_dir, filename.replace(".py", ""))
-            _ttp_.setdefault(parent_dir, {})[name] = CachedModule(path, parent_dir, name, functions)
+            _ttp_.setdefault(parent_dir, {})[name] = CachedModule(
+                path, parent_dir, name, functions
+            )
         module_file.close()
     log.info("ttp.lazy_import_functions: finished functions lazy import")
-        
-            
+
+
 """
 ==============================================================================
 MAIN TTP CLASS
 ==============================================================================
 """
-class ttp():
+
+
+class ttp:
     """ Template Text Parser main class to load data, templates, lookups, variables
     and dispatch data to parser object to parse in single or multiple processes,
     construct final results and run outputs.
@@ -132,33 +159,47 @@ class ttp():
         result = parser.result(format="json")
         print(result[0])    
     """
-    
-    def __init__(self, data='', template='', log_level="WARNING", log_file=None, base_path='', vars={}):
+
+    def __init__(
+        self,
+        data="",
+        template="",
+        log_level="WARNING",
+        log_file=None,
+        base_path="",
+        vars={},
+    ):
         self.__data_size = 0
         self.__datums_count = 0
         self._templates = []
         self.base_path = base_path
-        self.multiproc_threshold = 5242880 # in bytes, equal to 5MBytes
-        self.vars = vars                   # dictionary of variables to add to each template vars
+        self.multiproc_threshold = 5242880  # in bytes, equal to 5MBytes
+        self.vars = vars  # dictionary of variables to add to each template vars
         self.lookups = {}
         # setup logging
         logging_config(log_level, log_file)
         # lazy import all functions
         lazy_import_functions()
         # add reference to TTP object in _ttp_ dunder
-        _ttp_['ttp_object'] = self
+        _ttp_["ttp_object"] = self
         # check if template given, if so - load it
-        if template != '':
+        if template != "":
             self.add_template(template=template)
         # check if data given, if so - load it:
-        if data != '':
+        if data != "":
             self.add_input(data=data)
-            
 
-    def add_input(self, data, input_name='Default_Input', template_name="_root_template_", groups=['all']):
-        """Method to load additional data to be parsed. This data will be used
-        to fill in template input with input_name and parse that data against
-        a list of provided groups.
+    def add_input(
+        self,
+        data,
+        input_name="Default_Input",
+        template_name="_root_template_",
+        groups=["all"],
+    ):
+        """Method to load additional data to be parsed. Data associated with certain
+        input of ``input_name`` and template of ``template_name``.
+        
+        .. warning:: ``add_input`` should be called only after templates added
         
         **Parameters**        
         
@@ -168,15 +209,27 @@ class ttp():
         * ``template_name`` (str) name of the template to add input for
         """
         # form a list of ((type, url|text,), input_name, groups,) tuples
+        if not self._templates:
+            log.warning("ttp.add_input: no TTP templates to associate input data with, load template(s) first.")
         data_items = _ttp_["utils"]["load_files"](path=data, read=False)
         if data_items:
-            [template.update_input(data=data_items, input_name=input_name, groups=groups) 
-             for template in self._templates if template.name == template_name]                    
+            [
+                template.update_input(
+                    data=data_items, input_name=input_name, groups=groups
+                )
+                for template in self._templates
+                if template.name == template_name
+            ]
 
-
-    def set_input(self, data, input_name='Default_Input', template_name="_root_template_", groups=['all']):
+    def set_input(
+        self,
+        data,
+        input_name="Default_Input",
+        template_name="_root_template_",
+        groups=["all"],
+    ):
         """Method to replace existing templates inputs data with new set of data. This 
-        method is alias to ``clear_input`` first and ``add_input`` method after that.
+        method is alias to ``clear_input`` and ``add_input`` methods.
         
         **Parameters**        
         
@@ -186,9 +239,10 @@ class ttp():
         * ``template_name`` (str) name of the template to set input for
         """
         self.clear_input(template_name=template_name)
-        self.add_input(data=data, input_name=input_name, groups=groups, template_name=template_name)
-        
-        
+        self.add_input(
+            data=data, input_name=input_name, groups=groups, template_name=template_name
+        )
+
     def clear_input(self, template_name=None):
         """Method to delete all input data for all or some templates, can be used prior to adding new 
         set of data to parse with same templates, instead of re-initializing ttp object.
@@ -204,9 +258,8 @@ class ttp():
             if template_name is None:
                 template.inputs = {}
             elif template.name == template_name:
-                template.inputs = {}    
-        
-        
+                template.inputs = {}
+
     def _calculate_overall_data_size(self):
         """Method to calculate overall data size and count
         """
@@ -223,7 +276,6 @@ class ttp():
                     elif i[0] == "text_data":
                         self.__data_size += getsizeof(i[1])
 
-
     def add_template(self, template, template_name="_root_template_", filter=[]):
         """Method to load TTP templates into the parser.
         
@@ -233,10 +285,10 @@ class ttp():
         * ``template_name`` (str) name of the template
         * ``filter`` (list) list of templates' names to load,
         
-        ``filter`` attribute used to specify a list of template names that should be loaded, 
-        checks done against child templates as well, if no name of given template specified
-        in filter list, that template groups/macro/inputs/etc. will not be loaded and no 
-        results will be produced for that template.
+        ``filter`` attribute allow to filter the list of template names that should be loaded, 
+        checks done against child templates as well. For templates specified
+        in filter list, groups/macro/inputs/etc. will not be loaded and no 
+        results produced for that template.
         """
         log.debug("ttp.add_template - loading template '{}'".format(template_name))
         # get a list of [(type, text,)] tuples or empty list []
@@ -244,15 +296,16 @@ class ttp():
         for i in items:
             template_obj = _template_class(
                 template_text=i[1],
-                base_path=self.base_path, 
+                base_path=self.base_path,
                 ttp_vars=self.vars,
                 name=template_name,
-                filter=filter
+                filter=filter,
             )
             # if not template_obj.templates - no 'template' tags in template
-            self._templates += template_obj.templates if template_obj.templates else [template_obj]
-            
-            
+            self._templates += (
+                template_obj.templates if template_obj.templates else [template_obj]
+            )
+
     def add_lookup(self, name, text_data="", include=None, load="python", key=None):
         """Method to add lookup table data to all templates loaded so far. Lookup is a
         text representation of structure that can be loaded into python dictionary using one 
@@ -260,7 +313,7 @@ class ttp():
         
         **Parameters**
         
-        * ``name`` (str) name to assign to this lookup table to reference in templates
+        * ``name`` (str) name to assign this lookup table for referencing
         * ``text_data`` (str) text to load lookup table/dictionary from
         * ``include`` (str) absolute or relative /os/path/to/lookup/table/file.txt
         * ``load`` (str) name of TTP loader to use to load table data
@@ -269,12 +322,12 @@ class ttp():
         ``include`` can accept relative OS path - relative to the directory where TTP will be
         invoked either using CLI tool or as a module
         """
-        lookup_data = _ttp_["utils"]["load_struct"](text_data=text_data,
-                                               include=include, load=load, key=key)
+        lookup_data = _ttp_["utils"]["load_struct"](
+            text_data=text_data, include=include, load=load, key=key
+        )
         self.lookups.update({name: lookup_data})
         [template.add_lookup({name: lookup_data}) for template in self._templates]
 
-        
     def add_vars(self, vars):
         """Method to add variables to ttp and its templates to reference during parsing
         
@@ -285,7 +338,6 @@ class ttp():
         if isinstance(vars, dict):
             self.vars.update(vars)
             [template.add_vars(vars) for template in self._templates]
-            
 
     def parse(self, one=False, multi=False):
         """Method to parse data with templates.
@@ -306,7 +358,11 @@ class ttp():
         """
         # add self.__data to templates and get file count and size:
         self._calculate_overall_data_size()
-        log.info("ttp.parse: loaded datums - {}, overall size - {} bytes".format(self.__datums_count, self.__data_size))
+        log.info(
+            "ttp.parse: loaded datums - {}, overall size - {} bytes".format(
+                self.__datums_count, self.__data_size
+            )
+        )
         if one is True and multi is True:
             log.critical("ttp.parse - choose one or multiprocess parsing")
             raise SystemExit()
@@ -321,7 +377,6 @@ class ttp():
         # run outputters defined in templates:
         [template.run_outputs() for template in self._templates]
 
-
     def __parse_in_multiprocess(self):
         """Method to parse data in bulk by parsing each data item
         against each template and saving results in results list.
@@ -333,19 +388,26 @@ class ttp():
             num_jobs = 0
             tasks = JoinableQueue()
             results_queue = Queue()
-            
-            workers = [_worker(tasks, results_queue, lookups=template.lookups,
-                              vars=template.vars, groups=template.groups, 
-                              macro_text=template.macro_text)
-                       for i in range(num_processes)]
+
+            workers = [
+                _worker(
+                    tasks,
+                    results_queue,
+                    lookups=template.lookups,
+                    vars=template.vars,
+                    groups=template.groups,
+                    macro_text=template.macro_text,
+                )
+                for i in range(num_processes)
+            ]
             [w.start() for w in workers]
-            
+
             for input_name, input_obj in template.inputs.items():
                 for datum in input_obj.data:
                     task_dict = {
-                        'data'           : datum,
-                        'groups_indexes' : input_obj.groups_indexes,
-                        'input_functions': input_obj.functions
+                        "data": datum,
+                        "groups_indexes": input_obj.groups_indexes,
+                        "input_functions": input_obj.functions,
                     }
                     tasks.put(task_dict)
                     num_jobs += 1
@@ -359,7 +421,6 @@ class ttp():
                 result = results_queue.get()
                 template.form_results(result)
 
-
     def __parse_in_one_process(self):
         """Method to parse data in single process, each data item parsed
         against each template and results saved in results list
@@ -368,25 +429,30 @@ class ttp():
         for template in self._templates:
             _ttp_["macro"] = template.macro
             _ttp_["template_obj"] = template
-            parserObj = _parser_class(lookups=template.lookups,
-                                     vars=template.vars,
-                                     groups=template.groups)
-            if template.results_method.lower() == 'per_input':
+            parserObj = _parser_class(
+                lookups=template.lookups, vars=template.vars, groups=template.groups
+            )
+            if template.results_method.lower() == "per_input":
                 for input_name, input_obj in template.inputs.items():
                     for datum in input_obj.data:
-                        parserObj.set_data(datum, main_results={}, input_functions=input_obj.functions)
+                        parserObj.set_data(
+                            datum, main_results={}, input_functions=input_obj.functions
+                        )
                         parserObj.parse(groups_indexes=input_obj.groups_indexes)
                         result = parserObj.main_results
                         template.form_results(result)
-            elif template.results_method.lower() == 'per_template':
+            elif template.results_method.lower() == "per_template":
                 results_data = {}
                 for input_name, input_obj in template.inputs.items():
                     for datum in input_obj.data:
-                        parserObj.set_data(datum, main_results=results_data, input_functions=input_obj.functions)
+                        parserObj.set_data(
+                            datum,
+                            main_results=results_data,
+                            input_functions=input_obj.functions,
+                        )
                         parserObj.parse(groups_indexes=input_obj.groups_indexes)
                         results_data = parserObj.main_results
-                template.form_results(results_data)     
-
+                template.form_results(results_data)
 
     def result(self, templates=[], structure="list", **kwargs):
         """Method to get parsing results, supports basic filtering based on 
@@ -478,28 +544,43 @@ class ttp():
         templates = [templates] if isinstance(templates, str) else templates
         templates_obj = self._templates
         if templates:
-            templates_obj = [template for template in self._templates
-                             if template.name in templates]
+            templates_obj = [
+                template for template in self._templates if template.name in templates
+            ]
         # checkif kwargs privided, create outputter if so
         if kwargs:
-            kwargs.setdefault('returner', 'self')
+            kwargs.setdefault("returner", "self")
             outputter = _outputter_class(**kwargs)
-        # form results structure    
-        if structure.lower() == 'list':
+        # form results structure
+        if structure.lower() == "list":
             if kwargs:
-                return [outputter.run(template.results, macro=template.macro) for template in templates_obj]
+                return [
+                    outputter.run(template.results, macro=template.macro)
+                    for template in templates_obj
+                ]
             else:
                 return [template.results for template in templates_obj]
-        elif structure.lower() == 'dictionary':
+        elif structure.lower() == "dictionary":
             if kwargs:
-                return {template.name: outputter.run(template.results, macro=template.macro) 
-                        for template in templates_obj if template.name}
+                return {
+                    template.name: outputter.run(template.results, macro=template.macro)
+                    for template in templates_obj
+                    if template.name
+                }
             else:
-                return {template.name: template.results for template in templates_obj if template.name}
-        elif structure.lower() == 'flat_list':
+                return {
+                    template.name: template.results
+                    for template in templates_obj
+                    if template.name
+                }
+        elif structure.lower() == "flat_list":
             ret = []
             for template in templates_obj:
-                rslt = outputter.run(template.results, macro=template.macro) if kwargs else template.results
+                rslt = (
+                    outputter.run(template.results, macro=template.macro)
+                    if kwargs
+                    else template.results
+                )
                 if isinstance(rslt, list):
                     for item in rslt:
                         if isinstance(item, list):
@@ -507,9 +588,9 @@ class ttp():
                         else:
                             ret.append(item)
                 else:
-                    ret.append(rslt)         
+                    ret.append(rslt)
             return ret
-        
+
     def get_input_load(self):
         """Method to retrieve input tag text load. Using input ``load`` attribute,
         text data can be loaded into python structure using one of the supported
@@ -534,7 +615,7 @@ class ttp():
             for input_name, input_obj in template_obj.inputs.items():
                 ret[template_obj.name][input_name] = input_obj.parameters
         return ret
-        
+
     def clear_result(self, templates=[]):
         """Method to clear parsing results for templates.
         
@@ -547,16 +628,22 @@ class ttp():
         templates = [templates] if isinstance(templates, str) else templates
         # clear results
         if templates:
-            [t_obj.results.clear() for t_obj in self._templates if t_obj.name in templates]
+            [
+                t_obj.results.clear()
+                for t_obj in self._templates
+                if t_obj.name in templates
+            ]
         else:
-            [t_obj.results.clear() for t_obj in self._templates]        
-            
-        
+            [t_obj.results.clear() for t_obj in self._templates]
+
+
 """
 ==============================================================================
 TTP PARSER MULTIPROCESSING WORKER
 ==============================================================================
 """
+
+
 class _worker(Process):
     """Class used in multiprocessing to parse data
     """
@@ -567,7 +654,7 @@ class _worker(Process):
         self.results_queue = results_queue
         self.macro_text = macro_text
         self.parserObj = _parser_class(lookups, vars, groups)
-        
+
     def load_functions(self):
         lazy_import_functions()
         # load macro from text
@@ -575,11 +662,17 @@ class _worker(Process):
         # extract macro with all the __builtins__ provided
         for macro_text in self.macro_text:
             try:
-                funcs = _ttp_["utils"]["load_python_exec"](macro_text, builtins=__builtins__)
+                funcs = _ttp_["utils"]["load_python_exec"](
+                    macro_text, builtins=__builtins__
+                )
                 _ttp_["macro"].update(funcs)
             except SyntaxError as e:
-                log.error("multiprocess_worker.load_functions: syntax error, failed to load macro: \n{},\nError: {}".format(macro_text, e))    
-        
+                log.error(
+                    "multiprocess_worker.load_functions: syntax error, failed to load macro: \n{},\nError: {}".format(
+                        macro_text, e
+                    )
+                )
+
     def run(self):
         self.load_functions()
         # run tasks
@@ -590,9 +683,13 @@ class _worker(Process):
                 self.task_queue.task_done()
                 break
             # set parser object parameters
-            self.parserObj.set_data(next_task['data'], main_results={}, input_functions=next_task["input_functions"])
+            self.parserObj.set_data(
+                next_task["data"],
+                main_results={},
+                input_functions=next_task["input_functions"],
+            )
             # parse and get results
-            self.parserObj.parse(groups_indexes=next_task['groups_indexes'])
+            self.parserObj.parse(groups_indexes=next_task["groups_indexes"])
             result = self.parserObj.main_results
             # put results in the queue and finish task
             self.task_queue.task_done()
@@ -605,32 +702,44 @@ class _worker(Process):
 TTP TEMPLATE CLASS
 ==============================================================================
 """
-class _template_class():
+
+
+class _template_class:
     """Template class to hold template data
     """
-    def __init__(self, template_text, base_path='', ttp_vars={}, name="_root_template_", filter=[]):
-        self.PATHCHAR = '.'         # character to separate path items, like ntp.clock.time, '.' is pathChar here
-        self.vars = {               # dictionary to store template variables
-            "_vars_to_results_":{}, # to indicate variables and patch where they should be saved in results
-                                    # _vars_to_results_ is a dict of {pathN:[var_key1, var_keyN]} data
-            "_var_functions_": {}  # dictionary to keep variables with functions such as getters
-        } 
-        self.ttp_vars = ttp_vars    # need to save it to pass to child templates
-        self.vars.update(ttp_vars)  
-        self.outputs = []           # list that contains global outputs
-        self.groups_outputs = []    # list that contains groups specific outputs
+
+    def __init__(
+        self,
+        template_text,
+        base_path="",
+        ttp_vars={},
+        name="_root_template_",
+        filter=[],
+    ):
+        self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here
+        self.vars = {  # dictionary to store template variables
+            "_vars_to_results_": {},  # to indicate variables and patch where they should be saved in results
+            # _vars_to_results_ is a dict of {pathN:[var_key1, var_keyN]} data
+            "_var_functions_": {},  # dictionary to keep variables with functions such as getters
+        }
+        self.ttp_vars = ttp_vars  # need to save it to pass to child templates
+        self.vars.update(ttp_vars)
+        self.outputs = []  # list that contains global outputs
+        self.groups_outputs = []  # list that contains groups specific outputs
         self.groups = []
         self.inputs = OrderedDict()
         self.lookups = {}
         self.templates = []
-        self.base_path = base_path 
+        self.base_path = base_path
         self.results = []
         self.name = name
-        self.macro = {}                   # dictionary of macro name to function mapping
-        self.results_method = 'per_input' # how to join results
-        self.macro_text = []              # list to contain macro functions text to transfer into other processes   
-        self.filter = filter              # list that contains names of child templates to extract
-        self.doc = ""                     # string to contain template doc/description
+        self.macro = {}  # dictionary of macro name to function mapping
+        self.results_method = "per_input"  # how to join results
+        self.macro_text = (
+            []
+        )  # list to contain macro functions text to transfer into other processes
+        self.filter = filter  # list that contains names of child templates to extract
+        self.doc = ""  # string to contain template doc/description
 
         # load template from string:
         self.load_template_xml(template_text)
@@ -649,18 +758,20 @@ class _template_class():
             [group.debug() for group in self.groups]
             [output_obj.debug() for output_obj in self.outputs]
 
-
     def debug(self):
         from pprint import pformat
-        text = "Template Object {}, Template name '{}' content:\n{}".format(self, self.name, pformat(vars(self), indent=4))
+
+        text = "Template Object {}, Template name '{}' content:\n{}".format(
+            self, self.name, pformat(vars(self), indent=4)
+        )
         log.debug(text)
-        
+
     def add_lookup(self, data):
         """Method to load lookup data
         """
         self.lookups.update(data)
         [template.add_lookup(data) for template in self.templates]
-            
+
     def add_vars(self, data):
         """Method to update vars with given data
         """
@@ -678,13 +789,13 @@ class _template_class():
         """Method to add results to self.results
         """
         # handle _anonymous_ groups results
-        if '_anonymous_' in result:
+        if "_anonymous_" in result:
             if self.results_method == "per_template":
-                if isinstance(result['_anonymous_'], dict):
-                    self.results = [result.pop('_anonymous_')]
-                self.results = result.pop('_anonymous_')
+                if isinstance(result["_anonymous_"], dict):
+                    self.results = [result.pop("_anonymous_")]
+                self.results = result.pop("_anonymous_")
             else:
-                self.results.append(result.pop('_anonymous_'))
+                self.results.append(result.pop("_anonymous_"))
         # handle remaining results
         if result:
             if isinstance(result, list):
@@ -706,9 +817,10 @@ class _template_class():
                 self.vars["_var_functions_"][var_name] = var_value
         # remove _var_functions_ from self.vars
         [self.vars.pop(var_name) for var_name in self.vars["_var_functions_"].keys()]
-            
-        
-    def update_input(self, element=None, data=None, input_name='Default_Input', groups=['all']):
+
+    def update_input(
+        self, element=None, data=None, input_name="Default_Input", groups=["all"]
+    ):
         """
         Method to set data for template input
         Args:
@@ -716,15 +828,22 @@ class _template_class():
             input_name (str): name of the input
             groups (list): list of groups to use for that input
         """
-        input = _input_class(element=element, input_name=input_name, template_obj=self, groups=groups, data=data)
+        input = _input_class(
+            element=element,
+            input_name=input_name,
+            template_obj=self,
+            groups=groups,
+            data=data,
+        )
         if input.name in self.inputs:
             self.inputs[input.name].load_data(data=input.data)
             self.inputs[input.name].groups_indexes += input.groups_indexes
-            self.inputs[input.name].groups_indexes = list(set(self.inputs[input.name].groups_indexes))
+            self.inputs[input.name].groups_indexes = list(
+                set(self.inputs[input.name].groups_indexes)
+            )
             del input
         else:
             self.inputs[input.name] = input
-        
 
     def update_inputs_with_groups(self):
         """
@@ -740,9 +859,8 @@ class _template_class():
                     # no input with such name found it means that group input is os path
                     # string and text_data will be returned by self.utils.load_files
                     # only if no such path exists, hence text_data does not make sense here
-                    data = [i for i in data_items if 'text_data' not in i[0]]
+                    data = [i for i in data_items if "text_data" not in i[0]]
                     self.update_input(data=data, input_name=input_name)
-                    
 
     def update_groups_with_outputs(self):
         """Method to replace output names in group with
@@ -770,44 +888,51 @@ class _template_class():
                 # print error message if no output found:
                 if not group_output_found:
                     G.outputs.pop(output_index)
-                    log.error("template.update_groups_with_outputs: group '{}' - output '{}' not found.".format(G.name, grp_output))
+                    log.error(
+                        "template.update_groups_with_outputs: group '{}' - output '{}' not found.".format(
+                            G.name, grp_output
+                        )
+                    )
 
     def get_template_attributes(self, element):
-
         def extract_name(O):
             self.name = O
-            
+
         def extract_base_path(O):
             self.base_path = O
-    
+
         def extract_results_method(O):
             self.results_method = O
-        
+
         def extract_pathchar(O):
             self.PATHCHAR = str(O)
 
         opt_funcs = {
-            'name'      : extract_name,
-            'base_path' : extract_base_path,
-            'results'   : extract_results_method,
-            'pathchar'  : extract_pathchar
+            "name": extract_name,
+            "base_path": extract_base_path,
+            "results": extract_results_method,
+            "pathchar": extract_pathchar,
         }
 
-        [opt_funcs[name](options) for name, options in element.attrib.items()
-         if name in opt_funcs]
+        [
+            opt_funcs[name](options)
+            for name, options in element.attrib.items()
+            if name in opt_funcs
+        ]
 
     def load_template_xml(self, template_text):
-
         def parse_vars(element):
             # method to parse vars data
             vars = _ttp_["utils"]["load_struct"](element.text, **element.attrib)
             if vars:
                 self.vars.update(vars)
-            #check if var has name attribute:
+            # check if var has name attribute:
             if "name" in element.attrib:
-                path = element.attrib['name']
-                [self.vars['_vars_to_results_'].setdefault(path, []).append(key) 
-                 for key in vars.keys()]
+                path = element.attrib["name"]
+                [
+                    self.vars["_vars_to_results_"].setdefault(path, []).append(key)
+                    for key in vars.keys()
+                ]
 
         def parse_output(element):
             self.outputs.append(_outputter_class(element, template_obj=self))
@@ -819,20 +944,22 @@ class _template_class():
                     top=True,
                     pathchar=self.PATHCHAR,
                     vars=self.vars,
-                    grp_index=grp_index
+                    grp_index=grp_index,
                 )
             )
 
         def parse_lookup(element):
             try:
-                name = element.attrib['name']
+                name = element.attrib["name"]
             except KeyError:
-                log.warning("Lookup 'name' attribute not found but required, skipping it")
+                log.warning(
+                    "Lookup 'name' attribute not found but required, skipping it"
+                )
                 return
             lookup_data = _ttp_["utils"]["load_struct"](element.text, **element.attrib)
             if lookup_data is None:
                 return
-            if element.attrib.get("database", "").lower() == "geoip2": 
+            if element.attrib.get("database", "").lower() == "geoip2":
                 lookup_data = _ttp_["lookup"]["geoip2_db_loader"](lookup_data)
             self.lookups[name] = lookup_data
 
@@ -846,7 +973,7 @@ class _template_class():
                     template_text=ET.tostring(element, encoding="UTF-8"),
                     base_path=self.base_path,
                     ttp_vars=self.ttp_vars,
-                    name=str(template_index)
+                    name=str(template_index),
                 )
             )
 
@@ -854,17 +981,23 @@ class _template_class():
             funcs = {}
             # extract macro with all the __builtins__ provided
             try:
-                funcs = _ttp_["utils"]["load_python_exec"](element.text, builtins=__builtins__)
+                funcs = _ttp_["utils"]["load_python_exec"](
+                    element.text, builtins=__builtins__
+                )
                 self.macro.update(funcs)
                 # save macro text to be able to restore macro functions within another process
                 self.macro_text.append(element.text)
             except SyntaxError as e:
-                log.error("template.parse_macro: syntax error, failed to load macro: \n{},\nError: {}".format(element.text, e))
-            
+                log.error(
+                    "template.parse_macro: syntax error, failed to load macro: \n{},\nError: {}".format(
+                        element.text, e
+                    )
+                )
+
         def parse__anonymous_(element):
             elem = ET.XML('<g name="_anonymous_">\n{}\n</g>'.format(element.text))
             parse_group(elem, grp_index=0)
-            
+
         def parse_doc(element):
             self.doc += element.text
 
@@ -875,63 +1008,72 @@ class _template_class():
             # dict to store all top tags sorted parsing as need to
             # parse variablse fist after that all the rest
             tags = {
-                'vars': [], 'groups': [], 'inputs': [], 'outputs': [],
-                'lookups': [], 'macro': [], 'template': []
+                "vars": [],
+                "groups": [],
+                "inputs": [],
+                "outputs": [],
+                "lookups": [],
+                "macro": [],
+                "template": [],
             }
 
             # functions to append tag elements to tags dictionary:
-            tags_funcs = { # C - child
-                'v'         : lambda C: tags['vars'].append(C),
-                'vars'      : lambda C: tags['vars'].append(C),
-                'variables' : lambda C: tags['vars'].append(C),
-                'g'         : lambda C: tags['groups'].append(C),
-                'grp'       : lambda C: tags['groups'].append(C),
-                'group'     : lambda C: tags['groups'].append(C),
-                'o'         : lambda C: tags['outputs'].append(C),
-                'out'       : lambda C: tags['outputs'].append(C),
-                'output'    : lambda C: tags['outputs'].append(C),
-                'i'         : lambda C: tags['inputs'].append(C),
-                'in'        : lambda C: tags['inputs'].append(C),
-                'input'     : lambda C: tags['inputs'].append(C),
-                'lookup'    : lambda C: tags['lookups'].append(C),
-                'template'  : lambda C: tags['template'].append(C),
-                'macro'     : parse_macro,
-                'doc'       : parse_doc
+            tags_funcs = {  # C - child
+                "v": lambda C: tags["vars"].append(C),
+                "vars": lambda C: tags["vars"].append(C),
+                "variables": lambda C: tags["vars"].append(C),
+                "g": lambda C: tags["groups"].append(C),
+                "grp": lambda C: tags["groups"].append(C),
+                "group": lambda C: tags["groups"].append(C),
+                "o": lambda C: tags["outputs"].append(C),
+                "out": lambda C: tags["outputs"].append(C),
+                "output": lambda C: tags["outputs"].append(C),
+                "i": lambda C: tags["inputs"].append(C),
+                "in": lambda C: tags["inputs"].append(C),
+                "input": lambda C: tags["inputs"].append(C),
+                "lookup": lambda C: tags["lookups"].append(C),
+                "template": lambda C: tags["template"].append(C),
+                "macro": parse_macro,
+                "doc": parse_doc,
             }
 
             # fill in tags dictionary:
-            [tags_funcs.get(child.tag.lower(), invalid)(child)
-             for child in list(element)]
+            [
+                tags_funcs.get(child.tag.lower(), invalid)(child)
+                for child in list(element)
+            ]
 
             # perform tags parsing:
-            [parse_template(t, t_index) for t_index, t in enumerate(tags['template'])]
-            [parse_vars(v) for v in tags['vars']]
-            [parse_output(o) for o in tags['outputs']]
-            [parse_lookup(L) for L in tags['lookups']]
-            [parse_group(g, grp_index) for grp_index, g in enumerate(tags['groups'])]
+            [parse_template(t, t_index) for t_index, t in enumerate(tags["template"])]
+            [parse_vars(v) for v in tags["vars"]]
+            [parse_output(o) for o in tags["outputs"]]
+            [parse_lookup(L) for L in tags["lookups"]]
+            [parse_group(g, grp_index) for grp_index, g in enumerate(tags["groups"])]
             # need to parse inputs after groups already parsed to form group inputs correctly
-            [self.update_input(element=i) for i in tags['inputs']]
+            [self.update_input(element=i) for i in tags["inputs"]]
 
         def parse_template_XML(template_text):
             # load template from text reconstructing it if required:
             try:
                 template_ET = ET.XML(template_text)
                 # check if top tag is not template:
-                if template_ET.tag.lower() != 'template':
+                if template_ET.tag.lower() != "template":
                     tmplt = ET.XML("<template />")
                     tmplt.insert(0, template_ET)
                     template_ET = tmplt
                 else:
                     self.get_template_attributes(template_ET)
             except ET.ParseError as e:
-                template_ET = ET.XML("<template>\n{}\n</template>".format(template_text))
+                template_ET = ET.XML(
+                    "<template>\n{}\n</template>".format(template_text)
+                )
 
             # filter templates based on names filter provided - do not load template groups
             # if template name not listed in filter
             if self.filter:
                 if not self.name in self.filter:
                     return
-                    
+
             # check if template has children:
             if not list(template_ET):
                 parse__anonymous_(template_ET)
@@ -940,21 +1082,31 @@ class _template_class():
 
         parse_template_XML(template_text)
 
+
 """
 ==============================================================================
 TTP INPUT CLASS
 ==============================================================================
 """
-class _input_class():
+
+
+class _input_class:
     """Template input class to hold inputs data
     """
-    def __init__(self, element=None, template_obj=None, data=None,
-                 input_name='Default_Input', groups='all'):
+
+    def __init__(
+        self,
+        element=None,
+        template_obj=None,
+        data=None,
+        input_name="Default_Input",
+        groups="all",
+    ):
         self.attributes = {
-            'load': 'python',
-            'extensions': [],
-            'filters': [],
-            'urls': []            
+            "load": "python",
+            "extensions": [],
+            "filters": [],
+            "urls": [],
         }
         self.template_obj = template_obj
         self.parameters = {}
@@ -981,118 +1133,144 @@ class _input_class():
             self.name = input_name
             self.get_attributes(data={"groups": groups, "load": "python"})
             self.load_data(data=data)
-            
-        
+
     def get_attributes(self, data, element_text=""):
-        
         def extract_name(O):
             self.name = O.strip()
-        
+
         def extract_load(O):
             self.attributes["load"] = O.strip()
-            if self.attributes["load"] != 'text':
+            if self.attributes["load"] != "text":
                 attribs = _ttp_["utils"]["load_struct"](element_text, **data)
                 if attribs:
                     self.parameters = attribs
                     self.get_attributes(data=attribs)
-        
+
         def extract_groups(O):
             if isinstance(O, list):
                 groups_list = O
             else:
                 groups_list = [i.strip() for i in O.split(",")]
             # create a list of groups with no input attribute matched by this input groups attribute
-            if 'all' in groups_list:
-                self.input_groups = [grp_obj.grp_index for grp_obj in self.template_obj.groups
-                                     if not grp_obj.inputs]
+            if "all" in groups_list:
+                self.input_groups = [
+                    grp_obj.grp_index
+                    for grp_obj in self.template_obj.groups
+                    if not grp_obj.inputs
+                ]
             else:
-                self.input_groups = [grp_obj.grp_index for grp_obj in self.template_obj.groups 
-                                     if (grp_obj.name in groups_list and not grp_obj.inputs)]
+                self.input_groups = [
+                    grp_obj.grp_index
+                    for grp_obj in self.template_obj.groups
+                    if (grp_obj.name in groups_list and not grp_obj.inputs)
+                ]
             # iterate over all groups to get a list of groups that match this input in input attribute
-            self.group_inputs = [grp_obj.grp_index for grp_obj in self.template_obj.groups 
-                                  if self.name in grp_obj.inputs]
+            self.group_inputs = [
+                grp_obj.grp_index
+                for grp_obj in self.template_obj.groups
+                if self.name in grp_obj.inputs
+            ]
             # form input groups_indexes - group_inputs more preferred
             if self.group_inputs:
                 self.groups_indexes = sorted(list(set(self.group_inputs)))
             else:
                 self.groups_indexes = sorted(list(set(self.input_groups)))
-            
+
         def extract_extensions(O):
-            if isinstance(O, str): 
+            if isinstance(O, str):
                 self.attributes["extensions"] = [O]
             else:
                 self.attributes["extensions"] = O
-                
+
         def extract_filters(O):
-            if isinstance(O, str): 
-                self.attributes["filters"]=[O]
+            if isinstance(O, str):
+                self.attributes["filters"] = [O]
             else:
-                self.attributes["filters"]=O
-                
+                self.attributes["filters"] = O
+
         def extract_urls(O):
-            if isinstance(O, str): 
-                self.attributes["urls"]=[O]
+            if isinstance(O, str):
+                self.attributes["urls"] = [O]
             else:
-                self.attributes["urls"]=O
-            
+                self.attributes["urls"] = O
+
         def extract_functions(O):
             funcs = _ttp_["utils"]["get_attributes"](O)
             for i in funcs:
-                func_name = i['name']
-                if func_name in functions: 
+                func_name = i["name"]
+                if func_name in functions:
                     functions[func_name](i)
-                elif func_name in _ttp_['input']: 
-                    self.functions.append(i)      
+                elif func_name in _ttp_["input"]:
+                    self.functions.append(i)
                 else:
-                    similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["input"].keys()))
+                    similar_funcs = _ttp_["utils"]["guess"](
+                        func_name, list(_ttp_["input"].keys())
+                    )
                     if similar_funcs:
-                        log.error("input.get_attributes: unknown input function: '{}', most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
+                        log.error(
+                            "input.get_attributes: unknown input function: '{}', most similar function(s) - {}".format(
+                                func_name, ", ".join(similar_funcs)
+                            )
+                        )
                     else:
-                        log.error('input.get_attributes: unknown input function: "{}"'.format(func_name))     
-                    
+                        log.error(
+                            'input.get_attributes: unknown input function: "{}"'.format(
+                                func_name
+                            )
+                        )
+
         def extract_function(func_name, args_kwargs):
-            attribs = _ttp_["utils"]["get_attributes"]('{}({})'.format(func_name, args_kwargs))
-            self.functions.append(attribs[0]) 
-            
+            attribs = _ttp_["utils"]["get_attributes"](
+                "{}({})".format(func_name, args_kwargs)
+            )
+            self.functions.append(attribs[0])
+
         def extract_commands(O):
             if isinstance(O, str):
-                self.functions.append({
-                    "name": "extract_commands",
-                    "args": [i.strip() for i in O.split(',') if i.strip()],
-                    "kwargs": {}
-                })
+                self.functions.append(
+                    {
+                        "name": "extract_commands",
+                        "args": [i.strip() for i in O.split(",") if i.strip()],
+                        "kwargs": {},
+                    }
+                )
             elif isinstance(O, dict):
                 self.functions.append(O)
-        
+
         # group attributes extract functions dictionary:
         options = {
-        'name'        : extract_name,
-        'load'        : extract_load,
-        'groups'      : extract_groups,
-        'extensions'  : extract_extensions,
-        'filters'     : extract_filters,
-        'url'         : extract_urls
+            "name": extract_name,
+            "load": extract_load,
+            "groups": extract_groups,
+            "extensions": extract_extensions,
+            "filters": extract_filters,
+            "url": extract_urls,
         }
         functions = {
-        'functions'   : extract_functions,
-        'extract_commands'    : extract_commands
+            "functions": extract_functions,
+            "extract_commands": extract_commands,
         }
-        # extract attributes from element tag attributes   
+        # extract attributes from element tag attributes
         for attr_name, attributes in data.items():
-            if attr_name.lower() in options: options[attr_name.lower()](attributes)
-            elif attr_name.lower() in functions: functions[attr_name.lower()](attributes)
-            elif attr_name.lower() in _ttp_['input']: extract_function(attr_name, attributes)
-            else: self.attributes[attr_name] = attributes
-                
-                
+            if attr_name.lower() in options:
+                options[attr_name.lower()](attributes)
+            elif attr_name.lower() in functions:
+                functions[attr_name.lower()](attributes)
+            elif attr_name.lower() in _ttp_["input"]:
+                extract_function(attr_name, attributes)
+            else:
+                self.attributes[attr_name] = attributes
+
     def load_data(self, element_text=None, data=None):
-        if self.attributes["load"] == 'text' and element_text:
-            self.data = [('text_data', element_text)]
+        if self.attributes["load"] == "text" and element_text:
+            self.data = [("text_data", element_text)]
             return
         # try to source data by calling external module
-        elif self.attributes.get("source", "") in _ttp_['input']:
-            datums = _ttp_['input'][self.attributes["source"]](self.name, **self.attributes)
-            self.data = [('text_data', datum) for datum in datums]
+        elif self.attributes.get("source", "") in _ttp_["input"]:
+            datums = _ttp_["input"][self.attributes["source"]](
+                self.name, **self.attributes
+            )
+            self.data = [("text_data", datum) for datum in datums]
             return
         elif data:
             [self.data.append(d_item) for d_item in data if not d_item in self.data]
@@ -1100,29 +1278,47 @@ class _input_class():
         # load data:
         for url in self.attributes["urls"]:
             url = self.template_obj.base_path + url
-            datums = _ttp_["utils"]["load_files"](path=url, extensions=self.attributes["extensions"], 
-                                                  filters=self.attributes["filters"], read=False)
-            self.data += datums            
-        
+            datums = _ttp_["utils"]["load_files"](
+                path=url,
+                extensions=self.attributes["extensions"],
+                filters=self.attributes["filters"],
+                read=False,
+            )
+            self.data += datums
+
     def debug(self):
         from pprint import pformat
+
         text = "Template object {}, Template name '{}', Input name '{}' content:\n{}".format(
-            self.template_obj, self.template_obj.name, self.name, pformat(vars(self), indent=4)
+            self.template_obj,
+            self.template_obj.name,
+            self.name,
+            pformat(vars(self), indent=4),
         )
         log.debug(text)
-            
-            
+
+
 """
 ==============================================================================
 GROUP CLASS
 ==============================================================================
 """
-class _group_class():
+
+
+class _group_class:
     """group class to store template group objects data
     """
 
-    def __init__(self, element, grp_index=0, top=False, path=[], pathchar=".",
-                 vars={}, impot_list=[]):
+    def __init__(
+        self,
+        element,
+        grp_index=0,
+        top=False,
+        path=[],
+        pathchar=".",
+        vars={},
+        impot_list=[],
+    ):
         """Init method
         Attributes:
             element : xml ETree element to parse
@@ -1143,21 +1339,21 @@ class _group_class():
             grp_index (int): uniqie index of the group
         """
         self.pathchar = pathchar
-        self.top      = top
-        self.path     = list(path)
+        self.top = top
+        self.path = list(path)
         self.defaults = {}
-        self.runs     = {}
-        self.default  = "_Not_Given_"
+        self.runs = {}
+        self.default = "_Not_Given_"
         self.has_start_re_default = False
-        self.outputs  = []
-        self.funcs    = []
-        self.method   = 'group'
+        self.outputs = []
+        self.funcs = []
+        self.method = "group"
         self.start_re = []
-        self.end_re   = []
-        self.re       = []
-        self.children = [] # list to hold child groups
-        self.name     = ''
-        self.vars     = vars
+        self.end_re = []
+        self.re = []
+        self.children = []  # list to hold child groups
+        self.name = ""
+        self.vars = vars
         self.grp_index = grp_index
         self.inputs = []
         self.attributes = {}
@@ -1167,7 +1363,6 @@ class _group_class():
         self.get_regexes(element.text)
         self.get_children(list(element))
 
-
     def set_anonymous_path(self):
         """Method to set anonymous path for top group without name attribute.
         """
@@ -1175,21 +1370,21 @@ class _group_class():
             if self.path == []:
                 self.path = ["_anonymous_"]
                 self.name = "_anonymous_"
-        
 
     def get_attributes(self, data):
-
         def extract_default(O):
             self.default = O
 
         def extract_method(O):
-            self.method=O.lower().strip()
+            self.method = O.lower().strip()
 
         def extract_input(O):
-            if self.top: self.inputs = [(i.strip()) for i in O.split(',')]
+            if self.top:
+                self.inputs = [(i.strip()) for i in O.split(",")]
 
         def extract_output(O):
-            if self.top: self.outputs = [(i.strip()) for i in O.split(',')]
+            if self.top:
+                self.outputs = [(i.strip()) for i in O.split(",")]
 
         def extract_name(O):
             # check if absolute path given
@@ -1202,78 +1397,96 @@ class _group_class():
             # threat relative path
             else:
                 self.path = self.path + O.split(self.pathchar)
-            self.name = '.'.join(self.path)                         
-                
+            self.name = ".".join(self.path)
+
         def extract_chain(var_name):
             """add items from chain to group functions
             """
             variable_value = self.vars.get(var_name, var_name)
             if isinstance(variable_value, str):
-                attributes =  _ttp_["utils"]["get_attributes"](variable_value)
+                attributes = _ttp_["utils"]["get_attributes"](variable_value)
             elif isinstance(variable_value, list):
                 attributes = []
                 for i in variable_value:
                     i_attribs = _ttp_["utils"]["get_attributes"](i)
                     attributes += i_attribs
             for i in attributes:
-                func_name = i['name']
+                func_name = i["name"]
                 if func_name in options:
                     options[func_name](i)
-                elif func_name in _ttp_['group']:
-                    self.funcs.append(i)   
+                elif func_name in _ttp_["group"]:
+                    self.funcs.append(i)
                 else:
-                    similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["group"].keys()))
+                    similar_funcs = _ttp_["utils"]["guess"](
+                        func_name, list(_ttp_["group"].keys())
+                    )
                     if similar_funcs:
-                        log.error("group.extract_chain: unknown group function: '{}', most similar function(s) - {}".format(func_name, ", ".join(similar_funcs)))
+                        log.error(
+                            "group.extract_chain: unknown group function: '{}', most similar function(s) - {}".format(
+                                func_name, ", ".join(similar_funcs)
+                            )
+                        )
                     else:
-                        log.error('group.extract_chain: unknown group function: "{}"'.format(func_name))   
-                    
+                        log.error(
+                            'group.extract_chain: unknown group function: "{}"'.format(
+                                func_name
+                            )
+                        )
+
         def extract_function(func_name, args_kwargs):
-            attribs = _ttp_["utils"]["get_attributes"]('{}({})'.format(func_name, args_kwargs))
-            self.funcs.append(attribs[0])            
+            attribs = _ttp_["utils"]["get_attributes"](
+                "{}({})".format(func_name, args_kwargs)
+            )
+            self.funcs.append(attribs[0])
 
         # group attributes extract functions dictionary:
         options = {
-            'method'      : extract_method,
-            'input'       : extract_input,
-            'output'      : extract_output,
-            'name'        : extract_name,
-            'default'     : extract_default,
-            'chain'       : extract_chain,
-            'functions'   : extract_chain
+            "method": extract_method,
+            "input": extract_input,
+            "output": extract_output,
+            "name": extract_name,
+            "default": extract_default,
+            "chain": extract_chain,
+            "functions": extract_chain,
         }
 
         for attr_name, attributes in data.items():
-            if attr_name.lower() in options: options[attr_name.lower()](attributes)
-            elif attr_name.lower() in _ttp_['group']: extract_function(attr_name, attributes)
-            else: self.attributes[attr_name] = attributes
-
+            if attr_name.lower() in options:
+                options[attr_name.lower()](attributes)
+            elif attr_name.lower() in _ttp_["group"]:
+                extract_function(attr_name, attributes)
+            else:
+                self.attributes[attr_name] = attributes
 
     def get_regexes(self, data, tail=False):
-        varaibles_matches=[] # list of dictionaries
-        regexes=[]
+        varaibles_matches = []  # list of dictionaries
+        regexes = []
 
         for line in data.splitlines():
             # skip empty lines and comments:
-            if not line.strip(): continue
-            elif line.startswith('##'): continue
+            if not line.strip():
+                continue
+            elif line.startswith("##"):
+                continue
             # strip leading spaces as they will be reconstructed in regex
             line = line.rstrip()
             # parse line against variable regexes
-            match=re.findall(r'{{([\S\s]+?)}}', line)
+            match = re.findall(r"{{([\S\s]+?)}}", line)
             if not match:
-                log.warning("group.get_regexes: variable not found in line: '{}'".format(line))
+                log.warning(
+                    "group.get_regexes: variable not found in line: '{}'".format(line)
+                )
                 continue
-            varaibles_matches.append({'variables': match, 'line': line})
+            varaibles_matches.append({"variables": match, "line": line})
 
         for i in varaibles_matches:
-            regex = ''
+            regex = ""
             variables = {}
-            action = 'add'
+            action = "add"
             is_line = False
             skip_regex = False
-            for variable in i['variables']:
-                variableObj = _variable_class(variable, i['line'], group=self)
+            for variable in i["variables"]:
+                variableObj = _variable_class(variable, i["line"], group=self)
 
                 # check if need to skip appending regex dict to regexes list
                 # have to skip it for unconditional 'set' function
@@ -1286,7 +1499,7 @@ class _group_class():
                     variables[variableObj.var_name] = variableObj
 
                 # form regex:
-                regex=variableObj.form_regex(regex)
+                regex = variableObj.form_regex(regex)
 
                 # check if IS_LINE:
                 if is_line == False:
@@ -1299,58 +1512,61 @@ class _group_class():
             if skip_regex is True:
                 continue
 
-            regexes.append({
-                'REGEX'    : re.compile(regex),  # re element
-                'VARIABLES': variables,          # Dict of variables objects
-                'ACTION'   : action,             # to indicate the save action
-                'GROUP'    : self,               # string contains current group object reference
-                'IS_LINE'  : is_line             # boolean to indicate _line_ regex
-            })
+            regexes.append(
+                {
+                    "REGEX": re.compile(regex),  # re element
+                    "VARIABLES": variables,  # Dict of variables objects
+                    "ACTION": action,  # to indicate the save action
+                    "GROUP": self,  # string contains current group object reference
+                    "IS_LINE": is_line,  # boolean to indicate _line_ regex
+                }
+            )
 
         # form re, start re and end re lists:
         for index, re_dict in enumerate(regexes):
-            if "end" in re_dict['ACTION']:
+            if "end" in re_dict["ACTION"]:
                 self.end_re.append(re_dict)
             elif tail == True:
                 self.re.append(re_dict)
             elif index == 0:
-                if not 'start' in re_dict['ACTION']:
-                    re_dict['ACTION'] ='start'
+                if not "start" in re_dict["ACTION"]:
+                    re_dict["ACTION"] = "start"
                 self.start_re.append(re_dict)
-            elif self.method == 'table':
-                if not 'start' in re_dict['ACTION']:
-                    re_dict['ACTION'] = 'start'
+            elif self.method == "table":
+                if not "start" in re_dict["ACTION"]:
+                    re_dict["ACTION"] = "start"
                 self.start_re.append(re_dict)
-            elif "start" in re_dict['ACTION']:
+            elif "start" in re_dict["ACTION"]:
                 self.start_re.append(re_dict)
             else:
                 self.re.append(re_dict)
-                
+
         # check if has_start_re_default
         for start_re in self.start_re:
             if self.has_start_re_default:
                 break
-            for start_re_var_name in start_re['VARIABLES'].keys():
+            for start_re_var_name in start_re["VARIABLES"].keys():
                 if start_re_var_name in self.defaults:
                     self.has_start_re_default = True
                     break
-
 
     def get_children(self, child_groups):
         """Method to create child groups objects
         by iterating over all children.
         """
         for g in child_groups:
-            self.children.append(_group_class(
-                element=g,
-                top=False,
-                path=self.path,
-                pathchar=self.pathchar,
-                vars=self.vars))
+            self.children.append(
+                _group_class(
+                    element=g,
+                    top=False,
+                    path=self.path,
+                    pathchar=self.pathchar,
+                    vars=self.vars,
+                )
+            )
             # get regexes from tail
             if g.tail.strip():
                 self.get_regexes(data=g.tail, tail=True)
-
 
     def set_runs(self):
         """runs - default variable values during group
@@ -1362,21 +1578,22 @@ class _group_class():
         # run reursion for children:
         [child.set_runs() for child in self.children]
 
-
     def update_runs(self, data):
         # func to update runs of the groups using data dictionary
         for k, v in data.items():
             for dk, dv in self.runs.items():
-                if dv == k: self.runs[dk]=v
+                if dv == k:
+                    self.runs[dk] = v
         # run recursion for children:
         [child.update_runs(data) for child in self.children]
-        
+
     def debug(self):
         from pprint import pformat
+
         text = "Group object {}, Group name '{}' content:\n{}".format(
             self, self.name, pformat(vars(self), indent=4)
         )
-        log.debug(text)        
+        log.debug(text)
         for re_dict in self.start_re:
             for var_name, var_obj in re_dict["VARIABLES"].items():
                 var_obj.debug()
@@ -1389,17 +1606,19 @@ class _group_class():
         [group.debug() for group in self.children]
 
 
-
 """
 ==============================================================================
 TTP MATCH VARIABLE CLASS
 ==============================================================================
 """
-class _variable_class():
+
+
+class _variable_class:
     """
     variable class - to define variables and associated actions, conditions, regexes.
     """
-    def __init__(self, variable, line, group=''):
+
+    def __init__(self, variable, line, group=""):
         """
         Args:
             variable (str): contains variable content
@@ -1408,26 +1627,26 @@ class _variable_class():
 
         # initiate variableClass object variables:
         self.variable = variable
-        self.LINE = line                             # original line from template
-        self.functions = []                          # actions and conditions list
+        self.LINE = line  # original line from template
+        self.functions = []  # actions and conditions list
 
-        self.SAVEACTION = 'add'                      # to store action to do with results during saving
-        self.group = group                           # template object current group to save some vars
-        self.IS_LINE = False                         # to indicate that variable is _line_ regex
-        self.skip_variable_dict = False              # will be set to true for 'ignore'
-        self.skip_regex_dict = False                 # will be set to true for 'set'
-        self.var_res = []                            # list of variable regexes
+        self.SAVEACTION = "add"  # to store action to do with results during saving
+        self.group = group  # template object current group to save some vars
+        self.IS_LINE = False  # to indicate that variable is _line_ regex
+        self.skip_variable_dict = False  # will be set to true for 'ignore'
+        self.skip_regex_dict = False  # will be set to true for 'set'
+        self.var_res = []  # list of variable regexes
 
         # form attributes - list of dictionaries:
         self.attributes = _ttp_["utils"]["get_attributes"](variable)
         self.var_dict = self.attributes.pop(0)
-        self.var_name = self.var_dict['name']
-        
+        self.var_name = self.var_dict["name"]
+
         # add support for var name expansion to dictionary using dot character,
         # need to replace dot with __dot_char__. Var name must be a valid
         # python identifier - re.groupdict restriction - hence dot prohibited
         self.var_name = self.var_name.replace(".", "__dot_char__")
-        
+
         # list of variables names that should not have defaults:
         self.skip_defaults = ["_end_", "_line_", "ignore", "_start_"]
         # add defaults
@@ -1439,47 +1658,48 @@ class _variable_class():
         # perform extractions:
         self.extract_functions()
 
-
     def extract_functions(self):
         """Method to extract variable actions and conditions.
         """
 
         def extract__start_(data):
-            self.SAVEACTION='start'
-            if self.var_name == '_start_':
-                self.SAVEACTION='startempty'
+            self.SAVEACTION = "start"
+            if self.var_name == "_start_":
+                self.SAVEACTION = "startempty"
 
         def extract__end_(data):
-            self.SAVEACTION='end'
+            self.SAVEACTION = "end"
 
         def extract_set(data):
-            match_line=re.sub(r'{{([\S\s]+?)}}', '', self.LINE).rstrip()
+            match_line = re.sub(r"{{([\S\s]+?)}}", "", self.LINE).rstrip()
             # handle conditional set when we have line to match
             if match_line:
-                data['kwargs']['match_line'] = '\n' + match_line # need to treat it as newline here
+                data["kwargs"]["match_line"] = (
+                    "\n" + match_line
+                )  # need to treat it as newline here
                 self.functions.append(data)
             # handle unconditional set without line to match
             else:
                 # self.group.defaults.update({self.var_name: {"set": data['args'][0]}})
-                self.group.defaults.update({self.var_name: data['args'][0]})
-                self.skip_regex_dict = True                
+                self.group.defaults.update({self.var_name: data["args"][0]})
+                self.skip_regex_dict = True
 
         def extract_default(data):
             if self.var_name in self.skip_defaults:
                 return
-            if len(data['args']) == 1:
-                self.group.defaults.update({self.var_name: data['args'][0]})
+            if len(data["args"]) == 1:
+                self.group.defaults.update({self.var_name: data["args"][0]})
             else:
                 self.group.defaults.update({self.var_name: "None"})
 
         def extract_joinmatches(data):
             self.functions.append(data)
-            self.SAVEACTION='join'
+            self.SAVEACTION = "join"
 
         def extract__line_(data):
-            #self.functions.append(data)
-            self.SAVEACTION='join'
-            self.IS_LINE=True
+            # self.functions.append(data)
+            self.SAVEACTION = "join"
+            self.IS_LINE = True
             # extract _line_ regex as well
             extract_re(data)
 
@@ -1489,39 +1709,45 @@ class _variable_class():
         def extract_chain(data):
             """add items from chain to variable attributes and functions
             """
-            variable_value = self.group.vars.get(data['args'][0], None)
+            variable_value = self.group.vars.get(data["args"][0], None)
             if variable_value is None:
-                log.error("match_variable.extract_chain: match variable - '{}', chain var '{}' not found".format(self.var_name, data['args'][0]))
+                log.error(
+                    "match_variable.extract_chain: match variable - '{}', chain var '{}' not found".format(
+                        self.var_name, data["args"][0]
+                    )
+                )
                 return
             if isinstance(variable_value, str):
-                attributes =  _ttp_["utils"]["get_attributes"](variable_value)
+                attributes = _ttp_["utils"]["get_attributes"](variable_value)
             elif isinstance(variable_value, list):
                 attributes = []
                 for i in variable_value:
                     i_attribs = _ttp_["utils"]["get_attributes"](i)
                     attributes += i_attribs
             for i in attributes:
-                name = i['name']
+                name = i["name"]
                 if name in extract_funcs:
                     extract_funcs[name](i)
+                elif _ttp_["patterns"]["get"](name=name):
+                    extract_re(i)
                 else:
                     self.functions.append(i)
-                    
+
         def extract__exact_(data):
             pass
-            
+
         def extract__exact_space_(data):
             pass
-            
+
         def extract_re(data):
             try:
                 # if re('my_regex') was used
-                regex = data['args'][0]
+                regex = data["args"][0]
             except IndexError:
                 # if {{ var_name | PHRASE }} used
-                regex = data['name']
+                regex = data["name"]
             re_from_var = self.group.vars.get(regex, None)
-            re_from_patterns = _ttp_['patterns']['get'](name=regex)
+            re_from_patterns = _ttp_["patterns"]["get"](name=regex)
             # check template variables
             if re_from_var:
                 self.var_res.append(re_from_var)
@@ -1531,30 +1757,32 @@ class _variable_class():
             # use regex as is
             else:
                 self.var_res.append(regex)
-            
+
         extract_funcs = {
-            'ignore'        : extract_ignore,
-            '_start_'       : extract__start_,
-            '_end_'         : extract__end_,
-            '_line_'        : extract__line_,
-            '_exact_'       : extract__exact_,
-            '_exact_space_' : extract__exact_space_,
-            'chain'         : extract_chain,
-            'set'           : extract_set,
-            'default'       : extract_default,
-            'joinmatches'   : extract_joinmatches,
-            're'            : extract_re
+            "ignore": extract_ignore,
+            "_start_": extract__start_,
+            "_end_": extract__end_,
+            "_line_": extract__line_,
+            "_exact_": extract__exact_,
+            "_exact_space_": extract__exact_space_,
+            "chain": extract_chain,
+            "set": extract_set,
+            "default": extract_default,
+            "joinmatches": extract_joinmatches,
+            "re": extract_re,
         }
         # handle _start_, _line_ etc.
         if self.var_name in extract_funcs:
             extract_funcs[self.var_name](self.var_dict)
         # go over attribute extract function:
         for i in self.attributes:
-            name = i['name']
-            if name in extract_funcs: extract_funcs[name](i)
-            elif _ttp_['patterns']['get'](name=name): extract_re(i)
-            else: self.functions.append(i)
-
+            name = i["name"]
+            if name in extract_funcs:
+                extract_funcs[name](i)
+            elif _ttp_["patterns"]["get"](name=name):
+                extract_re(i)
+            else:
+                self.functions.append(i)
 
     def form_regex(self, regex):
         """Method to form regular expression for template line.
@@ -1562,48 +1790,62 @@ class _variable_class():
         # form escaped line by finding all spans of match variables in line,
         # after that split line in chunks and escape special chars, replace spaces and digits
         # for chunks that are not match variable, join chunks in esc_line string after that
-        line_chunks = []; no_indent_line = self.LINE.lstrip(); llen = len(self.LINE)
-        vars_spans = [(0,0,)] + [i.span() for i in re.finditer(r'{{([\S\s]+?)}}', no_indent_line)] + [(llen, llen,)]
-        for index, var_span in enumerate(vars_spans[1:]): 
+        line_chunks = []
+        no_indent_line = self.LINE.lstrip()
+        llen = len(self.LINE)
+        vars_spans = (
+            [(0, 0,)]
+            + [i.span() for i in re.finditer(r"{{([\S\s]+?)}}", no_indent_line)]
+            + [(llen, llen,)]
+        )
+        for index, var_span in enumerate(vars_spans[1:]):
             previous_var_span = vars_spans[index]
-            string_before_var = no_indent_line[previous_var_span[1]:var_span[0]]
+            string_before_var = no_indent_line[previous_var_span[1] : var_span[0]]
             if string_before_var:
                 string_before_var = re.escape(string_before_var)
-                if not '_exact_space_' in self.LINE:
-                    string_before_var = re.sub(r'(\\ )+', r'\\ +', string_before_var)
-                if not '_exact_' in  self.LINE:
-                    string_before_var = re.sub(r'\d+', r'\\d+', string_before_var)
+                if not "_exact_space_" in self.LINE:
+                    string_before_var = re.sub(r"(\\ )+", r"\\ +", string_before_var)
+                if not "_exact_" in self.LINE:
+                    string_before_var = re.sub(r"\d+", r"\\d+", string_before_var)
                 line_chunks.append(string_before_var)
             # append current match variable to chunks
-            line_chunks.append(no_indent_line[var_span[0]:var_span[1]])
-        esc_line = "".join(line_chunks)   
-        esc_var = '{{' + self.variable + '}}'
+            line_chunks.append(no_indent_line[var_span[0] : var_span[1]])
+        esc_line = "".join(line_chunks)
+        esc_var = "{{" + self.variable + "}}"
 
         # check if regex empty, if so, make self.regex equal to escaped line, reconstruct indent and add start/end of line:
-        if regex == '':
+        if regex == "":
             # form indent to honor leading space characters like \t or \s:
             first_non_space_char_index = len(self.LINE) - len(self.LINE.lstrip())
             indent = self.LINE[:first_non_space_char_index]
             # form regex:
             self.regex = esc_line
-            self.regex = indent + self.regex                   # reconstruct indent
-            self.regex = r'\n' + self.regex + r'[\t ]*(?=\n)'  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
+            self.regex = indent + self.regex  # reconstruct indent
+            self.regex = (
+                r"\n" + self.regex + r"[\t ]*(?=\n)"
+            )  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
         else:
             self.regex = regex
 
         def regex_ignore(data):
-            if len(data['args']) == 0:
-                self.regex = self.regex.replace(esc_var, r'\S+', 1)
-            elif len(data['args']) == 1:
-                pattern = data['args'][0]
-                re_from_patterns = _ttp_['patterns']['get'](name=pattern)
+            if len(data["args"]) == 0:
+                self.regex = self.regex.replace(esc_var, r"\S+", 1)
+            elif len(data["args"]) == 1:
+                pattern = data["args"][0]
+                re_from_patterns = _ttp_["patterns"]["get"](name=pattern)
                 re_from_var = self.group.vars.get(pattern, None)
                 if re_from_var:
-                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(re_from_var), 1)
+                    self.regex = self.regex.replace(
+                        esc_var, r"(?:{})".format(re_from_var), 1
+                    )
                 elif re_from_patterns:
-                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(re_from_patterns), 1)
+                    self.regex = self.regex.replace(
+                        esc_var, r"(?:{})".format(re_from_patterns), 1
+                    )
                 else:
-                    self.regex = self.regex.replace(esc_var, r"(?:{})".format(pattern), 1)
+                    self.regex = self.regex.replace(
+                        esc_var, r"(?:{})".format(pattern), 1
+                    )
 
         def regex_deleteVar(data):
             result = None
@@ -1612,35 +1854,35 @@ class _variable_class():
                 # slice regex string before esc_var start:
                 result = self.regex[:index]
                 # delete "\ +" from end of line and add " *(?=\\n)":
-                result = re.sub(r'(\\ \+)$', '', result) + r' *(?=\n)'
+                result = re.sub(r"(\\ \+)$", "", result) + r" *(?=\n)"
             if result:
                 self.regex = result
 
         # for variables like {{ ignore }}
-        regexFuncsVar={
-        'ignore'   : regex_ignore,
-        '_start_'  : regex_deleteVar,
-        '_end_'    : regex_deleteVar
+        regexFuncsVar = {
+            "ignore": regex_ignore,
+            "_start_": regex_deleteVar,
+            "_end_": regex_deleteVar,
         }
         if self.var_name in regexFuncsVar:
             regexFuncsVar[self.var_name](self.var_dict)
-            
+
         # for the rest of functions:
-        regexFuncs={
-        'set'      : regex_deleteVar
-        }
+        regexFuncs = {"set": regex_deleteVar}
         # go over all keywords to form regex:
-        [regexFuncs[i['name']](i) for i in self.functions if i['name'] in regexFuncs]
+        [regexFuncs[i["name"]](i) for i in self.functions if i["name"] in regexFuncs]
 
         # assign default re if variable without regex formatters:
-        if self.var_res == []: 
-            self.var_res.append(_ttp_['patterns']['get'](name='WORD'))
+        if self.var_res == []:
+            self.var_res.append(_ttp_["patterns"]["get"](name="WORD"))
         # form variable regex by replacing escaped variable, if it is in regex,
         # except for the case if variable is "ignore" as it already was replaced
         # in regex_ignore function:
         if self.var_name != "ignore":
-            self.regex = self.regex.replace(esc_var,
-                r'(?P<{}>(?:{}))'.format(self.var_name, r')|(?:'.join(self.var_res),1))
+            self.regex = self.regex.replace(
+                esc_var,
+                r"(?P<{}>(?:{}))".format(self.var_name, r")|(?:".join(self.var_res), 1),
+            )
         # after regexes formed we can delete unnecessary variables:
         if log.isEnabledFor(logging.DEBUG) == False:
             del self.attributes, esc_line
@@ -1651,24 +1893,28 @@ class _variable_class():
 
     def debug(self):
         from pprint import pformat
+
         text = r"Variable object {}, Variable name '{}' content:\n{}".format(
             self, self.var_name, pformat(vars(self), indent=4)
         )
-        log.debug(text)            
+        log.debug(text)
+
 
 """
 ==============================================================================
 TTP PARSER OBJECT
 ==============================================================================
 """
-class _parser_class():
+
+
+class _parser_class:
     """Parser Object to run parsing of data and constructong resulted dictionary/list
     """
+
     def __init__(self, lookups, vars, groups):
         self.lookups = lookups
         self.original_vars = vars
         self.groups = groups
-
 
     def set_data(self, D, main_results={}, input_functions=[]):
         """Method to load data:
@@ -1676,13 +1922,13 @@ class _parser_class():
             D (tuple): items are dict of (data_type, data_path,)
         """
         self.main_results = main_results
-        if D[0] == 'text_data':
-            self.DATATEXT = '\n' + D[1] + '\n\n'
-            self.DATANAME = 'text_data'
+        if D[0] == "text_data":
+            self.DATATEXT = "\n" + D[1] + "\n\n"
+            self.DATANAME = "text_data"
         else:
             data = _ttp_["utils"]["load_files"](path=D[1], read=True)
             # data is a list of one tuple - [(data_type, data_text,)]
-            self.DATATEXT = '\n' + data[0][1] + '\n\n'
+            self.DATATEXT = "\n" + data[0][1] + "\n\n"
             self.DATANAME = D[1]
         # set vars to original vars copy and run vars functions against DATATEXT
         self.vars = self.original_vars.copy()
@@ -1693,18 +1939,22 @@ class _parser_class():
         _ttp_["parser_object"] = self
         # run input functions
         for item in input_functions:
-            func_name, args, kwargs = item['name'], item.get('args', []), item.get('kwargs', {})
-            self.DATATEXT, flags = _ttp_['input'][func_name](self.DATATEXT, *args, **kwargs)
+            func_name, args, kwargs = (
+                item["name"],
+                item.get("args", []),
+                item.get("kwargs", {}),
+            )
+            self.DATATEXT, flags = _ttp_["input"][func_name](
+                self.DATATEXT, *args, **kwargs
+            )
             if flags == False:
                 break
-
 
     def update_groups_runs(self, D):
         """Method to update groups runs dictionaries with new values deirved
         during parsing, can be called from 'record' variable functions
         """
         [G.update_runs(D) for G in self.groups]
-
 
     def run_var_functions(self):
         """Method to run variables functions before parsing data
@@ -1715,43 +1965,50 @@ class _parser_class():
                 if result:
                     self.vars.update({VARname: result})
             except:
-                log.error("ttp_parser.run_var_functions: '{}' variable function failed".format(VARvalue))
-
+                log.error(
+                    "ttp_parser.run_var_functions: '{}' variable function failed".format(
+                        VARvalue
+                    )
+                )
 
     def parse(self, groups_indexes):
         """Main parser_call parsing method.
         Args::
             groups_indexes(list) : list of group indexes to run
         """
-        unsort_rslts = []      # list of dictionaries - one item per top group, each dictionary
-                               # contains unsorted match results for REs within group
-        raw_results = []       # list to store sorted results for groups with global outputs
-        grps_unsort_rslts = [] # match results for groups with group specific outputs
-                               # each item is a tuple of (results, group.outputs,)
+        unsort_rslts = (
+            []
+        )  # list of dictionaries - one item per top group, each dictionary
+        # contains unsorted match results for REs within group
+        raw_results = []  # list to store sorted results for groups with global outputs
+        grps_unsort_rslts = []  # match results for groups with group specific outputs
+        # each item is a tuple of (results, group.outputs,)
         grps_raw_results = []  # group specific sorted results
 
         def check_matches(regex, matches, results, start):
             for match in matches:
-                result = {} # dict to store result
+                result = {}  # dict to store result
                 temp = {}
                 # check if groupdict present - means regex with no set variables been matchesd
                 if match.groupdict():
                     temp = match.groupdict()
                 # we have match but no variables - set regex, need to check it as well:
                 else:
-                    temp = {key: match.group() for key in regex['VARIABLES'].keys()}
-                    
+                    temp = {key: match.group() for key in regex["VARIABLES"].keys()}
+
                 # process matched values
                 for var_name, data in temp.items():
                     flags = {}
-                    for item in regex['VARIABLES'][var_name].functions:
-                        func_name = item['name']
-                        args = item['args']
-                        kwargs = item['kwargs']
-                        try: # try variable function
-                            data, flag = _ttp_["match"][func_name](data, *args, **kwargs)
+                    for item in regex["VARIABLES"][var_name].functions:
+                        func_name = item["name"]
+                        args = item["args"]
+                        kwargs = item["kwargs"]
+                        try:  # try variable function
+                            data, flag = _ttp_["match"][func_name](
+                                data, *args, **kwargs
+                            )
                         except KeyError:
-                            try: # try data built-in function. e.g. if data is string, can run data.upper()
+                            try:  # try data built-in function. e.g. if data is string, can run data.upper()
                                 attrib = getattr(data, func_name)
                                 if callable(attrib):
                                     run_result = attrib(*args, **kwargs)
@@ -1763,15 +2020,27 @@ class _parser_class():
                                     flag = True
                                 else:
                                     data = run_result
-                                    flag = None        
+                                    flag = None
                             except AttributeError as e:
                                 flag = None
-                                log.error("ttp_parser.check_matches: match variable function '{}' failed, data '{}', error '{}'".format(func_name, data, e))
-                                similar_funcs = _ttp_["utils"]["guess"](func_name, list(_ttp_["match"].keys()))
+                                log.error(
+                                    "ttp_parser.check_matches: match variable function '{}' failed, data '{}', error '{}'".format(
+                                        func_name, data, e
+                                    )
+                                )
+                                similar_funcs = _ttp_["utils"]["guess"](
+                                    func_name, list(_ttp_["match"].keys())
+                                )
                                 if similar_funcs:
-                                    log.error("ttp_parser.check_matches: the most similar match variable function(s) - {}".format(", ".join(similar_funcs)))
+                                    log.error(
+                                        "ttp_parser.check_matches: the most similar match variable function(s) - {}".format(
+                                            ", ".join(similar_funcs)
+                                        )
+                                    )
                         if flag is False:
-                            result = False # if flag False - checks produced negative result
+                            result = (
+                                False  # if flag False - checks produced negative result
+                            )
                             break
                         elif isinstance(flag, dict):
                             # update new_field data preserving previously got new_field
@@ -1781,13 +2050,13 @@ class _parser_class():
                                 flags.update(flag)
                     if result is False:
                         break
-                        
+
                     result.update({var_name: data})
                     # run flags
-                    if 'new_field' in flags:
-                        result.update(flags['new_field'])
+                    if "new_field" in flags:
+                        result.update(flags["new_field"])
                 # skip not start regexes that evaluated to False
-                if result is False and not regex['ACTION'].startswith('start'):
+                if result is False and not regex["ACTION"].startswith("start"):
                     continue
                 # form result dictionary of dictionaries:
                 span_start = start + match.span()[0]
@@ -1796,18 +2065,17 @@ class _parser_class():
                 else:
                     results[span_start].append((regex, result,))
 
-
         def run_re(group, results, start=0, end=-1):
             """Recursive function to run REs
             """
             # results - dict of {span_start: [(re1, match1), (re2, match2)]}
-            s = 0                     # int to get the lowest start re span value
-            e = -1                    # int to get the biggest end re span value
+            s = 0  # int to get the lowest start re span value
+            e = -1  # int to get the biggest end re span value
             group_start_found = False
 
             # run start REs:
             for R in group.start_re:
-                matches = list(R['REGEX'].finditer(self.DATATEXT[start:end]))
+                matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
                 if not matches:
                     continue
                 check_matches(R, matches, results, start)
@@ -1820,10 +2088,14 @@ class _parser_class():
             if not group_start_found:
                 # if empty group - tag only, no start REs - run children to fill in results
                 if not group.start_re:
-                    [run_re(child_group, results, start, end) for child_group in group.children]
+                    [
+                        run_re(child_group, results, start, end)
+                        for child_group in group.children
+                    ]
                 # handle group with no matches but with start re default values
                 elif group.has_start_re_default:
-                    key = -1; stop = False
+                    key = -1
+                    stop = False
                     while stop == False:
                         if not key in results:
                             results[key] = [(group.start_re[0], {},)]
@@ -1831,12 +2103,15 @@ class _parser_class():
                         else:
                             key -= 1
                     # run recursion to fill in results for children
-                    [run_re(child_group, results, start, end) for child_group in group.children]
+                    [
+                        run_re(child_group, results, start, end)
+                        for child_group in group.children
+                    ]
                 return results
 
             # run end REs:
             for R in group.end_re:
-                matches = list(R['REGEX'].finditer(self.DATATEXT[start:end]))
+                matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
                 if not matches:
                     continue
                 check_matches(R, matches, results, start)
@@ -1847,8 +2122,15 @@ class _parser_class():
                 end = start + e
 
             # run normal REs:
-            [check_matches(R, list(R['REGEX'].finditer(self.DATATEXT[start:end])),
-                results, start) for R in group.re]
+            [
+                check_matches(
+                    R,
+                    list(R["REGEX"].finditer(self.DATATEXT[start:end])),
+                    results,
+                    start,
+                )
+                for R in group.re
+            ]
 
             # run recursion:
             [run_re(child_group, results, start, end) for child_group in group.children]
@@ -1864,33 +2146,45 @@ class _parser_class():
             # get results for groups with group specific results:
             else:
                 # form a tuple of ({results}, [group.outputs],)
-                grps_unsort_rslts.append(
-                    (run_re(group, results={}), group.outputs,)
-                )
+                grps_unsort_rslts.append((run_re(group, results={}), group.outputs,))
 
         # update groups runs (group default values) with global variables
         self.update_groups_runs(_ttp_["global_vars"])
         # update groups runs (group default values) with group specific/local variables
         self.update_groups_runs(self.vars)
-        
+
         # sort results for groups with global outputs
-        [ raw_results.append(
-          [group_result[key] for key in sorted(list(group_result.keys()))]
-          ) for group_result in unsort_rslts if group_result ]
-          
+        [
+            raw_results.append(
+                [group_result[key] for key in sorted(list(group_result.keys()))]
+            )
+            for group_result in unsort_rslts
+            if group_result
+        ]
+
         # import pprint
         # pprint.pprint(raw_results)
-        
+
         # form results for global groups:
         RSLTSOBJ = _results_class()
         RSLTSOBJ.make_results(self.vars, raw_results, main_results=self.main_results)
         self.main_results = RSLTSOBJ.results
 
         # sort results for groups with group specific outputs
-        [ grps_raw_results.append(
-        # tuple item that contains group.outputs:
-        ([group_result[0][key] for key in sorted(list(group_result[0].keys()))], group_result[1],) 
-        ) for group_result in grps_unsort_rslts if group_result[0] ]
+        [
+            grps_raw_results.append(
+                # tuple item that contains group.outputs:
+                (
+                    [
+                        group_result[0][key]
+                        for key in sorted(list(group_result[0].keys()))
+                    ],
+                    group_result[1],
+                )
+            )
+            for group_result in grps_unsort_rslts
+            if group_result[0]
+        ]
         # form results for groups specific results with running groups through outputs:
         for grp_raw_result in grps_raw_results:
             RSLTSOBJ = _results_class()
@@ -1908,64 +2202,64 @@ class _parser_class():
             self.main_results.append(grp_result)
 
 
-
 """
 ==============================================================================
 TTP results FORMATTER OBJECT
 ==============================================================================
 """
-class _results_class():
+
+
+class _results_class:
     """
     Class to save results and do actions with them.
     Args:
         self.dyn_path_cache (dict): used to store dynamic path variables
     """
+
     def __init__(self):
         self.results = {}
-        self.GRPLOCK = {'LOCK': False, 'GROUP': ()} # GROUP - path tuple of locked group
-        self.record={
-            'result'     : {},
-            'PATH'       : [],
-            'FUNCTIONS'  : [],
-            'DEFAULTS'   : {}
-        }
-        self.dyn_path_cache={}
+        self.GRPLOCK = {
+            "LOCK": False,
+            "GROUP": (),
+        }  # GROUP - path tuple of locked group
+        self.record = {"result": {}, "PATH": [], "FUNCTIONS": [], "DEFAULTS": {}}
+        self.dyn_path_cache = {}
         _ttp_["results_object"] = self
-        
 
     def make_results(self, vars, raw_results, main_results):
         self.results = main_results
-        self.vars=vars
-        saveFuncs={
-            'start'      : self.start,       # start - to start new group;
-            'add'        : self.add,         # add - to add data to group, default action;
-            'startempty' : self.startempty,  # startempty - to start new empty group in case if _start_ found;
-            'end'        : self.end,         # end - to explicitly signal the end of group to LOCK it;
-            'join'       : self.join         # join - to join results for given variable, e.g. joinmatches;
+        self.vars = vars
+        saveFuncs = {
+            "start": self.start,  # start - to start new group;
+            "add": self.add,  # add - to add data to group, default action;
+            "startempty": self.startempty,  # startempty - to start new empty group in case if _start_ found;
+            "end": self.end,  # end - to explicitly signal the end of group to LOCK it;
+            "join": self.join,  # join - to join results for given variable, e.g. joinmatches;
         }
         # save _vars_to_results_ to results if any:
-        if raw_results: self.save_vars(vars)
-        
+        if raw_results:
+            self.save_vars(vars)
+
         # iterate over group results and form results structure:
         for group_results in raw_results:
             # clear LOCK between groups as LOCK has intra group significance only:
-            self.GRPLOCK['LOCK'] = False
-            self.GRPLOCK['GROUP'] = ()
+            self.GRPLOCK["LOCK"] = False
+            self.GRPLOCK["GROUP"] = ()
             # iterate over each match result for the group
             for result in group_results:
                 # if result been matched by one regex only
                 if len(result) == 1:
-                    re=result[0][0]
-                    result_data=result[0][1]
+                    re = result[0][0]
+                    result_data = result[0][1]
                 # if same results captured by multiple regexes, need to do further decision checks
                 else:
                     re = None
                     start_re, normal_re, line_re = [], [], []
                     # sort matches across start, normal and line REs
                     for index, item in enumerate(result):
-                        if item[0]['ACTION'].startswith('start'):
+                        if item[0]["ACTION"].startswith("start"):
                             start_re.append(index)
-                        elif item[0]['IS_LINE'] == True:
+                        elif item[0]["IS_LINE"] == True:
                             line_re.append(index)
                         else:
                             normal_re.append(index)
@@ -1975,84 +2269,92 @@ class _results_class():
                             re = result[index][0]
                             result_data = result[index][1]
                             # prefer result with same path as current record
-                            if re["GROUP"].path == self.record["PATH"]: break
+                            if re["GROUP"].path == self.record["PATH"]:
+                                break
                     # normal REs preferred the next
                     elif normal_re:
                         for index in normal_re:
                             re = result[index][0]
                             result_data = result[index][1]
-                            if re["GROUP"].path == self.record["PATH"]: break    
+                            if re["GROUP"].path == self.record["PATH"]:
+                                break
                     # line REs has the least preference
                     elif line_re:
                         for index in line_re:
                             re = result[index][0]
                             result_data = result[index][1]
-                            if re["GROUP"].path == self.record["PATH"]: break                            
-                            
-                group = re['GROUP']
-                
+                            if re["GROUP"].path == self.record["PATH"]:
+                                break
+
+                group = re["GROUP"]
+
                 # check if result is false, lock the group if so:
                 if result_data == False:
-                    self.GRPLOCK['LOCK']=True
-                    self.GRPLOCK['GROUP']=group.path
+                    self.GRPLOCK["LOCK"] = True
+                    self.GRPLOCK["GROUP"] = group.path
                     continue
                 # evaluate results to check if need to unlock locked group:
-                elif self.GRPLOCK['LOCK'] is True:
-                    locked_group_path = self.GRPLOCK['GROUP']
-                    if re['ACTION'].startswith('start'):
+                elif self.GRPLOCK["LOCK"] is True:
+                    locked_group_path = self.GRPLOCK["GROUP"]
+                    if re["ACTION"].startswith("start"):
                         # if same level _start_ unlock this group
                         if group.path == locked_group_path:
-                            self.GRPLOCK['LOCK'] = False
-                            self.GRPLOCK['GROUP'] = ()
+                            self.GRPLOCK["LOCK"] = False
+                            self.GRPLOCK["GROUP"] = ()
                         # skip children even if they are _start_ re
-                        elif ".".join(group.path).startswith(".".join(locked_group_path)):
+                        elif ".".join(group.path).startswith(
+                            ".".join(locked_group_path)
+                        ):
                             continue
                         # meaning its upper level or different path group, unlock it:
                         else:
-                            self.GRPLOCK['LOCK'] = False
-                            self.GRPLOCK['GROUP'] = ()
+                            self.GRPLOCK["LOCK"] = False
+                            self.GRPLOCK["GROUP"] = ()
                     # skip children
                     elif ".".join(group.path).startswith(".".join(locked_group_path)):
-                        continue   
-                                      
+                        continue
+
                 # Save results:
-                saveFuncs[re['ACTION']](
-                    result     = result_data,
-                    PATH       = list(group.path),
-                    DEFAULTS   = group.runs,
-                    FUNCTIONS  = group.funcs,
-                    REDICT     = re
+                saveFuncs[re["ACTION"]](
+                    result=result_data,
+                    PATH=list(group.path),
+                    DEFAULTS=group.runs,
+                    FUNCTIONS=group.funcs,
+                    REDICT=re,
                 )
         # check the last group:
         if self.processgrp() is not False:
-            self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
-
+            self.save_curelements(
+                result_data=self.record["result"], result_path=self.record["PATH"]
+            )
 
     def save_vars(self, vars):
         # need to sort keys first to introduce deterministic behavior
-        sorted_pathes = sorted(list(vars['_vars_to_results_'].keys()))
+        sorted_pathes = sorted(list(vars["_vars_to_results_"].keys()))
         for path_item in sorted_pathes:
             # skip empty path items:
-            if not path_item: continue
-            vars_names = vars['_vars_to_results_'][path_item]
+            if not path_item:
+                continue
+            vars_names = vars["_vars_to_results_"][path_item]
             result = {}
             for var_name in vars_names:
                 if var_name in vars:
                     result[var_name] = vars[var_name]
             self.record = {
-                'result'     : result,
-                'PATH'       : [i.strip() for i in path_item.split('.')],
-                'DEFAULTS'   : {}
+                "result": result,
+                "PATH": [i.strip() for i in path_item.split(".")],
+                "DEFAULTS": {},
             }
-            processed_path = self.form_path(self.record['PATH'])
+            processed_path = self.form_path(self.record["PATH"])
             if processed_path:
-                self.record['PATH'] = processed_path
+                self.record["PATH"] = processed_path
             else:
                 continue
-            self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
+            self.save_curelements(
+                result_data=self.record["result"], result_path=self.record["PATH"]
+            )
         # set record to default value:
-        self.record={'result': {}, 'PATH': [], 'FUNCTIONS': [], 'DEFAULTS': {}}
-
+        self.record = {"result": {}, "PATH": [], "FUNCTIONS": [], "DEFAULTS": {}}
 
     def value_to_list(self, DATA, PATH, result):
         """recursive function to get value at given PATH and transform it into the list
@@ -2067,29 +2369,35 @@ class _results_class():
             transformed DATA with list at given PATH and appended results to it
         """
         if PATH:
-            name = PATH[0].rstrip('*')
+            name = PATH[0].rstrip("*")
             # add support for null path
-            if name == '_':
-                if len(PATH) == 1:                # reached end of PATH, process DATA and return it
+            if name == "_":
+                if len(PATH) == 1:  # reached end of PATH, process DATA and return it
                     if isinstance(DATA, dict):
                         DATA.update(result)
                     elif isinstance(DATA, list):
                         DATA[-1].update(result)
                     return DATA
-                else:                               # have more path items, need to skip null path,
-                    _ = PATH.pop(0)                 # remove null path item to skip it
-                    name = PATH[0].rstrip('*') # continue processing remaining PATH items
+                else:  # have more path items, need to skip null path,
+                    _ = PATH.pop(0)  # remove null path item to skip it
+                    name = PATH[0].rstrip(
+                        "*"
+                    )  # continue processing remaining PATH items
             if isinstance(DATA, dict):
                 if name in DATA:
-                    DATA[name]=self.value_to_list(DATA[name], PATH[1:], result)
+                    DATA[name] = self.value_to_list(DATA[name], PATH[1:], result)
                     return DATA
             elif isinstance(DATA, list):
                 if name in DATA[-1]:
-                    DATA[-1][name]=self.value_to_list(DATA[-1][name], PATH[1:], result)
+                    DATA[-1][name] = self.value_to_list(
+                        DATA[-1][name], PATH[1:], result
+                    )
                     return DATA
         else:
-            return [DATA, result] # for resulting list - value at given PATH transformed into list with result appended to it
-
+            return [
+                DATA,
+                result,
+            ]  # for resulting list - value at given PATH transformed into list with result appended to it
 
     def list_to_dict_fwd(self, KEYS):
         """recursive function to build nested dict starting from first element in list - forward order
@@ -2102,21 +2410,24 @@ class _results_class():
             if KEYS=[1,2,3,4*], returns {1:{2:{3:{4:[]}}}}, or
             if KEYS=[1,2,3*,4], returns {1:{2:{3:[{4:{}}]}}}
         """
-        if KEYS:                               # check if list is not empty:
+        if KEYS:  # check if list is not empty:
             # add support for null path
             if KEYS[0] == "_":
-                if len(KEYS) == 1: return {}
-                else: _ = KEYS.pop(0)
-            name=str(KEYS[0]).rstrip('*')      # get the name of first item in PATH keys
+                if len(KEYS) == 1:
+                    return {}
+                else:
+                    _ = KEYS.pop(0)
+            name = str(KEYS[0]).rstrip("*")  # get the name of first item in PATH keys
             if len(KEYS[0]) - len(name) == 1:  # if one * at the end - make a list
-                if len(KEYS) == 1:             # if KEYS=[1,2,3,4*], returns {1:{2:{3:{4:[{}]}}}}
-                    return {name: []}          # if last item in PATH - return emplty list
-                else:                          # if KEYS=[1,2,3*,4], returns {1:{2:{3:[{4:{}}]}}}
-                    return {name: [self.list_to_dict_fwd(KEYS[1:])]}  # run recursion if PATH has more than one element
-            else:                                                 # if KEYS=[1,2,3,4], returns {1:{2:{3:{4:{}}}}}
+                if len(KEYS) == 1:  # if KEYS=[1,2,3,4*], returns {1:{2:{3:{4:[{}]}}}}
+                    return {name: []}  # if last item in PATH - return emplty list
+                else:  # if KEYS=[1,2,3*,4], returns {1:{2:{3:[{4:{}}]}}}
+                    return {
+                        name: [self.list_to_dict_fwd(KEYS[1:])]
+                    }  # run recursion if PATH has more than one element
+            else:  # if KEYS=[1,2,3,4], returns {1:{2:{3:{4:{}}}}}
                 return {name: self.list_to_dict_fwd(KEYS[1:])}
-        return {}                                                 # return empty dict if KEYS list empty
-
+        return {}  # return empty dict if KEYS list empty
 
     def dict_by_path(self, PATH, ELEMENT):
         """recursive function to iterate over PATH list and merge it into ELEMENT dict as new keys
@@ -2126,33 +2437,44 @@ class _results_class():
         Returns:
             last element at given PATH of transformed ELEMENT dictionary
         """
-        if PATH == []: 
-            return ELEMENT                # check if PATH is empty, if so - stop and return ELEMENT
+        if PATH == []:
+            return ELEMENT  # check if PATH is empty, if so - stop and return ELEMENT
         elif isinstance(ELEMENT, dict):
-            name = PATH[0].rstrip('*')
+            name = PATH[0].rstrip("*")
             # add support for null path
-            if name == '_':
-                if len(PATH) == 1:                   # reached end of PATH, need to return ELEMENT
+            if name == "_":
+                if len(PATH) == 1:  # reached end of PATH, need to return ELEMENT
                     return ELEMENT
-                else:                                # have more path items, need to skip null path,
-                    _ = PATH.pop(0)                  # remove null path item to skip it
-                    name = PATH[0].rstrip('*')       # continue processing remaining PATH items
-            if name in ELEMENT:                                      # check if first element of the list is in ELEMENT
-                return self.dict_by_path(PATH[1:], ELEMENT[name])    # run recursion with moving forward in both - PATH and ELEMENT
-            else:                                                    # if first element not in dict - we found new key, update it into the dict
-                ELEMENT.update(self.list_to_dict_fwd(PATH))          # update new key into the nested dict with value equal to new nested dict branch
-                return self.dict_by_path(PATH[1:], ELEMENT[name])    # run recursion to reach element in the PATH
+                else:  # have more path items, need to skip null path,
+                    _ = PATH.pop(0)  # remove null path item to skip it
+                    name = PATH[0].rstrip(
+                        "*"
+                    )  # continue processing remaining PATH items
+            if name in ELEMENT:  # check if first element of the list is in ELEMENT
+                return self.dict_by_path(
+                    PATH[1:], ELEMENT[name]
+                )  # run recursion with moving forward in both - PATH and ELEMENT
+            else:  # if first element not in dict - we found new key, update it into the dict
+                ELEMENT.update(
+                    self.list_to_dict_fwd(PATH)
+                )  # update new key into the nested dict with value equal to new nested dict branch
+                return self.dict_by_path(
+                    PATH[1:], ELEMENT[name]
+                )  # run recursion to reach element in the PATH
         elif isinstance(ELEMENT, list):
             if ELEMENT == []:
-                ELEMENT.append(self.list_to_dict_fwd(PATH))   # check if element list is empty, if so - append empty dict to it
-            return self.dict_by_path(PATH, ELEMENT[-1])       # run recursion with last item in the list
-
+                ELEMENT.append(
+                    self.list_to_dict_fwd(PATH)
+                )  # check if element list is empty, if so - append empty dict to it
+            return self.dict_by_path(
+                PATH, ELEMENT[-1]
+            )  # run recursion with last item in the list
 
     def save_curelements(self, result_data, result_path):
         """Method to save current group results in self.results
         """
         # do nothing if DEFAULTS and result_data are empty:
-        if not result_data and not self.record['DEFAULTS']:
+        if not result_data and not self.record["DEFAULTS"]:
             return
         # get ELEMENT from self.results by result_path
         E = self.dict_by_path(PATH=result_path, ELEMENT=self.results)
@@ -2160,45 +2482,48 @@ class _results_class():
             E.append(result_data)
         elif isinstance(E, dict):
             # check if result_path endswith "**" - update result's ELEMENET without converting it into list:
-            if len(result_path[-1]) - len(result_path[-1].rstrip('*')) == 2:
+            if len(result_path[-1]) - len(result_path[-1].rstrip("*")) == 2:
                 result_data.update(E)
                 E.update(result_data)
             # to match all the other cases, like templates without "**" in path:
             elif E != {}:
                 # transform ELEMENT dict to list and append data to it:
-                self.results = self.value_to_list(DATA=self.results, PATH=result_path, result=result_data)
+                self.results = self.value_to_list(
+                    DATA=self.results, PATH=result_path, result=result_data
+                )
             else:
                 E.update(result_data)
-                
 
-    def start(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
+    def start(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
         if self.processgrp() != False:
-            self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
+            self.save_curelements(
+                result_data=self.record["result"], result_path=self.record["PATH"]
+            )
         self.record = {
-            'result'     : result,
-            'DEFAULTS'   : DEFAULTS.copy(),
-            'PATH'       : PATH,
-            'FUNCTIONS'  : FUNCTIONS
+            "result": result,
+            "DEFAULTS": DEFAULTS.copy(),
+            "PATH": PATH,
+            "FUNCTIONS": FUNCTIONS,
         }
 
-
-    def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
+    def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
         if self.processgrp() != False:
-            self.save_curelements(result_data=self.record['result'], result_path=self.record['PATH'])
+            self.save_curelements(
+                result_data=self.record["result"], result_path=self.record["PATH"]
+            )
         self.record = {
-            'result'     : {},
-            'DEFAULTS'   : DEFAULTS.copy(),
-            'PATH'       : PATH,
-            'FUNCTIONS'  : FUNCTIONS
+            "result": {},
+            "DEFAULTS": DEFAULTS.copy(),
+            "PATH": PATH,
+            "FUNCTIONS": FUNCTIONS,
         }
 
-
-    def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
-        if self.record['PATH'] == PATH: # if same path - save into self.record
+    def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+        if self.record["PATH"] == PATH:  # if same path - save into self.record
             # update without overriding already existing values:
-            result.update(self.record['result'])
-            self.record['result'] = result
-        # if different path - that can happen if we have group ended and result 
+            result.update(self.record["result"])
+            self.record["result"] = result
+        # if different path - that can happen if we have group ended and result
         # actually belong to another group, hence have save directly into results
         else:
             processed_path = self.form_path(PATH)
@@ -2210,70 +2535,73 @@ class _results_class():
             elif isinstance(ELEMENT, list):
                 ELEMENT[-1].update(result)
 
-
-    def join(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
+    def join(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
         # if path not the same, results belong to different group, skip them
-        if self.record['PATH'] != PATH:
+        if self.record["PATH"] != PATH:
             return
-        joinchar = '\n'
+        joinchar = "\n"
         for varname, varvalue in result.items():
             # skip vars that were added to results on the go
-            if not varname in REDICT['VARIABLES']: 
+            if not varname in REDICT["VARIABLES"]:
                 continue
-            for item in REDICT['VARIABLES'][varname].functions:
-                if item['name'] == 'joinmatches':
-                    if item['args']:
-                        joinchar = item['args'][0]
+            for item in REDICT["VARIABLES"][varname].functions:
+                if item["name"] == "joinmatches":
+                    if item["args"]:
+                        joinchar = item["args"][0]
                         break
         # join results:
         for k in result.keys():
-            if k in self.record['result']:                           # if we already have results
-                if isinstance(self.record['result'][k], str):
-                    self.record['result'][k] += joinchar + result[k] # join strings
-                elif isinstance(self.record['result'][k], list):
+            if k in self.record["result"]:  # if we already have results
+                if isinstance(self.record["result"][k], str):
+                    self.record["result"][k] += joinchar + result[k]  # join strings
+                elif isinstance(self.record["result"][k], list):
                     if isinstance(result[k], list):
-                        self.record['result'][k] += result[k]        # join lists
+                        self.record["result"][k] += result[k]  # join lists
                     else:
-                        self.record['result'][k].append(result[k])   # append to list                            
-                else: # transform result to list and append new result to it
-                    self.record['result'][k] = [ self.record['result'][k], result[k] ]
+                        self.record["result"][k].append(result[k])  # append to list
+                else:  # transform result to list and append new result to it
+                    self.record["result"][k] = [self.record["result"][k], result[k]]
             else:
-                self.record['result'][k] = result[k]                 # if first result
+                self.record["result"][k] = result[k]  # if first result
 
-
-    def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=''):
+    def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
         # if path not the same and this is not child
         # results belong to different group, skip them
-        if (self.record['PATH'] != PATH and 
+        if (
+            self.record["PATH"] != PATH
+            and
             # if below is true, this is child group:
-            not ".".join(self.record['PATH']).startswith(".".join(PATH))):
+            not ".".join(self.record["PATH"]).startswith(".".join(PATH))
+        ):
             return
         # action to end current group by locking it
-        self.GRPLOCK['LOCK'] = True
-        self.GRPLOCK['GROUP'] = list(PATH)
-
+        self.GRPLOCK["LOCK"] = True
+        self.GRPLOCK["GROUP"] = list(PATH)
 
     def form_path(self, path):
         """Method to form dynamic path
         """
         for index, path_item in enumerate(path):
-            match = re.findall(r'{{\s*(\S+)\s*}}', path_item)
+            match = re.findall(r"{{\s*(\S+)\s*}}", path_item)
             if not match:
                 continue
             for m in match:
-                pattern = r'{{\s*' + m + r'\s*}}'
-                if m in self.record['result']:
-                    self.dyn_path_cache[m] = self.record['result'][m]
-                    repl = self.record['result'].pop(m)
+                pattern = r"{{\s*" + m + r"\s*}}"
+                if m in self.record["result"]:
+                    self.dyn_path_cache[m] = self.record["result"][m]
+                    repl = self.record["result"].pop(m)
                     try:
                         path_item = re.sub(pattern, repl, path_item)
                     except TypeError as e:
                         try:
                             path_item = re.sub(pattern, str(repl), path_item)
                         except:
-                            log.critical("ttp.form_path path re substitution failed:\npattern: {}\nreplacememnt: {}\nstring to replace in: {}".format(
-                                pattern, repl, path_item))
-                            raise SystemExit('exiting...')
+                            log.critical(
+                                "ttp.form_path path re substitution failed:\npattern: {}\nreplacememnt: {}\nstring to replace in: {}".format(
+                                    pattern, repl, path_item
+                                )
+                            )
+                            raise SystemExit("exiting...")
                 elif m in self.dyn_path_cache:
                     path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
                 elif m in self.vars:
@@ -2283,29 +2611,29 @@ class _results_class():
             path[index] = path_item
         return path
 
-
     def processgrp(self):
         """Method to process group results
         """
         # add default values to group results
-        for k, v in self.record['DEFAULTS'].items():
-            self.record['result'].setdefault(k,v)
+        for k, v in self.record["DEFAULTS"].items():
+            self.record["result"].setdefault(k, v)
         # process group functions
-        for item in self.record['FUNCTIONS']:
-            func_name = item['name']
-            args = item.get('args', [])
-            kwargs = item.get('kwargs', {})
+        for item in self.record["FUNCTIONS"]:
+            func_name = item["name"]
+            args = item.get("args", [])
+            kwargs = item.get("kwargs", {})
             # run group functions
-            self.record['result'], flags = _ttp_["group"][func_name](self.record['result'], *args, **kwargs)
+            self.record["result"], flags = _ttp_["group"][func_name](
+                self.record["result"], *args, **kwargs
+            )
             # if conditions check been false, return False:
             if flags == False:
                 return False
-        processed_path = self.form_path(self.record['PATH'])
+        processed_path = self.form_path(self.record["PATH"])
         if processed_path:
-            self.record['PATH'] = processed_path
+            self.record["PATH"] = processed_path
         else:
             return False
-
 
 
 """
@@ -2313,7 +2641,9 @@ class _results_class():
 TTP OUTPUTTER CLASS
 ==============================================================================
 """
-class _outputter_class():
+
+
+class _outputter_class:
     """Class to serve excel, yaml, json, xml etc. dumping functions
     Args:
         destination (str): if 'file' will save data to file,
@@ -2323,16 +2653,18 @@ class _outputter_class():
         filename (str): name of hte file
         method (str): how to save results, in separate files or in one file
     """
+
     def __init__(self, element=None, template_obj=None, **kwargs):
         from time import strftime
+
         ctime = strftime("%Y-%m-%d_%H-%M-%S")
         # set attributes default values:
         self.attributes = {
-            'returner'    : ['self'],
-            'format'      : 'raw',
-            'url'         : './Output/',
-            'method'      : 'join',
-            'filename'    : 'output_{}.txt'.format(ctime)
+            "returner": ["self"],
+            "format": "raw",
+            "url": "./Output/",
+            "method": "join",
+            "filename": "output_{}.txt".format(ctime),
         }
         self.template_obj = template_obj
         self.name = None
@@ -2346,113 +2678,154 @@ class _outputter_class():
             self.get_attributes(kwargs)
 
     def get_attributes(self, data):
-
         def extract_name(O):
             self.name = O
 
         def extract_returner(O):
-            supported_returners = ['file', 'terminal', 'self']
+            supported_returners = ["file", "terminal", "self"]
             if O in supported_returners:
-                self.attributes['returner'] = [i.strip() for i in O.split(',')]
+                self.attributes["returner"] = [i.strip() for i in O.split(",")]
             else:
-                log.critical("output.extract_returner: unsupported returner '{}'. Supported: {}. Exiting".format(O, supported_returners))
+                log.critical(
+                    "output.extract_returner: unsupported returner '{}'. Supported: {}. Exiting".format(
+                        O, supported_returners
+                    )
+                )
                 raise SystemExit()
 
         def extract_format(O):
-            supported_formats = ['raw', 'yaml', 'json', 'csv', 'jinja2', 'pprint', 'tabulate', 'table', 'excel', 'graph', 'n2g']
+            supported_formats = [
+                "raw",
+                "yaml",
+                "json",
+                "csv",
+                "jinja2",
+                "pprint",
+                "tabulate",
+                "table",
+                "excel",
+                "graph",
+                "n2g",
+            ]
             if O in supported_formats:
-                self.attributes['format'] = O
+                self.attributes["format"] = O
             else:
-                log.critical("output.extract_format: unsupported format '{}'. Supported: {}. Exiting".format(O, supported_formats))
+                log.critical(
+                    "output.extract_format: unsupported format '{}'. Supported: {}. Exiting".format(
+                        O, supported_formats
+                    )
+                )
                 raise SystemExit()
 
         def extract_load(O):
-            self.attributes['load'] = _ttp_["utils"]["load_struct"](self.element.text, **self.element.attrib)
+            self.attributes["load"] = _ttp_["utils"]["load_struct"](
+                self.element.text, **self.element.attrib
+            )
 
         def extract_filename(O):
             """File name can contain time formatters supported by strftime      
             """
             from time import strftime
-            self.attributes['filename'] = strftime(O)
+
+            self.attributes["filename"] = strftime(O)
 
         def extract_method(O):
-            supported_methods = ['split', 'join']
+            supported_methods = ["split", "join"]
             if O in supported_methods:
-                self.attributes['method'] = O
+                self.attributes["method"] = O
             else:
-                log.critical("output.extract_method: unsupported file returner method '{}'. Supported: {}. Exiting".format(O, supported_methods))
+                log.critical(
+                    "output.extract_method: unsupported file returner method '{}'. Supported: {}. Exiting".format(
+                        O, supported_methods
+                    )
+                )
                 raise SystemExit()
 
         def extract_format_attributes(O):
             """Extract formatter attributes
             """
             format_attributes = _ttp_["utils"]["get_attributes"](
-                            'format_attributes({})'.format(O))
-            self.attributes['format_attributes'] = {
-                'args': format_attributes[0]['args'],
-                'kwargs': format_attributes[0]['kwargs']
+                "format_attributes({})".format(O)
+            )
+            self.attributes["format_attributes"] = {
+                "args": format_attributes[0]["args"],
+                "kwargs": format_attributes[0]["kwargs"],
             }
 
         def extract_path(O):
-            self.attributes['path'] = [i.strip() for i in O.split('.')]
+            self.attributes["path"] = [i.strip() for i in O.split(".")]
 
         def extract_headers(O):
             if isinstance(O, str):
-                self.attributes['headers'] = [i.strip() for i in O.split(',')]
+                self.attributes["headers"] = [i.strip() for i in O.split(",")]
             else:
-                self.attributes['headers'] = O
+                self.attributes["headers"] = O
 
         def extract_functions(O):
             funcs = _ttp_["utils"]["get_attributes"](O)
             for i in funcs:
-                name = i['name']
+                name = i["name"]
                 if name in functions:
                     functions[name](i)
-                elif name in _ttp_['output']:
+                elif name in _ttp_["output"]:
                     self.funcs.append(i)
                 else:
-                    similar_funcs = _ttp_["utils"]["guess"](name, list(_ttp_["output"].keys()))
+                    similar_funcs = _ttp_["utils"]["guess"](
+                        name, list(_ttp_["output"].keys())
+                    )
                     if similar_funcs:
-                        log.error("output.extract_functions: unknown output function: '{}', most similar function(s) - {}".format(name, ", ".join(similar_funcs)))
+                        log.error(
+                            "output.extract_functions: unknown output function: '{}', most similar function(s) - {}".format(
+                                name, ", ".join(similar_funcs)
+                            )
+                        )
                     else:
-                        log.error('output.extract_functions: unknown output function: "{}"'.format(name))
-                        
+                        log.error(
+                            'output.extract_functions: unknown output function: "{}"'.format(
+                                name
+                            )
+                        )
+
         def extract_function(func_name, args_kwargs):
-            attribs = _ttp_["utils"]["get_attributes"]('{}({})'.format(func_name, args_kwargs))
-            self.funcs.append(attribs[0]) 
-                
+            attribs = _ttp_["utils"]["get_attributes"](
+                "{}({})".format(func_name, args_kwargs)
+            )
+            self.funcs.append(attribs[0])
+
         options = {
-        'name'           : extract_name,
-        'returner'       : extract_returner,
-        'format'         : extract_format,
-        'load'           : extract_load,
-        'filename'       : extract_filename,
-        'method'         : extract_method,
-        'format_attributes' : extract_format_attributes,
-        'path'           : extract_path,
-        'headers'        : extract_headers
+            "name": extract_name,
+            "returner": extract_returner,
+            "format": extract_format,
+            "load": extract_load,
+            "filename": extract_filename,
+            "method": extract_method,
+            "format_attributes": extract_format_attributes,
+            "path": extract_path,
+            "headers": extract_headers,
         }
-        functions = {
-        'functions'      : extract_functions
-        }     
+        functions = {"functions": extract_functions}
         for attr_name, attributes in data.items():
-            if attr_name.lower() in options: options[attr_name.lower()](attributes)
-            elif attr_name.lower() in functions: functions[attr_name.lower()](attributes)
-            elif attr_name.lower() in _ttp_['output']: extract_function(attr_name, attributes)
-            else: self.attributes[attr_name] = attributes
+            if attr_name.lower() in options:
+                options[attr_name.lower()](attributes)
+            elif attr_name.lower() in functions:
+                functions[attr_name.lower()](attributes)
+            elif attr_name.lower() in _ttp_["output"]:
+                extract_function(attr_name, attributes)
+            else:
+                self.attributes[attr_name] = attributes
 
     def run(self, data, macro={}):
         _ttp_["output_object"] = self
         if macro:
             _ttp_["macro"] = macro
-        returners = self.attributes['returner']
-        format_type = self.attributes['format']
+        returners = self.attributes["returner"]
+        format_type = self.attributes["format"]
         results = data
         # run functions:
         for item in self.funcs:
-            func_name = item['name']
-            args = item.get('args', [])
-            kwargs = item.get('kwargs', {})
+            func_name = item["name"]
+            args = item.get("args", [])
+            kwargs = item.get("kwargs", {})
             results = _ttp_["output"][func_name](results, *args, **kwargs)
         # format data using requested formatter
         results = _ttp_["formatters"][format_type](results)
@@ -2460,35 +2833,41 @@ class _outputter_class():
         [_ttp_["returners"][returner](results) for returner in returners]
         # check if need to return processed data:
         if self.return_to_self is True:
-            return results        
+            return results
         # return unmodified data:
         return data
 
     def debug(self):
         from pprint import pformat
-        text = "Output Object {}, Output name '{}' content:\n{}".format(self, self.name, pformat(vars(self), indent=4))
+
+        text = "Output Object {}, Output name '{}' content:\n{}".format(
+            self, self.name, pformat(vars(self), indent=4)
+        )
         log.debug(text)
-        
+
+
 """
 ==============================================================================
 TTP LOGGING SETUP
 ==============================================================================
 """
+
+
 def logging_config(LOG_LEVEL, LOG_FILE):
     valid_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     if not LOG_LEVEL.upper() in valid_log_levels:
         return
     # if used as a module - only set logs to requested level
-    if __name__ != '__main__':
+    if __name__ != "__main__":
         log.setLevel(LOG_LEVEL.upper())
     # if used as a CLI tool - setup logging config using custom formatter
     else:
         logging.basicConfig(
-            format='%(asctime)s.%(msecs)d [TTP %(levelname)s] %(lineno)d; %(message)s', 
-            datefmt='%m/%d/%Y %I:%M:%S',
+            format="%(asctime)s.%(msecs)d [TTP %(levelname)s] %(lineno)d; %(message)s",
+            datefmt="%m/%d/%Y %I:%M:%S",
             level=LOG_LEVEL.upper(),
             filename=LOG_FILE,
-            filemode='w'
+            filemode="w",
         )
 
 
@@ -2497,12 +2876,14 @@ def logging_config(LOG_LEVEL, LOG_FILE):
 TTP CLI PROGRAMM
 ==============================================================================
 """
+
+
 def cli_tool():
     import argparse
     import time
 
     # form argparser menu:
-    description_text='''-d,  --data            Data files location
+    description_text = """-d,  --data            Data files location
 -dp, --data-prefix     Prefix to add to template inputs' urls
 -t,  --template        OS path to templates file
 -tn, --template-name   Name of the template in templates file
@@ -2514,78 +2895,183 @@ def cli_tool():
 -s,  --structure       Final results structure - 'list' or 'dictionary'
 -v,  --vars            Json string containing variables to add to TTP object
 --one                  Parse using single process
---multi                Parse using multiple processes'''
-    argparser = argparse.ArgumentParser(description="Template Text Parser, version 0.3.0.", formatter_class=argparse.RawDescriptionHelpFormatter)
-    run_options=argparser.add_argument_group(description=description_text)
-    run_options.add_argument('--one', action='store_true', dest='ONE', default=False, help=argparse.SUPPRESS)
-    run_options.add_argument('--multi', action='store_true', dest='MULTI', default=False, help=argparse.SUPPRESS)
-    run_options.add_argument('-T', '--Timing', action='store_true', dest='TIMING', default=False, help=argparse.SUPPRESS)
-    run_options.add_argument('-d', '--data', action='store', dest='DATA', default='', type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-dp', '--data-prefix', action='store', dest='data_prefix', default='', type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-t', '--template', action='store', dest='TEMPLATE_FILE', default='', type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-tn', '--template-name', action='store', dest='TEMPLATE_NAME', default='', type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-o', '--outputter', action='store', dest='OUTPUTTER', default='', type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-ot', '--out-template', action='store', dest='OUT_TEMPLATE', default='', type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-l', '--logging', action='store', dest='LOG_LEVEL', default='WARNING', type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-lf', '--log-file', action='store', dest='LOG_FILE', default=None, type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-s', '--structure', action='store', dest='STRUCTURE', default="list", type=str, help=argparse.SUPPRESS)
-    run_options.add_argument('-v', '--vars', action='store', dest='VARS', default="", type=str, help=argparse.SUPPRESS)
-    
+--multi                Parse using multiple processes"""
+    argparser = argparse.ArgumentParser(
+        description="Template Text Parser, version 0.3.0.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    run_options = argparser.add_argument_group(description=description_text)
+    run_options.add_argument(
+        "--one", action="store_true", dest="ONE", default=False, help=argparse.SUPPRESS
+    )
+    run_options.add_argument(
+        "--multi",
+        action="store_true",
+        dest="MULTI",
+        default=False,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-T",
+        "--Timing",
+        action="store_true",
+        dest="TIMING",
+        default=False,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-d",
+        "--data",
+        action="store",
+        dest="DATA",
+        default="",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-dp",
+        "--data-prefix",
+        action="store",
+        dest="data_prefix",
+        default="",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-t",
+        "--template",
+        action="store",
+        dest="TEMPLATE_FILE",
+        default="",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-tn",
+        "--template-name",
+        action="store",
+        dest="TEMPLATE_NAME",
+        default="",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-o",
+        "--outputter",
+        action="store",
+        dest="OUTPUTTER",
+        default="",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-ot",
+        "--out-template",
+        action="store",
+        dest="OUT_TEMPLATE",
+        default="",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-l",
+        "--logging",
+        action="store",
+        dest="LOG_LEVEL",
+        default="WARNING",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-lf",
+        "--log-file",
+        action="store",
+        dest="LOG_FILE",
+        default=None,
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-s",
+        "--structure",
+        action="store",
+        dest="STRUCTURE",
+        default="list",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+    run_options.add_argument(
+        "-v",
+        "--vars",
+        action="store",
+        dest="VARS",
+        default="",
+        type=str,
+        help=argparse.SUPPRESS,
+    )
+
     # extract argparser arguments:
     args = argparser.parse_args()
-    TEMPLATE_FILE = args.TEMPLATE_FILE     # string, Template file
-    TEMPLATE_NAME = args.TEMPLATE_NAME     # string, Template name in template file    
-    DATA = args.DATA             # string, OS path to data files to parse
-    OUTPUTTER = args.OUTPUTTER   # string, set OUTPUTTER format
-    TIMING = args.TIMING         # boolean, enabled timing
-    BASE_PATH = args.data_prefix # string, to add to templates' inputs urls
-    ONE = args.ONE               # boolean to indicate if run in single process
-    MULTI = args.MULTI           # boolean to indicate if run in multi process
-    LOG_LEVEL = args.LOG_LEVEL   # level of logging
-    LOG_FILE = args.LOG_FILE     # file to put the logs in
+    TEMPLATE_FILE = args.TEMPLATE_FILE  # string, Template file
+    TEMPLATE_NAME = args.TEMPLATE_NAME  # string, Template name in template file
+    DATA = args.DATA  # string, OS path to data files to parse
+    OUTPUTTER = args.OUTPUTTER  # string, set OUTPUTTER format
+    TIMING = args.TIMING  # boolean, enabled timing
+    BASE_PATH = args.data_prefix  # string, to add to templates' inputs urls
+    ONE = args.ONE  # boolean to indicate if run in single process
+    MULTI = args.MULTI  # boolean to indicate if run in multi process
+    LOG_LEVEL = args.LOG_LEVEL  # level of logging
+    LOG_FILE = args.LOG_FILE  # file to put the logs in
     STRUCTURE = args.STRUCTURE
     OUT_TEMPLATE = args.OUT_TEMPLATE
     VARS = args.VARS
- 
+
     supporrted_cli_tool_outputters = ["json", "yaml", "raw", "pprint", ""]
-    
+
     def timing(message):
         if TIMING:
             print(round(time.time() - t0, 5), message)
-        
+
     # setup logging
     logging_config(LOG_LEVEL, LOG_FILE)
-    
+
     if TIMING:
         t0 = time.time()
     else:
         t0 = 0
-       
+
     # extract vars
     ttp_vars = {}
     if VARS:
         from json import loads
+
         VARS = VARS.replace("'", '"')
         ttp_vars = loads(VARS)
         if not isinstance(ttp_vars, dict):
-            log.error("cli_tool: Error with -v/--vars argument, value type is '{}', value is '{}', expecting dictionary, exiting...".format(type(ttp_vars), ttp_vars))
+            log.error(
+                "cli_tool: Error with -v/--vars argument, value type is '{}', value is '{}', expecting dictionary, exiting...".format(
+                    type(ttp_vars), ttp_vars
+                )
+            )
             raise SystemExit()
-        
+
     # create parser object
     parser_Obj = ttp(base_path=BASE_PATH, vars=ttp_vars)
-    
+
     # load templates file
     if TEMPLATE_FILE:
-        ttp_template = _ttp_['utils']['load_files'](TEMPLATE_FILE, read=True)[0][1]
+        ttp_template = _ttp_["utils"]["load_files"](TEMPLATE_FILE, read=True)[0][1]
         if TEMPLATE_NAME:
-            ttp_template = _ttp_['utils']['load_struct'](text_data=ttp_template, load="python")
+            ttp_template = _ttp_["utils"]["load_struct"](
+                text_data=ttp_template, load="python"
+            )
             ttp_template = ttp_template[TEMPLATE_NAME]
-        
+            
     # add data and templates
+    parser_Obj.add_template(template=ttp_template)
     if DATA:
         parser_Obj.set_input(data=DATA)
         timing("Data descriptors loaded")
-    parser_Obj.add_template(template=ttp_template)
     timing("Template(s) loaded")
 
     # parse data
@@ -2599,14 +3085,18 @@ def cli_tool():
         else:
             OUT_TEMPLATE = [i.strip() for i in OUT_TEMPLATE.split(",")]
         if not OUTPUTTER.lower() in supporrted_cli_tool_outputters:
-            log.error("ttp.cli: unsupported outputter '{}', supported: {}, will use 'json' outputter".format(
-                OUTPUTTER, ", ".join(supporrted_cli_tool_outputters)))
-            OUTPUTTER="json"
+            log.error(
+                "ttp.cli: unsupported outputter '{}', supported: {}, will use 'json' outputter".format(
+                    OUTPUTTER, ", ".join(supporrted_cli_tool_outputters)
+                )
+            )
+            OUTPUTTER = "json"
         results = parser_Obj.result(structure=STRUCTURE, templates=OUT_TEMPLATE)
-        print(_ttp_['formatters'][OUTPUTTER](results))
+        print(_ttp_["formatters"][OUTPUTTER](results))
         timing("{} dumped".format(OUTPUTTER))
 
     timing("Done")
-    
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     cli_tool()

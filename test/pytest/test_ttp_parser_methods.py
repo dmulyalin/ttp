@@ -610,8 +610,30 @@ interface {{ interface }}
                       'interface': 'Lo3',
                       'ip': '2.2.2.2',
                       'mask': '32'}]]]
-	
-	
-def test_adding_template_and_data_from_files():
-    pass
     
+    
+def test_adding_data_from_files():
+    template_1 = """
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+"""
+    parser = ttp(template=template_1)
+    parser.add_input(data="./mock_data/dataset_1/")
+    # check that data added:
+    datums_added = {"{}:{}".format(template.name, input_name): input_obj.data for template in parser._templates for input_name, input_obj in template.inputs.items()}   
+    # pprint.pprint(datums_added)    
+    assert datums_added == {'_root_template_:Default_Input': [('file_name',
+                                                               './mock_data/dataset_1/data_1.txt'),
+                                                              ('file_name',
+                                                               './mock_data/dataset_1/data_2.txt')]}
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+                     {'description': 'this interface has description',
+                      'interface': 'Lo1',
+                      'ip': '1.1.1.1',
+                      'mask': '32'}],
+                    [{'interface': 'Lo2', 'ip': '124.171.238.22', 'mask': '32'},
+                     {'description': 'this interface has description', 'interface': 'Lo3'}]]]

@@ -1,0 +1,7 @@
+interface Lo2
+ ip address 124.171.238.22 32
+!
+interface Lo3
+ description this interface has description
+ ip address 2
+!
