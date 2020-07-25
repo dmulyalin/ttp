@@ -637,3 +637,65 @@ interface {{ interface }}
                       'mask': '32'}],
                     [{'interface': 'Lo2', 'ip': '124.171.238.22', 'mask': '32'},
                      {'description': 'this interface has description', 'interface': 'Lo3'}]]]
+
+def test_get_input_load_default_template():
+    template = """
+<input name="my_input" load="yaml">
+my_params:
+  key1: val1
+  key2: val2
+  
+more_params:
+  - item1
+  - item2
+  - item3
+</input>
+
+<group name = "{{ timestamp }}.{{ interface }}">
+{{ interface }} is up, line protocol is up
+     {{ in_pkts}} packets input, 25963 bytes, 0 no buffer
+     {{ out_pkts }} packets output, 26812 bytes, 0 underruns
+</group>
+"""
+    parser = ttp(template=template)
+    load = parser.get_input_load()
+    assert load == {'_root_template_': {'my_input': {'more_params': ['item1', 'item2', 'item3'],
+                                                     'my_params': {'key1': 'val1',
+                                                                   'key2': 'val2'}}}}
+ 
+def test_get_input_load_child_templates():
+    template = """
+<template name="template_1">
+<input name="my_input" load="yaml">
+my_params:
+  key1: val1
+  key2: val2
+</input>
+
+<group name = "{{ timestamp }}.{{ interface }}">
+{{ interface }} is up, line protocol is up
+     {{ in_pkts}} packets input, 25963 bytes, 0 no buffer
+     {{ out_pkts }} packets output, 26812 bytes, 0 underruns
+</group>
+</template>
+
+<template name="template_2">
+<input name="my_input" load="yaml"> 
+more_params:
+  - item1
+  - item2
+  - item3
+</input>
+
+<group name = "{{ timestamp }}.{{ interface }}">
+{{ interface }} is up, line protocol is up
+     {{ in_pkts}} packets input, 25963 bytes, 0 no buffer
+     {{ out_pkts }} packets output, 26812 bytes, 0 underruns
+</group>
+</template>
+"""
+    parser = ttp(template=template)
+    load = parser.get_input_load()
+    # pprint.pprint(load)
+    assert load == {'template_1': {'my_input': {'my_params': {'key1': 'val1', 'key2': 'val2'}}},
+                    'template_2': {'my_input': {'more_params': ['item1', 'item2', 'item3']}}}

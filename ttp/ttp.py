@@ -607,11 +607,12 @@ class ttp:
         
         **Returns**
         
-        Dictionary of {"input_name": "input load data"} across all templates, 
-        where input_name set to input name attribute value, by default it is "Default_Input"
+        Dictionary of {"template_name": {"input_name": "input load data"}} across all templates, 
+        where input_name set to input name attribute value, by default it is "Default_Input",
+        and template_name set to name of the template, by default it is "_root_template_"
                 
-        .. warning:: inputs with same names will override one another, make sure 
-            input name attribute is unique across all templates.
+        .. warning:: inputs load can override one another if combination of template_name 
+          and input_name is not unique.
         """
         ret = {}
         for template_obj in self._templates:
