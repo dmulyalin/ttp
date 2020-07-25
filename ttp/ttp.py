@@ -208,9 +208,9 @@ class ttp:
         * ``groups`` (list) list of group names to use to parse this input data
         * ``template_name`` (str) name of the template to add input for
         """
-        # form a list of ((type, url|text,), input_name, groups,) tuples
         if not self._templates:
             log.warning("ttp.add_input: no TTP templates to associate input data with, load template(s) first.")
+        # form a list of ((type, url|text,), input_name, groups,) tuples
         data_items = _ttp_["utils"]["load_files"](path=data, read=False)
         if data_items:
             [
@@ -231,6 +231,8 @@ class ttp:
         """Method to replace existing templates inputs data with new set of data. This 
         method is alias to ``clear_input`` and ``add_input`` methods.
         
+        .. warning:: ``set_input`` should be called only after templates added
+        
         **Parameters**        
         
         * ``data`` file object or OS path to text file or directory with text files with data to parse
@@ -238,6 +240,8 @@ class ttp:
         * ``groups`` (list) list of group names to use to parse this input data 
         * ``template_name`` (str) name of the template to set input for
         """
+        if not self._templates:
+            log.warning("ttp.set_input: no TTP templates to associate input data with, load template(s) first.")
         self.clear_input(template_name=template_name)
         self.add_input(
             data=data, input_name=input_name, groups=groups, template_name=template_name
