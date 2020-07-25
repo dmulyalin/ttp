@@ -145,7 +145,7 @@ class ttp():
         logging_config(log_level, log_file)
         # lazy import all functions
         lazy_import_functions()
-        # add reference to TTP object in _ttp_
+        # add reference to TTP object in _ttp_ dunder
         _ttp_['ttp_object'] = self
         # check if template given, if so - load it
         if template != '':
