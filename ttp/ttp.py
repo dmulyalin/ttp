@@ -289,10 +289,10 @@ class ttp:
         * ``template_name`` (str) name of the template
         * ``filter`` (list) list of templates' names to load,
         
-        ``filter`` attribute allow to filter the list of template names that should be loaded, 
-        checks done against child templates as well. For templates specified
-        in filter list, groups/macro/inputs/etc. will not be loaded and no 
-        results produced for that template.
+        ``filter`` attribute allow to filter the list of template names that 
+        should be loaded. Checks done against child templates as well. For 
+        templates specified in filter list, groups/macro/inputs/etc. will not 
+        be loaded and no results produced.
         """
         log.debug("ttp.add_template - loading template '{}'".format(template_name))
         # get a list of [(type, text,)] tuples or empty list []
@@ -2687,7 +2687,7 @@ class _outputter_class:
             self.name = O
 
         def extract_returner(O):
-            supported_returners = ["file", "terminal", "self"]
+            supported_returners = ["file", "terminal", "self", "syslog"]
             if O in supported_returners:
                 self.attributes["returner"] = [i.strip() for i in O.split(",")]
             else:
@@ -2709,7 +2709,6 @@ class _outputter_class:
                 "tabulate",
                 "table",
                 "excel",
-                "graph",
                 "n2g",
             ]
             if O in supported_formats:

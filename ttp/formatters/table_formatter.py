@@ -1,6 +1,6 @@
 def table(data):
     """Method to form table there table is list of lists,
-    firts item - heders row. Method used by csv/tabulate/excel
+    first item - headers row. Method used by csv/tabulate/excel
     formatters.
     """
     table = []
