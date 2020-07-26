@@ -1120,7 +1120,7 @@ class _input_class:
         self.group_inputs = []
         self.input_groups = groups
         self.functions = []
-        # extract attributes from input emenet
+        # extract attributes from input element
         if element is not None:
             # need to get name before getting any other attributes
             # as name used to extract groups and depending on python dict
@@ -1273,7 +1273,7 @@ class _input_class:
         # try to source data by calling external module
         elif self.attributes.get("source", "") in _ttp_["input"]:
             datums = _ttp_["input"][self.attributes["source"]](
-                self.name, **self.attributes
+                self.name, **self.parameters
             )
             self.data = [("text_data", datum) for datum in datums]
             return

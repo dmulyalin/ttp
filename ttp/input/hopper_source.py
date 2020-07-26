@@ -7,10 +7,7 @@ _name_map_ = {
 "hopper_fun": "hopper"
 }
 
-def hopper_fun(input_name, **all_kwargs):
-    # remove known TTP kwargs:
-    ttp_known_kwargs = ['load', 'extensions', 'filters', 'urls', 'source', 'groups', 'name'] + list(_ttp_["input"].keys())
-    kwargs = {k: v for k, v in all_kwargs.items() if not k in ttp_known_kwargs}
+def hopper_fun(input_name, **kwargs):
     #get username and password
     if kwargs.get("username", "") == "get_user_input":
         username = input('{}, enter username: '.format(input_name))
