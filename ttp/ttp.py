@@ -2276,14 +2276,14 @@ class _results_class:
                             # prefer result with same path as current record
                             if re["GROUP"].path == self.record["PATH"]:
                                 break
-                    # normal REs preferred the next
+                    # normal REs preferred next
                     elif normal_re:
                         for index in normal_re:
                             re = result[index][0]
                             result_data = result[index][1]
                             if re["GROUP"].path == self.record["PATH"]:
                                 break
-                    # line REs has the least preference
+                    # line REs have least preference
                     elif line_re:
                         for index in line_re:
                             re = result[index][0]
@@ -2861,11 +2861,8 @@ def logging_config(LOG_LEVEL, LOG_FILE):
     valid_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     if not LOG_LEVEL.upper() in valid_log_levels:
         return
-    # if used as a module - only set logs to requested level
-    if __name__ != "__main__":
-        log.setLevel(LOG_LEVEL.upper())
-    # if used as a CLI tool - setup logging config using custom formatter
-    else:
+    # if used as a CLI tool or sas a script - setup logging config using custom formatter
+    if __name__ == "__main__" or _ttp_.get("_used_as_cli_tool_") == True:
         logging.basicConfig(
             format="%(asctime)s.%(msecs)d [TTP %(levelname)s] %(lineno)d; %(message)s",
             datefmt="%m/%d/%Y %I:%M:%S",
@@ -2873,6 +2870,9 @@ def logging_config(LOG_LEVEL, LOG_FILE):
             filename=LOG_FILE,
             filemode="w",
         )
+    # if used as a module - only set logs to requested level
+    else:
+        log.setLevel(LOG_LEVEL.upper())
 
 
 """
@@ -2885,7 +2885,9 @@ TTP CLI PROGRAMM
 def cli_tool():
     import argparse
     import time
-
+    # use this to fix logging when used as a cli tool
+    _ttp_["_used_as_cli_tool_"] = True
+    
     # form argparser menu:
     description_text = """-d,  --data            Data files location
 -dp, --data-prefix     Prefix to add to template inputs' urls
