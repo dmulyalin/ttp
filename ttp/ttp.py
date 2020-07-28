@@ -1499,13 +1499,17 @@ class _group_class:
                     skip_regex = True
                     continue
 
-                # creade variable dict:
+                # create variable dict:
                 if variableObj.skip_variable_dict is False:
                     variables[variableObj.var_name] = variableObj
 
                 # form regex:
                 regex = variableObj.form_regex(regex)
-
+                
+                # check if has sub variables:
+                if variableObj.sub_variables:
+                    variables.update(variableObj.sub_variables)
+                    
                 # check if IS_LINE:
                 if is_line == False:
                     is_line = variableObj.IS_LINE
@@ -1641,7 +1645,8 @@ class _variable_class:
         self.skip_variable_dict = False  # will be set to true for 'ignore'
         self.skip_regex_dict = False  # will be set to true for 'set'
         self.var_res = []  # list of variable regexes
-
+        self.sub_variables = {} # dictionary to store child/sub variables
+        
         # form attributes - list of dictionaries:
         self.attributes = _ttp_["utils"]["get_attributes"](variable)
         self.var_dict = self.attributes.pop(0)
@@ -1762,7 +1767,10 @@ class _variable_class:
             # use regex as is
             else:
                 self.var_res.append(regex)
-
+                
+        def extract__headers_(data):
+            self.SAVEACTION = "start"
+            
         extract_funcs = {
             "ignore": extract_ignore,
             "_start_": extract__start_,
@@ -1770,6 +1778,7 @@ class _variable_class:
             "_line_": extract__line_,
             "_exact_": extract__exact_,
             "_exact_space_": extract__exact_space_,
+            "_headers_": extract__headers_,
             "chain": extract_chain,
             "set": extract_set,
             "default": extract_default,
@@ -1859,15 +1868,41 @@ class _variable_class:
                 # slice regex string before esc_var start:
                 result = self.regex[:index]
                 # delete "\ +" from end of line and add " *(?=\\n)":
-                result = re.sub(r"(\\ \+)$", "", result) + r" *(?=\n)"
+                result = re.sub(r"(\\ \+)$", "", result) + r"[\t ]*(?=\n)"
             if result:
                 self.regex = result
+                
+        def regex_headers(data):
+            # Goal is to create this regex:
+            #   \\n(?P<Port>.{10})(?P<Name>.{19})(?P<Status>.{13,})(?=\\n)
+            # based on this string:
+            #   Port      Name  Status  {{ _headers_ }}
 
-        # for variables like {{ ignore }}
+            # remove {{ _headers_ }} variable from end of string
+            index = self.LINE.find(esc_var)
+            self.regex = self.LINE[:index].rstrip()
+            # create regex out of headers
+            headers = re.findall(r"(\S+\s+|\S+)", self.regex)
+            row_re = ["(?P<{}>.{{{}}})".format(header.strip(), len(header))
+                      for header in headers[:-1]]
+            row_re.append("(?P<{}>.{{{},}})".format(headers[-1].strip(), len(headers[-1])))
+            self.regex = r"\n" + "".join(row_re) + r"(?=\n)"
+            # form sub variables dictionary out of headers
+            self.sub_variables = {
+                var.strip(): _variable_class(
+                    "{var} | strip | exclude({var})".format(var=var.strip()), 
+                    line="", 
+                    group=self.group
+                )
+                for var in headers
+            }
+            
+        # for variables like {{ ignore }} or {{ _headers_ }}
         regexFuncsVar = {
             "ignore": regex_ignore,
             "_start_": regex_deleteVar,
             "_end_": regex_deleteVar,
+            "_headers_": regex_headers
         }
         if self.var_name in regexFuncsVar:
             regexFuncsVar[self.var_name](self.var_dict)
