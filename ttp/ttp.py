@@ -1883,6 +1883,9 @@ class _variable_class:
             self.regex = self.LINE[:index].rstrip()
             # create regex out of headers
             headers = re.findall(r"(\S+\s+|\S+)", self.regex)
+            # reconstruct headers line indentation
+            headers[0] = " " * (len(self.regex) - len(self.regex.lstrip())) + headers[0]
+            # form regex
             row_re = ["(?P<{}>.{{{}}})".format(header.strip(), len(header))
                       for header in headers[:-1]]
             row_re.append("(?P<{}>.{{{},}})".format(headers[-1].strip(), len(headers[-1])))
