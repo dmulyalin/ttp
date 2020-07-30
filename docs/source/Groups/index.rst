@@ -54,4 +54,3 @@ Group reference
    
    Attributes
    Functions
-   Name Attribute

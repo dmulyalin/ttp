@@ -1,4 +1,4 @@
-Input parameters
+Parameters
 ================
 
 Apart from input attributes specified in <input> tag, text payload of <input> tag can be used to pass additional parameters. 

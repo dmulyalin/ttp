@@ -12,17 +12,17 @@
 #
 import os
 import sys
-sys.path.insert(0, "C:/Users/Denis/YandexDisk/Python/TTP/ttp/")
+sys.path.insert(0, "../../ttp/")
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'ttp'
-copyright = '2019, dmulyalin'
+copyright = '2020, dmulyalin'
 author = 'dmulyalin'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.4.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -52,7 +52,6 @@ master_doc = 'index'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import os
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if not on_rtd:
     html_theme = 'classic'

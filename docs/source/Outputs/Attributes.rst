@@ -46,7 +46,7 @@ Supported loaders:
 * ini - `configparser <https://docs.python.org/3/library/configparser.html>`_ Python standard module used to read variables from ini structured file
 * csv - csv formatted data loaded with Python *csv* standard library module
 
-If load is csv, first column by default will be used to create lookup dictionary, it is possible to supply :ref:`TTP_TAGS/Outputs/Formatters:key` with column name that should be used as a keys for row data. If any other type of load provided e.g. python or yaml, that data must have a dictionary structure, there keys will be compared against match result and on success data associated with given key will be included in results.
+If load is csv, first column by default will be used to create lookup dictionary, it is possible to supply :ref:`Outputs/Formatters:key` with column name that should be used as a keys for row data. If any other type of load provided e.g. python or yaml, that data must have a dictionary structure, there keys will be compared against match result and on success data associated with given key will be included in results.
      
 returner
 ******************************************************************************

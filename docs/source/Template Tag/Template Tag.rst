@@ -1,5 +1,5 @@
-Template
-========
+Template Tag
+============
 
 TTP templates support <template> tag to define several templates within single template, each template processes separately, no data shared across templates.
 

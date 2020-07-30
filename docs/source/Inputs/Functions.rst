@@ -1,4 +1,4 @@
-Input tag functions
+Functions
 ===================
 
 Input tag support functions to pre-process data.
@@ -9,7 +9,7 @@ Input tag support functions to pre-process data.
 
    * - Attribute
      - Description
-   * - `functions`_   
+   * - `functions attribute`_   
      - String with functions defined int it
    * - `macro`_   
      - Name of macro function to run input data through
@@ -18,7 +18,7 @@ Input tag support functions to pre-process data.
    * - `test`_   
      - Test function to verify input function handling
      
-functions
+functions attribute
 ------------------------------------------------------------------------
 ``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
 

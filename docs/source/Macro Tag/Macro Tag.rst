@@ -1,5 +1,5 @@
-Macro
-=====
+Macro Tag
+=========
 
 One of the core features of TTP is to allow data processing on the go, as a result it has a number of built-in function for various systems - function for groups, functions for outputs, functions for variables and functions for match variables. To extend this functionality even further, TTP allows to define custom functions using <macro> tags.
 
@@ -11,5 +11,5 @@ For further details check:
 
 * Match variables :ref:`Match Variables/Functions:macro`
 * Groups :ref:`Groups/Functions:macro`
-* Outputs :ref:`TTP_TAGS/Outputs/Functions:macro`
-* Inputs :ref:`TTP_TAGS/Inputs/Functions:macro`
+* Outputs :ref:`Outputs/Functions:macro`
+* Inputs :ref:`Inputs/Functions:macro`

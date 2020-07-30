@@ -10,7 +10,7 @@ Same data can be parsed by several templates producing results accordingly, temp
 Motivation
 ----------
 
-While networking devices continue to develop API capabilities there is a big footprint of legacy and not-so devices in the field, these devices are lacking of any well developed API to retrieve structured data, the closest they can get is SNMP and CLI text output. Moreover, even if some devices have API and capable of representing their configuration or state data in the form that can be consumed programmatically, in certain cases, the amount of work that needs to be done to make use of these capabilities outweighs the benefits or value of produced results.
+While networking devices continue to develop API capabilities, there is a big footprint of legacy and not-so devices in the field, these devices are lacking of any well developed API to retrieve structured data, the closest they can get is SNMP and CLI text output. Moreover, even if some devices have API capable of representing their configuration or state data in the format that can be consumed programmatically, in certain cases, the amount of work that needs to be done to make use of these capabilities outweighs the benefits or value of produced results.
 
 There are a number of tools available to parse text data, but, author of TTP believes that parsing data is only part of the work flow, where the ultimate goal is to make use of the actual data. 
 
@@ -23,5 +23,13 @@ TTP has a number of systems built into it:
 
 * groups system - help to define results hierarchy and data processing functions with filtering
 * parsing system - uses regular expressions derived out of templates to parse and process data
-* input system - used to define various input data sets, prepare them and map to the groups for parsing
-* output system - allows to format parsing results in certain way and return or save to them certain destinations
+* input system - used to define various input data sources, help to retrieve data, prepare it and map to the groups for parsing
+* output system - allows to format parsing results and return them to certain destinations
+* macro - inline Python code that can be used to process results and extend TTP functionality, having access to _ttp_ dictionary containing all groups, match, inputs, outputs functions
+* lookup tables - helps to enreach results with additional additional information or cross reference results across different templates or groups to combine them
+* template variables - variables store, accessible during template execution for caching or retrieving values
+* templates tags - to define several independent templates within single file, used to define results forming mode
+* CLI tool - allows to execute templates directly
+* Lazy loader system - TTP only imports function it uses within the templates, that significantly increase start time
+* Multiprocessing - to spun up several Python processes to increase parsing performance
+* Logging system - helps to troubleshoot and debug TTP

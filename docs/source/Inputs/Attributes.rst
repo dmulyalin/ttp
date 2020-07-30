@@ -1,4 +1,4 @@
-Input tag attributes
+Attributes
 ====================
 
 There are a number of attributes can be specified in input tag, these attributes help to define input behavior and how data should be loaded and parsed.

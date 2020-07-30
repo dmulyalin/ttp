@@ -1,5 +1,5 @@
-Lookups
-=======
+Lookup Tables
+=============
    
 Lookups tag allows to define a lookup table that will be transformed into lookup dictionary, dictionary that can be used to lookup values to include them into parsing results. Lookup table can be called from match variable using *lookup* function.
 

@@ -7,9 +7,16 @@ Template Text Parser
    Overview
    Installation
    Quick start
-   Groups/index
    Match Variables/index
-   TTP_TAGS/index
+   Groups/index
+   Results Structure/index
+   Inputs/index
+   Outputs/index
+   Template Tag/Template Tag
+   Template Variables/Template Variables
+   Lookup Tables/Lookup Tables
+   Macro Tag/Macro Tag
+   Doc Tag/Doc Tag
    Writing templates/index
    CLI tool
    API reference

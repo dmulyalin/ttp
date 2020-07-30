@@ -1384,7 +1384,7 @@ geoip_lookup
 * db_name - Name of the input that contains GeoIP2 database OS absolute path, supporteddatabases are ASN, Country or City
 * add_field - default is "geoip_lookup", can be set to string that will indicate name of new field to use for lookup results
 
-geoip_lookup function use GeoIP2 databases to create Python geoip2 module lookup objects that can be used to enreach results output with information about BGP ASN, Country or City associated with given IP address. db_name reference to lookup tag name with database type separated by dot, such as `lookup_tag_name.database_name`, reference :ref:`TTP_TAGS/Lookups:geoip2 database` on how to properly structure lookup tag.
+geoip_lookup function use GeoIP2 databases to create Python geoip2 module lookup objects that can be used to enreach results output with information about BGP ASN, Country or City associated with given IP address. db_name reference to lookup tag name with database type separated by dot, such as `lookup_tag_name.database_name`, reference :ref:`Lookup Tables/Lookup Tables:geoip2 database` on how to properly structure lookup tag.
 
 This function need valid IPv4 orIPv6 address as an input to perfrom lookup against. 
 

@@ -1,5 +1,5 @@
-Variables 
-=========
+Template Variables 
+==================
    
 ttp supports definition of custom variables using dedicated xml tags <v>, <vars> or <variables>. Withing this tags variables can be defined in various formats and loaded using one of supported loaders. Variables can also be defined in external text files using *include* attribute. 
 
