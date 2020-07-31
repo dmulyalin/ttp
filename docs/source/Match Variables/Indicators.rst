@@ -25,13 +25,14 @@ Indicators or directives can be used to change parsing logic or indicate certain
      - If present any line will be matched
    * - `ignore`_ 
      - Substitute string at given position with regular expression without matching results
-
+   * - `_headers_`_ 
+     - To dynamically form regex for parsing fixed-width, one-line text tables
 
 _exact_
 ------------------------------------------------------------------------------
 ``{{ name | _exact_ }}``
 
-By default all digits in template replaced with '\d+' pattern, if _exact_ present, digits will stay unchanged and will be used for parsing as is.
+By default all digits in template replaced with '\d+' pattern, if ``_exact_`` present in any match variable within that line, digits are unchanged and used for parsing as is.
 
 **Example**
 
@@ -357,3 +358,20 @@ Results::
             }
         ]
     ]
+	
+_headers_
+------------------------------------------------------------------------------
+``head1  head2 ... headN {{ _headers_ }}``
+
+This indicator uses headers line to dynamically form regular expression for parsing fixed-width, one-line text tables.
+
+Column width calculated based on header items length.
+
+**Restrictions**
+
+* header items cannot contain spaces, they must be replaced with other character, for instance underscore _
+* match variable names are set equal to headers items, as a result they must be valid Python identifies
+* match variable functions not supported for headers items, instead, group functions and macro can be used for processing
+
+**Example**
+

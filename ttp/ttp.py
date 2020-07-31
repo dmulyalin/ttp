@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+__version__ = "0.4.0"
+
 import re
 import os
 import logging
@@ -10,11 +12,10 @@ from sys import getsizeof
 from collections import OrderedDict
 
 # Initiate global variables
-python_major_version = version_info.major
 log = logging.getLogger(__name__)
 _ttp_ = {
     "macro": {},
-    "python_major_version": python_major_version,
+    "python_major_version": version_info.major,
     "global_vars": {},
     "template_obj": {},
 }
@@ -77,9 +78,9 @@ def lazy_import_functions():
     import ast
 
     # get exclusion suffix
-    if python_major_version == 2:
+    if _ttp_["python_major_version"] == 2:
         exclude = "_py3.py"
-    elif python_major_version == 3:
+    elif _ttp_["python_major_version"] == 3:
         exclude = "_py2.py"
     module_files = []
     exclude_modules = ["ttp.py"]
@@ -551,7 +552,7 @@ class ttp:
             templates_obj = [
                 template for template in self._templates if template.name in templates
             ]
-        # checkif kwargs privided, create outputter if so
+        # check if kwargs provided, create outputter if so
         if kwargs:
             kwargs.setdefault("returner", "self")
             outputter = _outputter_class(**kwargs)
@@ -562,8 +563,7 @@ class ttp:
                     outputter.run(template.results, macro=template.macro)
                     for template in templates_obj
                 ]
-            else:
-                return [template.results for template in templates_obj]
+            return [template.results for template in templates_obj]
         elif structure.lower() == "dictionary":
             if kwargs:
                 return {
@@ -571,12 +571,11 @@ class ttp:
                     for template in templates_obj
                     if template.name
                 }
-            else:
-                return {
-                    template.name: template.results
-                    for template in templates_obj
-                    if template.name
-                }
+            return {
+                template.name: template.results
+                for template in templates_obj
+                if template.name
+            }
         elif structure.lower() == "flat_list":
             ret = []
             for template in templates_obj:
@@ -1054,7 +1053,7 @@ class _template_class:
             [parse_output(o) for o in tags["outputs"]]
             [parse_lookup(L) for L in tags["lookups"]]
             [parse_group(g, grp_index) for grp_index, g in enumerate(tags["groups"])]
-            # need to parse inputs after groups already parsed to form group inputs correctly
+            # need to parse inputs after groups to form group inputs correctly
             [self.update_input(element=i) for i in tags["inputs"]]
 
         def parse_template_XML(template_text):

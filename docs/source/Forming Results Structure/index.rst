@@ -1,5 +1,5 @@
-Results Structure
-=================
+Forming Results Structure
+=========================
 
 .. toctree::
    :maxdepth: 2

@@ -9,7 +9,7 @@ Template Text Parser
    Quick start
    Match Variables/index
    Groups/index
-   Results Structure/index
+   Forming Results Structure/index
    Inputs/index
    Outputs/index
    Template Tag/Template Tag

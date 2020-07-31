@@ -2,9 +2,9 @@ Regex Patterns
 ==============
 
 Regexes are in the heart of TTP, but they hidden from user, match patterns or regex formatters can be used to explicitly specify regular expressions that should be used for parsing. 
-	 
+     
 By convention, regex patterns written in upper case, but it is not a hard requirement and custom patterns can use any names.
-	 
+     
 .. list-table:: indicators
    :widths: 10 90
    :header-rows: 1
@@ -34,8 +34,8 @@ By convention, regex patterns written in upper case, but it is not a hard requir
    * - `PREFIXV6`_ 
      - matches IPv6 prefix
    * - `MAC`_ 
-     - matches MAC address	 
-	 
+     - matches MAC address     
+     
 re
 ------------------------------------------------------------------------------
 ``{{ name | re("regex_value") }}``
@@ -44,16 +44,16 @@ re
 
 Regular expression value searched using below sequence.
 
-    1. Template variables checked to see if any of variables match regex_value
-	2. Built-in regex patterns searched using regex_value
-	3. regex_value used as is 
-	
+    1. Template variables checked to to find variable names equal to regex_value
+    2. Built-in regex patterns searched using regex_value
+    3. regex_value used as is 
+    
 **Example**
 
 Template::
 
     <vars>
-	# template variable with custom regular expression:
+    # template variable with custom regular expression:
     GE_INTF = "GigabitEthernet\S+"
     </vars>
     
@@ -67,7 +67,7 @@ Template::
     <group>
     Internet  {{ ip | re("IP")}}  {{ age | re("\d+") }}   {{ mac }}  ARPA   {{ interface | re("GE_INTF") }}
     </group>
-	
+    
 Results::
 
     [
@@ -93,9 +93,80 @@ In this example group line:
  
 transformed into this regular expression:
  
-``'\nInternet\ +(?P<ip>(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))\ +(?P<age>(?:\d+))\ +(?P<mac>(?:\S+))\ +ARPA\ +(?P<interface>(?:GigabitEthernet\S+)) *(?=\n)'``
+``'\nInternet\ +(?P<ip>(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))\ +(?P<age>(?:\d+))\ +(?P<mac>(?:\S+))\ +ARPA\ +(?P<interface>(?:GigabitEthernet\S+))[\t ]*(?=\n)'``
 
 using built-in IP pattern for *ip*, ``\d+`` inline regex for *age* and custom ``GE_INTF`` pattern for *interface* match variable. 
+
+
+.. warning:: inline definition of regular expressions delimited by ``|`` pipe character is not supported due to TTP uses pipe to separate match variable arguments. In other words, this ``{{ name | re("re1|re2|re3") }}`` is not supported. Workaround - reference template variable with required regular expression.
+
+**Example**
+
+Using template variable with multiple regular expression delimited by ``|`` pipe character
+
+Template::
+
+    <input load="text">
+    Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+    Internet  10.12.13.1        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+    Internet  10.12.13.2        98   0950.5785.5cd2  ARPA   Loopback0
+    Internet  10.12.13.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+    Internet  10.12.13.4       198   0950.5C8A.5c41  ARPA   GigabitEthernet2.17
+    </input>
+    
+    <vars>
+    INTF_RE = r"GigabitEthernet\\S+|Fast\\S+"
+    </vars>
+    
+    <group name="arp_test">
+    Internet  {{ ip | re("IP")}}  {{ age | re(r"\\d+") }}   {{ mac }}  ARPA   {{ interface | re("INTF_RE") }}
+    </group>
+
+Result::
+
+    [[{'arp_test': [{'age': '98',
+                     'interface': 'FastEthernet2.13',
+                     'ip': '10.12.13.1',
+                     'mac': '0950.5785.5cd1'},
+                    {'age': '131',
+                     'interface': 'GigabitEthernet2.13',
+                     'ip': '10.12.13.3',
+                     'mac': '0150.7685.14d5'},
+                    {'age': '198',
+                     'interface': 'GigabitEthernet2.17',
+                     'ip': '10.12.13.4',
+                     'mac': '0950.5C8A.5c41'}]}]]
+
+``INTF_RE`` - variable contains several regular expression separate by ``|`` character
+
+Another technique to associate match variable with multiple regular expressions, is to reference ``re("regex_value")`` several times. Sample template::
+
+    <input load="text">
+    Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+    Internet  10.12.13.1        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+    Internet  10.12.13.2        98   0950.5785.5cd2  ARPA   Loopback0
+    Internet  10.12.13.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+    Internet  10.12.13.4       198   0950.5C8A.5c41  ARPA   GigabitEthernet2.17
+    </input>
+    
+    <group name="arp_test">
+    Internet  {{ ip }}  {{ age }}   {{ mac }}  ARPA   {{ interface | re(r"GigabitEthernet\\S+") | re(r"Fast\\S+") }}
+    </group>
+
+Results::
+
+    [[{'arp_test': [{'age': '98',
+                     'interface': 'FastEthernet2.13',
+                     'ip': '10.12.13.1',
+                     'mac': '0950.5785.5cd1'},
+                    {'age': '131',
+                     'interface': 'GigabitEthernet2.13',
+                     'ip': '10.12.13.3',
+                     'mac': '0150.7685.14d5'},
+                    {'age': '198',
+                     'interface': 'GigabitEthernet2.17',
+                     'ip': '10.12.13.4',
+                     'mac': '0950.5C8A.5c41'}]}]]
 
 WORD
 ------------------------------------------------------------------------------
@@ -185,7 +256,7 @@ Template::
         {{ intf_list | ROW }} 
     </group>
     </group>
-	
+    
 Results::
 
     [

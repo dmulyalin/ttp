@@ -1,13 +1,13 @@
 Template Tag
 ============
 
-TTP templates support <template> tag to define several templates within single template, each template processes separately, no data shared across templates.
+TTP templates support <template> tag to define several templates within single template, each template processed separately, no data shared across templates, but templates results can be cross referenced for lookup functions.
 
 Only two levels of hierarchy supported - top template tag and a number of child template tags within it, further template tags nested within children are ignored.
 
-First use case for this functionality stems from the fact that templates executed in sequence, meaning it is possible to organize such a work flow when results produced by one template can be leveraged by next template(s), for instance first template can produce lookup table text file and other template will rely on.
+First use case for this functionality stems from the fact that templates executed in sequence, meaning it is possible to use results produced by one template in next template(s), for instance first template can produce lookup table text file and other template will rely on.
 
-Another use case is templates grouping under single definition and that can simplify loading - instead of adding each template to TTP object, all of them can be loaded in one go.
+Another use case is templates grouping under single definition to simplify loading - instead of adding each template to TTP object, all of them can be loaded in one go.
 
 For instance::
 
@@ -67,7 +67,7 @@ Above code will produce same results as this code::
 Template tag attributes
 -----------------------------------------------------------------------------
 
-There are a number of attributes can be used with template tag, these attributes help to define template processing behavior.
+There are a number of attributes supported by template tag. These attributes help to define template processing behavior.
 
 .. list-table:: 
    :widths: 10 90
@@ -76,11 +76,11 @@ There are a number of attributes can be used with template tag, these attributes
    * - Attribute
      - Description
    * - `name`_   
-     - Uniquely identifies template
+     - Unique template identifier
    * - `base_path`_   
      - Fully qualified OS path to data
    * - `results`_   
-     - Identifies the way how results should be grouped
+     - Identifies the way results grouping method
    * - `pathchar`_   
      - Character to use for group name-path processing
 
