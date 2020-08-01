@@ -1,9 +1,38 @@
 Formatters
 ==========
 
-TTP supports `raw`_, `yaml`_, `json`_, `csv`_, `jinja2`_, `pprint`_, `tabulate`_, `table`_, `excel`_ formatters. Formatters have a number of attributes that can be used to supply additional information or modify behavior. 
+TTP supports a number of output formatters.
 
-In general case formatters take python structured data - dictionary, list, list of dictionaries etc. - as an input, format that data in certain way and return string representation of results, except for `raw`_ output formatter, which just returns input data without modifying it.
+.. list-table::
+   :widths: 20 80
+   :header-rows: 1
+
+   * - Name
+     - Description
+   * - `raw`_ 
+     - default formatter, results returned as is 
+   * - `yaml`_ 
+     - results transformed in a YAML structured, multi-line text
+   * - `json`_ 
+     - results transformed in a JSON structured, multi-line text
+   * - `pprint`_ 
+     - results transformed in a string using python pprint module
+   * - `table`_ 
+     - results transformed in a list of lists, each list representing table row
+   * - `csv`_ 
+     - uses table formatter results to emit CSV spreadsheet
+   * - `tabulate`_ 
+     - uses table formatter results to emit text table using `tabulate module <https://pypi.org/project/tabulate/>`_ 
+   * - `excel`_ 
+     - uses table formatter results to emit Excel table using `openpyxl module <https://openpyxl.readthedocs.io/en/stable/#>`_ 
+   * - `jinja2`_ 
+     - renders `Jinja2 template <https://palletsprojects.com/p/jinja/>`_ with parsing results
+   * - `N2G`_ 
+     - produces xml structured diagram using `N2G module <https://pypi.org/project/N2G/>`_
+	 
+Formatters can accept various attributes to supply additional information or modify behavior. 
+
+In general case formatters take python structured data - dictionary, list, list of dictionaries etc. - as an input, format that data in certain way and return new representation of results.
 
 raw
 ******************************************************************************
@@ -125,7 +154,7 @@ Results::
 tabulate
 ******************************************************************************
 
-**Prerequisites:** `tabulate <https://pypi.org/project/tabulate/>`_ module needs to be installed on the system.
+**Prerequisites:** `tabulate module <https://pypi.org/project/tabulate/>`_ needs to be installed on the system.
 
 Tabulate outputter uses python tabulate module to transform and emit results in a plain-text table.
 
@@ -159,14 +188,11 @@ Results::
 jinja2
 ******************************************************************************
 
-**Prerequisites:** `Jinja2 <https://palletsprojects.com/p/jinja/>`_ module needs to be installed on the system
+**Prerequisites:** `Jinja2 module <https://palletsprojects.com/p/jinja/>`_  needs to be installed on the system
 
-This outputters allow to render parsing results with jinja2 template. Jinja2 template can be enclosed in output tag text data. Jinja2 templates can help to produce any text output out of parsing results. There are lots of use cases for it, to name a few:
+This outputters allow to render parsing results with jinja2 template. Jinja2 template should be enclosed in output tag text data. Jinja2 templates can help to produce any text output out of parsing results. 
 
-* vendor configuration translator - parse vendor A configuration, emit configuration for vendor B
-* markdown - use Jinja2 template to produce markdown report etc.
-
-Within jinja2, the whole parsing results data passed into the renderer within `_data_` variable, that variable can be referenced in template accordingly.
+Within jinja2, the whole parsing results passed in `_data_` variable, that variable can be referenced in template accordingly.
 
 **Example**
 
@@ -228,7 +254,7 @@ Results::
 excel
 ******************************************************************************
 
-**Prerequisites:** `openpyxl <https://openpyxl.readthedocs.io/en/stable/#>`_ module needs to be installed on the system
+**Prerequisites:** `openpyxl module <https://openpyxl.readthedocs.io/en/stable/#>`_ needs to be installed on the system
 
 This formatter takes table structure defined in output tag text and transforms parsing results into table on a per tab basis using `table`_ formatter, as a results all attributes supported by table formatter can be used in excel formatter as well. 
 
@@ -277,7 +303,14 @@ Template::
     </output>
     
 TTP will produce excel table with two tabs using results from different groups. Table will be saved under *C:/result/* path in *excel_out_%Y-%m-%d_%H-%M-%S.xslx* file.
-    
+ 
+N2G
+******************************************************************************
+ 
+**Prerequisites:** `N2G module <https://pypi.org/project/N2G/>`_ needs to be installed on the system
+
+TBD
+ 
 Formatter attributes
 ******************************************************************************
 
@@ -540,12 +573,12 @@ If ``key`` will be set to "intf_name", above data will be transformed into list 
         }
     ]
 
-With that list of lists table formatter will be able to create below list of lists and emit it in desirable format (csv, tabulate)::
+List of dictionaries will be transformed to list of lists by table formatter to emit it in desirable format (csv, tabulate, excel)::
     
     [
-    ['description', 'intf_name', 'ip', 'mask', 'vrf'], 
-    ['Router-id-loopback', 'Loopback0', '192.168.0.113', '24', ''], 
-    ['', 'Vlan778', '2002::fd37', '124', 'CPE1']
+        ['description', 'intf_name', 'ip', 'mask', 'vrf'], 
+        ['Router-id-loopback', 'Loopback0', '192.168.0.113', '24', ''], 
+        ['', 'Vlan778', '2002::fd37', '124', 'CPE1']
     ]
     
 **Example**

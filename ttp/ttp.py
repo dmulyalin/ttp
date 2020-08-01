@@ -1883,6 +1883,7 @@ class _variable_class:
             # create regex out of headers
             headers = re.findall(r"(\S+\s+|\S+)", self.regex)
             # reconstruct headers line indentation
+            self.regex = re.sub(r"\t", " "*4, self.regex) # replace tabs with 4 spaces
             headers[0] = " " * (len(self.regex) - len(self.regex.lstrip())) + headers[0]
             # form regex
             row_re = ["(?P<{}>.{{{}}})".format(header.strip(), len(header))

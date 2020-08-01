@@ -363,15 +363,94 @@ _headers_
 ------------------------------------------------------------------------------
 ``head1  head2 ... headN {{ _headers_ }}``
 
-This indicator uses headers line to dynamically form regular expression for parsing fixed-width, one-line text tables.
+This indicator uses headers line to dynamically form regular expression to parse fixed-width, one-line text tables.
 
-Column width calculated based on header items length.
+Column width calculated based on header items length, variables names dynamically formed out of header items. As a result there are a number of restrictions:
 
-**Restrictions**
+* headers line must match original data to calculate correct columns width
+* header items must be separated by at least one space character
+* header items must be left-aligned to indicate beginning of the column
+* header items cannot contain spaces, replace them with underscore
+* header items must be valid Python identifies to form variables names
+* match variable functions not supported for header items, instead, group functions and macro can be used for processing
 
-* header items cannot contain spaces, they must be replaced with other character, for instance underscore _
-* match variable names are set equal to headers items, as a result they must be valid Python identifies
-* match variable functions not supported for headers items, instead, group functions and macro can be used for processing
+**Example-1**
 
-**Example**
+Template::
 
+    <input load="text">
+    Port      Name               Status       Vlan       Duplex  Speed Type
+    Gi0/1     PIT-VDU213         connected    18         a-full  a-100 10/100/1000BaseTX
+    Gi0/3     PIT-VDU212         notconnect   18           auto   auto 10/100/1000BaseTX
+    Gi0/4                        connected    18         a-full  a-100 10/100/1000BaseTX
+    Gi0/5                        notconnect   18           auto   auto 10/100/1000BaseTX
+    Gi0/15                       connected    trunk        full   1000 1000BaseLX SFP
+    Gi0/16    pitrs2201 te1/1/4  connected    trunk        full   1000  1000BaseLX SFP
+    </input>
+    
+    <group>
+    Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ }}
+    </group>   
+
+Result::
+
+    [[[{'Duplex': 'a-full',
+        'Name': 'PIT-VDU213',
+        'Port': 'Gi0/1',
+        'Speed': 'a-100',
+        'Status': 'connected',
+        'Type': '10/100/1000BaseTX',
+        'Vlan': '18'},
+       {'Duplex': 'a-full',
+        'Name': '',
+        'Port': 'Gi0/4',
+        'Speed': 'a-100',
+        'Status': 'connected',
+        'Type': '10/100/1000BaseTX',
+        'Vlan': '18'},
+       {'Duplex': 'full',
+        'Name': 'pitrs2201 te1/1/4',
+        'Port': 'Gi0/16',
+        'Speed': '1000',
+        'Status': 'connected',
+        'Type': '1000BaseLX SFP',
+        'Vlan': 'trunk'}]]]
+		
+**Example-2**
+
+Header can be indented by a number of spaces or tabs, but each tab replaced with 4 space characters to calculate column width.
+
+Template::
+
+    <input load="text">
+       Network            Next Hop            Metric     LocPrf     Weight Path
+    *>e11.11.1.111/32     12.123.12.1              0                     0 65000 ?
+    *>e222.222.222.2/32   12.123.12.1              0                     0 65000 ?
+    *>e333.33.333.333/32  12.123.12.1              0                     0 65000 ?
+    </input>
+    
+    <group>
+       Network            Next_Hop            Metric     LocPrf     Weight Path  {{ _headers_ }}
+    </group>   
+
+
+Result::
+
+   [[[{'LocPrf': '',
+       'Metric': '0',
+       'Network': '*>e11.11.1.111/32',
+       'Next_Hop': '12.123.12.1',
+       'Path': '65000 ?',
+       'Weight': '0'},
+      {'LocPrf': '',
+       'Metric': '0',
+       'Network': '*>e222.222.222.2/32',
+       'Next_Hop': '12.123.12.1',
+       'Path': '65000 ?',
+       'Weight': '0'},
+      {'LocPrf': '',
+       'Metric': '0',
+       'Network': '*>e333.33.333.333/32',
+       'Next_Hop': '12.123.12.1',
+       'Path': '65000 ?',
+       'Weight': '0'}]]]
