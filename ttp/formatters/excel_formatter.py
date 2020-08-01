@@ -16,7 +16,7 @@ def excel_formatter(data):
     """        
     # form table_tabs - list of dictionaries
     try:
-        table = _ttp_["output_object"].attributes['load']['table']
+        table = _ttp_["output_object"].attributes['table']
     except KeyError:
         log.critical("output.formatter_excel: output tag missing table definition. Exiting")
         raise SystemExit()

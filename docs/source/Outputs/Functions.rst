@@ -310,7 +310,7 @@ deepdiff
 * ``mode`` - string, ``bulk`` (default) or ``iterate`` modes supported to modify comparison behavior
 * ``kwargs`` - any arguments supported by deepdiff DeepDiff object, such as ignore_order or verbose_level
 
-**Prerequisites:** Python deepdiff library need to be installed.
+**Prerequisites:** Python `deepdiff library <https://pypi.org/project/deepdiff/>`_  need to be installed.
 
 This function takes parsing results for specified inputs and compares one against another using DeepDiff library deepdiff object. 
 

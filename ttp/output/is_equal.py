@@ -1,5 +1,5 @@
 def is_equal(data):
-    data_to_compare_with = _ttp_["output_object"].attributes['load']
+    data_to_compare_with = _ttp_["output_object"].tag_load
     is_equal = False
     if "_anonymous_" in data:
         if data["_anonymous_"] == data_to_compare_with:

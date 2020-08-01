@@ -2701,14 +2701,15 @@ class _outputter_class:
         from time import strftime
 
         ctime = strftime("%Y-%m-%d_%H-%M-%S")
-        # set attributes default values:
+        # set attributes default values
         self.attributes = {
-            "returner": ["self"],
+            "returner": "self",
             "format": "raw",
             "url": "./Output/",
-            "method": "join",
             "filename": "output_{}.txt".format(ctime),
+            "load": "python"
         }
+        self.tag_load = {}
         self.template_obj = template_obj
         self.name = None
         self.return_to_self = False
@@ -2716,53 +2717,45 @@ class _outputter_class:
         # get output attributes:
         if element is not None:
             self.element = element
-            self.get_attributes(element.attrib)
+            self.attributes.update(element.attrib)
+            self.extract_load(element)
         elif kwargs:
-            self.get_attributes(kwargs)
+            self.attributes.update(kwargs)
+        self.get_attributes(self.attributes.copy())
 
+    def extract_load(self, element):
+        attribs = _ttp_["utils"]["load_struct"](
+            element.text, **self.attributes
+        )
+        self.tag_load = attribs if attribs else element.text
+        if isinstance(attribs, dict):
+            self.attributes.update(attribs)
+                
     def get_attributes(self, data):
         def extract_name(O):
             self.name = O
 
         def extract_returner(O):
-            supported_returners = ["file", "terminal", "self", "syslog"]
-            if O in supported_returners:
+            if O in _ttp_["returners"]:
                 self.attributes["returner"] = [i.strip() for i in O.split(",")]
             else:
                 log.critical(
                     "output.extract_returner: unsupported returner '{}'. Supported: {}. Exiting".format(
-                        O, supported_returners
+                        O, list(_ttp_["returners"].keys())
                     )
                 )
                 raise SystemExit()
 
         def extract_format(O):
-            supported_formats = [
-                "raw",
-                "yaml",
-                "json",
-                "csv",
-                "jinja2",
-                "pprint",
-                "tabulate",
-                "table",
-                "excel",
-                "n2g",
-            ]
-            if O in supported_formats:
+            if O in _ttp_["formatters"]:
                 self.attributes["format"] = O
             else:
                 log.critical(
                     "output.extract_format: unsupported format '{}'. Supported: {}. Exiting".format(
-                        O, supported_formats
+                        O, list(_ttp_["formatters"].keys())
                     )
                 )
-                raise SystemExit()
-
-        def extract_load(O):
-            self.attributes["load"] = _ttp_["utils"]["load_struct"](
-                self.element.text, **self.element.attrib
-            )
+                raise SystemExit()    
 
         def extract_filename(O):
             """File name can contain time formatters supported by strftime      
@@ -2770,18 +2763,6 @@ class _outputter_class:
             from time import strftime
 
             self.attributes["filename"] = strftime(O)
-
-        def extract_method(O):
-            supported_methods = ["split", "join"]
-            if O in supported_methods:
-                self.attributes["method"] = O
-            else:
-                log.critical(
-                    "output.extract_method: unsupported file returner method '{}'. Supported: {}. Exiting".format(
-                        O, supported_methods
-                    )
-                )
-                raise SystemExit()
 
         def extract_format_attributes(O):
             """Extract formatter attributes
@@ -2838,9 +2819,7 @@ class _outputter_class:
             "name": extract_name,
             "returner": extract_returner,
             "format": extract_format,
-            "load": extract_load,
             "filename": extract_filename,
-            "method": extract_method,
             "format_attributes": extract_format_attributes,
             "path": extract_path,
             "headers": extract_headers,
@@ -2876,7 +2855,7 @@ class _outputter_class:
         # check if need to return processed data:
         if self.return_to_self is True:
             return results
-        # return unmodified data:
+        # return unmodified data otherwise
         return data
 
     def debug(self):

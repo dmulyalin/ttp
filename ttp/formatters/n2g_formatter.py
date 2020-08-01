@@ -4,7 +4,7 @@ log = logging.getLogger(__name__)
     
 def n2g(data):
     # load attributes
-    attributes = _ttp_["output_object"].attributes['load']
+    attributes = _ttp_["output_object"].attributes
     module = attributes.get("module", "yed")
     method = attributes.get("method", "from_list")
     path = attributes.get("path", [])

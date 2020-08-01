@@ -5,7 +5,7 @@ import json
 log = logging.getLogger(__name__)
 
 def syslog(data):
-    attributes = _ttp_["output_object"].attributes['load']
+    attributes = _ttp_["output_object"].attributes
     address = attributes.get('address', None)
     port = int(attributes.get('port', 514))   
     facility = attributes.get('facility', 77)
