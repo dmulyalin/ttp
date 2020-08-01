@@ -309,8 +309,87 @@ N2G
  
 **Prerequisites:** `N2G module <https://pypi.org/project/N2G/>`_ needs to be installed on the system
 
-TBD
+N2G takes structured data and transforms it into xml format supported by a number of diagram editors. 
+
+**Supported Parameters**
+
+* ``path`` dot separated string to results that N2G formatter should use to produce XML diagram.
+* ``module`` name of N2G diagramming module to use - ``yed`` or ``drawio``
+* ``node_dups`` what to do with node duplicates - ``skip`` (default), ``log``, ``update``
+* ``link_dups`` what to do with link duplicates - ``skip`` (default), ``log``, ``update``
+* ``method`` name of N2G method to load data - ``from_list`` (default), ``from_dict``, ``from_csv``
+* ``method_kwargs`` keyword arguments dictionary to pass to ``method``
+* ``algo`` name of layout algorithm to use for diagram
+
+**Example**
  
+In this example data from ``show cdp neighbors detail`` command output parsed in a list of dictionaries and fed into N2G to produce diagram in yED graphml format.
+
+Template:: 
+
+    <input load="text">
+    switch-1#show cdp neighbors detail 
+    -------------------------
+    Device ID: switch-2
+    Entry address(es): 
+      IP address: 10.2.2.2
+    Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP 
+    Interface: GigabitEthernet4/6,  Port ID (outgoing port): GigabitEthernet1/5
+    
+    -------------------------
+    Device ID: switch-3
+    Entry address(es): 
+      IP address: 10.3.3.3
+    Platform: cisco WS-C3560-48TS,  Capabilities: Switch IGMP 
+    Interface: GigabitEthernet1/1,  Port ID (outgoing port): GigabitEthernet0/1
+    
+    -------------------------
+    Device ID: switch-4
+    Entry address(es): 
+      IP address: 10.4.4.4
+    Platform: cisco WS-C3560-48TS,  Capabilities: Switch IGMP 
+    Interface: GigabitEthernet1/2,  Port ID (outgoing port): GigabitEthernet0/10
+    </input>
+    
+    <input load="text">
+    switch-2#show cdp neighbors detail 
+    -------------------------
+    Device ID: switch-1
+    Entry address(es): 
+      IP address: 10.2.2.2
+    Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP 
+    Interface: GigabitEthernet1/5,  Port ID (outgoing port): GigabitEthernet4/6
+    </input>
+    
+    <vars>
+    hostname='gethostname' 
+    IfsNormalize = {
+        'Ge':['^GigabitEthernet']
+    } 
+    </vars>
+    
+    <group name="cdp*" expand="">
+    Device ID: {{ target.id }}
+      IP address: {{ target.top_label }}
+    Platform: {{ target.bottom_label | ORPHRASE }},  Capabilities: {{ ignore(ORPHRASE) }} 
+    Interface: {{ src_label | resuball(IfsNormalize) }},  Port ID (outgoing port): {{ trgt_label | ORPHRASE | resuball(IfsNormalize) }}
+    {{ source | set("hostname") }}
+    </group>
+    
+    <output format="n2g" load="python">
+    path = "cdp"
+    module = "yed"
+    node_duplicates = "update"
+    method = "from_list"
+    algo = "kk"
+    </output>
+    
+    <out returner="file" url="./Output/" filename="cdp_diagram.graphml"/>
+	
+Results will be saved in `./Output/cdp_diagram.graphml` file and after editing diagram it might look like this:
+
+.. image:: ../_images/cdp_diagram.png
+
 Formatter attributes
 ******************************************************************************
 
