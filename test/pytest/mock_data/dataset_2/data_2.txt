@@ -1,5 +1,4 @@
 interface Lo2
- description data-2 file
  ip address 2.2.2.2 32
 !
 interface Lo3

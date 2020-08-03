@@ -1,0 +1,7 @@
+interface Lo10
+ ip address 1.100.0.0 32
+!
+interface Lo11
+ description this interface from XYZ dataset
+ ip address 1.11.1.1 32    
+!

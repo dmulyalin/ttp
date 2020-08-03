@@ -1,5 +1,5 @@
 interface Lo0
- description data_1 file
+ description data_1.log file
  ip address 1.0.0.0 32
 !
 interface Lo1

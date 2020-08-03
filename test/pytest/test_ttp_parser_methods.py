@@ -624,19 +624,37 @@ interface {{ interface }}
     datums_added = {"{}:{}".format(template.name, input_name): input_obj.data for template in parser._templates for input_name, input_obj in template.inputs.items()}   
     # pprint.pprint(datums_added)    
     assert datums_added == {'_root_template_:Default_Input': [('file_name',
-                                                               './mock_data/dataset_1/data_1.txt'),
-                                                              ('file_name',
-                                                               './mock_data/dataset_1/data_2.txt')]}
+                                    './mock_data/dataset_1/data_1.txt'),
+                                   ('file_name',
+                                    './mock_data/dataset_1/data_2.txt'),
+                                   ('file_name',
+                                    './mock_data/dataset_1/data_XYZ.txt')]}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+    assert res == [[[{'description': 'data_1 file',
+                      'interface': 'Lo0',
+                      'ip': '1.0.0.0',
+                      'mask': '32'},
                      {'description': 'this interface has description',
                       'interface': 'Lo1',
                       'ip': '1.1.1.1',
                       'mask': '32'}],
-                    [{'interface': 'Lo2', 'ip': '124.171.238.22', 'mask': '32'},
-                     {'description': 'this interface has description', 'interface': 'Lo3'}]]]
+                    [{'description': 'data-2 file',
+                      'interface': 'Lo2',
+                      'ip': '2.2.2.2',
+                      'mask': '32'},
+                     {'description': 'this interface has description',
+                      'interface': 'Lo3',
+                      'ip': '3.3.3.3',
+                      'mask': '32'}],
+                    [{'interface': 'Lo10', 'ip': '1.100.0.0', 'mask': '32'},
+                     {'description': 'this interface from XYZ dataset',
+                      'interface': 'Lo11',
+                      'ip': '1.11.1.1',
+                      'mask': '32'}]]]
+
+# test_adding_data_from_files()
 
 def test_get_input_load_default_template():
     template = """
