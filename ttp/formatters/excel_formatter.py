@@ -22,10 +22,7 @@ def excel_formatter(data):
         raise SystemExit()
     table_tabs = []
     for index, tab_det in enumerate(table):
-        if 'tab_name' in tab_det:
-            tab_name = tab_det.pop('tab_name')
-        else:
-            tab_name = "Sheet{}".format(index)
+        tab_name = tab_det.pop('tab_name') if 'tab_name' in tab_det else "Sheet{}".format(index)
         # get attributes out of tab_det
         _ttp_["output_object"].get_attributes(data={
             "path": tab_det.get("path", []),

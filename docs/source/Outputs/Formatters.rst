@@ -29,7 +29,7 @@ TTP supports a number of output formatters.
      - renders `Jinja2 template <https://palletsprojects.com/p/jinja/>`_ with parsing results
    * - `N2G`_ 
      - produces xml structured diagram using `N2G module <https://pypi.org/project/N2G/>`_
-	 
+     
 Formatters can accept various attributes to supply additional information or modify behavior. 
 
 In general case formatters take python structured data - dictionary, list, list of dictionaries etc. - as an input, format that data in certain way and return new representation of results.
@@ -42,7 +42,7 @@ If format is raw, no formatting will be applied and native python structure will
 yaml
 ******************************************************************************
 
-**Prerequisites**: Python PyYAML library needs to be installed
+**Prerequisites**: Python PyYAML library need to be installed
 
 This formatter will run results through PyYAML module to produce YAML structured results.
 
@@ -67,11 +67,20 @@ For table formatter to work correctly, results data should have certain structur
 
 * list of flat dictionaries 
 * single flat dictionary
-* dictionary of flat dictionaries if `key`_ attribute provided
+* dictionary of flat dictionaries if ``key`` attribute provided
 
 Flat dictionary - such a dictionary where all values are strings. It is not a limitation and in fact dictionary values can be of any structure, but they will be placed in table as is.
 
-**Example**
+**Supported formatter arguments**
+
+* ``path`` dot separated string to results that table formatter should use
+* ``headers`` comma separated string of tab table headers, headers put randomly otherwise
+* ``missing`` value to use to substitute empty cells in table, default is empty string - ""
+* ``key`` key name to transform dictionary data to list of dictionaries
+
+.. note:: csv, excel and tabulate formatter use table formatter to construct a table structure. As a result all attributes supported by table formatter, inherently supported by csv, excel and tabulate formatters.
+
+**Example-1**
 
 Template::
 
@@ -98,32 +107,88 @@ Template::
      ip address {{ ip }}/{{ mask }}
     </group>
     
-    <output format="pprint" returner="terminal"/>
+    <output format="table"/>
     
-    <output format="table" returner="terminal"/>
-
 Results::
 
-    First output will print to terminal, after passing results through pprint function:
-    [   [   {'interface': 'Loopback0', 'ip': '192.168.0.113', 'mask': '24'},
-            {'interface': 'Vlan778', 'ip': '2002::fd37', 'mask': '124'}],
-        [   {'interface': 'Loopback10', 'ip': '192.168.0.10', 'mask': '24'},
-            {'interface': 'Vlan710', 'ip': '2002::fd10', 'mask': '124'}]]
-            
-    Above data will serve as an input to second outputter, that outputter 
-    will format data in table list of lists:
-    [['interface', 'ip', 'mask'], 
-    ['Loopback0', '192.168.0.113', '24'], 
-    ['Vlan778', '2002::fd37', '124'], 
-    ['Loopback10', '192.168.0.10', '24'], 
-    ['Vlan710', '2002::fd10', '124']]
+    [[['interface', 'ip', 'mask'],
+      ['Loopback0', '192.168.0.113', '24'],
+      ['Vlan778', '2002::fd37', '124'],
+      ['Loopback10', '192.168.0.10', '24'],
+      ['Vlan710', '2002::fd10', '124']]]
 
-.. note:: csv and tabulate outputters use table outputter to construct a list of lists, after that they use it to represent data in certain format. Meaning all the attributes supported by table outputter, inherently supported by csv and tabulate outputters.
+**Example-2**
+
+This example is to demonstrate usage of ``key`` and other attributes
+
+Template::
+
+    <input load="text">
+    interface Loopback0
+     description Router-id-loopback
+     ip address 192.168.0.113/24
+    !
+    interface Loopback1
+     description Router-id-loopback
+     ip address 192.168.0.1/24
+    !
+    interface Vlan778
+     ip address 2002::fd37/124
+     ip vrf CPE1
+    !
+    interface Vlan779
+     ip address 2002::bbcd/124
+     ip vrf CPE2
+    !
+    </input>
+    <group name="interfaces**.{{ interface }}">
+    interface {{ interface }}
+     ip address {{ ip }}/{{ mask }}
+     description {{ description }}
+     ip vrf {{ vrf }}
+    </group>
+    
+    <output 
+    path="interfaces" 
+    format="table" 
+    headers="intf, ip, mask, vrf, description, switchport"
+    key="intf"
+    missing="Undefined"
+    />
+    
+Results::
+
+    [[['intf', 'ip', 'mask', 'vrf', 'description', 'switchport'],
+      ['Loopback0', '192.168.0.113', '24', 'Undefined', 'Router-id-loopback', 'Undefined'],
+      ['Loopback1', '192.168.0.1', '24', 'Undefined', 'Router-id-loopback', 'Undefined'],
+      ['Vlan778', '2002::fd37', '124', 'CPE1', 'Undefined', 'Undefined'],
+      ['Vlan779', '2002::bbcd', '124', 'CPE2', 'Undefined', 'Undefined']]]
+
+Above template produces this structure::
+
+    [[{'interfaces': {'Loopback0': {'description': 'Router-id-loopback',
+                                    'ip': '192.168.0.113',
+                                    'mask': '24'},
+                      'Loopback1': {'description': 'Router-id-loopback',
+                                    'ip': '192.168.0.1',
+                                    'mask': '24'},
+                      'Vlan778': {'ip': '2002::fd37', 'mask': '124', 'vrf': 'CPE1'},
+                      'Vlan779': {'ip': '2002::bbcd', 'mask': '124', 'vrf': 'CPE2'}}}]]
+                      
+``key`` attribute instructs TTP to use *intf* as a name for *interfaces* dictionary keys while transforming it to a list of dictionaries.
 
 csv
 ******************************************************************************
 
-This outputter takes parsing result as an input, transforms it in list of lists using table outputter and emits csv structured table.
+This formatter takes parsing result as an input, transforms it in list of lists using table formatter and emits csv structured table.
+
+**Supported formatter arguments**
+
+* ``sep`` separator character to use for csv formatter, default value is comma ","
+* ``path`` dot separated string to results that csv formatter should use
+* ``headers`` comma separated string of tab table headers, headers put randomly otherwise
+* ``missing`` value to use to substitute empty cells in table, default is empty string - ""
+* ``key`` key name to transform dictionary data to list of dictionaries
 
 **Example**
 
@@ -154,43 +219,63 @@ Results::
 tabulate
 ******************************************************************************
 
-**Prerequisites:** `tabulate module <https://pypi.org/project/tabulate/>`_ needs to be installed on the system.
+**Prerequisites:** `tabulate module <https://pypi.org/project/tabulate/>`_ need to be installed on the system.
 
-Tabulate outputter uses python tabulate module to transform and emit results in a plain-text table.
+Tabulate formatter uses python tabulate module to transform and emit results in a plain-text table.
+
+**Supported formatter arguments**
+
+* ``path`` dot separated string to results that tabulate formatter should use
+* ``headers`` comma separated string of tab table headers, headers put randomly otherwise
+* ``missing`` value to use to substitute empty cells in table, default is empty string - ""
+* ``key`` key name to transform dictionary data to list of dictionaries
+* ``format_attributes`` `**args, **kwargs` to pass on to tabulate object
 
 **Example**
 
 Template::
 
     <input load="text">
-    interface Loopback0
-     ip address 192.168.0.113/24
-    !
-    interface Vlan778
-     ip address 2002::fd37/124
-    !
+    router bgp 65100
+      neighbor 10.145.1.9
+        description vic-mel-core1
+      !
+      neighbor 192.168.101.1
+        description qld-bri-core1
     </input>
     
-    <group>
-    interface {{ interface }}
-     ip address {{ ip }}/{{ mask }}
-    </group>
+    <group name="bgp_config">
+    router bgp {{ bgp_as }}
+      <group name="peers">
+      neighbor {{ peer }}
+        description {{ description  }}
+      </group>
+    </group> 
+        
+    <output 
+    name="out2" 
+    path="bgp_config.peers" 
+    format="tabulate" 
+    returner="terminal" 
+    format_attributes="tablefmt='fancy_grid'"
+    />
     
-    <output format="tabulate" returner="terminal"/>
-    
-Results::
+Results printed to terminal screen::
 
-    interface    ip               mask
-    -----------  -------------  ------
-    Loopback0    192.168.0.113      24
-    Vlan778      2002::fd37        124
+    ╒═══════════════╤═══════════════╕
+    │ description   │ peer          │
+    ╞═══════════════╪═══════════════╡
+    │ vic-mel-core1 │ 10.145.1.9    │
+    ├───────────────┼───────────────┤
+    │ qld-bri-core1 │ 192.168.101.1 │
+    ╘═══════════════╧═══════════════╛
 
 jinja2
 ******************************************************************************
 
-**Prerequisites:** `Jinja2 module <https://palletsprojects.com/p/jinja/>`_  needs to be installed on the system
+**Prerequisites:** `Jinja2 module <https://palletsprojects.com/p/jinja/>`_  need to be installed on the system
 
-This outputters allow to render parsing results with jinja2 template. Jinja2 template should be enclosed in output tag text data. Jinja2 templates can help to produce any text output out of parsing results. 
+This formatter allow to render parsing results with jinja2 template. Jinja2 template should be enclosed in output tag text data. Jinja2 templates can help to produce any text output out of parsing results. 
 
 Within jinja2, the whole parsing results passed in `_data_` variable, that variable can be referenced in template accordingly.
 
@@ -254,9 +339,21 @@ Results::
 excel
 ******************************************************************************
 
-**Prerequisites:** `openpyxl module <https://openpyxl.readthedocs.io/en/stable/#>`_ needs to be installed on the system
+**Prerequisites:** `openpyxl module <https://openpyxl.readthedocs.io/en/stable/#>`_ need to be installed on the system
 
 This formatter takes table structure defined in output tag text and transforms parsing results into table on a per tab basis using `table`_ formatter, as a results all attributes supported by table formatter can be used in excel formatter as well. 
+
+**Supported formatter arguments**
+
+* ``table`` list of dictionaries describing excel table structure
+
+Each dictionary item in ``table`` structure can have these attributes:
+
+* ``path`` dot separated string to results that excel formatter should use
+* ``tab_name`` name of this tab in excel spreadsheet, by default tab names are "Sheet<number>"
+* ``headers`` comma separated string of tab table headers, headers put randomly otherwise
+* ``missing`` value to use to substitute empty cells in table, default is empty string - ""
+* ``key`` key name to transform dictionary data to list of dictionaries
 
 **Example**
 
@@ -267,21 +364,29 @@ Template::
      description Router-id-loopback
      ip address 192.168.0.113/24
     !
+    interface Loopback1
+     description Router-id-loopback
+     ip address 192.168.0.1/24
+    !
     interface Vlan778
      ip address 2002::fd37/124
      ip vrf CPE1
     !
+    interface Vlan779
+     ip address 2002::bbcd/124
+     ip vrf CPE2
+    !
     </input>
     
-    <group name="interfaces_1">
-    interface {{ interface }}
+    <group name="loopbacks**.{{ interface }}">
+    interface {{ interface | contains("Loop") }}
      ip address {{ ip }}/{{ mask }}
      description {{ description }}
      ip vrf {{ vrf }}
     </group>
     
-    <group name="interfaces_2">
-    interface {{ interface }}
+    <group name="vlans*">
+    interface {{ interface | contains("Vlan") }}
      ip address {{ ip }}/{{ mask }}
      description {{ description }}
      ip vrf {{ vrf }}
@@ -290,28 +395,28 @@ Template::
     <output 
     format="excel" 
     returner="file"
-    filename="excel_out_%Y-%m-%d_%H-%M-%S"
-    url="C:/result/"
+    filename="excel_out_%Y-%m-%d_%H-%M-%S.xslx"
+    url="./Output/"
     load="yaml"
     >
     table:
       - headers: interface, ip, mask, vrf, description
-        path: interfaces_1
-        tab_name: tab-1
-      - path: interfaces_2
-        tab_name: tab-2
+        path: loopbacks
+        key: interface
+        tab_name: loopbacks
+      - path: vlans
     </output>
     
-TTP will produce excel table with two tabs using results from different groups. Table will be saved under *C:/result/* path in *excel_out_%Y-%m-%d_%H-%M-%S.xslx* file.
+TTP will produce excel table with two tabs using results from different groups. Table will be saved under *./Output/* path in *excel_out_%Y-%m-%d_%H-%M-%S.xslx* file.
  
 N2G
 ******************************************************************************
  
-**Prerequisites:** `N2G module <https://pypi.org/project/N2G/>`_ needs to be installed on the system
+**Prerequisites:** `N2G module <https://pypi.org/project/N2G/>`_ need to be installed on the system
 
 N2G takes structured data and transforms it into xml format supported by a number of diagram editors. 
 
-**Supported Parameters**
+**Supported formatter arguments**
 
 * ``path`` dot separated string to results that N2G formatter should use to produce XML diagram.
 * ``module`` name of N2G diagramming module to use - ``yed`` or ``drawio``
@@ -356,7 +461,7 @@ Template::
     -------------------------
     Device ID: switch-1
     Entry address(es): 
-      IP address: 10.2.2.2
+      IP address: 10.1.1.1
     Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP 
     Interface: GigabitEthernet1/5,  Port ID (outgoing port): GigabitEthernet4/6
     </input>
@@ -385,312 +490,7 @@ Template::
     </output>
     
     <out returner="file" url="./Output/" filename="cdp_diagram.graphml"/>
-	
-Results will be saved in `./Output/cdp_diagram.graphml` file and after editing diagram it might look like this:
+    
+Results will be saved in `./Output/cdp_diagram.graphml` file and after editing diagram might look like this:
 
 .. image:: ../_images/cdp_diagram.png
-
-Formatter attributes
-******************************************************************************
-
-.. list-table::
-   :widths: 30 10 60
-   :header-rows: 1
-   
-   * - Formatter
-     - Attribute
-     - Description  
-   * - table, csv, tabulate, excel 
-     - `path`_ 
-     - dot separated string that denotes path to data within results tree
-   * - tabulate
-     - `format_attributes`_ 
-     - string of `*args`, `**kwargs` to pass to formatter
-   * - table, csv, tabulate, excel
-     - `headers`_    
-     - comma separated string of table headers    
-   * - csv
-     - `sep`_ 
-     - character to separate items, by default it is comma
-   * - table, csv, tabulate, excel
-     - `missing`_ 
-     - string to replace missing items based on provided headers
-   * - table, csv, tabulate, excel
-     - `key`_ 
-     - string to use while flattening dictionary of data results
-
-
-path
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``path="path_to_data"``  
-
-* path_to_data - dot separated string of path items within results tree, used to specify location of data to work with.
-
-In the case when results data is a nested structure and we want to output only part of it in a certain format, path attribute can be used to identify the portion of results to work with.
-
-**Supported by:** table, csv, tabulate output formatters
-
-**Example**
-
-In this example we want to emit BGP peers in a table format, however, list of peer dictionaries is nested within results tree behind *bgp_config* and *peers* sections. We can set `path` to `bgp_config.peers` value to reference required data and pass it through output formatter, in this case csv. 
-
-Template::
-
-    <input load="text">
-    router bgp 65100
-      neighbor 10.145.1.9
-        description vic-mel-core1
-      !
-      neighbor 192.168.101.1
-        description qld-bri-core1
-    </input>
-    
-    <group name="bgp_config">
-    router bgp {{ bgp_as }}
-     <group name="peers">
-      neighbor {{ peer }}
-        description {{ description  }}
-     </group>
-    </group> 
-    
-    <output name="out1" format="pprint" returner="terminal"/>
-    
-    <output name="out2" path="bgp_config.peers" format="csv" returner="terminal"/>
-    
-Results::
-
-    [   {   'bgp_config': {   'bgp_as': '65100',
-                              'peers': [   {   'description': 'vic-mel-core1',
-                                               'peer': '10.145.1.9'},
-                                           {   'description': 'qld-bri-core1',
-                                               'peer': '192.168.101.1'}]}}]
-    description,peer
-    vic-mel-core1,10.145.1.9
-    qld-bri-core1,192.168.101.1
-    
-Outputter *out1* will emit data in native python format but structured by pprint for ease of read, while outputter `out2` will format peers data in a table using tabulate formatter. Returner *terminal* will print results to command line screen.
-
-format_attributes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``format_attributes="**args, **kwargs"``
-
-* args - list of attribute values e.g. `value1, value2, value3`, to pass to formatter
-* kwargs - list of attribute name-value pairs e.g. `key1=value1, key2-value2`, to pass to formatter
-
-**Supported by**: tabulate output formatter
-
-Some outputters can be invoked with a number of additional arguments to modify their behavior, this arguments can be passed to them using *format_attributes* attribute.
-
-**Example**
-
-Tabulate outputter supports a number of table formates that can be specified using `tablefmt` argument, in below template data will be formatted using tabulate formatter with tabulate table format set to `fancy_grid` and results will be printer to terminal screen.
-
-Template::
-
-    <input load="text">
-    router bgp 65100
-      neighbor 10.145.1.9
-        description vic-mel-core1
-      !
-      neighbor 192.168.101.1
-        description qld-bri-core1
-    </input>
-    
-    <group name="bgp_config">
-    router bgp {{ bgp_as }}
-     <group name="peers">
-      neighbor {{ peer }}
-        description {{ description  }}
-     </group>
-    </group> 
-        
-    <output name="out2" path="bgp_config.peers" format="csv" 
-    returner="terminal" format_attributes="tablefmt='fancy_grid'"/>
-    
-Results::
-
-    ╒═══════════════╤═══════════════╕
-    │ description   │ peer          │
-    ╞═══════════════╪═══════════════╡
-    │ vic-mel-core1 │ 10.145.1.9    │
-    ├───────────────┼───────────────┤
-    │ qld-bri-core1 │ 192.168.101.1 │
-    ╘═══════════════╧═══════════════╛
-    
-headers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``headers="header1, header2, ... headerN"``  
-
-* headers - comma separated string of table headers
-
-Table formatter will identify the list of headers automatically, however, their order will be undefined and can change. To solve that problem, predefined list of headers can be supplied to formatter. Headers have to match key names of the results dictionaries and they are case sensitive.
-
-**Supported by:** table, csv, tabulate output formatters
-
-**Example**
-
-Template::
-
-    <input load="text">
-    interface Loopback0
-     description Router-id-loopback
-     ip address 192.168.0.113/24
-    !
-    interface Vlan778
-     description CPE_Acces_Vlan
-     ip address 2002::fd37/124
-     ip vrf CPE1
-    !
-    </input>
-    
-    <group>
-    interface {{ interface }}
-     ip address {{ ip }}/{{ mask }}
-     description {{ description }}
-     ip vrf {{ vrf }}
-    </group>
-    
-    <output 
-    format="tabulate" 
-    returner="terminal"
-    headers="interface, description, vrf, ip, mask"
-    />
-
-Results::
-
-    interface    description         vrf    ip               mask
-    -----------  ------------------  -----  -------------  ------
-    Loopback0    Router-id-loopback         192.168.0.113      24
-    Vlan778      CPE_Acces_Vlan      CPE1   2002::fd37        124
-    
-sep
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``sep="char"``  
-
-* char - separator character to use for csv formatter, default value is comma ","
-
-**Supported by:** csv output formatter
-
-missing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``missing="value"``  
-
-* value - string to use to substitute empty cells in table, default is empty - ""
-
-**Supported by:** table, csv, tabulate output formatters
-
-**Example**
-
-Template::
-
-    <input load="text">
-    interface Loopback0
-     description Router-id-loopback
-     ip address 192.168.0.113/24
-    !
-    interface Vlan778
-     ip address 2002::fd37/124
-     ip vrf CPE1
-    !
-    </input>
-    
-    <group>
-    interface {{ interface }}
-     ip address {{ ip }}/{{ mask }}
-     description {{ description }}
-     ip vrf {{ vrf }}
-    </group>
-    
-    <output 
-    format="tabulate" 
-    returner="terminal"
-    missing="UNDEFINED"
-    />
-    
-Results::
-
-    description         interface    ip               mask  vrf
-    ------------------  -----------  -------------  ------  ---------
-    Router-id-loopback  Loopback0    192.168.0.113      24  UNDEFINED
-    UNDEFINED           Vlan778      2002::fd37        124  CPE1
-    
-key
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``key="name"``
-
-* name - name of the key to use in a dictionary to associate data value
-
-This attribute helps to solve specific problem when results data is a dictionary of dictionaries similar to this::
-
-    {
-        "Loopback0": {
-            "description": "Router-id-loopback",
-            "ip": "192.168.0.113",
-            "mask": "24"
-        },
-        "Vlan778": {
-            "ip": "2002::fd37",
-            "mask": "124",
-            "vrf": "CPE1"
-        }
-    }
-    
-If ``key`` will be set to "intf_name", above data will be transformed into list of dictionaries such as::
-
-    [
-        {
-            "intf_name": "Loopback0",
-            "description": "Router-id-loopback",
-            "ip": "192.168.0.113",
-            "mask": "24"
-        },
-        {
-            "intf_name": "Vlan778",
-            "ip": "2002::fd37",
-            "mask": "124",
-            "vrf": "CPE1"
-        }
-    ]
-
-List of dictionaries will be transformed to list of lists by table formatter to emit it in desirable format (csv, tabulate, excel)::
-    
-    [
-        ['description', 'intf_name', 'ip', 'mask', 'vrf'], 
-        ['Router-id-loopback', 'Loopback0', '192.168.0.113', '24', ''], 
-        ['', 'Vlan778', '2002::fd37', '124', 'CPE1']
-    ]
-    
-**Example**
-
-Template::
-
-    <input load="text">
-    interface Loopback0
-     description Router-id-loopback
-     ip address 192.168.0.113/24
-    !
-    interface Vlan778
-     ip address 2002::fd37/124
-     ip vrf CPE1
-    !
-    </input>
-    
-    <group name="{{ interface }}">
-    interface {{ interface }}
-     ip address {{ ip }}/{{ mask }}
-     description {{ description }}
-     ip vrf {{ vrf }}
-    </group>
-    
-    <output 
-    format="tabulate" 
-    returner="terminal"
-    key="intf_name"
-    />
-    
-Results::
-
-    description         intf_name    ip               mask  vrf
-    ------------------  -----------  -------------  ------  -----
-    Router-id-loopback  Loopback0    192.168.0.113      24
-                        Vlan778      2002::fd37        124  CPE1

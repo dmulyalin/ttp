@@ -28,6 +28,7 @@ TTP mainly uses built-in libraries. However, additional modules need to be insta
 * :ref:`Outputs/Formatters:tabulate` - requires `tabulate module <https://pypi.org/project/tabulate/>`_ 
 * :ref:`Outputs/Formatters:jinja2` - requires `Jinja2 module <https://pypi.org/project/Jinja2/>`_ 
 * :ref:`Outputs/Formatters:excel` - requires `openpyxl <https://openpyxl.readthedocs.io/en/stable/#>`_ 
+* :ref:`Outputs/Formatters:N2G` - requires `N2G module <https://pypi.org/project/N2G/>`_
 
 **Output Functions**
 
