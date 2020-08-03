@@ -26,7 +26,9 @@ Action functions act upon match result to transform into desired state.
    * - `join`_ 
      - join match using provided character
    * - `append`_ 
-     - append provided string to match result
+     - append provided string to the end of match result
+   * - `prepend`_ 
+     - prepend provided string at the beginning of match result
    * - `print`_ 
      - print match result to terminal
    * - `unrange`_ 
@@ -472,7 +474,7 @@ append
 ------------------------------------------------------------------------------
 ``{{ name | append(string) }}``
 
-* string (mandatory) - string append to match result
+* string (mandatory) - string to append
 
 Appends string to match result and returns produced value
 
@@ -491,6 +493,14 @@ Result::
     {
         "interface": "Ge3/3 - non production"  
     }
+
+prepend
+------------------------------------------------------------------------------
+``{{ name | prepend(string) }}``
+
+* string (mandatory) - string to prepend
+
+Prepends string to match result and returns produced value
     
 print
 ------------------------------------------------------------------------------
