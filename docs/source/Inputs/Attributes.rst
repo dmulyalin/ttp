@@ -1,7 +1,11 @@
 Attributes
 ====================
 
-There are a number of attributes can be specified in input tag, these attributes help to define input behavior and how data should be loaded and parsed.
+There are a number of attributes supported by input tag, these attributes help to define input behavior and how data should be loaded and parsed.
+
+Additionally input tag text payload can contain structured data, that data can be retrieved using ``get_input_load`` method. Input tag ``load`` attribute instructs how to load that data. For instance, if tag text structured in yaml format, yaml loader can be used to load it in Python data structure. 
+
+Attributes in input tag and attributes loaded from input tag text are combined in single structure if both are dictionaries, as a result, most of the attributes can be specified in either way.
 
 .. list-table:: 
    :widths: 10 90
@@ -12,9 +16,15 @@ There are a number of attributes can be specified in input tag, these attributes
    * - `name`_   
      - Uniquely identifies input within template
    * - `groups`_   
-     - Specifies group(s) that should be used to parse input data
+     - comma-separated list of group(s) that should be used to parse input data
    * - `load`_   
-     - Identifies loader that should be used to load text data for input tag itself
+     - loader name that should be used to load text data from input tag
+   * - `url`_   
+     - single or list of urls of data location
+   * - `extensions`_   
+     - single or list of file extensions to load, e.g. "txt" or "log" or "conf"
+   * - `filters`_   
+     - single or list of regular expression  to filter file names
 	 
 name
 ------------------------------------------------------------------------
@@ -82,3 +92,64 @@ Result::
             }
         }
     ]
+     
+url
+------------------------------------------------------------------------
+``url="url-1"`` or ``url=["url-1", "url-2", ... , "url-N"]``
+
+* url-N - string or list of strings that contains absolute or relative OS path to file or to directory of file(s) that needs to be parsed.
+
+Few notes on relative path:
+
+* if template tag ``base_path`` attribute provide, base_path value used to extend relative path - appended to relative path of each url
+* if no template tag ``base_path`` attribute provided, in case if url parameter contains relative path, this path will be extended in relation to the folder where TTP invoked
+
+TTP uses Python built-in OS module to load input files. Examples of relative path: ``./relative/path/`` or ``../relative/path/`` or ``relative/path/`` - any path that OS module considers as a relative path.
+
+**Example-1**
+
+Template tag contains ``base_path`` attribute.
+
+Template::
+
+    <template base_path="C:/base/path/to/">
+    <input load="yaml">
+    url: "./Data/Inputs/dataset_1/"
+    </input>
+    
+    <group name="interfaces">
+    interface {{ interface }}
+      ip address {{ ip  }}/{{ mask }}
+    </group>
+    </template>
+	
+After combining base path and provided url, TTP will use ``C:/base/path/to/Data/Inputs/dataset_1/`` to load input data files.
+
+**Example-2**
+
+No ``base_path`` attribute.
+
+Template::
+
+    <input load="yaml">
+    url: "./Data/Inputs/dataset_1/"
+    </input>
+    
+    <group name="interfaces">
+    interface {{ interface }}
+      ip address {{ ip  }}/{{ mask }}
+    </group>
+
+In this case TTP will search for data files using relative path ``./Data/Inputs/dataset_1/``, extending it in relation to current directory, directory where TTP was executed.
+     
+extensions
+------------------------------------------------------------------------
+``extensions="extension-1"`` or ``extensions=["extension-1", "extension-2", ... , "extension-N"]``
+
+* extension-N - string or list of strings that contains file extensions that needs to be parsed e.g. txt, log, conf etc. In case if `url`_ is OS path to directory and not single file, ttp will use this strings to check if file names ends with one of given extensions, if so, file will be loaded and skipped otherwise.
+
+filters
+------------------------------------------------------------------------
+``filters="regex-1"`` or ``filters=["regex-1", "regex-2", ... , "regex-N"]``
+
+* regex-N - string or list of strings that contains regular expressions. If `url`_ is OS path to directory and not single file, ttp will use this strings to run re search against file names to load only files with names that matched by at least one regex.
