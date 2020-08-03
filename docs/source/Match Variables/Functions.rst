@@ -90,6 +90,10 @@ Condition functions can perform various checks with match results and returns ei
    
    * - Name
      - Description  
+   * - `equal`_
+     - check if match is equal to provided value
+   * - `notequal`_
+     - check if match is not equal to provided value
    * - `startswith_re`_ 
      - checks if match starts with certain string using regular expression
    * - `endswith_re`_ 
@@ -1501,7 +1505,7 @@ contains
 
 * patternN - string, pattern to check match result for
 
-This function evaluates if match value contains one of given string patterns, returns True if so and False otherwise.
+This function evaluates if match value contains one of the given string patterns, returns True if so and False otherwise.
 
 **Example**
 
