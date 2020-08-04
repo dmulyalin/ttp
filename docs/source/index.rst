@@ -13,7 +13,7 @@ Template Text Parser
    Inputs/index
    Outputs/index
    Template Tag/Template Tag
-   Template Variables/Template Variables
+   Template Variables/index
    Lookup Tables/Lookup Tables
    Macro Tag/Macro Tag
    Doc Tag/Doc Tag
