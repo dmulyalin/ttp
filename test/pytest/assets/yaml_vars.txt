@@ -1,0 +1,4 @@
+var_1: value_1
+var_2: value_2
+var_2: [1,2,3,4,"a"]
+INTF_RE: "GigabitEthernet\\S+|Fast\\S+"

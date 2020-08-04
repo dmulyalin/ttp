@@ -10,11 +10,11 @@ Input tag support functions to pre-process data.
    * - Attribute
      - Description
    * - `functions attribute`_   
-     - String with functions defined int it
+     - pipe-separated list of functions
    * - `macro`_   
-     - Name of macro function to run input data through
+     - comma-separated list of macro functions to run input data through
    * - `extract_commands`_   
-     - Comma separated list of commands output to extract from text data
+     - comma-separated list of commands output to extract from text data
    * - `test`_   
      - Test function to verify input function handling
      

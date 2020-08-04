@@ -2,6 +2,22 @@ Returners
 =========
      
 TTP has `file`_, `terminal`_ and `self`_ returners. The purpose of returner is to return or emit or save data to certain destination.
+
+.. list-table::
+   :widths: 10 90
+   :header-rows: 1
+
+   * - Returner
+     - Description
+   * - `self`_   
+     - return result to calling function
+   * - `file`_   
+     - save results to file
+   * - `terminal`_   
+     - print results to terminal screen
+   * - `syslog`_   
+     - send results over UDP to Syslog server
+	 
   
 self
 -------------------------------------
@@ -85,3 +101,8 @@ Template::
 Results printed to screen:
 
 .. image:: ../_images/terminal_returner_colorama.png
+
+syslog
+-----------
+
+TBD
