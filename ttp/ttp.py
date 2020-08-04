@@ -2516,9 +2516,6 @@ class _results_class:
     def save_curelements(self, result_data, result_path):
         """Method to save current group results in self.results
         """
-        # do nothing if DEFAULTS and result_data are empty:
-        if not result_data and not self.record["DEFAULTS"]:
-            return
         # get ELEMENT from self.results by result_path
         E = self.dict_by_path(PATH=result_path, ELEMENT=self.results)
         if isinstance(E, list):
@@ -2632,19 +2629,8 @@ class _results_class:
                 pattern = r"{{\s*" + m + r"\s*}}"
                 if m in self.record["result"]:
                     self.dyn_path_cache[m] = self.record["result"][m]
-                    repl = self.record["result"].pop(m)
-                    try:
-                        path_item = re.sub(pattern, repl, path_item)
-                    except TypeError as e:
-                        try:
-                            path_item = re.sub(pattern, str(repl), path_item)
-                        except:
-                            log.critical(
-                                "ttp.form_path path re substitution failed:\npattern: {}\nreplacememnt: {}\nstring to replace in: {}".format(
-                                    pattern, repl, path_item
-                                )
-                            )
-                            raise SystemExit("exiting...")
+                    repl = str(self.record["result"].pop(m))
+                    path_item = re.sub(pattern, repl, path_item)
                 elif m in self.dyn_path_cache:
                     path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
                 elif m in self.vars:
