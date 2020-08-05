@@ -1270,8 +1270,8 @@ class _input_class:
             self.data = [("text_data", element_text)]
             return
         # try to source data by calling external module
-        elif self.attributes.get("source", "") in _ttp_["input"]:
-            datums = _ttp_["input"][self.attributes["source"]](
+        elif self.attributes.get("source", "") in _ttp_["sources"]:
+            datums = _ttp_["sources"][self.attributes["source"]](
                 self.name, **self.parameters
             )
             self.data = [("text_data", datum) for datum in datums]

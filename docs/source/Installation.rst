@@ -7,7 +7,7 @@ Using pip::
 
 Or clone from GitHub, unzip, navigate to folder and run::
 
-    python setup.py install
+    python setup.py install or python -m pip install .
 	
 Additional dependencies
 -----------------------

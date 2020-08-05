@@ -29,9 +29,11 @@ Internet  {{ ip }}  -                   {{ mac }}  ARPA   {{ interface }}
 </group>
 
 <output returner="syslog" load="python">
-address="192.168.1.175"
+servers="192.168.1.175"
 port="10514"
 path="arp_table"
+iterate=True
+facility=77
 </output>
 """
     parser = ttp(template=template)

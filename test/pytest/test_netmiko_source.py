@@ -14,7 +14,7 @@ hostname="gethostname"
 </vars>
 
 <input source="netmiko" name="arp">
-devices = ["192.168.217.10", "192.168.217.7"]
+devices = ["192.168.1.151", "192.168.1.153"]
 device_type = "cisco_ios"
 username = "cisco" # or get_user_input
 password = "cisco" # or get_user_pass
@@ -28,7 +28,7 @@ Internet  {{ ip }}  {{ age }}   {{ mac }} ARPA   {{ interface }}
 
 
 <input source="netmiko" name="interfaces">
-host = "192.168.217.10"
+host = "192.168.1.151"
 device_type = "cisco_ios"
 username = "get_user_input"
 password = "get_user_pass"

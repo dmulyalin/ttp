@@ -17,7 +17,7 @@ TTP has `file`_, `terminal`_ and `self`_ returners. The purpose of returner is t
      - print results to terminal screen
    * - `syslog`_   
      - send results over UDP to Syslog server
-	 
+     
   
 self
 -------------------------------------
@@ -97,7 +97,7 @@ Template::
     green="true,True"
     format="json"
     />
-	
+    
 Results printed to screen:
 
 .. image:: ../_images/terminal_returner_colorama.png
@@ -105,4 +105,45 @@ Results printed to screen:
 syslog
 -----------
 
-TBD
+This returner send result to remote Syslog servers over UDP using `syslog handler <https://docs.python.org/3/library/logging.handlers.html#sysloghandler>`_ from Python built-in loggin library.
+
+**Supported returner attributes**
+
+* ``servers`` list of servers to send logs to
+* ``port`` UDP port servers listening on, default 514
+* ``facility`` syslog facility number, default 77
+* ``path`` path to parsing results emit to syslog
+* ``iterate`` if set to True and parsing result is a list, iterates and send each item individually, default is *True*
+
+Sample Template::
+
+    <input load="text">
+    router-2-lab#show ip arp
+    Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+    Internet  10.1.13.4               -   0050.5685.14d6  ARPA   GigabitEthernet3.13
+    Internet  10.1.13.5               -   0050.5685.14d7  ARPA   GigabitEthernet4.14
+    </input>
+    
+    <input load="text">
+    router-3-lab#show ip arp
+    Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+    Internet  10.1.13.1              98   0050.5685.5cd1  ARPA   GigabitEthernet1.11
+    Internet  10.1.13.3               -   0050.5685.14d5  ARPA   GigabitEthernet2.12
+    </input>
+    
+    <vars>hostname="gethostname"</vars>
+    
+    <group name="arp_table*" method="table">
+    Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
+    Internet  {{ ip }}  -                   {{ mac }}  ARPA   {{ interface }}
+    {{ hostname | set(hostname) }}
+    </group>
+    
+    <output returner="syslog" load="python">
+    servers="192.168.1.175"
+    port="10514"
+    path="arp_table"
+    iterate=True
+    facility=77
+    </output>
+    
