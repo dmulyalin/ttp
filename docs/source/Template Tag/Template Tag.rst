@@ -1,7 +1,7 @@
 Template Tag
 ============
 
-TTP templates support <template> tag to define several templates within single template, each template processed separately, no data shared across templates, but templates results can be cross referenced for lookup functions.
+TTP templates support <template> tag to define several templates within single file. Each template processed separately, no data shared between templates, but results of one template can be used by lookup functions in another template.
 
 Only two levels of hierarchy supported - top template tag and a number of child template tags within it, further template tags nested within children are ignored.
 

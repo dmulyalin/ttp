@@ -400,7 +400,7 @@ resub
 ------------------------------------------------------------------------------
 ``{{ name | resub(old, new, count) }}``
 
-* old (mandatory) - pattern to be replaced
+* old (mandatory) - pattern to be replaced, can reference template variable name
 * new (mandatory) - pattern to be replaced with
 * count(optional) - digit, default is 1, indicates count of replacements to do
 
@@ -839,9 +839,9 @@ resuball
 ------------------------------------------------------------------------------
 ``{{ name | resuball('value1', 'value2', ..., 'valueN') }}``
 
-* value(mandatory) - string to replace in match
+* value(mandatory) - string to replace in match, can reference template variable name.
 
-Same as `replaceall`_ but instead of string replace this function runs python re substitute method, allowing the use of regular expression to match *old* values.
+Same as `replaceall`_ but instead of string replace this function runs python re substitute method, allowing the use of regular expression to match *old* values. 
 
 **Example**
 

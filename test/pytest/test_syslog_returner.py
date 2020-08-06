@@ -29,7 +29,7 @@ Internet  {{ ip }}  -                   {{ mac }}  ARPA   {{ interface }}
 </group>
 
 <output returner="syslog" load="python">
-servers="192.168.1.175"
+servers=["192.168.1.175", "192.168.1.105"]
 port="10514"
 path="arp_table"
 iterate=True
