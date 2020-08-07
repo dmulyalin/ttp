@@ -20,7 +20,8 @@ TTP mainly uses built-in libraries. However, additional modules need to be insta
 
 **Input Sources**
 
-* Netmiko - requires `Netmiko library <https://pypi.org/project/netmiko/>`_
+* :ref:`Inputs/Sources:Netmiko`  - requires `Netmiko library <https://pypi.org/project/netmiko/>`_
+* :ref:`Inputs/Sources:Nornir` - requires `Nornir library <https://pypi.org/project/nornir/>`_
 
 **Output Formatters**
 

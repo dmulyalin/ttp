@@ -32,7 +32,7 @@ Condition functions help to evaluate group results and return *False* or *True*,
    * - `itemize`_   
      - produce list of items extracted out of group match results dictionary 
    * - `cerberus`_   
-     - function to run results through Cerberus validation engine
+     - filter results using Cerberus validation engine
    * - `void`_   
      - invalidates group results, allowing to skip them
    * - `str_to_unicode`_   
@@ -51,6 +51,8 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - get value from results object variables dictionary and assign it to variable
    * - `expand`_   
      - expand match variable dot separated name to dictionary
+   * - `validate`_   
+     - add Cerberus validation information to results without filtering them
      
 containsall
 ------------------------------------------------------------------------------
@@ -706,18 +708,16 @@ cerberus
 ------------------------------------------------------------------------------
 ``cerberus="schema='var_name', log_errors=False, allow_unknown=True, add_errors=False"``
 
-* schema - string, mandatory, name of template variable that contains Cerberus schema structure
-* log_errors - bool, default is False, if set to True will log Cerberus validation errors with WARNING level
-* allow_unknown - bool, default is True, if set to False, Cerberus will invalidate match results with keys that are not defined in schema
-* add_errors - bool, default is False, if set to True, Cerberus validation errors will be added to results under "validation_errors" key
+* ``schema`` - string, mandatory, name of template variable that contains Cerberus schema structure
+* ``log_errors`` - bool, default is False, if set to True will log Cerberus validation errors with WARNING level
+* ``allow_unknown`` - bool, default is True, if set to False, Cerberus will invalidate match results with keys that are not defined in schema
+* ``add_errors`` - bool, default is False, if set to True, Cerberus validation errors will be added to results under "validation_errors" key
 
-**Prerequisites**
+**Prerequisites** `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
 
-`Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
+This function uses `Cerberus validation engine <https://docs.python-cerberus.org/en/stable/>`_ to validate group results, returning ``True`` if validation succeeded and ``False`` otherwise.
 
-This function uses `Cerberus validation engine <https://docs.python-cerberus.org/en/stable/>`_ to validate group results, returning True if validation succeeded and False otherwise. 
-
-This function makes use of Cerberus Validation class, and schema must be defined in one of template variables sections.
+Cerberus Validation schema must be defined in one of template variables.
 
 **Example**
 
@@ -726,7 +726,7 @@ Let's say we want to extract information only for interfaces that satisfy these 
 * has "Gigabit" in the name
 * contains "Customer" in description
 * dot1q vlan id is in 200-300 range 
-* interface belongs to one of these VRFs - "Management" or "Data"
+* interface belongs to one of VRFs - "Management" or "Data"
 
 Template::
 
@@ -821,7 +821,7 @@ By default only results that passed validation criteria will be returned by TTP,
      ipv6 address {{ ipv6 }}/{{ maskv6 }} 
     </group>
     
-Results produced by TTP will contain validation errors information::
+None of the results will be filtered, but validation errors information will be included::
 
     [
         [
@@ -1562,3 +1562,63 @@ Result::
             }
         ]
     ]
+	
+validate
+------------------------------------------------------------------------------
+``validate="schema, result='valid', info='', errors='', allow_unknown=True"``
+
+Function to add validation results produced by Cerberus library to parsing results. Primary usecase - compliance validation and testing.
+
+**Supported parameters**
+
+* ``schema`` name of template variable that contains Cerberus `Schema <https://docs.python-cerberus.org/en/stable/schemas.html>`_ structure
+* ``result`` field name to store boolean ``True|False`` validation results
+* ``errors`` field name to store validation errors
+* ``info`` user defined string containing test description, if provided, rendered with `sformat`_ function
+
+**Example**
+
+Consider simple usecase - put table together with checks that interfaces have description defined
+
+Template::
+
+    <input load="text">
+    device-1#
+    interface Lo0
+    !
+    interface Lo1
+     description this interface has description
+    </input>
+    
+    <input load="text">
+    device-2#
+    interface Lo10
+    !
+    interface Lo11
+     description another interface with description
+    </input>
+    
+    <vars>
+    intf_description_validate = {
+        'description': {'required': True, 'type': 'string'}
+    }
+    hostname="gethostname"
+    </vars>
+    
+    <group validate="intf_description_validate, info='{interface} has description', result='validation_result', errors='err_details'">
+    interface {{ interface }}
+     description {{ description | ORPHRASE }}
+     {{ hostname | set(hostname) }}
+    </group>
+    
+    <output>
+    format = "tabulate"
+    headers = "hostname, info, validation_result, err_details"
+    format_attributes = "tablefmt='fancy_grid'"
+    returner = "terminal"
+    colour = ""
+    </output>
+
+Results printed to screen:
+
+.. image:: ../_images/groups_vaidate_fun_example_1.png

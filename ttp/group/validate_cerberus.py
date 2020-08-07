@@ -41,13 +41,13 @@ def validate(data, schema, result="valid", info="", errors="", allow_unknown=Tru
     updated data with this dictionary
     {
         result field: True|False
-        "info": check_info
+        info: user defined information string
         errors field: validation errors        
     }
     Args::
         * schema - schema template variable name
         * result - name of the field to assign validation result
-        * info - string, contain additionalinformation about test, 
+        * info - string, contain additional information about test, 
             will be formatted using <info sting>.format(data)
         * errors - name of the field to assign validation errors
         * allow_unknown - informs cerberus to ignore uncknown keys
@@ -64,7 +64,7 @@ def validate(data, schema, result="valid", info="", errors="", allow_unknown=Tru
     ret = validator_engine.validate(document=data, schema=schema_data)
     # form results
     data[result] = ret
-    # add validation errors ifrequested to do so
+    # add validation errors if requested to do so
     if info:
         data, _ = _ttp_["group"]["sformat"](data, string=info, add_field="info")
     if errors:

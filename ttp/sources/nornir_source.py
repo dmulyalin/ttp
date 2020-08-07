@@ -28,10 +28,12 @@ def nornir_fun(input_name, **kwargs):
     hosts = kwargs.get("hosts", None)
     if not hosts:
         log.error("ttp.source.nornir: no hosts found")
+        return ret
     commands = kwargs.get("commands", None)
     commands = commands if isinstance(commands, list) else [commands]
     if not commands:
         log.error("ttp.source.nornir: no commands found")    
+        return ret
     netmiko_kwargs = kwargs.get("netmiko_kwargs", {
         "strip_prompt": False, 
         "strip_command": False
