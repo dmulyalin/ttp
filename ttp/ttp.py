@@ -186,9 +186,9 @@ class ttp:
         # check if template given, if so - load it
         if template != "":
             self.add_template(template=template)
-        # check if data given, if so - load it:
+        # check if data given, if so - load it to all templates
         if data != "":
-            self.add_input(data=data)
+            self.add_input(data=data, template_name="_all_")
 
     def add_input(
         self,
@@ -219,7 +219,7 @@ class ttp:
                     data=data_items, input_name=input_name, groups=groups
                 )
                 for template in self._templates
-                if template.name == template_name
+                if template.name == template_name or template_name == "_all_"
             ]
 
     def set_input(
@@ -248,7 +248,7 @@ class ttp:
             data=data, input_name=input_name, groups=groups, template_name=template_name
         )
 
-    def clear_input(self, template_name=None):
+    def clear_input(self, template_name="_all_"):
         """Method to delete all input data for all or some templates, can be used prior to adding new 
         set of data to parse with same templates, instead of re-initializing ttp object.
 
@@ -260,9 +260,7 @@ class ttp:
         self.__data_size = 0
         self.__datums_count = 0
         for template in self._templates:
-            if template_name is None:
-                template.inputs = {}
-            elif template.name == template_name:
+            if template.name == template_name or template_name == "_all_":
                 template.inputs = {}
 
     def _calculate_overall_data_size(self):

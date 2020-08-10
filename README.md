@@ -74,4 +74,6 @@ print(parser.result(format='json')[0])
 ```
 
 # Contributions
-Feel free to submit an issue or report a bug or ask a question or [buy](https://paypal.me/dmulyalin) Author a coffee. Feature requests are welcomed.
+Feel free to submit an issue or report a bug or ask a question or [buy](https://paypal.me/dmulyalin) Author a coffee. Feature requests are welcomed. 
+
+TTP [Networktocode Slack channel](https://networktocode.slack.com/archives/C018HMJQECB)
