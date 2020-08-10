@@ -717,3 +717,32 @@ more_params:
     # pprint.pprint(load)
     assert load == {'template_1': {'my_input': {'my_params': {'key1': 'val1', 'key2': 'val2'}}},
                     'template_2': {'my_input': {'more_params': ['item1', 'item2', 'item3']}}}
+
+def test_default_behaviour_with_named_templates():
+    """
+    This templates testthat datacorrectly added to all templates if 
+    data and template supplied on TTP parser object instantiation
+    """
+    data = """
+    # show service
+     Name                         Protocol     Dst-Port/Type
+     DISCARD                           UDP                 9
+     DNS                                   UDP                53  
+                                              TCP                 53
+      ECHO                               UDP                   7 
+"""
+    template = """
+<template name="services" results="per_template">
+<group name="{{ name }}.{{ proto }}" method="table">
+{{ ignore(r"\\s+") }}{{ name }}  {{ proto }}  {{ port | DIGIT }}
+{{ ignore(r"\\s+") }}            {{ proto }}  {{ port | DIGIT }}
+</group>
+</template>
+"""
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result(structure="dictionary")
+    # pprint.pprint(res)
+    assert res == {'services': {'DISCARD': {'UDP': {'port': '9'}},
+                                'DNS': {'TCP': {'port': '53'}, 'UDP': {'port': '53'}},
+                                'ECHO': {'UDP': {'port': '7'}}}}
