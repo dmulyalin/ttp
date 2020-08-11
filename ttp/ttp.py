@@ -2154,14 +2154,25 @@ class _parser_class:
             for R in group.end_re:
                 matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
                 if not matches:
-                    continue
+                    continue                
                 check_matches(R, matches, results, start)
                 # if e is smaller, make it bigger
                 if e < matches[-1].span()[1]:
                     e = matches[-1].span()[1]
+                    
             if e != -1:
                 end = start + e
-
+                # clean up results beyond last _end_ match
+                # can happen if stat re is _line_
+                empty_matches_keys = []
+                for span_start, mathches in results.items():
+                    [mathches.remove(item) for item in mathches 
+                    if item[0]["GROUP"] is group and span_start > end]
+                    # if no matches left
+                    if mathches == []:
+                        empty_matches_keys.append(span_start)
+                [results.pop(key) for key in empty_matches_keys]  
+            
             # run normal REs:
             [
                 check_matches(
@@ -2298,10 +2309,10 @@ class _results_class:
                     start_re, normal_re, line_re = [], [], []
                     # sort matches across start, normal and line REs
                     for index, item in enumerate(result):
-                        if item[0]["ACTION"].startswith("start"):
-                            start_re.append(index)
-                        elif item[0]["IS_LINE"] == True:
+                        if item[0]["IS_LINE"] == True:
                             line_re.append(index)
+                        elif item[0]["ACTION"].startswith("start"):
+                            start_re.append(index)
                         else:
                             normal_re.append(index)
                     # start RE always more preferred
