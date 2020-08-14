@@ -15,14 +15,14 @@ hostname="gethostname"
 
 <input source="nornir" name="arp">
 hosts = {
-    "R1": {
-            "hostname": "192.168.1.151",
+    "IOL1": {
+            "hostname": "192.168.217.10",
             "platform": "cisco_ios"
         },
-    "R2": {
-            "hostname": "192.168.1.153",
+    "IOL2": {
+            "hostname": "192.168.217.7",
             "port": 22,
-            "username": "ciscos", # should generate error on wrong password
+            "username": "cisco", # should generate error on wrong password
             "password": "cisco",
             "platform": "cisco_ios"
         }   
@@ -40,12 +40,12 @@ Internet  {{ ip }}  {{ age }}   {{ mac }} ARPA   {{ interface }}
 
 <input source="nornir" name="interfaces">
 hosts = {
-    "R1": {
-            "hostname": "192.168.1.151",
+    "IOL1": {
+            "hostname": "192.168.217.10",
             "platform": "cisco_ios",
         },
-    "R2": {
-            "hostname": "192.168.1.153",
+    "IOL2": {
+            "hostname": "192.168.217.7",
             "platform": "cisco_ios",
         }   
 }

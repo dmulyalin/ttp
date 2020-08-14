@@ -10,11 +10,6 @@ _name_map_ = {
     "nornir_fun": "nornir"
 }
 
-class _MyInventory(Inventory):
-    def __init__(self, **kwargs):
-        hosts = kwargs["ttp_hosts"]
-        super().__init__(hosts=hosts, groups={}, defaults={}, **kwargs)
-
 def _get_commands_output(task, commands, **kwargs):
     [task.run(    
         task=netmiko_send_command,
@@ -55,9 +50,8 @@ def nornir_fun(input_name, **kwargs):
         core={"num_workers": num_workers},
         logging={"enabled": False},
         inventory={
-            "plugin": _MyInventory, 
             "options": {
-                "ttp_hosts": hosts
+                "hosts": hosts
             }
         }
     )

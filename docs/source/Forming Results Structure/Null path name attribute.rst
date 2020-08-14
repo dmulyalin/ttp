@@ -9,7 +9,7 @@ One of the usecases for this feature is to create a group that will behave like 
 
 **Example**
 
-In this example peer_software used together with _line_ indicator to extract results, however, for _line_ to behave properly it was defined within separate group with explicit _stat_ and _end_ indicators. First this is how template would look like without null path::
+In this example peer_software used together with _line_ indicator to extract results, however, for _line_ to behave properly it was defined within separate group with explicit _stat_ and _end_ indicators. First, this is how template would look like without null path::
 
     <input load="text">
     Device ID: switch-2.net 
@@ -48,7 +48,7 @@ And result would be::
         ]
     ]
 	
-Above results has a bit of redundancy in them as they have unnecessary hierarchy to store peer_software details, to avoid that null path can be used::
+Above results have a bit of redundancy in them as they have unnecessary hierarchy to store peer_software details, to avoid that, null path can be used::
 
     <input load="text">
     Device ID: switch-2.net 
