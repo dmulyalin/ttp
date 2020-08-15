@@ -1515,7 +1515,7 @@ contains
 
 * patternN - string, pattern to check match result for
 
-This function evaluates if match value contains one of the given string patterns, returns True if so and False otherwise.
+This function evaluates if match value contains at least one of the given patterns, returns True if so and False otherwise.
 
 **Example**
 

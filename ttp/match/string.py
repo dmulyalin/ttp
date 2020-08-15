@@ -3,8 +3,6 @@ _name_map_ = {
 }
 
 def exclude(data, pattern):
-    # try to get value from TTP vars variables
-    pattern = _ttp_["parser_object"].vars.get(pattern, pattern)
     if not pattern in data:
         return data, True
     return data, False
@@ -23,6 +21,16 @@ def notequal(data, value):
         return data, True
     return data, False
 
+def contains(data, *patterns):
+    for pattern in patterns:
+        if pattern in data:
+            return data, True
+    return data, False
+    
+def sformat(data, string):
+    ret = string.format(data)
+    return ret, None
+	
 def isdigit(data):
     if data.strip().isdigit():
         return data, True
@@ -80,18 +88,6 @@ def prepend(data, char):
 def sprint(data):
     print(data)
     return data, None
-        
-def contains(data, *patterns):
-    for pattern in patterns:
-        # try to get value from TTP vars variables
-        pattern = _ttp_["parser_object"].vars.get(pattern, pattern)
-        if pattern in data:
-            return data, True
-    return data, False
-    
-def sformat(data, string):
-    ret = string.format(data)
-    return ret, None
     
 def replaceall(data, *args):
     vars = _ttp_["parser_object"].vars
