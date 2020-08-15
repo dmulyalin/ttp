@@ -251,11 +251,14 @@ ignore
 ``{{ ignore }}`` or ``{{ ignore("value") }}``
 
 ``value`` can be of:
+
 * regular expression string - regex to use to substitute portion of the string, default is "\S+", meaning any non-space character one or more times.
 * template variable name - name of template variable that contains regular expression to use
 * built in re pattern name - name of regex patter to use, for example :ref:`Match Variables/Patterns:WORD`
 
-Primary use case of this indicator is to ignore changing alpha-numerical characters, for example consider below output::
+.. note:: use template_variable_name if ignore pattern contains ``|`` (pipe) character, as pipe character used by TTP to separate match variable functions.
+
+Primary use case of this indicator is to ignore changing alpha-numerical characters or ignore portion of the line. For example consider this data::
 
     FastEthernet0/0 is up, line protocol is up
       Hardware is Gt96k FE, address is c201.1d00.0000 (bia c201.1d00.1234)
@@ -264,8 +267,6 @@ Primary use case of this indicator is to ignore changing alpha-numerical charact
       Hardware is Gt96k FE, address is b20a.1e00.8777 (bia c201.1d00.1111)
       MTU 1500 bytes, BW 100000 Kbit/sec, DLY 1000 usec,
   
-.. note:: use template_variable_name if ignore pattern contains ``|`` (pipe) character, as pipe character used by TTP to separate match variable functions.
-
 **Example-1**
 
 What if only need to extract bia MAC address within parenthesis, below template will **not** work for all cases::
