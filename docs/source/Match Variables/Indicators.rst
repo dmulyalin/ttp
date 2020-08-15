@@ -252,11 +252,11 @@ ignore
 
 ``value`` can be of:
 
-* regular expression string - regex to use to substitute portion of the string, default is "\S+", meaning any non-space character one or more times.
-* template variable name - name of template variable that contains regular expression to use
-* built in re pattern name - name of regex patter to use, for example :ref:`Match Variables/Patterns:WORD`
+* regular expression string - regex to use to substitute portion of the string, default is ``\S+``, meaning any non-space character one or more times.
+* template variable - name of template variable that contains regular expression to use
+* built in re pattern - name of regex pattern to use, for example :ref:`Match Variables/Patterns:WORD`
 
-.. note:: use template_variable_name if ignore pattern contains ``|`` (pipe) character, as pipe character used by TTP to separate match variable functions.
+.. note:: Reference template variable if ignore pattern contains ``|`` (pipe) character, as pipe character used by TTP to separate match variable functions and cannot be used in inline regex.
 
 Primary use case of this indicator is to ignore changing alpha-numerical characters or ignore portion of the line. For example consider this data::
 

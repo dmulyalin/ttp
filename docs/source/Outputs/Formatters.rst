@@ -184,10 +184,11 @@ This formatter takes parsing result as an input, transforms it in list of lists 
 
 **Supported formatter arguments**
 
-* ``sep`` separator character to use for csv formatter, default value is comma ","
+* ``sep`` separator character to use for csv formatter, default value is comma ``,``
+* ``quote`` quote character to use for csv formatter, default value is double quote ``"``
 * ``path`` dot separated string to results that csv formatter should use
 * ``headers`` comma separated string of tab table headers, headers put randomly otherwise
-* ``missing`` value to use to substitute empty cells in table, default is empty string - ""
+* ``missing`` value to use to substitute empty cells in table, default is empty string - ``""``
 * ``key`` key name to transform dictionary data to list of dictionaries
 
 **Example**

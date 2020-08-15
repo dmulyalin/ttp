@@ -3144,10 +3144,10 @@ load="text"
 returner="self"
 functions="is_equal"
 description="test csv group specific outputter"
->description,interface,ip,mask,trunk_vlans,vrf
-some description,GigabitEthernet3/3,undefined,undefined,138,166-173,undefined
-undefined,GigabitEthernet3/4,undefined,undefined,100-105,undefined
-undefined,GigabitEthernet3/5,1.1.1.1,255.255.255.255,459,531,704-707,ABC_VRF</out>
+>"description","interface","ip","mask","trunk_vlans","vrf"
+"some description","GigabitEthernet3/3","undefined","undefined","138,166-173","undefined"
+"undefined","GigabitEthernet3/4","undefined","undefined","100-105","undefined"
+"undefined","GigabitEthernet3/5","1.1.1.1","255.255.255.255","459,531,704-707","ABC_VRF"</out>
 
 <out
 name="out_tabulate2"
@@ -3232,6 +3232,7 @@ returner="self"
 sep=","
 missing="undefined"
 load="python"
+quote='"'
 />
 
 <out 
@@ -3240,13 +3241,13 @@ load="text"
 returner="self"
 functions="is_equal"
 description="test global csv outputter"
->description,interface,ip,mask,trunk_vlans,vrf
-some description,GigabitEthernet3/3,undefined,undefined,138,166-173,undefined
-undefined,GigabitEthernet3/4,undefined,undefined,100-105,undefined
-undefined,GigabitEthernet3/5,1.1.1.1,255.255.255.255,459,531,704-707,ABC_VRF
-some description,GigabitEthernet3/7,undefined,undefined,138,166-173,undefined
-undefined,GigabitEthernet3/8,undefined,undefined,100-105,undefined
-undefined,GigabitEthernet3/9,1.1.1.1,255.255.255.255,459,531,704-707,ABC_VRF</out>
+>"description","interface","ip","mask","trunk_vlans","vrf"
+"some description","GigabitEthernet3/3","undefined","undefined","138,166-173","undefined"
+"undefined","GigabitEthernet3/4","undefined","undefined","100-105","undefined"
+"undefined","GigabitEthernet3/5","1.1.1.1","255.255.255.255","459,531,704-707","ABC_VRF"
+"some description","GigabitEthernet3/7","undefined","undefined","138,166-173","undefined"
+"undefined","GigabitEthernet3/8","undefined","undefined","100-105","undefined"
+"undefined","GigabitEthernet3/9","1.1.1.1","255.255.255.255","459,531,704-707","ABC_VRF"</out>
 
 <!--final output to put all results in tabulate table-->
 <output 

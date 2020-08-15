@@ -28,7 +28,7 @@ format="csv"
     parser = ttp(template=template_1)
     parser.parse()
     res = parser.result()
-    assert res == ['interface,vlan\nPort-Chanel11,10\nLoopback0,20']
+    assert res == ['"interface","vlan"\n"Port-Chanel11","10"\n"Loopback0","20"']
     
 def test_csv_formatter_with_is_equal():
     template = """
@@ -72,10 +72,10 @@ load="text"
 returner="self"
 functions="is_equal"
 description="test csv group specific outputter"
->description,interface,ip,mask,trunk_vlans,vrf
-some description,GigabitEthernet3/3,undefined,undefined,138,166-173,undefined
-undefined,GigabitEthernet3/4,undefined,undefined,100-105,undefined
-undefined,GigabitEthernet3/5,1.1.1.1,255.255.255.255,459,531,704-707,ABC_VRF</out>
+>"description","interface","ip","mask","trunk_vlans","vrf"
+"some description","GigabitEthernet3/3","undefined","undefined","138,166-173","undefined"
+"undefined","GigabitEthernet3/4","undefined","undefined","100-105","undefined"
+"undefined","GigabitEthernet3/5","1.1.1.1","255.255.255.255","459,531,704-707","ABC_VRF"</out>
 """
     parser = ttp(template=template)
     parser.parse()
