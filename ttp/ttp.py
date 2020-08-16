@@ -1449,7 +1449,7 @@ class _group_class:
             "name": extract_name,    
             "default": extract_default,    
             "chain": extract_chain,    
-            "functions": extract_chain,    
+            "functions": extract_chain,
         }    
     
         for attr_name, attributes in data.items():    
@@ -1799,7 +1799,10 @@ class _variable_class:
             "notendswith_re": get_arg_from_vars,    
             "exclude_re": get_arg_from_vars,    
             "exclude": get_arg_from_vars,    
-            "contains": get_arg_from_vars    
+            "contains": get_arg_from_vars,
+            "equal": get_arg_from_vars,
+            "notequal": get_arg_from_vars,
+            "sformat": get_arg_from_vars
         }    
         # handle _start_, _line_ etc.    
         if self.var_name in extract_funcs:    

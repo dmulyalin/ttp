@@ -8,15 +8,11 @@ def exclude(data, pattern):
     return data, False
 
 def equal(data, value):
-    # try to get value from TTP vars variables
-    value = _ttp_["parser_object"].vars.get(value, value)
     if data == value:
         return data, True
     return data, False
 
 def notequal(data, value):
-    # try to get value from TTP vars variables
-    value = _ttp_["parser_object"].vars.get(value, value)
     if data != value:
         return data, True
     return data, False

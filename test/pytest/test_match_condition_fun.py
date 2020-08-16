@@ -463,4 +463,114 @@ interface {{ interface | contains(var_1, Vlan) }}
     assert res == [[[{'description': 'Storage', 'interface': 'Port-Channel11'},
                      {'description': 'Management', 'interface': 'Port-Channel12'},
                      {'description': 'Management', 'interface': 'Vlan777'}]]]
-test_contains_multi()
+# test_contains_multi()
+
+def test_equal_inline():
+    template = """
+<input load="text">
+interface Port-Channel11
+  description Storage
+interface Loopback0
+  description RID
+interface Port-Channel12
+  description Management
+interface Vlan777
+  description Management
+</input>
+
+<group>
+interface {{ interface | equal("Port-Channel12") }}
+  description {{ description }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[{'description': 'Management', 'interface': 'Port-Channel12'}]]
+	
+def test_equal_from_vars():
+    template = """
+<input load="text">
+interface Port-Channel11
+  description Storage
+interface Loopback0
+  description RID
+interface Port-Channel12
+  description Management
+interface Vlan777
+  description Management
+</input>
+
+<vars>
+var_1 = "Port-Channel12"
+</vars>
+
+<group>
+interface {{ interface | equal(var_1) }}
+  description {{ description }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[{'description': 'Management', 'interface': 'Port-Channel12'}]]
+	
+def test_notequal_inline():
+    template = """
+<input load="text">
+interface Port-Channel11
+  description Storage
+interface Loopback0
+  description RID
+interface Port-Channel12
+  description Management
+interface Vlan777
+  description Management
+</input>
+
+<group>
+interface {{ interface | notequal("Port-Channel12") }}
+  description {{ description }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[[{'description': 'Storage', 'interface': 'Port-Channel11'},
+                     {'description': 'RID', 'interface': 'Loopback0'},
+                     {'description': 'Management', 'interface': 'Vlan777'}]]]
+# test_notequal_inline()
+
+def test_notequal_from_vars():
+    template = """
+<input load="text">
+interface Port-Channel11
+  description Storage
+interface Loopback0
+  description RID
+interface Port-Channel12
+  description Management
+interface Vlan777
+  description Management
+</input>
+
+<vars>
+var_1 = "Port-Channel12"
+</vars>
+
+<group>
+interface {{ interface | notequal(var_1) }}
+  description {{ description }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[[{'description': 'Storage', 'interface': 'Port-Channel11'},
+                     {'description': 'RID', 'interface': 'Loopback0'},
+                     {'description': 'Management', 'interface': 'Vlan777'}]]]
+# test_notequal_inline()

@@ -1489,7 +1489,7 @@ startswith_re
 ------------------------------------------------------------------------------
 ``{{ name | startswith_re('pattern') }}``
 
-* pattern(mandatory) - string pattern to check
+* pattern(mandatory) - string pattern to check or name of variable from <vars> tag.
 
 Python re search used to evaluate if match value starts with given string pattern, returns True if so and False otherwise
 
@@ -1497,7 +1497,7 @@ endswith_re
 ------------------------------------------------------------------------------
 ``{{ name | endswith_re('pattern') }}``
 
-* pattern(mandatory) - string pattern to check
+* pattern(mandatory) - string pattern to check or name of variable from <vars> tag.
 
 Python re search used to evaluate if match value ends with given string pattern, returns True if so and False otherwise
 
@@ -1505,7 +1505,7 @@ contains_re
 ------------------------------------------------------------------------------
 ``{{ name | contains_re('pattern') }}``
 
-* pattern(mandatory) - string pattern to check
+* pattern(mandatory) - string pattern to check or name of variable from <vars> tag.
 
 Python re search used to evaluate if match value contains given string pattern, returns True if so and False otherwise
 
@@ -1513,7 +1513,7 @@ contains
 ------------------------------------------------------------------------------
 ``{{ name | contains('pattern1, pattern2, ... , patternN') }}``
 
-* patternN - string, pattern to check match result for
+* patternN - string pattern to check or name of variable from <vars> tag.
 
 This function evaluates if match value contains at least one of the given patterns, returns True if so and False otherwise.
 
@@ -1570,7 +1570,7 @@ notstartswith_re
 ------------------------------------------------------------------------------
 ``{{ name | notstartswith_re('pattern') }}``
 
-* pattern(mandatory) - string pattern to check
+* pattern(mandatory) - string pattern to check or name of variable from <vars> tag.
 
 Python re search used to evaluate if match value starts with given string pattern, returns False if so and True otherwise
 
@@ -1578,7 +1578,7 @@ notendswith_re
 ------------------------------------------------------------------------------
 ``{{ name | notendswith_re('pattern') }}``
 
-* pattern(mandatory) - string pattern to check
+* pattern(mandatory) - string pattern to check or name of variable from <vars> tag.
 
 Python re search used to evaluate if match value ends with given string pattern, returns False if so and True otherwise
 
@@ -1586,7 +1586,7 @@ exclude_re
 ------------------------------------------------------------------------------
 ``{{ name | exclude_re('pattern') }}``
 
-* pattern(mandatory) - string pattern to check
+* pattern(mandatory) - string pattern to check or name of variable from <vars> tag.
 
 Python re search used to evaluate if match value contains given string pattern, returns False if so and True otherwise
 
@@ -1594,7 +1594,7 @@ exclude
 ------------------------------------------------------------------------------
 ``{{ name | exclude('pattern') }}``
 
-* pattern(mandatory) - string pattern to check
+* pattern(mandatory) - string pattern to check or name of variable from <vars> tag.
 
 This function evaluates if match value contains given string pattern, returns False if so and True otherwise.
 
@@ -2302,9 +2302,9 @@ Result::
     
 sformat
 ------------------------------------------------------------------------------
-``{{ name | sformat("string_to_format") }}``
+``{{ name | sformat("value") }}``
 
-* string_to_format - string to format with match result
+* value - string to format with match result or name of variable for from <vars> tag.
 
 sformat allows to embed match result within arbitrary string using syntaxis supported by python built-in format function.
 

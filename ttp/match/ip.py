@@ -123,7 +123,7 @@ def cidr_match(data, prefix):
         # if object is ipnetwork, can check it as is:
         check = ip_obj.network.overlaps(ip_net)
     elif isinstance(ip_obj, ipaddress.IPv4Address) or isinstance(ip_obj, ipaddress.IPv6Address):
-        # if object is ipaddress, need to convert it itno ipinterface with /32 mask:
+        # if object is ipaddress, need to convert it into ipinterface with /32 mask:
         if ip_obj.version is 4:
             # for py2 support need to convert data to unicode:
             if _ttp_["python_major_version"] is 2:
