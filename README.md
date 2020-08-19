@@ -28,6 +28,10 @@ Reference [documentation](https://ttp.readthedocs.io) for more information.
 
 ## Example - as simple as it can be
 
+Simple interfaces configuration parsing example
+
+<details><summary>Code</summary>
+
 ```python
 from ttp import ttp
 import pprint
@@ -66,6 +70,7 @@ pprint.pprint(parser.result(), width=100)
 #     'mask': '124',
 #     'vrf': 'CPE1'}]]]
 ```
+</details>
 
 ## Example - a bit more complicated
 
