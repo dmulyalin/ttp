@@ -78,7 +78,7 @@ For this example lets say we want to parse BGP peerings output, but combine stat
 
 <details><summary>Code</summary>
 
-```
+```python
 template="""
 <doc>
 This template first parses "show bgp vrf CUST-1 vpnv4 unicast summary" commands
@@ -103,31 +103,6 @@ ucs-core-switch-1  65100        CUST-1      192.0.2.2  65102       03:55:01  idl
 
 Run this script with "python filename.py"
 </doc>
-
-<input load="text" name="bgp_state">
-ucs-core-switch-1#show bgp vrf CUST-1 vpnv4 unicast summary
-Neighbor   V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
-192.0.2.1  4 65101      32      54       42    0    0 00:12:33       300
-192.0.2.2  4 65101      11      45       99    0    0 03:55:01       idle
-</input>
-
-<input load="text" name="bgp_config">
-ucs-core-switch-1#show run | section bgp
-router bgp 65100
-  vrf CUST-1
-    neighbor 192.0.2.1
-      remote-as 65101
-      description peer-1
-      address-family ipv4 unicast
-        route-map RPL-1-IMPORT-v4 in
-        route-map RPL-1-EXPORT-V4 out
-    neighbor 192.0.2.2
-      remote-as 65102
-      description peer-2
-      address-family ipv4 unicast
-        route-map RPL-2-IMPORT-V6 in
-        route-map RPL-2-EXPORT-V6 out
-</input>
 
 <vars>
 hostname="gethostname"
@@ -167,9 +142,37 @@ headers="hostname, local_asn, vrf_name, peer_ip, peer_asn, uptime, state, descri
 />
 """
 
+data_bgp_state = """
+ucs-core-switch-1#show bgp vrf CUST-1 vpnv4 unicast summary
+Neighbor   V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+192.0.2.1  4 65101      32      54       42    0    0 00:12:33       300
+192.0.2.2  4 65101      11      45       99    0    0 03:55:01       idle
+"""
+
+data_bgp_config = """
+ucs-core-switch-1#show run | section bgp
+router bgp 65100
+  vrf CUST-1
+    neighbor 192.0.2.1
+      remote-as 65101
+      description peer-1
+      address-family ipv4 unicast
+        route-map RPL-1-IMPORT-v4 in
+        route-map RPL-1-EXPORT-V4 out
+    neighbor 192.0.2.2
+      remote-as 65102
+      description peer-2
+      address-family ipv4 unicast
+        route-map RPL-2-IMPORT-V6 in
+        route-map RPL-2-EXPORT-V6 out
+"""
+
 from ttp import ttp
 
-parser = ttp(template=template)
+parser = ttp()
+parser.add_template(template)
+parser.add_input(data=data_bgp_state, input_name="bgp_state")
+parser.add_input(data=data_bgp_config, input_name="bgp_config")
 parser.parse()
 ```
 </details>
