@@ -8,7 +8,7 @@ TTP is a Python library for semi-structured text parsing using templates.
 
 ## Why?
 
-To save ones time on transforming raw text into structured data.
+To save ones time on transforming raw text into structured data and beyond.
 
 ## How?
 
