@@ -67,11 +67,12 @@ pprint.pprint(parser.result(), width=100)
 #     'vrf': 'CPE1'}]]]
 ```
 
-# Example - a bit more complicated
+## Example - a bit more complicated
 
 For this example lets say we want to parse BGP peerings output, but combine state with configuration data, at the end we want to get pretty looking text table printed to screen.
 
 <details><summary>Code</summary>
+
 ```
 template="""
 <doc>
