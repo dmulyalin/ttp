@@ -53,6 +53,8 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - expand match variable dot separated name to dictionary
    * - `validate`_   
      - add Cerberus validation information to results without filtering them
+   * - `lookup`_   
+     - lookup match value in lookup table, other group or template results	 
      
 containsall
 ------------------------------------------------------------------------------
@@ -1622,3 +1624,181 @@ Template::
 Results printed to screen:
 
 .. image:: ../_images/groups_vaidate_fun_example_1.png
+
+lookup
+------------------------------------------------------------------------------
+``lookup="key, name=None, template=None, group=None, add_field=False, replace=True, update=False"``
+
+Function to lookup match value in lookup table, other group or template results	 
+
+**Supported parameters**
+
+* ``key`` name of match variable to use for lookup 
+* ``name`` dot separated path to lookup table data location, lookup table defined in ``<lookup>`` tag
+* ``template`` dot separated path to template results to use for lookups
+* ``group`` dot separated path to group results to use for lookups, group within same template
+* ``add_field`` string of new field/key name to assign lookup results to
+* ``replace`` boolean, if True, lookup results will replace looked up value
+* ``update`` boolean, if lookup result is a dictionary and update set to True, that dictionary will be merged with group results
+
+.. note:: add_field, replace or update are action indicators and mutually exclusive, the order of preference is add_field -> update -> replace -> do nothing
+
+Lookup table must be a dictionary, where looked up value will be checked to see if it is one of the keys. As a result, other template or group results must be a dictionary structure for lookup results to be successful.
+
+**Example-1**
+
+Lookup results in lookup table with action set to add_field
+
+Template::
+
+    <input load="text">
+    Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+    Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+    Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+    </input>
+    
+    <lookup name="lookup_data" load="python">
+    { "ip_addresses": {
+      "10.12.13.2": "app_1",
+      "10.12.14.3": "app_2"}}
+    </lookup>
+    
+    <group name="arp" lookup="'ip', name='lookup_data.ip_addresses', add_field='APP'">
+    Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
+    </group>
+
+Results::
+
+    [[{'arp': [{'APP': 'app_1',
+                'age': '98',
+                'interface': 'FastEthernet2.13',
+                'ip': '10.12.13.2',
+                'mac': '0950.5785.5cd1'},
+               {'APP': 'app_2',
+                'age': '131',
+                'interface': 'GigabitEthernet2.13',
+                'ip': '10.12.14.3',
+                'mac': '0150.7685.14d5'}]}]]
+
+**Example-2**
+
+Use another group results for lookup with action set to update
+
+Template::
+
+    <input name="interfaces" load="text">
+    interface FastEthernet2.13
+     description Customer CPE interface
+     ip address 10.12.13.1 255.255.255.0
+     vrf forwarding CPE-VRF
+    !
+    interface GigabitEthernet2.13
+     description Customer CPE interface
+     ip address 10.12.14.1 255.255.255.0
+     vrf forwarding CUST1
+    !
+    </input>
+    
+    <input name="arp" load="text">
+    Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+    Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+    Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+    </input>
+    
+    <group name="interfaces.{{ interface }}" input="interfaces">
+    interface {{ interface }}
+     description {{ description | ORPHRASE }}
+     ip address {{ subnet | PHRASE | to_ip | network | to_str }}
+     vrf forwarding {{ vrf }}
+    </group>
+    
+    <group name="arp" lookup="interface, group='interfaces', update=True" input="arp">
+    Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
+    </group>
+	
+Results::
+
+    [[{'interfaces': {'FastEthernet2.13': {'description': 'Customer CPE interface',
+                                           'subnet': '10.12.13.0/24',
+                                           'vrf': 'CPE-VRF'},
+                      'GigabitEthernet2.13': {'description': 'Customer CPE '
+                                                             'interface',
+                                              'subnet': '10.12.14.0/24',
+                                              'vrf': 'CUST1'}}},
+      {'arp': [{'age': '98',
+                'description': 'Customer CPE interface',
+                'interface': 'FastEthernet2.13',
+                'ip': '10.12.13.2',
+                'mac': '0950.5785.5cd1',
+                'subnet': '10.12.13.0/24',
+                'vrf': 'CPE-VRF'},
+               {'age': '131',
+                'description': 'Customer CPE interface',
+                'interface': 'GigabitEthernet2.13',
+                'ip': '10.12.14.3',
+                'mac': '0150.7685.14d5',
+                'subnet': '10.12.14.0/24',
+                'vrf': 'CUST1'}]}]]
+				
+**Example-3**
+
+Use another template results for lookup with action set to update
+
+Template::
+
+    <template name="interfaces">
+    <input load="text">
+    interface FastEthernet2.13
+     description Customer CPE interface
+     ip address 10.12.13.1 255.255.255.0
+     vrf forwarding CPE-VRF
+    !
+    interface GigabitEthernet2.13
+     description Customer CPE interface
+     ip address 10.12.14.1 255.255.255.0
+     vrf forwarding CUST1
+    !
+    </input>
+    
+    <group name="{{ interface }}">
+    interface {{ interface }}
+     description {{ description | ORPHRASE }}
+     ip address {{ subnet | PHRASE | to_ip | network | to_str }}
+     vrf forwarding {{ vrf }}
+    </group>
+    </template>
+    
+    <template name="arp">
+    <input load="text">
+    Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+    Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+    Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+    </input>
+    
+    <group lookup="interface, template='interfaces', update=True">
+    Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
+    </group>
+    </template>
+	
+Results::
+
+    [[{'FastEthernet2.13': {'description': 'Customer CPE interface',
+                            'subnet': '10.12.13.0/24',
+                            'vrf': 'CPE-VRF'},
+       'GigabitEthernet2.13': {'description': 'Customer CPE interface',
+                               'subnet': '10.12.14.0/24',
+                               'vrf': 'CUST1'}}],
+     [[{'age': '98',
+        'description': 'Customer CPE interface',
+        'interface': 'FastEthernet2.13',
+        'ip': '10.12.13.2',
+        'mac': '0950.5785.5cd1',
+        'subnet': '10.12.13.0/24',
+        'vrf': 'CPE-VRF'},
+       {'age': '131',
+        'description': 'Customer CPE interface',
+        'interface': 'GigabitEthernet2.13',
+        'ip': '10.12.14.3',
+        'mac': '0150.7685.14d5',
+        'subnet': '10.12.14.0/24',
+        'vrf': 'CUST1'}]]]
