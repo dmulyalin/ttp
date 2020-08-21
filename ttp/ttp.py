@@ -9,7 +9,8 @@ from xml.etree import cElementTree as ET
 from multiprocessing import Process, cpu_count, JoinableQueue, Queue    
 from sys import version_info    
 from sys import getsizeof    
-from collections import OrderedDict    
+from collections import OrderedDict
+import ast 
     
 # Initiate global variables    
 log = logging.getLogger(__name__)    
@@ -74,8 +75,7 @@ def lazy_import_functions():
     parse .py files using ast and extract information about all functions    
     to cache them within _ttp_ dictionary    
     """    
-    log.info("ttp.lazy_import_functions: starting functions lazy import")    
-    import ast    
+    log.info("ttp.lazy_import_functions: starting functions lazy import")       
     
     # get exclusion suffix    
     if _ttp_["python_major_version"] == 2:    
@@ -794,8 +794,9 @@ class _template_class:
         if "_anonymous_" in result:    
             if self.results_method == "per_template":    
                 if isinstance(result["_anonymous_"], dict):    
-                    self.results = [result.pop("_anonymous_")]    
-                self.results = result.pop("_anonymous_")    
+                    self.results = [result.pop("_anonymous_")]   
+                else:
+                    self.results = result.pop("_anonymous_")    
             else:    
                 self.results.append(result.pop("_anonymous_"))    
         # handle remaining results    

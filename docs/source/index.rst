@@ -21,3 +21,4 @@ Template Text Parser
    CLI tool
    API reference
    Performance
+   TTP Internals/index

@@ -7,8 +7,3 @@ API reference for TTP module.
 
 .. autoclass:: ttp
    :members:
-   
-_ttp_ dictionary reference
---------------------------
-
-TBD
