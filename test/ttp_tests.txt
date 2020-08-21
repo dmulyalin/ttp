@@ -3819,7 +3819,7 @@ format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
 [
-    [
+    [ [
         {
             "description": "SomeDescription in1",
             "hostname": "router-fw-host",
@@ -3838,7 +3838,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "interface": "lo0.0",
             "ip": "10.0.0.254/32"
         }
-    ],
+    ] ],
     [
         {
             "description": "SomeDescription glob1",
@@ -3892,7 +3892,7 @@ format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
 [
-    [
+    [[
         {
             "description": "Routing Loopback",
             "hostname": "router-fw-host",
@@ -3911,7 +3911,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "interface": "ge-0/0/11.0",
             "ip": "10.0.40.121/31"
         }
-    ],
+    ]],
     [
         {
             "description": "Routing Loopback",
@@ -4398,7 +4398,7 @@ returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
-[
+[ [
     {
         "domain": {
             "fqdn": "Uncknown"
@@ -4421,7 +4421,7 @@ format_attributes = "tablefmt='fancy_grid'"
             "community": "Uncknown"
         }
     }
-]
+] ]
 </output>
 
 </template>
@@ -5774,7 +5774,7 @@ returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
-[
+[ [
         {
             "domain": {
                 "fqdn": "Uncknown"
@@ -5810,7 +5810,7 @@ format_attributes = "tablefmt='fancy_grid'"
                 }
             }
         }
-]
+] ]
 </output>
 </template>
 
@@ -6175,44 +6175,48 @@ format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
 [
-    {
-        "ospf_neighbour_count": "2"
-    },
-    {
-        "bgp_peers": [
-            {
-                "peer": "1.1.1.1",
-                "peer_as": "1234",
-                "state": "1",
-                "uptime": "1w6d"
-            },
-            {
-                "peer": "1.1.1.2",
-                "peer_as": "4321",
-                "state": "13",
-                "uptime": "1w6d"
-            }
-        ]
-    },
-    {
-        "ospf_neighbour_count": "3"
-    },
-    {
-        "bgp_peers": [
-            {
-                "peer": "2.2.2.2",
-                "peer_as": "4567",
-                "state": "1",
-                "uptime": "1w6d"
-            },
-            {
-                "peer": "2.2.2.3",
-                "peer_as": "7654",
-                "state": "13",
-                "uptime": "1w6d"
-            }
-        ]
-    }
+    [
+        {
+            "ospf_neighbour_count": "2"
+        },
+        {
+            "bgp_peers": [
+                {
+                    "peer": "1.1.1.1",
+                    "peer_as": "1234",
+                    "state": "1",
+                    "uptime": "1w6d"
+                },
+                {
+                    "peer": "1.1.1.2",
+                    "peer_as": "4321",
+                    "state": "13",
+                    "uptime": "1w6d"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "ospf_neighbour_count": "3"
+        },
+        {
+            "bgp_peers": [
+                {
+                    "peer": "2.2.2.2",
+                    "peer_as": "4567",
+                    "state": "1",
+                    "uptime": "1w6d"
+                },
+                {
+                    "peer": "2.2.2.3",
+                    "peer_as": "7654",
+                    "state": "13",
+                    "uptime": "1w6d"
+                }
+            ]
+        }
+    ]
 ]
 </output>
 </template>

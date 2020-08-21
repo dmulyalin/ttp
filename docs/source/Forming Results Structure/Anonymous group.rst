@@ -1,19 +1,17 @@
 Anonymous group
 ===============
 
-If no nested functionality required or results structure needs to be kept as flat as possible, templates without <group> tag can be used - so called *non hierarchical templates*. 
+If no nested dictionary functionality required or results structure needs to be kept as flat as possible, templates without <group> tag can be used - so called *non hierarchical templates*. 
 
-There is a notion of *top* <group> tag exists, that at the tag that located in the top of xml document hierarchy,  that tag can be lacking name attribute as well. 
+Top <group> tag can also lack of name attribute, making at anonymous group - group without a name.
 
-In both cases above, ttp will automatically reconstruct <group> tag and name attribute for it, setting name to "_anonymous_" value. At the end _anonymous_ path will be stripped of results tree to flatten it.
+In both cases above, TTP will automatically reconstruct <group> tag name attribute making it equal to ``_anonymous_*`` value, note ``*`` path formatter, that is to make sure that anonymous group results will **always be a list**.  
+
+At the end ``_anonymous_`` group results merged with the rest of groups' results. Because of how results combined, template that has anonymous groups will always produce a list results structure.
 
 .. note::
 
-    <group> tag without name attribute does have support for all the other group attributes as well as nested groups, however, nested groups *must* have name attribute set on them otherwise nested hierarchy will not be preserved leading to unpredictable results. 
-	
-.. warning::
-    
-	Template variables name attribute ignored if groups with "_anonymous_" path used, as a result template variables will not be save into results.
+    <group> tag without name attribute does have support for all group attributes and functions as well as nested groups, however, nested groups *must* have name attribute set on them otherwise nested hierarchy will not be preserved leading to unpredictable results. 
 
 **Example**
 
@@ -33,7 +31,7 @@ Data::
       ip address 192.168.0.1/24
       vrf MGMT
     !
-	
+    
 Template::
 
     <group>
@@ -45,29 +43,31 @@ Template::
       vrf {{ vrf }}
     !{{_end_}}
     </group>
-	
+    
 Result::
 
     [
-        {
-            "description": "Storage",
-            "interface": "Port-Chanel11"
-        },
-        {
-            "description": "RID",
-            "interface": "Loopback0",
-            "ips": {
-                "ip": "10.0.0.3",
-                "mask": "24"
-            }
-        },
-        {
-            "description": "Management",
-            "interface": "Vlan777",
-            "ips": {
-                "ip": "192.168.0.1",
-                "mask": "24"
+        [
+            {
+                "description": "Storage",
+                "interface": "Port-Chanel11"
             },
-            "vrf": "MGMT"
-        }
+            {
+                "description": "RID",
+                "interface": "Loopback0",
+                "ips": {
+                    "ip": "10.0.0.3",
+                    "mask": "24"
+                }
+            },
+            {
+                "description": "Management",
+                "interface": "Vlan777",
+                "ips": {
+                    "ip": "192.168.0.1",
+                    "mask": "24"
+                },
+                "vrf": "MGMT"
+            }
+        ]
     ]

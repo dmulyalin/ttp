@@ -26,7 +26,7 @@ interface {{ interface | contains_re("Port-Channel") }}
     parser.parse()    
     res = parser.result()
     pprint.pprint(res)
-    assert res == [[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]
+    assert res == [[[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]]
     
 # test_contains_re_inline()
 
@@ -85,7 +85,7 @@ interface {{ interface | startswith_re(r"Por\\S") }}
     parser.parse()    
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]
+    assert res == [[[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]]
 #test_startswith_re_inline()
 
 def test_startswith_re_from_vars():
@@ -142,7 +142,7 @@ interface {{ interface | endswith_re(r"Channel\\d+") }}
     parser.parse()    
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]
+    assert res == [[[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]]
 	
 def test_endswith_re_from_vars():
     template = """
@@ -170,7 +170,7 @@ interface {{ interface | endswith_re(var_1) }}
     parser.parse()    
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]
+    assert res == [[[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]]
 	
 def test_notstartswith_re_inline():
     template = """
@@ -279,7 +279,7 @@ interface {{ interface | notendswith_re(var_1) }}
     parser.parse()    
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]
+    assert res == [[[{'interface': 'Port-Channel11', 'is_lag': True, 'is_loopback': False}]]]
 # test_notendswith_re_from_vars()
 
 def test_exclude_re_inline():
@@ -329,7 +329,7 @@ interface {{ interface | exclude_re(var_1) }}
     parser.parse()    
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[{'description': 'Storage', 'interface': 'Port-Channel11'}]]
+    assert res == [[[{'description': 'Storage', 'interface': 'Port-Channel11'}]]]
 # test_exclude_re_from_vars()
 
 def test_exclude_inline():
@@ -487,7 +487,7 @@ interface {{ interface | equal("Port-Channel12") }}
     parser.parse()    
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[{'description': 'Management', 'interface': 'Port-Channel12'}]]
+    assert res == [[[{'description': 'Management', 'interface': 'Port-Channel12'}]]]
 	
 def test_equal_from_vars():
     template = """
@@ -515,7 +515,7 @@ interface {{ interface | equal(var_1) }}
     parser.parse()    
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[{'description': 'Management', 'interface': 'Port-Channel12'}]]
+    assert res == [[[{'description': 'Management', 'interface': 'Port-Channel12'}]]]
 	
 def test_notequal_inline():
     template = """

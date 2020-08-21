@@ -80,9 +80,9 @@ description="test csv group specific outputter"
     parser = ttp(template=template)
     parser.parse()
     res = parser.result()
-    assert res == [[{'is_equal': True,
+    assert res == [[[{'is_equal': True,
    'output_description': 'test csv group specific outputter',
-   'output_name': 'test3-1'}]]
+   'output_name': 'test3-1'}]]]
    
 def test_excel_formatter():
     template = """

@@ -790,23 +790,25 @@ class _template_class:
     def form_results(self, result):    
         """Method to add results to self.results    
         """    
-        # handle _anonymous_ groups results    
-        if "_anonymous_" in result:    
-            if self.results_method == "per_template":    
-                if isinstance(result["_anonymous_"], dict):    
-                    self.results = [result.pop("_anonymous_")]   
-                else:
-                    self.results = result.pop("_anonymous_")    
-            else:    
-                self.results.append(result.pop("_anonymous_"))    
-        # handle remaining results    
-        if result:    
-            if isinstance(result, list):    
-                self.results += result    
-            elif self.results_method == "per_template" and isinstance(result, dict):    
-                self.results = result    
-            else:    
-                self.results.append(result)    
+        datum = []
+        # result is always a dictionary, but if have _anonymous_
+        # group, need to merge it with the rest of results, at the 
+        # same time _anonymous_ group result is always a list
+        if "_anonymous_" in result: 
+            datum = result.pop("_anonymous_")
+            if result:   
+                if isinstance(result, list):    
+                    datum += result    
+                else:    
+                    datum.append(result)     
+        else:
+            datum = result
+		# for per_template mode, results already combined
+        if self.results_method == "per_template":
+            self.results = datum
+		# append this input results to overall results
+        elif self.results_method == "per_input":
+            self.results.append(datum) 
     
     def get_var_functions(self):    
         """optimization method to move variable functions     
@@ -1371,7 +1373,7 @@ class _group_class:
         """    
         if self.top is True:    
             if self.path == []:    
-                self.path = ["_anonymous_"]    
+                self.path = ["_anonymous_*"]    
                 self.name = "_anonymous_"    
     
     def get_attributes(self, data):    
