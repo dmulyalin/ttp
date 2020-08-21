@@ -30,7 +30,7 @@ For instance for below template::
     </group>
     
     </group>
-	
+    
 Paths for child groups will be expanded to the list of absolute path items:
 
 .. list-table::
@@ -45,7 +45,7 @@ Paths for child groups will be expanded to the list of absolute path items:
      - [bgp_config, VRFs]
    * - neighbors**.{{ neighbor }}**
      - [bgp_config, VRFs, neighbors, {{ neighbor }}]
-	 
+     
 Results structure for above template will look like::
 
     [
@@ -115,7 +115,7 @@ Example Template::
     </group>
     
     </group>
-	
+    
 In above template, note the name of this child group - `name="/neighbors**.{{ neighbor }}**"` - it is prepended with forward slash character and treated as absolute path. Result structure for above template will be::
 
     [
@@ -153,3 +153,38 @@ In above template, note the name of this child group - `name="/neighbors**.{{ ne
     ]
 
 This is because path attribute will not be expanded for `neighbors` child group and will be treated as is, effectively shortening the hierarchy of results structure and flattening it.
+
+Empty absolute path ``name="/"`` substituted with an ``_anonymous_*`` group name, allowing to flatten results structure, sample template::
+
+    <template results="per_template">
+    <input load="text">
+    r2#show run interface
+    interface GigabitEthernet1
+    vrf forwarding MGMT
+    ip address 10.123.89.55 255.255.255.0
+    </input>
+    
+    <input load="text">
+    r1#show run interface
+    interface GigabitEthernet1
+    description some info
+    vrf forwarding MGMT
+    ip address 10.123.89.56 255.255.255.0
+    interface GigabitEthernet2
+    ip address 10.123.89.55 255.255.255.0
+    </input>
+    
+    <group void="">
+    interface {{ interface }}
+    description {{ description | ORPHRASE }}
+    <group name="/">
+    ip address {{ ip }} {{ mask }}
+    </group>
+    </group>
+    </template>
+    
+Results::
+
+    [[{'ip': '10.123.89.55', 'mask': '255.255.255.0'},
+      {'ip': '10.123.89.56', 'mask': '255.255.255.0'},
+      {'ip': '10.123.89.55', 'mask': '255.255.255.0'}]]

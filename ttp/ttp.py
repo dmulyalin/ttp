@@ -803,10 +803,10 @@ class _template_class:
                     datum.append(result)     
         else:
             datum = result
-		# for per_template mode, results already combined
+        # for per_template mode, results already combined
         if self.results_method == "per_template":
             self.results = datum
-		# append this input results to overall results
+        # append this input results to overall results
         elif self.results_method == "per_input":
             self.results.append(datum) 
     
@@ -1396,7 +1396,9 @@ class _group_class:
             if O.startswith("/"):    
                 # check if parent group is _anonymous_    
                 if "_anonymous_" in self.path:    
-                    self.path = ["_anonymous_"] + O.lstrip("/").split(self.pathchar)    
+                    self.path = ["_anonymous_*"] + O.lstrip("/").split(self.pathchar)    
+                elif O == "/":
+                    self.path = ["_anonymous_*"]
                 else:    
                     self.path = O.lstrip("/").split(self.pathchar)    
             # threat relative path    

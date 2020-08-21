@@ -53,3 +53,42 @@ interface {{ interface }}
    {'my': {'var': {'s': {'a': 1, 'b': 2}}}}]]]
    
 # test_anonymous_group_with_vars()
+
+def test_anonymous_group_with_child_group_empty_absolute_path():
+    template = """
+<template results="per_template">
+<input name="Cisco_ios" load="text">
+r2#show interfaces | inc line protocol
+interface GigabitEthernet1
+ vrf forwarding MGMT
+ ip address 10.123.89.55 255.255.255.0
+</input>
+
+<input name="Cisco_ios" load="text">
+r1#show interfaces | inc line protocol:
+interface GigabitEthernet1
+ description some info
+ vrf forwarding MGMT
+ ip address 10.123.89.56 255.255.255.0
+interface GigabitEthernet2
+ ip address 10.123.89.55 255.255.255.0
+</input>
+
+<group void="">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ <group name="/">
+ ip address {{ ip }} {{ mask }}
+ </group>
+</group>
+</template>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'ip': '10.123.89.55', 'mask': '255.255.255.0'},
+                    {'ip': '10.123.89.56', 'mask': '255.255.255.0'},
+                    {'ip': '10.123.89.55', 'mask': '255.255.255.0'}]]
+                 
+# test_anonymous_group_with_child_group_empty_absolute_path()

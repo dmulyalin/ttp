@@ -54,7 +54,7 @@ Condition functions help to evaluate group results and return *False* or *True*,
    * - `validate`_   
      - add Cerberus validation information to results without filtering them
    * - `lookup`_   
-     - lookup match value in lookup table, other group or template results	 
+     - lookup match value in lookup table, other group or template results     
      
 containsall
 ------------------------------------------------------------------------------
@@ -407,11 +407,11 @@ Template::
     def test_macro2(data):
         data["test_macro2"] = "DONE"
         return data
-    	
+        
     def test_macro3(data):
         data["test_macro3"] = "DONE"
         return data
-    	
+        
     def test_macro4(data):
         data["test_macro4"] = "DONE"
         return data
@@ -422,7 +422,7 @@ Template::
       vlan {{ vlan | to_int }}
       description {{ description | ORPHRASE }}
     </group>
-	
+    
 Result::
 
     [[[{'description': 'test loopback0',
@@ -1564,7 +1564,7 @@ Result::
             }
         ]
     ]
-	
+    
 validate
 ------------------------------------------------------------------------------
 ``validate="schema, result='valid', info='', errors='', allow_unknown=True"``
@@ -1629,7 +1629,7 @@ lookup
 ------------------------------------------------------------------------------
 ``lookup="key, name=None, template=None, group=None, add_field=False, replace=True, update=False"``
 
-Function to lookup match value in lookup table, other group or template results	 
+Function to lookup match value in lookup table, other group or template results     
 
 **Supported parameters**
 
@@ -1715,7 +1715,7 @@ Template::
     <group name="arp" lookup="interface, group='interfaces', update=True" input="arp">
     Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     </group>
-	
+    
 Results::
 
     [[{'interfaces': {'FastEthernet2.13': {'description': 'Customer CPE interface',
@@ -1739,7 +1739,7 @@ Results::
                 'mac': '0150.7685.14d5',
                 'subnet': '10.12.14.0/24',
                 'vrf': 'CUST1'}]}]]
-				
+                
 **Example-3**
 
 Use another template results for lookup with action set to update
@@ -1779,7 +1779,7 @@ Template::
     Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     </group>
     </template>
-	
+    
 Results::
 
     [[{'FastEthernet2.13': {'description': 'Customer CPE interface',
