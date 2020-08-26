@@ -23,17 +23,17 @@ def file_returner(D):
     # check if path exists already, create it if not:
     if not os.path.exists(url):
         os.mkdir(url)
-    # save text data to file
-    if isinstance(D, str):
+    # save excel workbook to file:
+    if hasattr(D, "save") and hasattr(D, "worksheets"):
+        log.info("output.returner_file: saving excel workbook")
+        if not filename.endswith('.xlsx'):
+            filename += '.xlsx'
+        D.save(url + filename)
+    # save data to text file
+    else:
         log.info("output.returner_file: saving text results to file")
         with open(url + filename, 'w') as f:
             if not isinstance(D, str):
                 f.write(str(D))
             else:
                 f.write(D)
-    # save excel workbook to file:
-    elif hasattr(D, "save") and hasattr(D, "worksheets"):
-        log.info("output.returner_file: saving excel workbook")
-        if not filename.endswith('.xlsx'):
-            filename += '.xlsx'
-        D.save(url + filename)

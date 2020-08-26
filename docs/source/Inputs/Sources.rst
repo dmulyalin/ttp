@@ -1,7 +1,7 @@
 Sources
 ===================
 
-Inputs can uses various sources to retrieve data for parsing.
+Inputs can use various sources to retrieve data for parsing.
 
 .. list-table::
    :widths: 10 90
@@ -19,7 +19,7 @@ Netmiko
 
 **Prerequisites:** `Netmiko library <https://pypi.org/project/netmiko/>`_ need to be installed on the system
 
-This source allows to retrieve configuration or state data from network devices using SSH or Telnet by connecting to devices one by one (serial execution).
+This source allows to retrieve configuration or state data from network devices using SSH or Telnet by connecting to devices one by one.
 
 **Supported attributes**
 
@@ -72,7 +72,7 @@ Nornir
 
 **Prerequisites:** `Nornir library <https://pypi.org/project/nornir/>`_ need to be installed on the system
 
-This source allows to retrieve configuration or state data from network devices using Nornir library. Nornir runs connection to devices asynchronously (in parallel), allowing significantly reduce the time required to retrieve data.
+This source allows to retrieve configuration or state data from network devices using Nornir library. Nornir runs connections to devices in parallel, allowing significantly reduce the time required to retrieve data.
 
 This source uses `netmiko_send_command <https://nornir.readthedocs.io/en/latest/plugins/tasks/networking.html#nornir.plugins.tasks.networking.netmiko_send_command>`_ task plugin to send commands to devices.
 
