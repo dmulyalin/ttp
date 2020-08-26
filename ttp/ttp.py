@@ -2745,7 +2745,11 @@ class _outputter_class:
             self.attributes.update(kwargs)    
         self.get_attributes(self.attributes.copy())    
     
-    def extract_load(self, element):    
+    def extract_load(self, element): 
+        # if formatter is jinja2, use text loader to load template        
+        if self.attributes.get("format") == "jinja2":
+            self.attributes["load"] = "text"        
+        # run attributes extraction                    
         attribs = _ttp_["utils"]["load_struct"](    
             element.text, **self.attributes    
         )    
@@ -2770,7 +2774,7 @@ class _outputter_class:
     
         def extract_format(O):    
             if O in _ttp_["formatters"]:    
-                self.attributes["format"] = O    
+                self.attributes["format"] = O  
             else:    
                 log.critical(    
                     "output.extract_format: unsupported format '{}'. Supported: {}. Exiting".format(    

@@ -281,7 +281,7 @@ missing="Undefined"
   
 # test_table_formatter_with_key()
 
-def test_tale_formatter_multiple_input():
+def test_table_formatter_multiple_input():
     template = """
 <input load="text">
 interface Loopback0
@@ -318,4 +318,41 @@ interface {{ interface }}
                     ['Loopback10', '192.168.0.10', '24'],
                     ['Vlan710', '2002::fd10', '124']]]
     
-# test_tale_formatter_multiple_input()
+# test_table_formatter_multiple_input()
+
+def test_jinja2_formatter():
+    template = """
+<input load="text">
+interface Loopback0
+ ip address 192.168.0.113/24
+!
+interface Vlan778
+ ip address 2002::fd37/124
+!
+</input>
+
+<input load="text">
+interface Loopback10
+ ip address 192.168.0.10/24
+!
+interface Vlan710
+ ip address 2002::fd10/124
+!
+</input>
+
+<group>
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+</group>
+
+<output format="jinja2">{{ _data_ }}</output>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=100)
+    assert res == ["[[{'ip': '192.168.0.113', 'mask': '24', 'interface': 'Loopback0'}, {'ip': '2002::fd37', 'mask': "
+"'124', 'interface': 'Vlan778'}], [{'ip': '192.168.0.10', 'mask': '24', 'interface': "
+"'Loopback10'}, {'ip': '2002::fd10', 'mask': '124', 'interface': 'Vlan710'}]]"]
+    
+# test_jinja2_formatter()
