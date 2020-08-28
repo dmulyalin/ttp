@@ -2346,9 +2346,10 @@ class _results_class:
                     if start_re:    
                         for index in start_re:    
                             re = result[index][0]    
-                            result_data = result[index][1]    
-                            # prefer result with same path as current record    
-                            if re["GROUP"].path == self.record["PATH"]:    
+                            result_data = result[index][1] 
+                            # prefer result with same path as current record 
+                            # skip results that did not pass validation check
+                            if re["GROUP"].path == self.record["PATH"] and result_data != False:    
                                 break    
                     # normal REs preferred next    
                     elif normal_re:    
