@@ -746,3 +746,176 @@ def test_default_behaviour_with_named_templates():
     assert res == {'services': {'DISCARD': {'UDP': {'port': '9'}},
                                 'DNS': {'TCP': {'port': '53'}, 'UDP': {'port': '53'}},
                                 'ECHO': {'UDP': {'port': '7'}}}}
+                                
+def match_var_cust_fun(data):
+    data = data.upper()
+    return data, None
+    
+def test_add_fun_method_match_var():
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface | myFun }}
+ description {{ description | ORPHRASE | myFun }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    parser = ttp(template=template_1)
+    parser.add_fun(match_var_cust_fun, scope="match", name="myFun")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert parser.result() == [[[{'interface': 'LO0', 'ip': '124.171.238.50', 'mask': '32'},
+                                 {'description': 'THIS INTERFACE HAS DESCRIPTION',
+                                  'interface': 'LO1',
+                                  'ip': '1.1.1.1',
+                                  'mask': '32'}]]] 
+
+# test_add_fun_method_match_var()
+
+def test_add_fun_method_match_var_multiproc():
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<input load="text">
+interface Lo10
+ ip address 124.171.238.50 32
+!
+interface Lo11
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<input load="text">
+interface Lo12
+ ip address 124.171.238.50 32
+!
+interface Lo13
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface | myFun }}
+ description {{ description | ORPHRASE | myFun }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    parser = ttp(template=template_1)
+    parser.add_fun(match_var_cust_fun, scope="match", name="myFun")
+    parser.parse(multi=True)
+    res = parser.result()
+    # pprint.pprint(res)
+    # as it runs in multiprocessing, order of input results
+    # returned by processes is non deterministic, hence list items
+    # can change, as a result need to check if each item in a 
+    # results list
+    i1 = [{'interface': 'LO0', 'ip': '124.171.238.50', 'mask': '32'},
+          {'description': 'THIS INTERFACE HAS DESCRIPTION',
+           'interface': 'LO1',
+           'ip': '1.1.1.1',
+           'mask': '32'}]
+    i2 = [{'interface': 'LO10', 'ip': '124.171.238.50', 'mask': '32'},
+          {'description': 'THIS INTERFACE HAS DESCRIPTION',
+           'interface': 'LO11',
+           'ip': '1.1.1.1',
+           'mask': '32'}]
+    i3 = [{'interface': 'LO12', 'ip': '124.171.238.50', 'mask': '32'},
+          {'description': 'THIS INTERFACE HAS DESCRIPTION',
+           'interface': 'LO13',
+           'ip': '1.1.1.1',
+           'mask': '32'}]
+    assert i1 in res[0] and i2 in res[0] and i3 in res[0]
+
+if __name__ == '__main__':
+    test_add_fun_method_match_var_multiproc()
+
+def group_cust_fun(data, *args, **kwargs):
+    if kwargs.get("upper") == True:
+        if "description" in data:
+            data["description"] = data["description"].upper()
+        else:
+            data["description"] = "UNDEFINED"
+    return data, None
+    
+def test_add_fun_method_group():
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group myFun="upper=True">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    parser = ttp(template=template_1, log_level="ERROR")
+    parser.add_fun(group_cust_fun, scope="group", name="myFun")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'description': 'UNDEFINED',
+                      'interface': 'Lo0',
+                      'ip': '124.171.238.50',
+                      'mask': '32'},
+                     {'description': 'THIS INTERFACE HAS DESCRIPTION',
+                      'interface': 'Lo1',
+                      'ip': '1.1.1.1',
+                      'mask': '32'}]]]
+
+# test_add_fun_method_group()
+
+def myInputFunReplace(data, *args):
+    data = data.replace(args[0], args[1])
+    return data, None
+    
+def test_add_fun_method_input():
+    template_1 = """
+<input load="text" myInputFunReplace="'Lo', 'Loopback'">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    parser = ttp(template=template_1, log_level="ERROR")
+    parser.add_fun(myInputFunReplace, scope="input")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Loopback0', 'ip': '124.171.238.50', 'mask': '32'},
+                     {'description': 'this interface has description',
+                      'interface': 'Loopback1',
+                      'ip': '1.1.1.1',
+                      'mask': '32'}]]]
+
+# test_add_fun_method_input()

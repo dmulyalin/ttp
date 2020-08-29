@@ -399,7 +399,8 @@ class ttp:
                     lookups=template.lookups,    
                     vars=template.vars,    
                     groups=template.groups,    
-                    macro_text=template.macro_text,    
+                    macro_text=template.macro_text,
+                    custom_functions=_ttp_.get("_custom_functions_", {})
                 )    
                 for i in range(num_processes)    
             ]    
@@ -638,7 +639,67 @@ class ttp:
         else:    
             [t_obj.results.clear() for t_obj in self._templates]    
     
-    
+    def add_fun(self, fun, scope, name=None):
+        """ Method to add custom function in ``_ttp_`` dictionary.
+        Function can be referenced in template depending on scope. 
+
+        **Parameters**  
+        
+        * ``fun`` - function reference
+        * ``scope`` - scope to add function to
+        * ``name`` - optional, name to use within templates, by default equal to function ``__name__``
+        
+        **scope options**
+        
+        * ``match`` - used for match variables
+        * ``group`` - used for groups
+        * ``input`` - used for inputs
+        * ``sources`` - used for input sources
+        * ``lookup`` - used for lookups
+        * ``output`` - used for outputs
+        * ``returners`` - used for output returners
+        * ``formatters`` - used for output returners
+        * ``variable`` - used as template variable getter
+        
+        .. note:: Input sources called on template load, as a result, 
+          add_fun need to be called before any templates loaded to TTP object.
+          
+        This method is supplementary to macro function that can be defined 
+        within template. Same rules should be followed as for macro function in 
+        terms of values function should accept and return. For instance, function
+        for match variable should accept single argument containing match result
+        and return two arguments - result and flag or dictionary.
+        
+        Custom function should use first argument to hold data to process, additional
+        args and kwargs will be supplied to function if provided in template. 
+        
+        Function return content differ depending on scope:
+        
+        * ``match`` - must return tuple of two items
+        * ``group`` - must return tuple of two items
+        * ``input`` - must return tuple of two items
+        * ``sources`` - must return list, each item is a text datum to add to input
+        * ``output`` - must return single element containing processing results
+        * ``returners`` - not returns expected
+        * ``formatters`` - must return single element containing processing results
+        * ``variable`` - must return single element to assign to variable
+        
+        For ``match``, ``group`` and ``input`` functions TTP expects in return tuple 
+        of two elements where first element should contain processing results, second 
+        element can be True, False, None or dictionary.
+        
+        Second item can influence processing logic following these rules:
+        
+        * if second item is False - results invalidated and dropped from further processing
+        * if second item is True or None - first tuple item replaces originally supplied data, processing continues
+        * if second item is dictionary - supported by ``match`` scope only, dictionary merged with results
+        """
+        name = name if name else fun.__name__
+        _ttp_[scope][name] = fun 
+        # save custom function separately to pass on to multiprocessing
+        # for updating _ttp_ dictionary on reinitialization
+        _ttp_.setdefault("_custom_functions_", {}).setdefault(scope, {})[name] = fun
+        
 """    
 ==============================================================================    
 TTP PARSER MULTIPROCESSING WORKER    
@@ -650,12 +711,13 @@ class _worker(Process):
     """Class used in multiprocessing to parse data    
     """    
     
-    def __init__(self, task_queue, results_queue, lookups, vars, groups, macro_text):    
+    def __init__(self, task_queue, results_queue, lookups, vars, groups, macro_text, custom_functions):    
         Process.__init__(self)    
+        self.custom_functions = custom_functions
         self.task_queue = task_queue    
         self.results_queue = results_queue    
         self.macro_text = macro_text    
-        self.parserObj = _parser_class(lookups, vars, groups)    
+        self.parserObj = _parser_class(lookups, vars, groups)   
     
     def load_functions(self):    
         lazy_import_functions()    
@@ -674,6 +736,7 @@ class _worker(Process):
                         macro_text, e    
                     )    
                 )    
+        _ttp_.update(self.custom_functions)
     
     def run(self):    
         self.load_functions()    
@@ -1261,10 +1324,8 @@ class _input_class:
                 options[attr_name.lower()](attributes)    
             elif attr_name.lower() in functions:    
                 functions[attr_name.lower()](attributes)    
-            elif attr_name.lower() in _ttp_["input"]:    
-                extract_function(attr_name, attributes)    
             else:    
-                self.attributes[attr_name] = attributes    
+                extract_function(attr_name, attributes)      
     
     def load_data(self, element_text=None, data=None):    
         if self.attributes["load"] == "text" and element_text:    
@@ -1460,10 +1521,8 @@ class _group_class:
         for attr_name, attributes in data.items():    
             if attr_name.lower() in options:    
                 options[attr_name.lower()](attributes)    
-            elif attr_name.lower() in _ttp_["group"]:    
-                extract_function(attr_name, attributes)    
-            else:    
-                self.attributes[attr_name] = attributes    
+            else:
+                extract_function(attr_name, attributes)     
     
     def get_regexes(self, data, tail=False):    
         varaibles_matches = []  # list of dictionaries    
