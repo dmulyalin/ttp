@@ -91,7 +91,6 @@ def test_issue_20_answer():
 </group>
 </template>
 """
-
     parser = ttp(template=show_mcast1)
     parser.add_input(data_to_parse, template_name="mcast")
     parser.parse()
@@ -129,61 +128,61 @@ def test_answer_3():
     """
     data = """
 /c/slb/virt 12
-	dis
-	ipver v4
-	vip 1.1.1.1
-	rtsrcmac ena
-	vname "my name"
+    dis
+    ipver v4
+    vip 1.1.1.1
+    rtsrcmac ena
+    vname "my name"
 /c/slb/virt 12/service 443 https
-	group 15
-	rport 443
-	pbind clientip
-	dbind forceproxy
+    group 15
+    rport 443
+    pbind clientip
+    dbind forceproxy
 /c/slb/virt 12/service 443 https/http
-	xforward ena
-	httpmod hsts_insert
+    xforward ena
+    httpmod hsts_insert
 /c/slb/virt 12/service 443 https/ssl
-	srvrcert cert certname
-	sslpol ssl-Policy
+    srvrcert cert certname
+    sslpol ssl-Policy
 /c/slb/virt 12/service 80 http
-	group 15
-	rport 80
-	pbind clientip
-	dbind forceproxy
+    group 15
+    rport 80
+    pbind clientip
+    dbind forceproxy
 /c/slb/virt 12/service 80 http/http
-	xforward ena
+    xforward ena
     
 /c/slb/virt 14
-	dis
-	ipver v4
-	vip 1.1.4.4
-	rtsrcmac ena
-	vname "my name2"
+    dis
+    ipver v4
+    vip 1.1.4.4
+    rtsrcmac ena
+    vname "my name2"
     """
     template="""
 <template name="VIP_cfg" results="per_template">
 <group name="{{ vip }}">
 /c/slb/virt {{ virt_seq | DIGIT }}
-	dis {{ config_state | set("dis") }}
-	ipver {{ ipver}}
-	vip {{ vip }}
-	rtsrcmac {{ rtsrcmac }}
-	vname "{{ vip_name | ORPHRASE }}"
+    dis {{ config_state | set("dis") }}
+    ipver {{ ipver}}
+    vip {{ vip }}
+    rtsrcmac {{ rtsrcmac }}
+    vname "{{ vip_name | ORPHRASE }}"
     
 <group name="services.{{ port }}.{{ proto }}">
 /c/slb/virt 12/service {{ port | DIGIT }} {{ proto | exclude(ssl) }}
-	group {{group_seq }}
-	rport {{ real_port }}
-	pbind {{ pbind }}
-	dbind {{ dbind }}
-	xforward {{ xforward }}
-	httpmod {{ httpmod }}
+    group {{group_seq }}
+    rport {{ real_port }}
+    pbind {{ pbind }}
+    dbind {{ dbind }}
+    xforward {{ xforward }}
+    httpmod {{ httpmod }}
 </group>    
 
 <group name="ssl_profile">
 /c/slb/virt {{ virt_seq }}/service 443 https/ssl
-	srvrcert cert {{ ssl_server_cert }}
-	sslpol {{ ssl_profile }}    
+    srvrcert cert {{ ssl_server_cert }}
+    sslpol {{ ssl_profile }}    
     {{ ssl | set("https/ssl") }}
 </group>   
 
@@ -221,3 +220,156 @@ def test_answer_3():
                                            'virt_seq': '14'}}}
                                            
 # test_answer_3() 
+
+def test_answer_4():
+    data = """
+/c/slb/virt 12
+    dis
+    ipver v4
+    vip 1.1.1.1
+    rtsrcmac ena
+    vname "my name"
+/c/slb/virt 12/service 443 https
+    group 15
+    rport 443
+    pbind clientip
+    dbind forceproxy
+/c/slb/virt 12/service 443 https/http
+    xforward ena
+    httpmod hsts_insert
+/c/slb/virt 12/service 443 https/ssl
+    srvrcert cert certname
+    sslpol ssl-Policy
+/c/slb/virt 12/service 80 http
+    group 15
+    rport 80
+    pbind clientip
+    dbind forceproxy
+/c/slb/virt 12/service 80 http/http
+    xforward ena
+    
+/c/slb/virt 14
+    dis
+    ipver v4
+    vip 1.1.4.4
+    rtsrcmac ena
+    vname "my name2"
+    """
+    template="""
+<template name="VIP_cfg" results="per_template">
+<group name="{{ vip }}">
+/c/slb/virt {{ virt_seq | DIGIT }}
+    dis {{ config_state | set("dis") }}
+    ipver {{ ipver}}
+    vip {{ vip }}
+    rtsrcmac {{ rtsrcmac }}
+    vname "{{ vip_name | ORPHRASE }}"
+    
+<group name="services.{{ port }}" contains="dbind, pbind">
+/c/slb/virt 12/service {{ port | DIGIT }} {{ proto | exclude(ssl) }}
+    group {{group_seq }}
+    rport {{ real_port }}
+    pbind {{ pbind }}
+    dbind {{ dbind }}
+    xforward {{ xforward }}
+    httpmod {{ httpmod }}
+</group>    
+
+<group name="ssl_profile">
+/c/slb/virt {{ virt_seq }}/service 443 https/ssl
+    srvrcert cert {{ ssl_server_cert }}
+    sslpol {{ ssl_profile }}    
+    {{ ssl | set("https/ssl") }}
+</group>   
+
+</group>  
+</template> 
+    """
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()
+    res = parser.result(structure="dictionary")
+    # pprint.pprint(res, width=50)    
+    assert res == {'VIP_cfg': {'1.1.1.1': {'config_state': 'dis',
+                                           'ipver': 'v4',
+                                           'rtsrcmac': 'ena',
+                                           'services': {'443': {'dbind': 'forceproxy',
+                                                                'group_seq': '15',
+                                                                'pbind': 'clientip',
+                                                                'proto': 'https',
+                                                                'real_port': '443'},
+                                                        '80': {'dbind': 'forceproxy',
+                                                               'group_seq': '15',
+                                                               'pbind': 'clientip',
+                                                               'proto': 'http',
+                                                               'real_port': '80'}},
+                                           'ssl_profile': {'ssl': 'https/ssl',
+                                                           'ssl_profile': 'ssl-Policy',
+                                                           'ssl_server_cert': 'certname',
+                                                           'virt_seq': '12'},
+                                           'vip_name': 'my name',
+                                           'virt_seq': '12'},
+                               '1.1.4.4': {'config_state': 'dis',
+                                           'ipver': 'v4',
+                                           'rtsrcmac': 'ena',
+                                           'vip_name': 'my name2',
+                                           'virt_seq': '14'}}}
+    
+# test_answer_4()
+
+def test_issue_20_answer_2():
+    data_to_parse="""
+(*, 239.100.100.101)    
+    LISP0.4200, (192.2.101.65, 232.0.3.1), Forward/Sparse, 1d18h/stopped
+    LISP0.4201, (192.2.101.70, 232.0.3.1), Forward/Sparse, 2d05h/stopped
+    
+(192.2.31.3, 239.100.100.100), 2d05h/00:01:19, flags: FT
+  Incoming interface: Vlan1029, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    LISP0.4100, (192.2.101.70, 232.0.3.1), Forward/Sparse, 2d05h/stopped
+    LISP0.4101, (192.2.101.70, 232.0.3.1), Forward/Sparse, 2d05h/stopped
+
+(*, 239.100.100.100), 6d20h/00:03:28, RP 192.2.199.1, flags: S
+  Incoming interface: Null, RPF nbr 0.0.0.0
+  Outgoing interface list:
+    Vlan3014, Forward/Sparse, 1d18h/00:03:28
+    LISP0.4100, (192.2.101.65, 232.0.3.1), Forward/Sparse, 1d18h/stopped
+"""
+    show_mcast1="""
+<template name="mcast" results="per_template">
+<group name="mcast_entries.{{ overlay_src }}">
+({{ overlay_src | _start_ | replace("*", "'*'") }}, {{ overlay_grp | IP }})
+({{ overlay_src | _start_ | IP }},                  {{ overlay_grp | IP }}), {{ entry_uptime }}/{{ entry_state_or_timer }}, flags: {{ entry_flags }}
+({{ overlay_src | _start_ | replace("*", "'*'") }}, {{ overlay_grp | IP }}), {{ entry_uptime }}/{{ entry_state_or_timer }}, RP {{ rp }}, flags: {{ entry_flags }}
+  Incoming interface: {{ incoming_intf }}, RPF nbr {{ rpf_neighbor }}
+    <group name="oil_entries*">
+    {{ outgoing_intf }}, Forward/Sparse,  {{ oil_uptime }}/{{ oil_state_or_timer}}
+    {{ outgoing_intf }}, ({{ underlay_src | IP }}, {{ underlay_grp | IP }}), Forward/Sparse, {{ oil_uptime }}/{{ oil_state_or_timer}}  
+    </group>
+</group>
+</template>
+"""
+    parser = ttp(template=show_mcast1)
+    parser.add_input(data_to_parse, template_name="mcast")
+    parser.parse()
+    res = parser.result(structure="dictionary")
+    # pprint.pprint(res, width=100)
+    assert res  == {'mcast': {'mcast_entries': {"'*'": [{'overlay_grp': '239.100.100.101'},
+                                                        {'entry_flags': 'S',
+                                                         'entry_state_or_timer': '00:03:28',
+                                                         'entry_uptime': '6d20h',
+                                                         'incoming_intf': 'Null',
+                                                         'oil_entries': [{'oil_state_or_timer': '00:03:28',
+                                                                          'oil_uptime': '1d18h',
+                                                                          'outgoing_intf': 'Vlan3014',
+                                                                          'underlay_grp': '232.0.3.1',
+                                                                          'underlay_src': '192.2.101.65'}],
+                                                         'overlay_grp': '239.100.100.100',
+                                                         'rp': '192.2.199.1',
+                                                         'rpf_neighbor': '0.0.0.0'}],
+                                                '192.2.31.3': {'entry_flags': 'FT',
+                                                               'entry_state_or_timer': '00:01:19',
+                                                               'entry_uptime': '2d05h',
+                                                               'incoming_intf': 'Vlan1029',
+                                                               'overlay_grp': '239.100.100.100',
+                                                               'rpf_neighbor': '0.0.0.0'}}}}
+# test_issue_20_answer_2()
