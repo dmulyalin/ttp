@@ -957,11 +957,107 @@ interface {{ interface }}
     
 # test_add_function_method_output()
     
+def custom_returner(data):
+    with open("./Output/custom_returner_test.txt", "w") as f:
+        f.write(str(data))
+    
 def test_add_function_method_output_returner():
-    pass
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output returner="custom_returner"/>
+"""
+    parser = ttp(log_level="ERROR")
+    parser.add_function(custom_returner, scope="returners")
+    parser.add_template(template=template_1)
+    parser.parse()
+    # res = parser.result()
+    # pprint.pprint(res)
+    with open("./Output/custom_returner_test.txt", "r") as f:
+        assert f.read() == "[[{'ip': '124.171.238.50', 'mask': '32', 'interface': 'Lo0'}, {'ip': '1.1.1.1', 'mask': '32', 'description': 'this interface has description', 'interface': 'Lo1'}]]"
+        
+# test_add_function_method_output_returner()
+    
+def custom_formatter(data):
+    return str(data).upper()
     
 def test_add_function_method_output_formatter():
-    pass
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output format="custom_formatter"/>
+"""
+    parser = ttp(log_level="ERROR")
+    parser.add_function(custom_formatter, scope="formatters")
+    parser.add_template(template=template_1)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == ["[[{'IP': '124.171.238.50', 'MASK': '32', 'INTERFACE': 'LO0'}, {'IP': "
+ "'1.1.1.1', 'MASK': '32', 'DESCRIPTION': 'THIS INTERFACE HAS DESCRIPTION', "
+ "'INTERFACE': 'LO1'}]]"]
+
+# test_add_function_method_output_formatter()
+
+def custom_getter(*args):
+    return 12345
     
 def test_add_function_method_variable_getter():
-    pass
+    template_1 = """
+<vars name="var_check">var_1 = "custom_getter"</vars>
+
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    parser = ttp(log_level="ERROR")
+    parser.add_function(custom_getter, scope="variable")
+    parser.add_template(template=template_1)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+                      {'description': 'this interface has description',
+                       'interface': 'Lo1',
+                       'ip': '1.1.1.1',
+                       'mask': '32'},
+                      {'var_check': {'var_1': 12345}}]]]
+    
+# test_add_function_method_variable_getter()

@@ -654,18 +654,18 @@ class ttp:
         * ``match`` - used for match variables
         * ``group`` - used for groups
         * ``input`` - used for inputs
-        * ``sources`` - used for input sources
-        * ``lookup`` - used for lookups
         * ``output`` - used for outputs
         * ``returners`` - used for output returners
         * ``formatters`` - used for output returners
         * ``variable`` - used as template variable getter
         
-        .. note:: Input sources called on template load, as a result, 
-          add_function need to be called before any templates loaded to TTP object.
+        .. warning:: add_function should be called before template loaded in parser
         
         Custom function should use first argument to hold data to process, additional
         args and kwargs will be supplied to function if provided in template. 
+        
+        ``variable`` function first argument is input text data, second argument is 
+        datum name, equal to filename if loaded from file
         
         Function return content differ depending on scope:
         
@@ -682,9 +682,35 @@ class ttp:
         element can be True, False, None or dictionary. Second item can influence 
         processing logic following these rules:
         
-        * if second item is False - results invalidated and excluded from further processing
-        * if second item is True or None - first tuple item replaces originally supplied data, processing continues
+        * if second item is False - results invalidated and discarded
+        * if second item is True or None - first item replaces originally supplied data, processing continues
         * if second item is dictionary - supported by ``match`` scope only, dictionary merged with results
+        
+        Example::
+        
+            def group_cust_fun(data, *args, **kwargs):
+                if kwargs.get("upper") == True:
+                    data["description"] = data["description"].upper()
+                return data, None
+                
+            template = '''
+            <input load="text">
+            interface Lo1
+             description this interface has description
+             ip address 1.1.1.1 32
+            </input>
+            
+            <group myFun="upper=True">
+            interface {{ interface }}
+             description {{ description | ORPHRASE }}
+             ip address {{ ip }} {{ mask }}
+            </group>
+            '''
+
+            parser = ttp()
+            parser.add_function(group_cust_fun, scope="group", name="myFun")
+            parser.add_template(template)
+            parser.parse()
         """
         name = name if name else fun.__name__
         _ttp_[scope][name] = fun 
