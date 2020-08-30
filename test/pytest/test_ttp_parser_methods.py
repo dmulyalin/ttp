@@ -751,7 +751,7 @@ def match_var_cust_fun(data):
     data = data.upper()
     return data, None
     
-def test_add_fun_method_match_var():
+def test_add_function_method_match_var():
     template_1 = """
 <input load="text">
 interface Lo0
@@ -769,7 +769,7 @@ interface {{ interface | myFun }}
 </group>
 """
     parser = ttp(template=template_1)
-    parser.add_fun(match_var_cust_fun, scope="match", name="myFun")
+    parser.add_function(match_var_cust_fun, scope="match", name="myFun")
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
@@ -779,9 +779,9 @@ interface {{ interface | myFun }}
                                   'ip': '1.1.1.1',
                                   'mask': '32'}]]] 
 
-# test_add_fun_method_match_var()
+# test_add_function_method_match_var()
 
-def test_add_fun_method_match_var_multiproc():
+def test_add_function_method_match_var_multiproc():
     template_1 = """
 <input load="text">
 interface Lo0
@@ -817,7 +817,7 @@ interface {{ interface | myFun }}
 </group>
 """
     parser = ttp(template=template_1)
-    parser.add_fun(match_var_cust_fun, scope="match", name="myFun")
+    parser.add_function(match_var_cust_fun, scope="match", name="myFun")
     parser.parse(multi=True)
     res = parser.result()
     # pprint.pprint(res)
@@ -842,8 +842,8 @@ interface {{ interface | myFun }}
            'mask': '32'}]
     assert i1 in res[0] and i2 in res[0] and i3 in res[0]
 
-if __name__ == '__main__':
-    test_add_fun_method_match_var_multiproc()
+# if __name__ == '__main__':
+#     test_add_function_method_match_var_multiproc()
 
 def group_cust_fun(data, *args, **kwargs):
     if kwargs.get("upper") == True:
@@ -853,7 +853,7 @@ def group_cust_fun(data, *args, **kwargs):
             data["description"] = "UNDEFINED"
     return data, None
     
-def test_add_fun_method_group():
+def test_add_function_method_group():
     template_1 = """
 <input load="text">
 interface Lo0
@@ -871,7 +871,7 @@ interface {{ interface }}
 </group>
 """
     parser = ttp(template=template_1, log_level="ERROR")
-    parser.add_fun(group_cust_fun, scope="group", name="myFun")
+    parser.add_function(group_cust_fun, scope="group", name="myFun")
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
@@ -884,13 +884,13 @@ interface {{ interface }}
                       'ip': '1.1.1.1',
                       'mask': '32'}]]]
 
-# test_add_fun_method_group()
+# test_add_function_method_group()
 
 def myInputFunReplace(data, *args):
     data = data.replace(args[0], args[1])
     return data, None
     
-def test_add_fun_method_input():
+def test_add_function_method_input():
     template_1 = """
 <input load="text" myInputFunReplace="'Lo', 'Loopback'">
 interface Lo0
@@ -907,8 +907,9 @@ interface {{ interface }}
  ip address {{ ip }} {{ mask }}
 </group>
 """
-    parser = ttp(template=template_1, log_level="ERROR")
-    parser.add_fun(myInputFunReplace, scope="input")
+    parser = ttp(log_level="ERROR")
+    parser.add_function(myInputFunReplace, scope="input")
+    parser.add_template(template=template_1, )
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
@@ -918,4 +919,49 @@ interface {{ interface }}
                       'ip': '1.1.1.1',
                       'mask': '32'}]]]
 
-# test_add_fun_method_input()
+# test_add_function_method_input()
+    
+def myOutputFun(data, work=False):
+    if work == True:
+        return str(data).upper()
+    return data
+    
+def test_add_function_method_output():
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output myOutputFun="work=True"/>
+"""
+    parser = ttp(log_level="ERROR")
+    parser.add_function(myOutputFun, scope="output")
+    parser.add_template(template=template_1)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == ["[[{'IP': '124.171.238.50', 'MASK': '32', 'INTERFACE': 'LO0'}, {'IP': "
+ "'1.1.1.1', 'MASK': '32', 'DESCRIPTION': 'THIS INTERFACE HAS DESCRIPTION', "
+ "'INTERFACE': 'LO1'}]]"]
+    
+# test_add_function_method_output()
+    
+def test_add_function_method_output_returner():
+    pass
+    
+def test_add_function_method_output_formatter():
+    pass
+    
+def test_add_function_method_variable_getter():
+    pass

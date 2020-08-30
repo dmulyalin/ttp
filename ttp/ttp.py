@@ -639,7 +639,7 @@ class ttp:
         else:    
             [t_obj.results.clear() for t_obj in self._templates]    
     
-    def add_fun(self, fun, scope, name=None):
+    def add_function(self, fun, scope, name=None):
         """ Method to add custom function in ``_ttp_`` dictionary.
         Function can be referenced in template depending on scope. 
 
@@ -662,13 +662,7 @@ class ttp:
         * ``variable`` - used as template variable getter
         
         .. note:: Input sources called on template load, as a result, 
-          add_fun need to be called before any templates loaded to TTP object.
-          
-        This method is supplementary to macro function that can be defined 
-        within template. Same rules should be followed as for macro function in 
-        terms of values function should accept and return. For instance, function
-        for match variable should accept single argument containing match result
-        and return two arguments - result and flag or dictionary.
+          add_function need to be called before any templates loaded to TTP object.
         
         Custom function should use first argument to hold data to process, additional
         args and kwargs will be supplied to function if provided in template. 
@@ -678,7 +672,6 @@ class ttp:
         * ``match`` - must return tuple of two items
         * ``group`` - must return tuple of two items
         * ``input`` - must return tuple of two items
-        * ``sources`` - must return list, each item is a text datum to add to input
         * ``output`` - must return single element containing processing results
         * ``returners`` - not returns expected
         * ``formatters`` - must return single element containing processing results
@@ -686,11 +679,10 @@ class ttp:
         
         For ``match``, ``group`` and ``input`` functions TTP expects in return tuple 
         of two elements where first element should contain processing results, second 
-        element can be True, False, None or dictionary.
+        element can be True, False, None or dictionary. Second item can influence 
+        processing logic following these rules:
         
-        Second item can influence processing logic following these rules:
-        
-        * if second item is False - results invalidated and dropped from further processing
+        * if second item is False - results invalidated and excluded from further processing
         * if second item is True or None - first tuple item replaces originally supplied data, processing continues
         * if second item is dictionary - supported by ``match`` scope only, dictionary merged with results
         """
@@ -1324,8 +1316,10 @@ class _input_class:
                 options[attr_name.lower()](attributes)    
             elif attr_name.lower() in functions:    
                 functions[attr_name.lower()](attributes)    
-            else:    
-                extract_function(attr_name, attributes)      
+            elif attr_name in _ttp_["input"]:    
+                extract_function(attr_name, attributes)  
+            else:
+                self.attributes[attr_name] = attributes
     
     def load_data(self, element_text=None, data=None):    
         if self.attributes["load"] == "text" and element_text:    
@@ -2822,26 +2816,7 @@ class _outputter_class:
             self.name = O    
     
         def extract_returner(O):    
-            if O in _ttp_["returners"]:    
-                self.attributes["returner"] = [i.strip() for i in O.split(",")]    
-            else:    
-                log.critical(    
-                    "output.extract_returner: unsupported returner '{}'. Supported: {}. Exiting".format(    
-                        O, list(_ttp_["returners"].keys())    
-                    )    
-                )    
-                raise SystemExit()    
-    
-        def extract_format(O):    
-            if O in _ttp_["formatters"]:    
-                self.attributes["format"] = O  
-            else:    
-                log.critical(    
-                    "output.extract_format: unsupported format '{}'. Supported: {}. Exiting".format(    
-                        O, list(_ttp_["formatters"].keys())    
-                    )    
-                )    
-                raise SystemExit()        
+            self.attributes["returner"] = [i.strip() for i in O.split(",")]           
     
         def extract_filename(O):    
             """File name can contain time formatters supported by strftime          
@@ -2904,7 +2879,6 @@ class _outputter_class:
         options = {    
             "name": extract_name,    
             "returner": extract_returner,    
-            "format": extract_format,    
             "filename": extract_filename,    
             "format_attributes": extract_format_attributes,    
             "path": extract_path,    
@@ -2916,16 +2890,15 @@ class _outputter_class:
                 options[attr_name.lower()](attributes)    
             elif attr_name.lower() in functions:    
                 functions[attr_name.lower()](attributes)    
-            elif attr_name.lower() in _ttp_["output"]:    
-                extract_function(attr_name, attributes)    
-            else:    
+            elif attr_name in _ttp_["output"]:    
+                extract_function(attr_name, attributes)  
+            else:  
                 self.attributes[attr_name] = attributes    
     
     def run(self, data, macro={}):    
         _ttp_["output_object"] = self    
         if macro:    
             _ttp_["macro"] = macro    
-        returners = self.attributes["returner"]    
         format_type = self.attributes["format"]    
         results = data    
         # run functions:    
@@ -2934,10 +2907,25 @@ class _outputter_class:
             args = item.get("args", [])    
             kwargs = item.get("kwargs", {})    
             results = _ttp_["output"][func_name](results, *args, **kwargs)    
-        # format data using requested formatter    
-        results = _ttp_["formatters"][format_type](results)    
+        # run formatter
+        if format_type in _ttp_["formatters"]:
+            results = _ttp_["formatters"][format_type](results)  
+        else:
+            log.warning(    
+                "output.run: unsupported formatter '{}', use one of: {}".format(    
+                    format_type, list(_ttp_["formatters"].keys())    
+                )    
+            )                 
         # run returners    
-        [_ttp_["returners"][returner](results) for returner in returners]    
+        for returner in self.attributes["returner"]:
+            if returner in _ttp_["returners"]:
+                _ = _ttp_["returners"][returner](results)
+            else:
+                log.warning(    
+                    "output.run: unsupported returner '{}', use one of: {}".format(    
+                        O, list(_ttp_["returners"].keys())    
+                    )    
+                )   
         # check if need to return processed data:    
         if self.return_to_self is True:    
             return results    

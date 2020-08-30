@@ -530,13 +530,10 @@ load="json"
 }
 </output>
 
-
-<input name="test1-12" load="text"
-description="this group tests case when we have multiple regexes matched same line, the logic tested is that 
+<doc>this group tests case when we have multiple regexes matched same line, the logic tested is that 
 match for current self.record path will be selected as the correct one. In addition joinmatches are tested to join
-lists as results.
-"
->
+lists as results</doc>
+<input name="test1-12" load="text">
 VRF SOMEVRF (VRF Id = 4); default RD 65100:24;
   Old CLI format, supports IPv4 only
   Flags: 0xC
