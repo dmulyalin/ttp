@@ -1,4 +1,0 @@
-Template results mode
-=====================
-
-TBD

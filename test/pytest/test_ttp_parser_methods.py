@@ -4,6 +4,9 @@ import pprint
 
 from ttp import ttp
 
+import logging
+logging.basicConfig(level=logging.ERROR)
+
 
 def test_clear_result_all():
     template_1 = """
@@ -1061,3 +1064,37 @@ interface {{ interface }}
                       {'var_check': {'var_1': 12345}}]]]
     
 # test_add_function_method_variable_getter()
+
+def custom_macro(data):
+    return data.upper()
+    
+def test_add_function_method_macro_match_var():
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface | macro("custM") }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    parser = ttp(log_level="ERROR")
+    parser.add_function(custom_macro, scope="macro", name="custM")
+    parser.add_template(template=template_1)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'LO0', 'ip': '124.171.238.50', 'mask': '32'},
+                     {'description': 'this interface has description',
+                      'interface': 'LO1',
+                      'ip': '1.1.1.1',
+                      'mask': '32'}]]]
+
+# test_add_function_method_macro_match_var()

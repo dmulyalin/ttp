@@ -303,6 +303,7 @@ class ttp:
                 ttp_vars=self.vars,    
                 name=template_name,    
                 filter=filter,    
+                ttp_macro=_ttp_.get("_custom_functions_", {}).get("macro", {})
             )    
             # if not template_obj.templates - no 'template' tags in template    
             self._templates += (    
@@ -658,6 +659,7 @@ class ttp:
         * ``returners`` - used for output returners
         * ``formatters`` - used for output returners
         * ``variable`` - used as template variable getter
+        * ``macro`` - used as macro function
         
         .. warning:: add_function should be called before template loaded in parser
         
@@ -676,6 +678,7 @@ class ttp:
         * ``returners`` - not returns expected
         * ``formatters`` - must return single element containing processing results
         * ``variable`` - must return single element to assign to variable
+        * ``macro`` - can return processing results, True or False
         
         For ``match``, ``group`` and ``input`` functions TTP expects in return tuple 
         of two elements where first element should contain processing results, second 
@@ -717,6 +720,7 @@ class ttp:
         # save custom function separately to pass on to multiprocessing
         # for updating _ttp_ dictionary on reinitialization
         _ttp_.setdefault("_custom_functions_", {}).setdefault(scope, {})[name] = fun
+
         
 """    
 ==============================================================================    
@@ -798,6 +802,7 @@ class _template_class:
         ttp_vars={},    
         name="_root_template_",    
         filter=[],    
+        ttp_macro={}
     ):    
         self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here    
         self.vars = {  # dictionary to store template variables    
@@ -816,7 +821,7 @@ class _template_class:
         self.base_path = base_path    
         self.results = []    
         self.name = name    
-        self.macro = {}  # dictionary of macro name to function mapping    
+        self.macro = ttp_macro  # dictionary of macro name to function mapping    
         self.results_method = "per_input"  # how to join results    
         self.macro_text = (    
             []    
