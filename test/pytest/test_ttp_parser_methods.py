@@ -1098,3 +1098,37 @@ interface {{ interface | macro("custM") }}
                       'mask': '32'}]]]
 
 # test_add_function_method_macro_match_var()
+
+def custom_macro_output(data):
+    return str(data).upper()
+    
+def test_add_function_method_macro_output():
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output macro="custM_out"/>
+"""
+    parser = ttp(log_level="ERROR")
+    parser.add_function(custom_macro_output, scope="macro", name="custM_out")
+    parser.add_template(template=template_1)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == ["[[{'IP': '124.171.238.50', 'MASK': '32', 'INTERFACE': 'LO0'}, {'IP': "
+ "'1.1.1.1', 'MASK': '32', 'DESCRIPTION': 'THIS INTERFACE HAS DESCRIPTION', "
+ "'INTERFACE': 'LO1'}]]"]
+
+# test_add_function_method_macro_output()
