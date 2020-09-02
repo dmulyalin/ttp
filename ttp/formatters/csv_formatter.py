@@ -13,7 +13,7 @@ def csv_formatter(data):
     quote = _ttp_["output_object"].attributes.get('quote', '"')
     sep = '{q}{s}{q}'.format(s=sep, q=quote)
     row_formatter = '\n{q}{{}}{q}'.format(q=quote)
-    # from results:
+    # form results:
     result = '{q}{d}{q}'.format(d=sep.join(table[0]), q=quote)
     for row in table[1:]:
         try:

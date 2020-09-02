@@ -15,7 +15,7 @@ def jinja2_formatter(data):
         raise SystemExit()
     # load template:
     template_obj = Environment(loader='BaseLoader', trim_blocks=True,
-                               lstrip_blocks=True).from_string(_ttp_["output_object"].element.text)
+                               lstrip_blocks=True).from_string(_ttp_["output_object"].tag_load)
     # render data making whole results accessible from _data_ variable in Jinja2
     result = template_obj.render(_data_=data)
     return result
