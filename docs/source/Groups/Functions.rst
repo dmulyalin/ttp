@@ -1569,6 +1569,8 @@ validate
 ------------------------------------------------------------------------------
 ``validate="schema, result='valid', info='', errors='', allow_unknown=True"``
 
+**Prerequisites** `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
+
 Function to add validation results produced by Cerberus library to parsing results. Primary usecase - compliance validation and testing.
 
 **Supported parameters**
@@ -1630,6 +1632,8 @@ lookup
 ``lookup="key, name=None, template=None, group=None, add_field=False, replace=True, update=False"``
 
 Function to lookup match value in lookup table, other group or template results     
+
+.. warning:: groups and templates order matters, groups or templates that used for lookup, should be parsed before groups that uses them.
 
 **Supported parameters**
 

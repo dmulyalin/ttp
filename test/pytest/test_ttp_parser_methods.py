@@ -1132,3 +1132,19 @@ interface {{ interface }}
  "'INTERFACE': 'LO1'}]]"]
 
 # test_add_function_method_macro_output()
+
+def test_get_input_load_anonymous_template():
+    template = """
+{{ interface }} is up, line protocol is up
+     {{ in_pkts}} packets input, 25963 bytes, 0 no buffer
+     {{ out_pkts }} packets output, 26812 bytes, 0 underruns
+"""
+    data = """
+some data
+    """
+    parser = ttp(data, template=template)
+    load = parser.get_input_load()
+    # pprint.pprint(load)
+    assert load == {'_root_template_': {'Default_Input': {}}}
+    
+# test_get_input_load_anonymous_template()

@@ -23,6 +23,8 @@ Output system provides support for a number of functions. Functions help to proc
      - pipe separated list of functions to run results through  
    * - `deepdiff`_ 
      - function to compare result structures
+   * - `validate`_ 
+     - add Cerberus validation information to results without filtering them
      
 is_equal
 ------------------------------------------------------------
@@ -365,7 +367,7 @@ As you can see comparison results were appended to overall results as a dictiona
 
     [   {   'values_changed': {   "root['interfaces'][0]['description']": {   'new_value': 'Bar',
                                                                               'old_value': 'Foo'}}}]
-																			  
+                                                                              
 **Example-2**
 
 This example uses ``iterate`` mode to produce a list of compare results for each item in ``input_after`` results
@@ -397,7 +399,7 @@ Template::
     </group>
     
     <output deepdiff="input_before, input_after, add_field=difference, mode=iterate, ignore_order=False, verbose_level=2"/>
-	
+    
 Results::
 
     [   [   {   'interfaces': [   {   'description': 'Foo',
@@ -412,7 +414,7 @@ Results::
                                                                                                         'old_value': 'Foo'},
                                                             "root['interfaces'][0]['interface']": {   'new_value': 'FastEthernet1/0/2',
                                                                                                       'old_value': 'FastEthernet1/0/1'}}}]}]]
-																								  
+                                                                                                  
 Each item input_after compared against input_before, producing difference results accordingly. 
 
 **Example-3**
@@ -468,7 +470,7 @@ Template::
     
     <output deepdiff="template_before=data_before, add_field=difference"/>
     </template>
-	
+    
 Results::
 
     [   [   {   'switch-1': {'interfaces': {'Vlan778': {'ip': '1.1.1.1/24'}}},
@@ -479,5 +481,143 @@ Results::
                                                                                                                   'old_value': '1.1.1.1/24'},
                                                         "root[0]['switch-2']['interfaces']['Vlan779']['ip']": {   'new_value': '2.2.2.2/24',
                                                                                                                   'old_value': '2.2.2.1/24'}}}}]]
-																												  
-Above output contains results for both templates, in addition to that second template results contain item with **difference** dictionary, that outline values changed between inputs of two different templates
+                                                                                                                  
+Above output contains results for both templates, in addition to that second template results contain item with **difference** dictionary, that outline values changed between inputs of two different templates.
+
+validate
+------------------------------------------------------------------------------
+``validate="schema, result="valid", add_fields="", info="", errors="", allow_unknown=True"``
+
+**Prerequisites** `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
+
+Function to validate parsing results using Cerberus library. 
+
+This function returns a dictionary of::
+
+    {
+        'errors': 'cerberus validation erros info',
+        'info': 'user definesinformation string',
+        'result': 'validation results - Ture or False'
+    }
+
+**Supported parameters**
+
+* ``schema`` name of template variable that contains Cerberus `Schema <https://docs.python-cerberus.org/en/stable/schemas.html>`_ structure
+* ``result`` name of the field to assign validation results
+* ``info`` string with additional information about test, rendered with TTP variables and results using python ``format`` function
+* ``errors`` name of the field to assign validation errors
+* ``allow_unknown`` informs Cerberus to ignore unknown keys
+
+**Validation Behavior**
+
+Cerberus library does not support validation of lists, top structure must be a dictionary. Dictionary values, however, can contains lists. As a result, depending on results structure TTP will use this rules:
+
+* If template parsing result is a list of dictionaries, usually when ``results`` attribute set to ``per_input``, TTP will validate each list item individually
+* If template parsing result is a dictionary, this is normally the case when ``results`` attribute set to ``per_template``, TTP will pass results for validation to Cerberus as is
+* If template parsing result is a list of lists, can happen when ``_anonymous_`` group present in template, results will not be validated and returned as is
+
+**Example-1**
+
+NTP configuration validation when template ``results`` attribute set to ``per_template``
+
+Template::
+
+    <template results="per_template">
+    <input load="text">
+    csw1# show run | sec ntp
+    ntp peer 1.2.3.4
+    ntp peer 1.2.3.5
+    </input>
+    
+    <input load="text">
+    csw1# show run | sec ntp
+    ntp peer 1.2.3.4
+    ntp peer 3.3.3.3
+    </input>
+    
+    <vars>
+    ntp_schema = {
+        "ntp_peers": {
+            'type': 'list',
+            'schema': {
+                'type': 'dict', 
+                'schema': {
+                    'peer': {
+                        'type': 'string', 
+                        'allowed': ['1.2.3.4', '1.2.3.5']
+                    }
+                }
+            }
+        }
+    }
+    hostname = "gethostname"
+    </vars>
+    
+    <group name="ntp_peers*">
+    ntp peer {{ peer }}
+    </group>
+    
+    <output validate="ntp_schema, info='{hostname} NTP peers valid', errors='errors'"/>
+    </template>
+    
+Results::
+
+    [{'errors': {'ntp_peers': [{3: [{'peer': ['unallowed value 3.3.3.3']}]}]},
+      'info': 'csw1 NTP peers valid',
+      'valid': False}]
+      
+**Example-2**
+
+Same as in Example-1, NTP configuration validation but template ``results`` attribute set to ``per_input`` (default value)
+
+Template::
+
+    <input load="text">
+    csw1# show run | sec ntp
+    hostname csw1
+    ntp peer 1.2.3.4
+    ntp peer 1.2.3.5
+    </input>
+    
+    <input load="text">
+    csw2# show run | sec ntp
+    hostname csw2
+    ntp peer 1.2.3.4
+    ntp peer 3.3.3.3
+    </input>
+    
+    <vars>
+    ntp_schema = {
+        "ntp_peers": {
+            'type': 'list',
+            'schema': {
+                'type': 'dict', 
+                'schema': {
+                    'peer': {
+                        'type': 'string', 
+                        'allowed': ['1.2.3.4', '1.2.3.5']
+                    }
+                }
+            }
+        }
+    }
+    </vars>
+    
+    <group name="_">
+    hostname {{ host_name }}
+    </group>
+    
+    <group name="ntp_peers*">
+    ntp peer {{ peer }}
+    </group>
+    
+    <output validate="ntp_schema, info='{host_name} NTP peers valid', errors='errors'"/>
+    
+Results::
+
+    [[{'errors': {}, 
+       'info': 'csw1 NTP peers valid', 
+       'valid': True},
+      {'errors': {'ntp_peers': [{1: [{'peer': ['unallowed value 3.3.3.3']}]}]},
+       'info': 'csw2 NTP peers valid',
+       'valid': False}]]
