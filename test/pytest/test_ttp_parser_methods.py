@@ -1148,3 +1148,38 @@ some data
     assert load == {'_root_template_': {'Default_Input': {}}}
     
 # test_get_input_load_anonymous_template()
+
+def to_test_globals_injection(data):
+	if "_ttp_" in globals():
+		return data, True
+	return data, False
+	
+def test_add_function_method_group_globals_injection():
+    template_1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group myFun="">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    parser = ttp(template=template_1, log_level="ERROR")
+    parser.add_function(to_test_globals_injection, scope="group", name="myFun", add_ttp=True)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+                     {'description': 'this interface has description',
+                      'interface': 'Lo1',
+                      'ip': '1.1.1.1',
+                      'mask': '32'}]]]
+
+# test_add_function_method_group_globals_injection()

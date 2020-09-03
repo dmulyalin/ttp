@@ -640,7 +640,7 @@ class ttp:
         else:    
             [t_obj.results.clear() for t_obj in self._templates]    
     
-    def add_function(self, fun, scope, name=None):
+    def add_function(self, fun, scope, name=None, add_ttp=False):
         """ Method to add custom function in ``_ttp_`` dictionary.
         Function can be referenced in template depending on scope. 
 
@@ -649,6 +649,7 @@ class ttp:
         * ``fun`` - function reference
         * ``scope`` - scope to add function to
         * ``name`` - optional, name to use within templates, by default equal to function ``__name__``
+        * ``add_ttp`` - boolean, on True will add ``_ttp_`` dictionary in function's global scope
         
         **scope options**
         
@@ -720,6 +721,8 @@ class ttp:
             parser.parse()
         """
         name = name if name else fun.__name__
+        if add_ttp:
+            fun.__globals__["_ttp_"] = _ttp_
         _ttp_[scope][name] = fun 
         # save custom function separately to pass on to multiprocessing
         # for updating _ttp_ dictionary on reinitialization
