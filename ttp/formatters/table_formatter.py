@@ -1,4 +1,4 @@
-def table(data):
+def table(data, **kwargs):
     """Method to form table there table is list of lists,
     first item - headers row. Method used by csv/tabulate/excel
     formatters.
@@ -8,10 +8,10 @@ def table(data):
     data_to_table = []
     source_data = []
     # get attributes:
-    provided_headers = _ttp_["output_object"].attributes.get('headers', None)
-    path = _ttp_["output_object"].attributes.get('path', [])
-    missing = _ttp_["output_object"].attributes.get('missing', '')
-    key = _ttp_["output_object"].attributes.get('key', '')
+    provided_headers = kwargs.get('headers', None)
+    path = kwargs.get('path', [])
+    missing = kwargs.get('missing', '')
+    key = kwargs.get('key', '')
     # normalize source_data to list:
     if isinstance(data, list): # handle the case for template/global output
         source_data += data

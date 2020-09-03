@@ -5,7 +5,7 @@ _name_map_ = {
 "jinja2_formatter": "jinja2"
 }
 
-def jinja2_formatter(data):
+def jinja2_formatter(data, **kwargs):
     """Method to render output template using results data.
     """
     try:

@@ -960,7 +960,7 @@ interface {{ interface }}
     
 # test_add_function_method_output()
     
-def custom_returner(data):
+def custom_returner(data, *args, **kwargs):
     with open("./Output/custom_returner_test.txt", "w") as f:
         f.write(str(data))
     
@@ -994,7 +994,7 @@ interface {{ interface }}
         
 # test_add_function_method_output_returner()
     
-def custom_formatter(data):
+def custom_formatter(data, *arg, **kwarg):
     return str(data).upper()
     
 def test_add_function_method_output_formatter():

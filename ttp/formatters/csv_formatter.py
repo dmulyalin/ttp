@@ -2,15 +2,15 @@ _name_map_ = {
 "csv_formatter": "csv"
 }
 
-def csv_formatter(data):
+def csv_formatter(data, **kwargs):
     """Method to dump list of dictionaries into table
     using provided separator, default is comma - ','
     """
     result = ""
     # form table - list of lists
-    table = _ttp_["formatters"]["table"](data)
-    sep = _ttp_["output_object"].attributes.get('sep', ',')
-    quote = _ttp_["output_object"].attributes.get('quote', '"')
+    table = _ttp_["formatters"]["table"](data, **kwargs)
+    sep = kwargs.get('sep', ',')
+    quote = kwargs.get('quote', '"')
     sep = '{q}{s}{q}'.format(s=sep, q=quote)
     row_formatter = '\n{q}{{}}{q}'.format(q=quote)
     # form results:

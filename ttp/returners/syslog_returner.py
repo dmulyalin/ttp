@@ -4,18 +4,17 @@ import json
 
 log = logging.getLogger(__name__)
 
-def syslog(data):
-    # get attributes
-    attributes = _ttp_["output_object"].attributes
-    servers = attributes.get('servers', None)
+def syslog(data, **kwargs):
+    # get kwargs
+    servers = kwargs.get('servers', None)
     servers = [servers] if isinstance(servers, str) else servers
     if not servers:
         log.error("ttp.returners.syslog: no syslog servers addresses found, doing nothing...")
         return 
-    port = int(attributes.get('port', 514))   
-    facility = attributes.get('facility', 77)
-    path = attributes.get('path', [])  
-    iterate = attributes.get('iterate', True)    
+    port = int(kwargs.get('port', 514))   
+    facility = kwargs.get('facility', 77)
+    path = kwargs.get('path', [])  
+    iterate = kwargs.get('iterate', True)    
     # normalize source_data to list:
     source_data = data if isinstance(data, list) else [data]
     # initiate isolated logger

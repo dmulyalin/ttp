@@ -2,7 +2,7 @@ _name_map_ = {
 "yaml_formatter": "yaml"
 }
 
-def yaml_formatter(data):
+def yaml_formatter(data, **kwargs):
     """Method returns parsing results in yaml format.
     """
     try:

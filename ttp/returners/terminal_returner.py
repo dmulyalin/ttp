@@ -2,11 +2,11 @@ _name_map_ = {
 "terminal_returner": "terminal"
 }
 
-def terminal_returner(data):
+def terminal_returner(data, **kwargs):
     """ Returner that prints results to terminal
     """
     # add colouring
-    if "colour" in _ttp_["output_object"].attributes:
+    if "colour" in kwargs:
         from colorama import init
         init()
         R = "\033[0;31;40m" # RED
@@ -16,9 +16,9 @@ def terminal_returner(data):
         N = "\033[0m"       # Reset
         fttr = "{}{}{}" # formatter
         # get colour words from output
-        red_words = _ttp_["output_object"].attributes.get("red", "False,No,Failed,Error,Failure,Fail,false,no,failed,error,failure,fail")
-        green_words = _ttp_["output_object"].attributes.get("green","True,Yes,Success,Ok,true,yes,success,ok")
-        yeallow_words = _ttp_["output_object"].attributes.get("yellow", "Warning,warning")
+        red_words = kwargs.get("red", "False,No,Failed,Error,Failure,Fail,false,no,failed,error,failure,fail")
+        green_words = kwargs.get("green","True,Yes,Success,Ok,true,yes,success,ok")
+        yeallow_words = kwargs.get("yellow", "Warning,warning")
         # convert colour words to lists
         red_words = [i.strip() for i in red_words.split(",")]
         green_words = [i.strip() for i in green_words.split(",")]

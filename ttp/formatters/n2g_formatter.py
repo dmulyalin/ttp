@@ -2,16 +2,15 @@ import logging
 
 log = logging.getLogger(__name__)
     
-def n2g(data):
-    # load attributes
-    attributes = _ttp_["output_object"].attributes
-    module = attributes.get("module", "yed")
-    method = attributes.get("method", "from_list")
-    path = attributes.get("path", [])
-    node_dups = attributes.get("node_duplicates", "skip")
-    link_dups = attributes.get("link_duplicates", "skip")
-    method_kwargs = attributes.get("method_kwargs", {})
-    algo = attributes.get("algo", None)
+def n2g(data, **kwargs):
+    # load kwargs
+    module = kwargs.get("module", "yed")
+    method = kwargs.get("method", "from_list")
+    path = kwargs.get("path", [])
+    node_dups = kwargs.get("node_duplicates", "skip")
+    link_dups = kwargs.get("link_duplicates", "skip")
+    method_kwargs = kwargs.get("method_kwargs", {})
+    algo = kwargs.get("algo", None)
     # import N2G library
     try:
         if module.lower() == "yed":

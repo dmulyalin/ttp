@@ -663,11 +663,15 @@ class ttp:
         
         .. warning:: add_function should be called before template loaded in parser
         
-        Custom function should use first argument to hold data to process, additional
+        Custom functions should use first argument to hold data to process, additional
         args and kwargs will be supplied to function if provided in template. 
         
-        ``variable`` function first argument is input text data, second argument is 
-        datum name, equal to filename if loaded from file
+        TTP passes output tag attributes to ``returner`` and ``formatter`` functions, 
+        attributes need to be unpacked using, for instance, ``**kwargs``.
+        
+        For ``template variable`` getters functions first argument supplied is an 
+        input text data, second argument is datum name, equal to filename if loaded 
+        from file
         
         Function return content differ depending on scope:
         
@@ -2929,7 +2933,7 @@ class _outputter_class:
             results = _ttp_["output"][func_name](results, *args, **kwargs)    
         # run formatter
         if format_type in _ttp_["formatters"]:
-            results = _ttp_["formatters"][format_type](results)  
+            results = _ttp_["formatters"][format_type](results, **self.attributes)  
         else:
             log.warning(    
                 "output.run: unsupported formatter '{}', use one of: {}".format(    
@@ -2939,7 +2943,7 @@ class _outputter_class:
         # run returners    
         for returner in self.attributes["returner"]:
             if returner in _ttp_["returners"]:
-                _ = _ttp_["returners"][returner](results)
+                _ = _ttp_["returners"][returner](results, **self.attributes)
             else:
                 log.warning(    
                     "output.run: unsupported returner '{}', use one of: {}".format(    
