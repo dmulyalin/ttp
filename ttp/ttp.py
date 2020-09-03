@@ -2794,26 +2794,15 @@ TTP OUTPUTTER CLASS
     
     
 class _outputter_class:    
-    """Class to serve excel, yaml, json, xml etc. dumping functions    
-    Args:    
-        destination (str): if 'file' will save data to file,    
-            if 'terminal' will print data to terminal    
-        format (str): output format indicator on how to format data    
-        url (str): path to where to save data to e.g. OS path    
-        filename (str): name of hte file    
-        method (str): how to save results, in separate files or in one file    
+    """Class to serve run output functions, returners and formatters
     """    
     
     def __init__(self, element=None, template_obj=None, **kwargs):    
-        from time import strftime    
     
-        ctime = strftime("%Y-%m-%d_%H-%M-%S")    
         # set attributes default values    
         self.attributes = {    
             "returner": "self",    
             "format": "raw",    
-            "url": "./Output/",    
-            "filename": "output_{}.txt".format(ctime),    
             "load": "python"    
         }    
         self.tag_load = {}    
