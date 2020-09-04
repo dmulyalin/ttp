@@ -373,3 +373,37 @@ def test_issue_20_answer_2():
                                                                'overlay_grp': '239.100.100.100',
                                                                'rpf_neighbor': '0.0.0.0'}}}}
 # test_issue_20_answer_2()
+
+def test_docs_ttp_dictionary_usage_example():
+    template = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50/29
+!
+interface Lo1
+ ip address 1.1.1.1/30
+</input>
+
+<group macro="add_last_host">
+interface {{ interface }}
+ ip address {{ ip }}
+</group>
+
+<macro>
+def add_last_host(data):
+    ip_obj, _ = _ttp_["match"]["to_ip"](data["ip"])
+    all_ips = list(ip_obj.network.hosts())
+    data["last_host"] = str(all_ips[-1])
+    return data
+</macro>
+"""
+    parser = ttp(template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0',
+                      'ip': '124.171.238.50/29',
+                      'last_host': '124.171.238.54'},
+                     {'interface': 'Lo1', 'ip': '1.1.1.1/30', 'last_host': '1.1.1.2'}]]]
+    
+# test_docs_ttp_dictionary_usage_example()

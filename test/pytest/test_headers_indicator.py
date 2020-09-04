@@ -408,14 +408,14 @@ Port   Name             Status    Vlan       Duplex  Speed Type   {{ _headers_ }
 def test_headers_indicator_tab_indented_header():
     template = """
 <input load="text">
-	Network            Next Hop            Metric     LocPrf     Weight Path
+	Network			   Next Hop            Metric     LocPrf     Weight Path
 *>ef11.11.1.111/32     12.123.12.1              0                     0 65000 ?
 *>ef222.222.222.2/32   12.123.12.1              0                     0 65000 ?
 *>ef333.333.333.333/32 12.123.12.1              0                     0 65000 ?
 </input>
 
 <group>
-	Network            Next_Hop            Metric     LocPrf     Weight Path  {{ _headers_ }}
+    Network            Next_Hop            Metric     LocPrf     Weight Path  {{ _headers_ }}
 </group>   
 """
     parser = ttp(template=template, log_level="ERROR")
@@ -459,6 +459,99 @@ Port      Name               Status       Vlan       Duplex  Speed Type   {{ _he
     parser = ttp(template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()    
-    pprint.pprint(res)
+    # pprint.pprint(res)
+    assert res == [[[{'Duplex': 'a-full',
+                      'Name': 'PIT-VDU213',
+                      'Port': 'Gi0/1',
+                      'Speed': 'a-100',
+                      'Status': 'connected',
+                      'Type': '10/100/1000BaseTX',
+                      'Vlan': '18'},
+                     {'Duplex': 'a-full',
+                      'Name': '',
+                      'Port': 'Gi0/4',
+                      'Speed': 'a-100',
+                      'Status': 'connected',
+                      'Type': '10/100/1000BaseTX',
+                      'Vlan': '18'},
+                     {'Duplex': 'full',
+                      'Name': 'pitrs2201 te1/1/4',
+                      'Port': 'Gi0/16',
+                      'Speed': '1000',
+                      'Status': 'connected',
+                      'Type': '1000BaseLX SFP',
+                      'Vlan': 'trunk'}]]]
     
 # test_headers_docs_example()
+
+def test_headers_shorter_lines():
+    data = """
+Filesystem              1K-blocks    Used Available Use% Mounted on
+tmpfs                     1457328       0   1457328   0% /sys/fs/cgroup
+/dev/mapper/centos-root  14034944 5783384   8251560  42% /
+/dev/sda1                 1038336  220604    817732  22% /boot
+    """
+    template="""
+Filesystem              K1_blocks Used    Available Use_ Mounted_on {{ _headers_ }}
+"""
+    parser = ttp(template=template, log_level="ERROR")
+    parser.add_input(data)
+    parser.parse()
+    res = parser.result()    
+    # pprint.pprint(res)
+    assert res == [[[{'Available': '1457328',
+                      'Filesystem': 'tmpfs',
+                      'K1_blocks': '1457328',
+                      'Mounted_on': '/sys/fs/cgroup',
+                      'Use_': '0%',
+                      'Used': '0'},
+                     {'Available': '8251560',
+                      'Filesystem': '/dev/mapper/centos-root',
+                      'K1_blocks': '14034944',
+                      'Mounted_on': '/',
+                      'Use_': '42%',
+                      'Used': '5783384'},
+                     {'Available': '817732',
+                      'Filesystem': '/dev/sda1',
+                      'K1_blocks': '1038336',
+                      'Mounted_on': '/boot',
+                      'Use_': '22%',
+                      'Used': '220604'}]]]
+    
+# test_headers_shorter_lines()
+
+def test_headers_last_column_empty():
+    data = """
+Filesystem              1K-blocks    Used Available Use% Mounted on
+tmpfs                     1457328       0   1457328   0% /sys/fs/cgroup
+/dev/mapper/centos-root  14034944 5783384   8251560  2%
+/dev/sda1                 1038336  220604    817732  22% /boot
+    """
+    template="""
+Filesystem              K1_blocks Used    Available Use_ Mounted_on {{ _headers_ }}
+"""
+    parser = ttp(template=template, log_level="DEBUG")
+    parser.add_input(data)
+    parser.parse()
+    res = parser.result()    
+    # pprint.pprint(res)
+    assert res == [[[{'Available': '1457328',
+                      'Filesystem': 'tmpfs',
+                      'K1_blocks': '1457328',
+                      'Mounted_on': '/sys/fs/cgroup',
+                      'Use_': '0%',
+                      'Used': '0'},
+                     {'Available': '8251560',
+                      'Filesystem': '/dev/mapper/centos-root',
+                      'K1_blocks': '14034944',
+                      'Mounted_on': '',
+                      'Use_': '2%',
+                      'Used': '5783384'},
+                     {'Available': '817732',
+                      'Filesystem': '/dev/sda1',
+                      'K1_blocks': '1038336',
+                      'Mounted_on': '/boot',
+                      'Use_': '22%',
+                      'Used': '220604'}]]]
+    
+# test_headers_last_column_empty()

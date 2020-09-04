@@ -1,7 +1,7 @@
 TTP Internals
 =============
 
-This is to describe how TTP internals works, mainly to server as a reference for the Author and other developers.
+This is to describe how TTP internals works, mainly to serve as a reference for the Author and other developers.
 
 Lazy loading system
 -------------------
@@ -34,12 +34,12 @@ Consider this example ::
     
     def set_func():
         pass
-	
+    
 Here, ``set_func`` is function defined within file, on load TTP will add reference to that function under ``set`` key in a ``_ttp_`` dictionary using ``_name_map_``
  
 
-``_ttp_`` (not so) dunder dictionary
-------------------------------------
+_ttp_ (not so) dunder dictionary
+--------------------------------
 
 The purpose of ``_ttp_`` is multi-fold:
 
@@ -173,8 +173,8 @@ The purpose of ``_ttp_`` is multi-fold:
                   'get_timestamp_ms': <ttp.ttp.CachedModule object at 0x0367E790>,
                   'getfilename': <ttp.ttp.CachedModule object at 0x0367EB30>,
                   'gethostname': <ttp.ttp.CachedModule object at 0x03688F50>}}
-				  
-All above function contained within ``.py`` files and spread across respective directories of TTP module. Description of ``_ttp_`` dictionary keys:
+                  
+All above functions contained within ``.py`` files and spread across respective directories of TTP module. Description of ``_ttp_`` dictionary keys:
 
 * ``global_vars`` - dictionary to store variables produced by ``record`` function, this dictionary accessible between templates
 * ``group`` - group function
@@ -192,3 +192,49 @@ All above function contained within ``.py`` files and spread across respective d
 * ``ttp_object`` - reference to ttp parser object itself
 * ``utils`` - various utilities
 * ``variable`` - template variables getter function
+
+It is also possible to add custom function in ``_ttp_`` dictionary using ``add_function`` method.
+
+Cross referencing functions using _ttp_ dictionary
+--------------------------------------------------
+
+As mentioned before, ``_ttp_`` dictionary injected in global name-space of loaded functions, allowing functions to have access one to another and TTP in-run objects.
+
+Sample example on how to use cross referencing within macro:: 
+
+    from ttp import ttp
+    
+    template = """
+    <input load="text">
+    interface Lo0
+     ip address 124.171.238.50/29
+    !
+    interface Lo1
+     ip address 1.1.1.1/30
+    </input>
+    
+    <group macro="add_last_host">
+    interface {{ interface }}
+     ip address {{ ip }}
+    </group>
+    
+    <macro>
+    def add_last_host(data):
+        # function to add last host in subnet to results
+        ip_obj, _ = _ttp_["match"]["to_ip"](data["ip"])
+        all_ips = list(ip_obj.network.hosts())
+        data["last_host"] = str(all_ips[-1])
+        return data
+    </macro>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    
+Results::
+
+    [[[{'interface': 'Lo0', 'ip': '124.171.238.50/29', 'last_host': '124.171.238.54'},
+       {'interface': 'Lo1', 'ip': '1.1.1.1/30', 'last_host': '1.1.1.2'}]]]
+       
+In this example ``_ttp_["match"]["to_ip"](data["ip"])`` is a call to match variable ``to_ip`` function to convert match result in IPv4Interface object. Methods of this object, for example, can be used to extract information about last host in the subnet.

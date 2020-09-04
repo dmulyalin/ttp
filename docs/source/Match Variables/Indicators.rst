@@ -6,7 +6,7 @@ Indicators
 ================
 
 Indicators or directives can be used to change parsing logic or indicate certain events.
-	 
+     
 .. list-table:: indicators
    :widths: 10 90
    :header-rows: 1
@@ -244,7 +244,7 @@ Results::
           'port_security_cfg': 'switchport port-security\n'
                                'switchport port-security maximum 5\n'
                                'switchport port-security mac-address sticky'}
-    						 ]]
+                             ]]
 
 ignore
 ------------------------------------------------------------------------------
@@ -274,7 +274,7 @@ What if only need to extract bia MAC address within parenthesis, below template 
     {{ interface }} is up, line protocol is up
       Hardware is Gt96k FE, address is c201.1d00.0000 (bia {{MAC}})
       MTU {{ mtu }} bytes, BW 100000 Kbit/sec, DLY 1000 usec,
-	  
+      
 Result::
 
     [
@@ -290,13 +290,13 @@ Result::
             }
         ]
     ]
-	
+    
 As we can see MAC address for FastEthernet0/1 was not matched due to the fact that "c201.1d00.0000" text was used in template, to fix it we need to ignore MAC address before parenthesis as it keeps changing across the source data::
 
     {{ interface }} is up, line protocol is up
       Hardware is Gt96k FE, address is {{ ignore }} (bia {{MAC}})
       MTU {{ mtu }} bytes, BW 100000 Kbit/sec, DLY 1000 usec,
-	  
+      
 Result::
 
     [
@@ -313,7 +313,7 @@ Result::
             }
         ]
     ]
-	
+    
 **Example-2**
 
 In this example template variable "pattern_var" used together with ignore, that variable reference regular expression pattern that contains pipe symbol.
@@ -338,7 +338,7 @@ Template::
       Hardware is Gt96k FE, address is {{ ignore("pattern_var") }} (bia {{MAC}})
       MTU {{ mtu }} bytes, BW 100000 Kbit/sec, DLY 1000 usec,
     </group>
-	
+    
 Results::
 
     [
@@ -359,7 +359,7 @@ Results::
             }
         ]
     ]
-	
+    
 _headers_
 ------------------------------------------------------------------------------
 ``head1  head2 ... headN {{ _headers_ }}``
@@ -374,6 +374,17 @@ Column width calculated based on header items length, variables names dynamicall
 * header items cannot contain spaces, replace them with underscore
 * header items must be valid Python identifies to form variables names
 * match variable functions not supported for header items, instead, group functions and macro can be used for processing
+* last column can be empty, but last column and next to the last column cannot be empty simultaneously, otherwise row not matched
+
+How column width calculated::
+
+    Column width calculated from left to the left edge of each header:
+    
+    Port      Name               Status       Vlan       Duplex  Speed Type
+    <--------><-----------------><-----------><---------><------><----><-infinite->
+        C1            C2              C3           C4       C5     C6       C7
+        
+Where C1 - C7 columns and <---> is a column width formalized in ``.{x,y}`` regex. Column C7 width is a ``.*`` regex.
 
 **Example-1**
 
@@ -416,10 +427,10 @@ Result::
         'Status': 'connected',
         'Type': '1000BaseLX SFP',
         'Vlan': 'trunk'}]]]
-		
+        
 **Example-2**
 
-Header can be indented by a number of spaces or tabs, but each tab replaced with 4 space characters to calculate column width.
+Header line can be indented by a number of spaces or tabs, but each tab replaced with 4 space characters to calculate column width.
 
 Template::
 
