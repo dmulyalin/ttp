@@ -407,3 +407,151 @@ def add_last_host(data):
                      {'interface': 'Lo1', 'ip': '1.1.1.1/30', 'last_host': '1.1.1.2'}]]]
     
 # test_docs_ttp_dictionary_usage_example()
+
+def test_github_issue_21_answer():
+    data_to_parse="""
+R1#sh ip nbar protocol-discovery protocol 
+
+ GigabitEthernet1 
+
+ Last clearing of "show ip nbar protocol-discovery" counters 00:13:45
+
+
+                              Input                    Output                  
+                              -----                    ------                  
+ Protocol                     Packet Count             Packet Count            
+                              Byte Count               Byte Count              
+                              5min Bit Rate (bps)      5min Bit Rate (bps)     
+                              5min Max Bit Rate (bps)  5min Max Bit Rate (bps) 
+ ---------------------------- ------------------------ ------------------------
+ ssh                          191                      134                     
+                              24805                    22072                   
+                              2000                     1000                    
+                              1999                     1001                    
+ unknown                      172                      503                     
+                              39713                    31378                   
+                              0                        0                       
+                              3000                     0                       
+ ping                         144                      144                     
+                              14592                    14592                   
+                              0                        0                       
+                              1000                     1000                    
+ dns                          107                      0                       
+                              21149                    0                       
+                              0                        0                       
+                              2000                     0                       
+ vrrp                         0                        738                     
+                              0                        39852                   
+                              0                        0                       
+                              0                        0                       
+ ldp                          174                      175                     
+                              13224                    13300                   
+                              0                        0                       
+                              0                        0                       
+ ospf                         86                       87                      
+                              9460                     9570                    
+                              0                        0                       
+                              0                        0                       
+ Total                        874                      1781                    
+                              122943                   130764                  
+                              2000                     1000                    
+                              8000                     2000 
+"""
+    show_nbar = """
+<template name="nbar" results="per_template">
+
+<vars>C1 = "DIGIT | to_int | to_list | joinmatches"</vars>
+
+<group name="{{ interface }}">
+ {{ interface | re('Gig.+') | re('Ten.+') }}
+ <group name="{{ protocol }}" macro="map_to_keys">
+ {{ protocol }}               {{ in | chain(C1) }} {{ out | chain(C1) }}
+{{ ignore(r"\\s+") }}           {{ in | chain(C1) }} {{ out | chain(C1) }} 
+ </group>
+</group>
+
+<macro>
+def map_to_keys(data):
+    # uncomment to see data 
+    # print(data)
+    inp_values = data.pop("in")
+    out_values = data.pop("out")
+    inp_keys = ["IN Packet Count", "IN Byte Count", "IN 5min Bit Rate (bps)", "IN 5min Max Bit Rate (bps)"]
+    out_keys = ["OUT Packet Count", "OUT Byte Count", "OUT 5min Bit Rate (bps)", "OUT 5min Max Bit Rate (bps)"]
+    data.update(dict(zip(inp_keys, inp_values)))
+    data.update(dict(zip(out_keys, out_values))) 
+    return data
+</macro>
+</template>      
+    """
+    parser = ttp(template=show_nbar)
+    parser.add_input(data_to_parse, template_name="nbar")
+    parser.parse()
+    res = parser.result(structure="dictionary")
+    pprint.pprint(res, width=100)
+    assert res == {'nbar': {'GigabitEthernet1 ': {'Total': {'IN 5min Bit Rate (bps)': 2000,
+                                          'IN 5min Max Bit Rate (bps)': 8000,
+                                          'IN Byte Count': 122943,
+                                          'IN Packet Count': 874,
+                                          'OUT 5min Bit Rate (bps)': 1000,
+                                          'OUT 5min Max Bit Rate (bps)': 2000,
+                                          'OUT Byte Count': 130764,
+                                          'OUT Packet Count': 1781},
+                                'dns': {'IN 5min Bit Rate (bps)': 0,
+                                        'IN 5min Max Bit Rate (bps)': 2000,
+                                        'IN Byte Count': 21149,
+                                        'IN Packet Count': 107,
+                                        'OUT 5min Bit Rate (bps)': 0,
+                                        'OUT 5min Max Bit Rate (bps)': 0,
+                                        'OUT Byte Count': 0,
+                                        'OUT Packet Count': 0},
+                                'ldp': {'IN 5min Bit Rate (bps)': 0,
+                                        'IN 5min Max Bit Rate (bps)': 0,
+                                        'IN Byte Count': 13224,
+                                        'IN Packet Count': 174,
+                                        'OUT 5min Bit Rate (bps)': 0,
+                                        'OUT 5min Max Bit Rate (bps)': 0,
+                                        'OUT Byte Count': 13300,
+                                        'OUT Packet Count': 175},
+                                'ospf': {'IN 5min Bit Rate (bps)': 0,
+                                         'IN 5min Max Bit Rate (bps)': 0,
+                                         'IN Byte Count': 9460,
+                                         'IN Packet Count': 86,
+                                         'OUT 5min Bit Rate (bps)': 0,
+                                         'OUT 5min Max Bit Rate (bps)': 0,
+                                         'OUT Byte Count': 9570,
+                                         'OUT Packet Count': 87},
+                                'ping': {'IN 5min Bit Rate (bps)': 0,
+                                         'IN 5min Max Bit Rate (bps)': 1000,
+                                         'IN Byte Count': 14592,
+                                         'IN Packet Count': 144,
+                                         'OUT 5min Bit Rate (bps)': 0,
+                                         'OUT 5min Max Bit Rate (bps)': 1000,
+                                         'OUT Byte Count': 14592,
+                                         'OUT Packet Count': 144},
+                                'ssh': {'IN 5min Bit Rate (bps)': 2000,
+                                        'IN 5min Max Bit Rate (bps)': 1999,
+                                        'IN Byte Count': 24805,
+                                        'IN Packet Count': 191,
+                                        'OUT 5min Bit Rate (bps)': 1000,
+                                        'OUT 5min Max Bit Rate (bps)': 1001,
+                                        'OUT Byte Count': 22072,
+                                        'OUT Packet Count': 134},
+                                'unknown': {'IN 5min Bit Rate (bps)': 0,
+                                            'IN 5min Max Bit Rate (bps)': 3000,
+                                            'IN Byte Count': 39713,
+                                            'IN Packet Count': 172,
+                                            'OUT 5min Bit Rate (bps)': 0,
+                                            'OUT 5min Max Bit Rate (bps)': 0,
+                                            'OUT Byte Count': 31378,
+                                            'OUT Packet Count': 503},
+                                'vrrp': {'IN 5min Bit Rate (bps)': 0,
+                                         'IN 5min Max Bit Rate (bps)': 0,
+                                         'IN Byte Count': 0,
+                                         'IN Packet Count': 0,
+                                         'OUT 5min Bit Rate (bps)': 0,
+                                         'OUT 5min Max Bit Rate (bps)': 0,
+                                         'OUT Byte Count': 39852,
+                                         'OUT Packet Count': 738}}}}
+                                         
+# test_github_issue_21_answer()

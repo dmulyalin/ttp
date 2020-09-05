@@ -495,9 +495,9 @@ Function to validate parsing results using Cerberus library.
 This function returns a dictionary of::
 
     {
-        'errors': 'cerberus validation erros info',
-        'info': 'user definesinformation string',
-        'result': 'validation results - Ture or False'
+        'errors': 'cerberus validation errors info',
+        'info': 'user defined information string',
+        'result': 'validation results - True or False'
     }
 
 **Supported parameters**
