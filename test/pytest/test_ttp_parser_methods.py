@@ -1183,3 +1183,38 @@ interface {{ interface }}
                       'mask': '32'}]]]
 
 # test_add_function_method_group_globals_injection()
+
+def test_add_input_structured_data_list():
+    data_list = ["""
+interface Lo0
+ ip address 124.171.238.50 32
+""",
+"""
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+"""]
+
+    template = """
+<input macro="pre_process"/>
+
+<macro>
+def pre_process(data):
+    return r'\\n'.join(data)
+</macro>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    parser = ttp(template=template, log_level="ERROR")
+    parser.add_input(data_list)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+                     {'description': 'this interface has description', 'interface': 'Lo1'}]]]
+    
+test_add_input_structured_data_list()

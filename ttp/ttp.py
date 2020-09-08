@@ -2084,6 +2084,9 @@ class _parser_class:
         if D[0] == "text_data":
             self.DATATEXT = "\n" + D[1] + "\n\n"
             self.DATANAME = "text_data"
+        elif D[0] == "structured_data":
+            self.DATATEXT = D[1]
+            self.DATANAME = "structured_data"
         else:
             data = _ttp_["utils"]["load_files"](path=D[1], read=True)
             # data is a list of one tuple - [(data_type, data_text,)]

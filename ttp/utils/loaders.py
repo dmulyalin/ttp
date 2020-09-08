@@ -21,6 +21,14 @@ def load_files(path, extensions=[], filters=[], read=False):
     # and has length more then X symbols, os.path will choke with "path too long"
     # error, hence the safe-assumption that no os path exists longer then 5000 symbols
 
+    # check if structured, non text, data given, return it as is if so
+    # to process within input macro/function
+    if not isinstance(path, str):
+        return [('structured_data', path,)]
+    elif _ttp_['python_major_version'] == 2:
+        if not isinstance(path, (unicode, str,)):
+            return [('structured_data', path,)]
+            
     # check if path is a path to file:
     if os.path.isfile(path[:5000]):
         if read:
