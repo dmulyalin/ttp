@@ -110,3 +110,153 @@ ntp peer {{ peer }}
                     'valid': False}]
     
 # test_cerberus_validate_per_template()
+
+def test_global_output_deepdiff_with_var_before():
+    template = """
+<vars>
+before = [[{'description': 'some info',
+             'interface': 'GigabitEthernet1',
+             'ip': '10.123.89.56',
+             'mask': '255.255.255.255'},
+            {'interface': 'GigabitEthernet2',
+             'ip': '10.123.89.55',
+             'mask': '255.255.255.0'}]]
+</vars>
+
+<input name="Cisco_ios" load="text">
+r1#show interfaces | inc line protocol:
+interface GigabitEthernet1
+ description some info
+ vrf forwarding MGMT
+ ip address 10.123.89.56 255.255.255.0
+interface GigabitEthernet2
+ ip address 10.123.89.55 255.255.255.0
+</input>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output deepdiff="var_before='before'"/>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [{'values_changed': {"root[0][0]['mask']": {'new_value': '255.255.255.0',
+                                                              'old_value': '255.255.255.255'}}}]
+    
+# test_global_output_deepdiff_with_var_before()
+
+def test_group_specific_output_deepdiff_with_var_before():
+    template = """
+<vars>
+before = {"interfaces": [{'description': 'some info',
+                          'interface': 'GigabitEthernet1',
+                          'ip': '10.123.89.56',
+                          'mask': '255.255.255.255'},
+                         {'interface': 'GigabitEthernet2',
+                          'ip': '10.123.89.55',
+                          'mask': '255.255.255.0'}]}
+</vars>
+
+<input name="Cisco_ios" load="text">
+r1#show interfaces | inc line protocol:
+interface GigabitEthernet1
+ description some info
+ vrf forwarding MGMT
+ ip address 10.123.89.56 255.255.255.0
+interface GigabitEthernet2
+ ip address 10.123.89.55 255.255.255.0
+</input>
+
+<group name="interfaces*" output="out_1">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<group name="interfaces_2*">
+interface {{ interface }}
+ vrf forwarding {{ vrf }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output name="out_1" deepdiff="var_before='before'"/>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interfaces_2': [{'interface': 'GigabitEthernet1',
+                                        'ip': '10.123.89.56',
+                                        'mask': '255.255.255.0',
+                                        'vrf': 'MGMT'},
+                                       {'interface': 'GigabitEthernet2',
+                                        'ip': '10.123.89.55',
+                                        'mask': '255.255.255.0'}]},
+                    {'values_changed': {"root['interfaces'][0]['mask']": {'new_value': '255.255.255.0',
+                                                                          'old_value': '255.255.255.255'}}}]]]
+                                                              
+# test_group_specific_output_deepdiff_with_var_before()
+
+def test_group_specific_output_deepdiff_with_var_before_with_add_field():
+    template = """
+<vars>
+before = {"interfaces": [{'description': 'some info',
+                          'interface': 'GigabitEthernet1',
+                          'ip': '10.123.89.56',
+                          'mask': '255.255.255.255'},
+                         {'interface': 'GigabitEthernet2',
+                          'ip': '10.123.89.55',
+                          'mask': '255.255.255.0'}]}
+</vars>
+
+<input name="Cisco_ios" load="text">
+r1#show interfaces | inc line protocol:
+interface GigabitEthernet1
+ description some info
+ vrf forwarding MGMT
+ ip address 10.123.89.56 255.255.255.0
+interface GigabitEthernet2
+ ip address 10.123.89.55 255.255.255.0
+</input>
+
+<group name="interfaces*" output="out_1">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<group name="interfaces_2*">
+interface {{ interface }}
+ vrf forwarding {{ vrf }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output name="out_1" deepdiff="var_before='before', add_field='diff'"/>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[[{'interfaces_2': [{'interface': 'GigabitEthernet1',
+                                        'ip': '10.123.89.56',
+                                        'mask': '255.255.255.0',
+                                        'vrf': 'MGMT'},
+                                       {'interface': 'GigabitEthernet2',
+                                        'ip': '10.123.89.55',
+                                        'mask': '255.255.255.0'}]},
+                     {'diff': {'values_changed': {"root['interfaces'][0]['mask']": {'new_value': '255.255.255.0',
+                                                                                    'old_value': '255.255.255.255'}}},
+                      'interfaces': [{'description': 'some info',
+                                      'interface': 'GigabitEthernet1',
+                                      'ip': '10.123.89.56',
+                                      'mask': '255.255.255.0'},
+                                     {'interface': 'GigabitEthernet2',
+                                      'ip': '10.123.89.55',
+                                      'mask': '255.255.255.0'}]}]]]
+    
+# test_group_specific_output_deepdiff_with_var_before_with_add_field()   

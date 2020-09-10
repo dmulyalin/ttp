@@ -13,7 +13,7 @@ _name_map_ = {
 }
 
 
-def deepdiff_func(data, input_before=None, input_after=None, template_before=None, mode="bulk", add_field=False, **kwargs):
+def deepdiff_func(data, input_before=None, input_after=None, template_before=None, mode="bulk", add_field=False, var_before=None, **kwargs):
     """
     Function to compare two structures.
     
@@ -50,6 +50,9 @@ def deepdiff_func(data, input_before=None, input_after=None, template_before=Non
             if template.name == template_before:
                 data_before = template.results 
                 break
+    # if need to use vars content
+    elif var_before:
+        data_before = template_obj.vars[var_before]
     
     # get data after - data to compare against
     data_after = data
@@ -68,7 +71,10 @@ def deepdiff_func(data, input_before=None, input_after=None, template_before=Non
         
     # return results
     if add_field:
-        data.append({add_field: result})
+        if isinstance(data, list):
+            data.append({add_field: result})
+        elif isinstance(data, dict):
+            data[add_field] = result
         return data
     else:
         return result

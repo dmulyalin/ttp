@@ -308,17 +308,20 @@ deepdiff
 * ``input_before`` - string, name of input, which results should be used to compare with
 * ``input_after`` - string, name of input, which results should be used for comparing
 * ``template_before`` - string, name of template tag, results of which to use to compare with
+* ``var_before`` - template variable to compare parsing results with
 * ``add_field`` - string, name of field to add compare results, by default is False, hence compare results will replace results data
 * ``mode`` - string, ``bulk`` (default) or ``iterate`` modes supported to modify comparison behavior
 * ``kwargs`` - any arguments supported by deepdiff DeepDiff object, such as ignore_order or verbose_level
 
 **Prerequisites:** Python `deepdiff library <https://pypi.org/project/deepdiff/>`_  need to be installed.
 
-This function takes parsing results for specified inputs and compares one against another using DeepDiff library deepdiff object. 
+This function takes overall parsing results or results for specified input and compares them with data before sourced either from template, another input results or template variable. 
 
-The usecase for this function might be having two folders on the hard drive, one folder with data before and second folder with data after changes were done to network devices, TTP can be used to parse this data and run results comparison using deepdiff function, showing the differences between Python structures content, as opposed to comparing text data itself.
+Sample usecase. Two folders on hard drive, one folder with data before and second folder with data after changes were done to network devices, TTP can be used to parse this data and run results comparison using deepdiff function, showing the differences between Python structures content, as opposed to comparing text data itself.
 
-Few words about **mode**. In ``bulk`` mode overall ``input_before`` results compared with overall ``input_after`` results, in ``iterate`` mode **first** item in results for ``input_before`` compared (iterated) against each item in results for ``input_after``.
+Few words about **mode**. In ``bulk`` mode overall ``before`` results compared with overall ``after`` results, in ``iterate`` mode **first** item in results for ``before`` compared (iterated) against each item in results for ``after``.
+
+.. warning:: Template ``per_template`` results method not supported with ``input_before`` as a reference to source data
 
 **Example-1**
 
