@@ -172,7 +172,8 @@ The purpose of ``_ttp_`` is multi-fold:
                   'get_timestamp_iso': <ttp.ttp.CachedModule object at 0x0367ED70>,
                   'get_timestamp_ms': <ttp.ttp.CachedModule object at 0x0367E790>,
                   'getfilename': <ttp.ttp.CachedModule object at 0x0367EB30>,
-                  'gethostname': <ttp.ttp.CachedModule object at 0x03688F50>}}
+                  'gethostname': <ttp.ttp.CachedModule object at 0x03688F50>},
+     'vars': {}}
                   
 All above functions contained within ``.py`` files and spread across respective directories of TTP module. Description of ``_ttp_`` dictionary keys:
 
@@ -192,6 +193,7 @@ All above functions contained within ``.py`` files and spread across respective 
 * ``ttp_object`` - reference to ttp parser object itself
 * ``utils`` - various utilities
 * ``variable`` - template variables getter function
+* ``vars`` - contains in run vaues of template variables - variables defined in ``<vars>`` tag
 
 It is also possible to add custom function in ``_ttp_`` dictionary using ``add_function`` method.
 

@@ -19,6 +19,7 @@ _ttp_ = {
     "python_major_version": version_info.major,
     "global_vars": {},
     "template_obj": {},
+    "vars": {}
 }
 
 
@@ -2406,6 +2407,7 @@ class _results_class:
     def make_results(self, vars, raw_results, main_results):
         self.results = main_results
         self.vars = vars
+        _ttp_["vars"] = self.vars
         saveFuncs = {
             "start": self.start,  # start - to start new group;
             "add": self.add,  # add - to add data to group, default action;

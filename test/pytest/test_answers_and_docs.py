@@ -555,3 +555,29 @@ def map_to_keys(data):
                                          'OUT Packet Count': 738}}}}
                                          
 # test_github_issue_21_answer()
+
+def test_github_issue_22():
+    data = """
+interface Loopback0
+ description Fabric Node Router ID
+ ip address 192.2.101.70 255.255.255.255
+ ip pim sparse-mode
+ ip router isis 
+ clns mtu 1400
+end
+interface Loopback0
+ description Fabric Node Router ID
+ ip address 192.2.101.71 255.255.255.255
+ ip pim sparse-mode
+ ip router isis 
+ clns mtu 1400
+end
+    """
+    template = """{{ ignore(r"\\s+") }}ip address {{ ip_address }} 255.255.255.255"""
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=100) 
+    assert res == [[[{'ip_address': '192.2.101.70'}, {'ip_address': '192.2.101.71'}]]]
+    
+# test_github_issue_22()

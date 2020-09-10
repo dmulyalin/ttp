@@ -21,7 +21,7 @@ def cerberus_validate(data, schema, log_errors=False, allow_unknown=True, add_er
     if not HAS_LIBS:
         return data, None
     # get validation schema        
-    schema_data = _ttp_["parser_object"].vars.get(schema, None)
+    schema_data = _ttp_["vars"].get(schema, None)
     if not schema_data:
         log.error("ttp.validate, schema '{}' not found".format(schema))
         return data, None          
