@@ -376,7 +376,9 @@ joinmatches
 
 Join results from different matches into a single result string using provider character or string. 
 
-**Example**
+In case if data items passed to ``joinmatches`` are lists, ``joinmatches`` will combine them in one single list, if any of the items is a string and at list one of the items is a list, all items will be combined in a list as well. For instance, to convert match results to a list `to_list`_ function can be used.
+
+**Example-1**
 
 Data::
 
@@ -396,6 +398,28 @@ Result::
         "trunkVlans": "138,166,173,400,401,410"
     }
     
+**Example-2**
+
+Using ``to_list`` function to join results in a list.
+
+Data::
+
+    interface GigabitEthernet3/3
+     switchport trunk allowed vlan add 138,166,173 
+     switchport trunk allowed vlan add 400,401,410
+ 
+Template::
+
+    interface {{ interface }}
+     switchport trunk allowed vlan add {{ trunk_vlans | to_list | joinmatches }}
+
+Result::
+
+    {
+        "interface": "GigabitEthernet3/3"  
+        "trunkVlans": ["138,166,173", "400,401,410"]
+    }
+
 resub
 ------------------------------------------------------------------------------
 ``{{ name | resub(old, new, count) }}``

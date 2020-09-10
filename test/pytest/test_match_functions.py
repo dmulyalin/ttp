@@ -62,3 +62,24 @@ interface {{ interface | sformat(var_1) }}
                      {'description': 'RID', 'interface': 'BSQ Loopback0'},
                      {'description': 'Management', 'interface': 'BSQ Port-Channel12'},
                      {'description': 'Management', 'interface': 'BSQ Vlan777'}]]]
+                     
+def test_to_list_with_joinmatches():
+    template = """
+<input load="text">
+interface GigabitEthernet3/3
+ switchport trunk allowed vlan add 138,166,173 
+ switchport trunk allowed vlan add 400,401,410
+</input>
+ 
+<group>
+interface {{ interface }}
+ switchport trunk allowed vlan add {{ trunk_vlans | to_list | joinmatches }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[[{'interface': 'GigabitEthernet3/3', 'trunk_vlans': ['138,166,173', '400,401,410']}]]]
+    
+# test_to_list_with_joinmatches()
