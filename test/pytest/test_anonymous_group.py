@@ -92,3 +92,57 @@ interface {{ interface }}
                     {'ip': '10.123.89.55', 'mask': '255.255.255.0'}]]
                  
 # test_anonymous_group_with_child_group_empty_absolute_path()
+
+def test_anonymous_group_with_per_template_mode():
+    template = """
+<template results="per_template">
+<group void="">
+hostname {{ hostname | record(hostname_abc) }}
+</group>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+ {{ hostname | set(hostname_abc) }}
+</group>
+</template>
+    """
+    datum_1 = """
+hostname r2
+!
+interface GigabitEthernet1
+ vrf forwarding MGMT
+ ip address 10.123.89.55 255.255.255.0
+    """
+    datum_2 = """
+hostname r1
+!
+interface GigabitEthernet1
+ description some info
+ vrf forwarding MGMT
+ ip address 10.123.89.56 255.255.255.0
+interface GigabitEthernet2
+ ip address 10.123.89.55 255.255.255.0
+    """
+    parser_a = ttp(template=template)
+    parser_a.add_input(datum_1)
+    parser_a.add_input(datum_2)
+    parser_a.parse()
+    res = parser_a.result()
+    # pprint.pprint(res)
+    assert res == [[{'hostname': 'r2',
+                     'interface': 'GigabitEthernet1',
+                     'ip': '10.123.89.55',
+                     'mask': '255.255.255.0'},
+                    {'description': 'some info',
+                     'hostname': 'r1',
+                     'interface': 'GigabitEthernet1',
+                     'ip': '10.123.89.56',
+                     'mask': '255.255.255.0'},
+                    {'hostname': 'r1',
+                     'interface': 'GigabitEthernet2',
+                     'ip': '10.123.89.55',
+                     'mask': '255.255.255.0'}]]
+    
+# test_anonymous_group_with_per_template_mode()

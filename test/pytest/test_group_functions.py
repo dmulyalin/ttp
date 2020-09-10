@@ -4,7 +4,7 @@ import pprint
 from ttp import ttp
 
 def test_group_validate_function():
-    template = """
+    template_123 = """
 <input load="text">
 device-1#
 interface Lo0
@@ -25,16 +25,16 @@ interface Lo11
 intf_description_validate = {
     'description': {'required': True, 'type': 'string'}
 }
-hostname="gethostname"
+hostname_1="gethostname"
 </vars>
 
 <group validate="intf_description_validate, info='{interface} has description', result='validation_result', errors='err_details'">
 interface {{ interface }}
  description {{ description | ORPHRASE }}
- {{ hostname | set(hostname) }}
+ {{ hostname | set(hostname_1) }}
 </group>
 """
-    parser = ttp(template=template)
+    parser = ttp(template=template_123)
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
@@ -61,4 +61,4 @@ interface {{ interface }}
                       'interface': 'Lo11',
                       'validation_result': True}]]]
     
-# test_group_chain_attribute_list()
+test_group_validate_function()
