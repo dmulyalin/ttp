@@ -204,7 +204,7 @@ class ttp:
 
         **Parameters**
 
-        * ``data`` file object or OS path to text file or directory with text files with data to parse.
+        * ``data`` text data or OS path to text file or directory with text files with data to parse.
           Also can be structured data - list or dictionary - will be passed to input as is, so that 
           it can be pre-processed using input macro function(s)
         * ``input_name`` (str) name of the input to put data in, default is *Default_Input*
@@ -238,7 +238,9 @@ class ttp:
 
         **Parameters**
 
-        * ``data`` file object or OS path to text file or directory with text files with data to parse
+        * ``data`` text data or OS path to text file or directory with text files with data to parse
+          Also can be structured data - list or dictionary - will be passed to input as is, so that 
+          it can be pre-processed using input macro function(s)
         * ``input_name`` (str) name of the input to put data in, default is *Default_Input*
         * ``groups`` (list) list of group names to use to parse this input data
         * ``template_name`` (str) name of the template to set input for

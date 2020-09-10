@@ -1217,4 +1217,4 @@ interface {{ interface }}
     assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
                      {'description': 'this interface has description', 'interface': 'Lo1'}]]]
     
-test_add_input_structured_data_list()
+# test_add_input_structured_data_list()
