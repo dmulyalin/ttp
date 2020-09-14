@@ -104,6 +104,12 @@ def load_struct(text_data="", **kwargs):
 def load_text(text_data, include=None, **kwargs):
     return text_data
     
+def _get_include_data(text_data, include):
+    files = load_files(path=include, extensions=[], filters=[], read=True)
+    for datum in files:
+        text_data += "\n" + datum[1]    
+    return text_data
+    
 def load_ini(text_data, include=None, **kwargs):
     if _ttp_["python_major_version"] is 3:
         import configparser
@@ -157,9 +163,7 @@ def load_ini(text_data, include=None, **kwargs):
 def load_python(text_data, include=None, **kwargs):
     data = {}
     if include:
-        files = load_files(path=include, extensions=[], filters=[], read=True)
-        for datum in files:
-            text_data += "\n" + datum[1]
+        text_data = _get_include_data(text_data, include)
     try:
         data = _ttp_["utils"]["load_python_exec"](text_data)
         return data
@@ -173,9 +177,7 @@ def load_yaml(text_data, include=None, **kwargs):
         log.error("loaders.load_yaml: failed to import yaml module, install: 'python -m pip install pyyaml'")
     data = {}
     if include:
-        files = load_files(path=include, extensions=[], filters=[], read=True)
-        for datum in files:
-            text_data += "\n" + datum[1]
+        text_data = _get_include_data(text_data, include)
     try:
         data = safe_load(text_data)
     except:
@@ -186,9 +188,7 @@ def load_json(text_data, include=None, **kwargs):
     from json import loads
     data = {}
     if include:
-        files = load_files(path=include, extensions=[], filters=[], read=True)
-        for datum in files:
-            text_data += "\n" + datum[1]
+        text_data = _get_include_data(text_data, include)
     try:
         data = loads(text_data)
         return data
@@ -203,6 +203,8 @@ def load_csv(text_data, include=None, **kwargs):
     key = kwargs.get('key', None)
     data = {}
     headers = []
+    if include:
+        text_data = _get_include_data(text_data, include)
     for row in reader(iter(text_data.splitlines())):
         if not row:
             continue

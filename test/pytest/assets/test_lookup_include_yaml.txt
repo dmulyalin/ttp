@@ -1,0 +1,8 @@
+'65100':
+  as_description: Private ASN
+  as_name: Subs
+  prefix_num: '734'
+'65101':
+  as_description: Cust-1 ASN
+  as_name: Cust1
+  prefix_num: '156'

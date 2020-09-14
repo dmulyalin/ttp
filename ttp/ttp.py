@@ -3030,7 +3030,7 @@ def cli_tool():
 --one                  Parse using single process
 --multi                Parse using multiple processes"""
     argparser = argparse.ArgumentParser(
-        description="Template Text Parser, version 0.3.0.",
+        description="Template Text Parser, version {}".format(__version__),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     run_options = argparser.add_argument_group(description=description_text)
