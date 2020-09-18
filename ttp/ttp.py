@@ -931,22 +931,22 @@ class _template_class:
             input_name (str): name of the input
             groups (list): list of groups to use for that input
         """
-        input = _input_class(
+        input_obj = _input_class(
             element=element,
             input_name=input_name,
             template_obj=self,
             groups=groups,
             data=data,
         )
-        if input.name in self.inputs:
-            self.inputs[input.name].load_data(data=input.data)
-            self.inputs[input.name].groups_indexes += input.groups_indexes
-            self.inputs[input.name].groups_indexes = list(
-                set(self.inputs[input.name].groups_indexes)
+        if input_obj.name in self.inputs:
+            self.inputs[input_obj.name].load_data(data=input_obj.data)
+            self.inputs[input_obj.name].groups_indexes += input_obj.groups_indexes
+            self.inputs[input_obj.name].groups_indexes = list(
+                set(self.inputs[input_obj.name].groups_indexes)
             )
-            del input
+            del input_obj
         else:
-            self.inputs[input.name] = input
+            self.inputs[input_obj.name] = input_obj
 
     def update_inputs_with_groups(self):
         """
@@ -2045,7 +2045,8 @@ class _variable_class:
         if self.var_name != "ignore":
             self.regex = self.regex.replace(
                 esc_var,
-                r"(?P<{}>(?:{}))".format(self.var_name, r")|(?:".join(self.var_res), 1),
+                r"(?P<{}>(?:{}))".format(self.var_name, r")|(?:".join(self.var_res)),
+                1
             )
         # after regexes formed we can delete unnecessary variables:
         if log.isEnabledFor(logging.DEBUG) == False:
@@ -2508,18 +2509,18 @@ class _results_class:
                 result_data=self.record["result"], result_path=self.record["PATH"]
             )
 
-    def save_vars(self, vars):
+    def save_vars(self, variables):
         # need to sort keys first to introduce deterministic behavior
-        sorted_pathes = sorted(list(vars["_vars_to_results_"].keys()))
+        sorted_pathes = sorted(list(variables["_vars_to_results_"].keys()))
         for path_item in sorted_pathes:
             # skip empty path items:
             if not path_item:
                 continue
-            vars_names = vars["_vars_to_results_"][path_item]
+            vars_names = variables["_vars_to_results_"][path_item]
             result = {}
             for var_name in vars_names:
-                if var_name in vars:
-                    result[var_name] = vars[var_name]
+                if var_name in variables:
+                    result[var_name] = variables[var_name]
             self.record = {
                 "result": result,
                 "PATH": [i.strip() for i in path_item.split(".")],
@@ -2959,7 +2960,7 @@ class _outputter_class:
             else:
                 log.warning(
                     "output.run: unsupported returner '{}', use one of: {}".format(
-                        O, list(_ttp_["returners"].keys())
+                        returner, list(_ttp_["returners"].keys())
                     )
                 )
         # check if need to return processed data:
