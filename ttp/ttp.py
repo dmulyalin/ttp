@@ -46,7 +46,7 @@ class CachedModule:
     def load(self):
         # import cached function and insert it into _ttp_ dictionary
         abs_import = "ttp."
-        if __name__ == "__main__" or __name__ == "__mp_main__":
+        if __name__ in ('__main__', '__mp_main__'):
             abs_import = ""
         path = "{abs}{imp}".format(abs=abs_import, imp=self.import_path)
         module = __import__(path, fromlist=[None])
@@ -2256,10 +2256,8 @@ class _parser_class:
             if not group_start_found:
                 # if empty group - tag only, no start REs - run children to fill in results
                 if not group.start_re:
-                    [
+                    for child_group in group.children:
                         run_re(child_group, results, start, end)
-                        for child_group in group.children
-                    ]
                 # handle group with no matches but with start re default values
                 elif group.has_start_re_default:
                     key = -1
@@ -2271,10 +2269,8 @@ class _parser_class:
                         else:
                             key -= 1
                     # run recursion to fill in results for children
-                    [
+                    for child_group in group.children:
                         run_re(child_group, results, start, end)
-                        for child_group in group.children
-                    ]
                 return results
 
             # run end REs:
@@ -2298,21 +2294,21 @@ class _parser_class:
                     # if no matches left
                     if mathches == []:
                         empty_matches_keys.append(span_start)
-                [results.pop(key) for key in empty_matches_keys]
+                for key in empty_matches_keys:
+                    results.pop(key)
 
             # run normal REs:
-            [
+            for R in group.re:
                 check_matches(
                     R,
                     list(R["REGEX"].finditer(self.DATATEXT[start:end])),
                     results,
                     start,
                 )
-                for R in group.re
-            ]
 
             # run recursion:
-            [run_re(child_group, results, start, end) for child_group in group.children]
+            for child_group in group.children:
+                run_re(child_group, results, start, end)
 
             return results
 
@@ -2333,13 +2329,11 @@ class _parser_class:
         self.update_groups_runs(self.vars)
 
         # sort results for groups with global outputs
-        [
-            raw_results.append(
-                [group_result[key] for key in sorted(list(group_result.keys()))]
-            )
-            for group_result in unsort_rslts
-            if group_result
-        ]
+        for group_result in unsort_rslts:
+            if group_result:
+                raw_results.append(
+                    [group_result[key] for key in sorted(list(group_result.keys()))]
+                )
 
         # import pprint
         # pprint.pprint(raw_results)
@@ -2350,20 +2344,19 @@ class _parser_class:
         self.main_results = RSLTSOBJ.results
 
         # sort results for groups with group specific outputs
-        [
-            grps_raw_results.append(
-                # tuple item that contains group.outputs:
-                (
-                    [
-                        group_result[0][key]
-                        for key in sorted(list(group_result[0].keys()))
-                    ],
-                    group_result[1],
+        for group_result in grps_unsort_rslts:
+            if group_result[0]:
+                grps_raw_results.append(
+                    # tuple item that contains group.outputs:
+                    (
+                        [
+                            group_result[0][key]
+                            for key in sorted(list(group_result[0].keys()))
+                        ],
+                        group_result[1],
+                    )
                 )
-            )
-            for group_result in grps_unsort_rslts
-            if group_result[0]
-        ]
+                
         # form results for groups specific results with running groups through outputs:
         for grp_raw_result in grps_raw_results:
             RSLTSOBJ = _results_class()
@@ -2405,10 +2398,10 @@ class _results_class:
         self.dyn_path_cache = {}
         _ttp_["results_object"] = self
 
-    def make_results(self, vars, raw_results, main_results):
+    def make_results(self, variables, raw_results, main_results):
         self.results = main_results
-        self.vars = vars
-        _ttp_["vars"] = self.vars
+        self.variables = variables
+        _ttp_["vars"] = self.variables
         saveFuncs = {
             "start": self.start,  # start - to start new group;
             "add": self.add,  # add - to add data to group, default action;
@@ -2418,7 +2411,7 @@ class _results_class:
         }
         # save _vars_to_results_ to results if any:
         if raw_results:
-            self.save_vars(vars)
+            self.save_vars(variables)
 
         # iterate over group results and form results structure:
         for group_results in raw_results:
@@ -2771,8 +2764,8 @@ class _results_class:
                     path_item = re.sub(pattern, repl, path_item)
                 elif m in self.dyn_path_cache:
                     path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
-                elif m in self.vars:
-                    path_item = re.sub(pattern, str(self.vars[m]), path_item)
+                elif m in self.variables:
+                    path_item = re.sub(pattern, str(self.variables[m]), path_item)
                 else:
                     return False
             path[index] = path_item
@@ -3164,13 +3157,20 @@ def cli_tool():
 
     def timing(message):
         if TIMING:
-            print(round(time.time() - t0, 5), message)
+            print("{:<9} {:<25}; {} MByte of RAM in use".format(
+                    round(time.time() - t0, 5), 
+                    message, 
+                    process.memory_info().rss/1000000
+                )
+            )
 
     # setup logging
     logging_config(LOG_LEVEL, LOG_FILE)
 
     if TIMING:
         t0 = time.time()
+        import psutil      
+        process = psutil.Process(os.getpid())        
     else:
         t0 = 0
 
