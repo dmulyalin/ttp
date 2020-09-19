@@ -206,7 +206,7 @@ class ttp:
         **Parameters**
 
         * ``data`` text data or OS path to text file or directory with text files with data to parse.
-          Also can be structured data - list or dictionary - will be passed to input as is, so that 
+          Also can be structured data - list or dictionary - will be passed to input as is, so that
           it can be pre-processed using input macro function(s)
         * ``input_name`` (str) name of the input to put data in, default is *Default_Input*
         * ``groups`` (list) list of group names to use to parse this input data
@@ -240,7 +240,7 @@ class ttp:
         **Parameters**
 
         * ``data`` text data or OS path to text file or directory with text files with data to parse
-          Also can be structured data - list or dictionary - will be passed to input as is, so that 
+          Also can be structured data - list or dictionary - will be passed to input as is, so that
           it can be pre-processed using input macro function(s)
         * ``input_name`` (str) name of the input to put data in, default is *Default_Input*
         * ``groups`` (list) list of group names to use to parse this input data
@@ -284,16 +284,16 @@ class ttp:
                     elif i[0] == "text_data":
                         self.__data_size += getsizeof(i[1])
 
-    def add_template(self, template, template_name="_root_template_", filter=[]):
+    def add_template(self, template, template_name="_root_template_", filters=[]):
         """Method to load TTP templates into the parser.
 
         **Parameters**
 
         * ``template`` file object or OS path to text file with template
         * ``template_name`` (str) name of the template
-        * ``filter`` (list) list of templates' names to load,
+        * ``filters`` (list) list of templates' names to load,
 
-        ``filter`` attribute allow to filter the list of template names that
+        ``filters`` attribute allow to filter the list of template names that
         should be loaded. Checks done against child templates as well. For
         templates specified in filter list, groups/macro/inputs/etc. will not
         be loaded and no results produced.
@@ -307,7 +307,7 @@ class ttp:
                 base_path=self.base_path,
                 ttp_vars=self.vars,
                 name=template_name,
-                filter=filter,
+                filters=filters,
                 ttp_macro=_ttp_.get("_custom_functions_", {}).get("macro", {})
             )
             # if not template_obj.templates - no 'template' tags in template
@@ -813,7 +813,7 @@ class _template_class:
         base_path="",
         ttp_vars={},
         name="_root_template_",
-        filter=[],
+        filters=[],
         ttp_macro={}
     ):
         self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here
@@ -838,7 +838,7 @@ class _template_class:
         self.macro_text = (
             []
         )  # list to contain macro functions text to transfer into other processes
-        self.filter = filter  # list that contains names of child templates to extract
+        self.filters = filters  # list that contains names of child templates to extract
         self.__doc__ = ""  # string to contain template doc/description
 
         # load template from string:
@@ -1068,8 +1068,8 @@ class _template_class:
 
         def parse_template(element, template_index):
             # skip child templates that are not in requested children list
-            if self.filter:
-                if not element.attrib.get("name", None) in self.filter:
+            if self.filters:
+                if not element.attrib.get("name", None) in self.filters:
                     return
             self.templates.append(
                 _template_class(
@@ -1173,8 +1173,8 @@ class _template_class:
 
             # filter templates based on names filter provided - do not load template groups
             # if template name not listed in filter
-            if self.filter:
-                if not self.name in self.filter:
+            if self.filters:
+                if not self.name in self.filters:
                     return
 
             # check if template has children:
@@ -1376,7 +1376,9 @@ class _input_class:
             self.data = [("text_data", datum) for datum in datums]
             return
         elif data:
-            [self.data.append(d_item) for d_item in data if not d_item in self.data]
+            for d_item in data:
+                if not d_item in self.data:
+                    self.data.append(d_item)
             return
         # load data:
         for url in self.attributes["urls"]:
@@ -1683,7 +1685,8 @@ class _group_class:
         """
         self.runs = self.defaults.copy()
         # run reursion for children:
-        [child.set_runs() for child in self.children]
+        for child in self.children:
+            child.set_runs()
 
     def update_runs(self, data):
         # func to update runs of the groups using data dictionary
@@ -1692,7 +1695,8 @@ class _group_class:
                 if dv == k:
                     self.runs[dk] = v
         # run recursion for children:
-        [child.update_runs(data) for child in self.children]
+        for child in self.children:
+            child.update_runs(data)
 
     def debug(self):
         from pprint import pformat
@@ -1710,7 +1714,8 @@ class _group_class:
         for re_dict in self.end_re:
             for var_name, var_obj in re_dict["VARIABLES"].items():
                 var_obj.debug()
-        [group.debug() for group in self.children]
+        for group in self.children:
+            group.debug()
 
 
 """
@@ -1744,6 +1749,7 @@ class _variable_class:
         self.skip_regex_dict = False  # will be set to true for 'set'
         self.var_res = []  # list of variable regexes
         self.sub_variables = {} # dictionary to store child/sub variables
+        self.regex = "" # Regular expression sstring
 
         # form attributes - list of dictionaries:
         self.attributes = _ttp_["utils"]["get_attributes"](variable)
@@ -2034,7 +2040,9 @@ class _variable_class:
         # for the rest of functions:
         regexFuncs = {"set": regex_deleteVar}
         # go over all keywords to form regex:
-        [regexFuncs[i["name"]](i) for i in self.functions if i["name"] in regexFuncs]
+        for i in self.functions:
+            if i["name"] in regexFuncs:
+                regexFuncs[i["name"]](i)
 
         # assign default re if variable without regex formatters:
         if self.var_res == []:
@@ -2080,6 +2088,10 @@ class _parser_class:
         self.lookups = lookups
         self.original_vars = vars
         self.groups = groups
+        self.main_results = {}
+        self.DATATEXT = ""
+        self.DATANAME = ""
+
 
     def set_data(self, D, main_results={}, input_functions=[]):
         """Method to load data:
@@ -2102,7 +2114,8 @@ class _parser_class:
         self.vars = self.original_vars.copy()
         self.run_var_functions()
         # create groups' runs dicts to hold copy of defaults to updated them with var values
-        [G.set_runs() for G in self.groups]
+        for G in self.groups:
+            G.set_runs()
         # re-initiate _ttp_ dictionary parser object
         _ttp_["parser_object"] = self
         # run input functions
@@ -2122,7 +2135,8 @@ class _parser_class:
         """Method to update groups runs dictionaries with new values deirved
         during parsing, can be called from 'record' variable functions
         """
-        [G.update_runs(D) for G in self.groups]
+        for G in self.groups:
+            G.update_runs(D)
 
     def run_var_functions(self):
         """Method to run variables functions before parsing data
@@ -2289,8 +2303,9 @@ class _parser_class:
                 # can happen if stat re is _line_
                 empty_matches_keys = []
                 for span_start, mathches in results.items():
-                    [mathches.remove(item) for item in mathches
-                    if item[0]["GROUP"] is group and span_start > end]
+                    for item in mathches:
+                        if item[0]["GROUP"] is group and span_start > end:
+                            mathches.remove(item) 
                     # if no matches left
                     if mathches == []:
                         empty_matches_keys.append(span_start)
@@ -2356,7 +2371,7 @@ class _parser_class:
                         group_result[1],
                     )
                 )
-                
+
         # form results for groups specific results with running groups through outputs:
         for grp_raw_result in grps_raw_results:
             RSLTSOBJ = _results_class()
@@ -2422,11 +2437,11 @@ class _results_class:
             for result in group_results:
                 # if result been matched by one regex only
                 if len(result) == 1:
-                    re = result[0][0]
+                    re_ = result[0][0]
                     result_data = result[0][1]
                 # if same results captured by multiple regexes, need to do further decision checks
                 else:
-                    re = None
+                    re_ = None
                     start_re, normal_re, line_re = [], [], []
                     # sort matches across start, normal and line REs
                     for index, item in enumerate(result):
@@ -2439,28 +2454,28 @@ class _results_class:
                     # start RE always more preferred
                     if start_re:
                         for index in start_re:
-                            re = result[index][0]
+                            re_ = result[index][0]
                             result_data = result[index][1]
                             # prefer result with same path as current record
                             # skip results that did not pass validation check
-                            if re["GROUP"].path == self.record["PATH"] and result_data != False:
+                            if re_["GROUP"].path == self.record["PATH"] and result_data != False:
                                 break
                     # normal REs preferred next
                     elif normal_re:
                         for index in normal_re:
-                            re = result[index][0]
+                            re_ = result[index][0]
                             result_data = result[index][1]
-                            if re["GROUP"].path == self.record["PATH"]:
+                            if re_["GROUP"].path == self.record["PATH"]:
                                 break
                     # line REs have least preference
                     elif line_re:
                         for index in line_re:
-                            re = result[index][0]
+                            re_ = result[index][0]
                             result_data = result[index][1]
-                            if re["GROUP"].path == self.record["PATH"]:
+                            if re_["GROUP"].path == self.record["PATH"]:
                                 break
 
-                group = re["GROUP"]
+                group = re_["GROUP"]
 
                 # check if result is false, lock the group if so:
                 if result_data == False:
@@ -2470,12 +2485,12 @@ class _results_class:
                 # evaluate results to check if need to unlock locked group:
                 elif self.GRPLOCK["LOCK"] is True:
                     locked_group_path = self.GRPLOCK["GROUP"]
-                    if re["ACTION"].startswith("start"):
+                    if re_["ACTION"].startswith("start"):
                         # if same level _start_ unlock this group
                         if group.path == locked_group_path:
                             self.GRPLOCK["LOCK"] = False
                             self.GRPLOCK["GROUP"] = ()
-                        # skip children even if they are _start_ re
+                        # skip children even if they are _start_ re_
                         elif ".".join(group.path).startswith(
                             ".".join(locked_group_path)
                         ):
@@ -2489,12 +2504,12 @@ class _results_class:
                         continue
 
                 # Save results:
-                saveFuncs[re["ACTION"]](
+                saveFuncs[re_["ACTION"]](
                     result=result_data,
                     PATH=list(group.path),
                     DEFAULTS=group.runs,
                     FUNCTIONS=group.funcs,
-                    REDICT=re,
+                    REDICT=re_,
                 )
         # check the last group:
         if self.processgrp() is not False:
@@ -3158,8 +3173,8 @@ def cli_tool():
     def timing(message):
         if TIMING:
             print("{:<9} {:<25}; {} MByte of RAM in use".format(
-                    round(time.time() - t0, 5), 
-                    message, 
+                    round(time.time() - t0, 5),
+                    message,
                     process.memory_info().rss/1000000
                 )
             )
@@ -3169,8 +3184,8 @@ def cli_tool():
 
     if TIMING:
         t0 = time.time()
-        import psutil      
-        process = psutil.Process(os.getpid())        
+        import psutil
+        process = psutil.Process(os.getpid())
     else:
         t0 = 0
 
