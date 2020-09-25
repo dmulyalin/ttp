@@ -1756,15 +1756,11 @@ class _variable_class:
         self.var_dict = self.attributes.pop(0)
         self.var_name = self.var_dict["name"]        
         self.var_name_original = str(self.var_name) # store original variable name
-        
-        # add support for var name expansion to dictionary using dot character,
-        # need to replace dot with __dot_char__, var name must be a valid
-        # python identifier - re.groupdict restriction - hence dot prohibited
-        self.var_name = self.var_name.replace(".", "__dot_char__")
-        
-        # replace hyphen in var and store to provide support for hyphen in 
-        # match var names. Why? Because YANG models use "-" in leafs
-        self.var_name = self.var_name.replace("-", "_")
+
+        # sanitize variable name to make it valid python identifier
+        # by replacing all non alpha-characters with underscore
+        # and prepending underscore if var name starts with digit
+        self.var_name = re.sub(r'\W+|^(?=\d)','_', self.var_name)
 
         # list of variables names that should not have defaults:
         self.skip_defaults = ["_end_", "_line_", "ignore", "_start_"]

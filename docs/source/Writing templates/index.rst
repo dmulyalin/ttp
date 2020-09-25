@@ -46,7 +46,7 @@ And get these results::
         ]
     ]
 	
-.. warning:: TTP match variables names used as regular expressions group names, hence they must be valid Python identifiers, except for ``.`` and ``-`` characters, dot replaced with ``__dot_char__`` to use with group ``expand`` function and ``-`` replaced with ``_`` but reconstructed to original value when forming results.
+.. note:: TTP match variables names used as regular expressions group names, hence they should be valid Python identifiers. However, TTP sanitizes match variable name prior to using it in regex by replacing all non-alpha characters with underscore and prepending underscore if variable name starts with digit. Original variable name used as is to store results.
 
 Above process is very similar to writing `Jinja2 <https://palletsprojects.com/p/jinja/>`_ templates but in reverse direction - we have text and we need to transform it into structured data, as opposed to having structured data, that needs to be rendered with Jinja2 template to produce text.
 
