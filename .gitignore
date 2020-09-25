@@ -10,3 +10,4 @@ how to upload to pypi.txt
 docs/build/*
 docs/make.bat
 docs/Makefile
+test/pytest/Output/excel_out_test_excel_formatter.xlsx

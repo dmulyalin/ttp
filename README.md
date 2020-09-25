@@ -24,7 +24,9 @@ In essence TTP can help to:
   - Transform results in desired format to ease consumption by humans or machines
   - Return results to various destinations for storage or further processing
 
-Reference [documentation](https://ttp.readthedocs.io) for more information.
+Reference [documentation](https://ttp.readthedocs.io) for more information. 
+
+Try it - [online TTP tester](http://netpalm.tech:8080/)
 
 ## Example - as simple as it can be
 

@@ -581,3 +581,58 @@ end
     assert res == [[[{'ip_address': '192.2.101.70'}, {'ip_address': '192.2.101.71'}]]]
     
 # test_github_issue_22()
+
+def test_github_issue_24():
+    data = """
+19: IP4 1.1.1.1,   00:03:b2:78:04:13, vname portal, NO SERVICES UP
+    Virtual Services:
+    http: rport http, group 11, health http (HTTP), pbind clientip
+        Real Servers:
+        22: 10.10.10.10, web1, group ena, health  (runtime HTTP), 0 ms, FAILED
+			Reason: N/A
+        23: 10.11.11.11, web2, group ena, health  (runtime HTTP), 0 ms, FAILED
+			Reason: N/A
+    https: rport https, group 12, health tcp (TCP), pbind clientip
+        Real Servers:
+        22: 10.10.10.10, web1, group ena, health  (runtime TCP), 0 ms, FAILED
+			Reason: N/A
+        23: 10.11.11.11, web2, group ena, health  (runtime TCP), 0 ms, FAILED
+			Reason: N/A
+    """
+    template = """
+<template name="VIP_cfg" results="per_template">
+<group name="{{ vs_instance }}" default="">
+{{ vs_instance }}: IP4 {{ vs_ip }},{{ ignore(".+") }}
+<group name="services*" default="">
+    {{ vs_service }}: rport {{ rport }},{{ ignore(".+") }}
+<group name="pool*" default="">
+        {{ node_id }}: {{ node_ip }},{{ ignore(".+") }}
+			Reason: {{ reason }}
+</group>
+</group>
+</group>
+</template>    
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result(structure="dictionary")
+    # pprint.pprint(res, width=100) 
+    assert res == {'VIP_cfg': {'19': {'services': [{'pool': [{'node_id': '22',
+                                                              'node_ip': '10.10.10.10',
+                                                              'reason': 'N/A'},
+                                                             {'node_id': '23',
+                                                              'node_ip': '10.11.11.11',
+                                                              'reason': 'N/A'}],
+                                                    'rport': 'http',
+                                                    'vs_service': 'http'},
+                                                   {'pool': [{'node_id': '22',
+                                                              'node_ip': '10.10.10.10',
+                                                              'reason': 'N/A'},
+                                                             {'node_id': '23',
+                                                              'node_ip': '10.11.11.11',
+                                                              'reason': 'N/A'}],
+                                                    'rport': 'https',
+                                                    'vs_service': 'https'}],
+                                      'vs_ip': '1.1.1.1'}}}
+    
+# test_github_issue_24()
