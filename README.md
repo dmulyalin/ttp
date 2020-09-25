@@ -26,7 +26,7 @@ In essence TTP can help to:
 
 Reference [documentation](https://ttp.readthedocs.io) for more information. 
 
-Try it - [online TTP tester](http://netpalm.tech:8080/)
+Playground - [online TTP tester](http://netpalm.tech:8080/)
 
 ## Example - as simple as it can be
 

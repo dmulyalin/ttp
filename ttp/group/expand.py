@@ -10,7 +10,7 @@ def expand(data):
     # expand match variable names to dictionary
     for key, value in data.items():
         ref = ret
-        keys = key.split("__dot_char__")
+        keys = key.split(".")
         while True:
             new_key = keys.pop(0)
             # handle last item in keys

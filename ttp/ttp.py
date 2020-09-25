@@ -1754,12 +1754,17 @@ class _variable_class:
         # form attributes - list of dictionaries:
         self.attributes = _ttp_["utils"]["get_attributes"](variable)
         self.var_dict = self.attributes.pop(0)
-        self.var_name = self.var_dict["name"]
-
+        self.var_name = self.var_dict["name"]        
+        self.var_name_original = str(self.var_name) # store original variable name
+        
         # add support for var name expansion to dictionary using dot character,
-        # need to replace dot with __dot_char__. Var name must be a valid
+        # need to replace dot with __dot_char__, var name must be a valid
         # python identifier - re.groupdict restriction - hence dot prohibited
         self.var_name = self.var_name.replace(".", "__dot_char__")
+        
+        # replace hyphen in var and store to provide support for hyphen in 
+        # match var names. Why? Because YANG models use "-" in leafs
+        self.var_name = self.var_name.replace("-", "_")
 
         # list of variables names that should not have defaults:
         self.skip_defaults = ["_end_", "_line_", "ignore", "_start_"]
@@ -2232,8 +2237,12 @@ class _parser_class:
                                 flags.update(flag)
                     if result is False:
                         break
-
-                    result.update({var_name: data})
+                    
+                    result.update({
+                            regex["VARIABLES"][var_name].var_name_original: data
+                        }
+                    )
+                        
                     # run flags
                     if "new_field" in flags:
                         result.update(flags["new_field"])
