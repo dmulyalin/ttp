@@ -636,3 +636,74 @@ def test_github_issue_24():
                                       'vs_ip': '1.1.1.1'}}}
     
 # test_github_issue_24()
+
+def test_reddit_answer_1():
+    """
+    https://www.reddit.com/r/networking/comments/j106ot/export_custom_lists_from_the_config_aruba_switch/
+    
+    Hit a bug while was doing this template - join action overridden by ignore indicator add action
+    """
+    data = """
+SWITCH# show vlan port 2/11 detail
+
+Status and Counters - VLAN Information - for ports 2/11
+
+Port name:
+
+VLAN ID Name | Status Voice Jumbo Mode
+
+------- -------------------- + ---------- ----- ----- --------
+
+60 ABC | Port-based No No Tagged
+
+70 DEF | Port-based No No Tagged
+
+101 GHIJ | Port-based No No Untagged
+
+105 KLMNO | Port-based No No Tagged
+
+116 PQRS | Port-based No No Tagged
+
+117 TVU | Port-based No No Tagged
+
+SWITCH# show vlan port 2/12 detail
+
+Status and Counters - VLAN Information - for ports 2/12
+
+Port name:
+
+VLAN ID Name | Status Voice Jumbo Mode
+
+------- -------------------- + ---------- ----- ----- --------
+
+61 ABC | Port-based No No Tagged
+
+71 DEF | Port-based No No Tagged
+
+103 GHI | Port-based No No Untagged
+    """
+    template = """
+<vars>
+hostname="gethostname"
+</vars>
+
+<group name="vlans*">
+Status and Counters - VLAN Information - for ports {{ Port_Number }}
+{{ Tagged_VLAN | joinmatches(" ") }} {{ ignore }} | {{ ignore }} {{ ignore }} {{ ignore }} Tagged
+{{ Untagged_VLAN }}                  {{ ignore }} | {{ ignore }} {{ ignore }} {{ ignore }} Untagged
+{{ Hostname | set(hostname) }}
+</group>   
+
+<output>
+format = "csv"
+path = "vlans"
+headers = "Hostname, Port_Number, Untagged_VLAN, Tagged_VLAN"
+</output>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    # print(res)
+    assert res == ['"Hostname","Port_Number","Untagged_VLAN","Tagged_VLAN"\n"SWITCH","2/11","101","60 70 105 116 117"\n"SWITCH","2/12","103","61 71"']
+    
+# test_reddit_answer_1()

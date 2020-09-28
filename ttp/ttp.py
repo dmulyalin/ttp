@@ -1592,7 +1592,7 @@ class _group_class:
             skip_regex = False
             for variable in i["variables"]:
                 variableObj = _variable_class(variable, i["line"], group=self)
-
+            
                 # check if need to skip appending regex dict to regexes list
                 # have to skip it for unconditional 'set' function
                 if variableObj.skip_regex_dict == True:
@@ -1614,13 +1614,14 @@ class _group_class:
                 if is_line == False:
                     is_line = variableObj.IS_LINE
 
-                # modify save action only if it is not start or startempty already:
-                if "start" not in action:
+                # modify save action only if it is not start or startempty already
+                # and if it is not an ignore to not override other actions:
+                if not "start" in action and not variableObj.var_name in ["ignore"]:
                     action = variableObj.SAVEACTION
-
+                    
             if skip_regex is True:
                 continue
-
+                
             regexes.append(
                 {
                     "REGEX": re.compile(regex),  # re element
