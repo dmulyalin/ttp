@@ -114,6 +114,7 @@ This returner send result to remote Syslog servers over UDP using `syslog handle
 * ``facility`` syslog facility number, default 77
 * ``path`` path to parsing results emit to syslog
 * ``iterate`` if set to True and parsing result is a list, iterates and send each item individually, default is *True*
+* ``interval`` milliseconds to wait between sending messages to syslog server, default 1 ms
 
 Sample Template::
 

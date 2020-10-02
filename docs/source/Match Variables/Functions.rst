@@ -378,7 +378,7 @@ Join results from different matches into a single result string using provider c
 
 In case if data items passed to ``joinmatches`` are lists, ``joinmatches`` will combine them in one single list, if any of the items is a string and at list one of the items is a list, all items will be combined in a list as well. For instance, to convert match results to a list `to_list`_ function can be used.
 
-.. warning:: if template line contains match variable with ``joinmatches``, all variables in that line should have ``joinmatches`` defined, otherwise match results will not be joined. Moreover, ``joinmatches`` should use same join character for predictable results. Only ``ignore`` indicator supported for such line with ``joinmatches`` variables.
+.. warning:: if template line contains match variable with ``joinmatches``, all variables in that line should have ``joinmatches`` defined, otherwise match results will not be joined. Moreover, ``joinmatches`` should use same join character for predictable results. Only ``ignore`` indicator supported for line with ``joinmatches`` variables.
 
 **Example-1**
 

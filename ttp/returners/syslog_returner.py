@@ -1,6 +1,7 @@
 import logging
 import logging.handlers
 import json
+import time
 
 log = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ def syslog(data, **kwargs):
     facility = kwargs.get('facility', 77)
     path = kwargs.get('path', [])  
     iterate = kwargs.get('iterate', True)    
+    interval = kwargs.get('interval', 1) / 1000
     # normalize source_data to list:
     source_data = data if isinstance(data, list) else [data]
     # initiate isolated logger
@@ -31,8 +33,11 @@ def syslog(data, **kwargs):
             if not item: # skip empty results
                 continue
             elif isinstance(item, list) and iterate:
-                [syslog_logger.info(json.dumps(i)) for i in item]
+                for i in item:
+                    time.sleep(interval)
+                    syslog_logger.info(json.dumps(i))
             else:
+                time.sleep(interval)
                 syslog_logger.info(json.dumps(item))
         # clean up
         handler.close()

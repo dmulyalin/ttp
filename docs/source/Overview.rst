@@ -1,7 +1,7 @@
 Overview
 =========
 
-TTP is a Python module that allows fast performance parsing of semi-structured text data using templates. TTP was developed to enable programmatic access to data produced by CLI of networking devices, but, it can be used to parse any semi-structured text that contains distinctive repetition patterns.
+TTP is a Python module that allows relatively fast performance parsing of semi-structured text data using templates. TTP was developed to enable programmatic access to data produced by CLI of networking devices, but, it can be used to parse any semi-structured text that contains distinctive repetition patterns.
 
 In the simplest case ttp takes two files as an input - data that needs to be parsed and parsing template, returning results structure with extracted information.
 
@@ -26,10 +26,10 @@ TTP has a number of systems built into it:
 * input system - used to define various input data sources, help to retrieve data, prepare it and map to the groups for parsing
 * output system - allows to format parsing results and return them to certain destinations
 * macro - inline Python code that can be used to process results and extend TTP functionality, having access to _ttp_ dictionary containing all groups, match, inputs, outputs functions
-* lookup tables - helps to enreach results with additional additional information or cross reference results across different templates or groups to combine them
+* lookup tables - helps to enreach results with additional information or reference results across different templates or groups to combine them
 * template variables - variables store, accessible during template execution for caching or retrieving values
-* templates tags - to define several independent templates within single file, used to define results forming mode
+* templates tags - to define several independent templates within single file together with results forming mode
 * CLI tool - allows to execute templates directly
-* Lazy loader system - TTP only imports function it uses within the templates, that significantly increase start time
-* Multiprocessing - to spun up several Python processes to increase parsing performance
+* Lazy loader system - TTP only imports function it uses within the templates, that significantly increases start time
+* Multiprocessing system - controls the spun and data exchange of several Python processes to increase parsing performance
 * Logging system - helps to troubleshoot and debug TTP
