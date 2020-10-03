@@ -2114,6 +2114,7 @@ class _parser_class:
             self.DATANAME = D[1]
         # set vars to original vars copy and run vars functions against DATATEXT
         self.vars = self.original_vars.copy()
+        _ttp_["vars"] = self.vars
         self.run_var_functions()
         # create groups' runs dicts to hold copy of defaults to updated them with var values
         for G in self.groups:
@@ -2422,7 +2423,6 @@ class _results_class:
     def make_results(self, variables, raw_results, main_results):
         self.results = main_results
         self.variables = variables
-        _ttp_["vars"] = self.variables
         saveFuncs = {
             "start": self.start,  # start - to start new group;
             "add": self.add,  # add - to add data to group, default action;
