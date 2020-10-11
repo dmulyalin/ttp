@@ -26,6 +26,8 @@ In essence TTP can help to:
 
 Reference [documentation](https://ttp.readthedocs.io) for more information. 
 
+TTP [Networktocode Slack channel](https://networktocode.slack.com/archives/C018HMJQECB)
+
 Playground - [online TTP tester](http://netpalm.tech:8080/)
 
 ## Example - as simple as it can be
@@ -180,8 +182,4 @@ parser.parse()
 </details>
 
 # Contributions
-Feel free to submit an issue or report a bug or ask a question, feature requests are welcomed. 
-
-TTP [Networktocode Slack channel](https://networktocode.slack.com/archives/C018HMJQECB)
-
-[buy](https://paypal.me/dmulyalin) Author a coffee
+Feel free to submit an issue, report a bug or ask a question, feature requests are welcomed. Or [buy](https://paypal.me/dmulyalin) Author a coffee
