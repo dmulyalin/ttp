@@ -82,8 +82,8 @@ def gpvlookup(data, name, add_field=False, record=False, multimatch=False):
         log.error("gpvlookup: lookup data not found")
         return data, None
     # perform glob pattern values lookup
-    if isinstance(lookup_data, dict) is False:
-        log.error("gpvlookup: lookup data is not dictionary - {}".format())
+    if not isinstance(lookup_data, dict):
+        log.error("gpvlookup: lookup data is not dictionary - {}".format(type(lookup_data)))
         return data, None
     # import library
     from fnmatch import fnmatch
