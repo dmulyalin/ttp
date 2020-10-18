@@ -36,11 +36,14 @@ groups
 ------------------------------------------------------------------------
 ``groups="group1, group2, ... , groupN"``
 
-* groupN (optional) - Default value is "all", comma separated string of group names that should be used to parse given input data. Default value is "all" - input data will be parsed by each group. 
+* groupN (optional) - comma separated string of group names that should be used to parse given input data. Default value is ``all``.
 
-Each group will be used only once to parse input data, for instance if ``groups="group1, group1"``, group1 will be parse that input data only once, as TTP makes a list of unique (non repeating values, internally, that achieved by converting list to set and back to sorted list) groups for each input.
+TTP makes a list of groups for each input that should parse that input's data following these logic:
 
-.. note:: Group tag :ref:`Groups/Attributes:input` attribute can be used to reference inputs' names or OS path to files, it is considered to be more specific, for example when several groups in the  template have identical *name* attribute, referencing these groups by name in input tag *groups* attribute will result in input data to be parsed by all the groups with that name, on the other hand, if input name referenced in group tag *input* attribute, data of this input will only be parsed by this group even if several group have the same name.
+* if input's ``groups`` attribute is ``all`` - input data will be parsed by each group that does not has ``input`` attribute defined
+* if input's ``groups`` given and not ``all`` - only specified groups will parse this input's data. However, if group has ``input`` attribute defined, additional check done as per below note
+
+.. note:: Group tag :ref:`Groups/Attributes:input` attribute can reference inputs' names or OS path to files and considered to be more specific. For example, when several groups in the template have identical ``name`` attribute, referencing these groups by name in input tag ``groups`` attribute will result in input data will be parsed by all the groups with that name, on the other hand, if input name referenced in group's tag ``input`` attribute, data of this input will only be parsed by this group even if several group have the same name.
 
 load
 ------------------------------------------------------------------------
