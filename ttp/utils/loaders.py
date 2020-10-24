@@ -134,7 +134,7 @@ def load_ini(text_data, include=None, **kwargs):
         result = {k: dict(cfgparser.items(k)) for k in list(cfgparser.keys())}
     elif _ttp_["python_major_version"] is 2:
         import ConfigParser
-        import StringIO
+        import StringIO # pylint: disable=import-error
         cfgparser = ConfigParser.ConfigParser()
         # to make cfgparser keep the case, e.g. VlaN222 will not become vlan222:
         cfgparser.optionxform = str

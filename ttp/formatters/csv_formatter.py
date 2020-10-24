@@ -8,7 +8,7 @@ def csv_formatter(data, **kwargs):
     """
     result = ""
     # form table - list of lists
-    table = _ttp_["formatters"]["table"](data, **kwargs)
+    table = _ttp_["formatters"]["table"](data, **kwargs) # pylint: disable=undefined-variable
     sep = kwargs.get('sep', ',')
     quote = kwargs.get('quote', '"')
     sep = '{q}{s}{q}'.format(s=sep, q=quote)

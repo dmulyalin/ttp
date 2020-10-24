@@ -9,9 +9,9 @@ def load_python_exec(text_data, builtins=None):
     globals_dict = {"__builtins__" : builtins, "_ttp_": _ttp_, "False": False, "True": True, "None": None}
     # below can run on python2.7 as exec is a statements not function for python2.7:
     try:
-        exec compile(text_data, '<string>', 'exec') in globals_dict, data
+        exec compile(text_data, '<string>', 'exec') in globals_dict, data # pylint: disable=syntax-error
     except NameError:
-        # NameError can occure if we have "True" or "False" in text_data
+        # NameError can occur if we have "True" or "False" in text_data
         # that way eval will catch it, but exec will through and error:
         # NameError: name 'True' is not defined
         pass 

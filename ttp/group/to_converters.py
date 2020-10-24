@@ -2,11 +2,11 @@ import logging
 log = logging.getLogger(__name__)
 
 def str_to_unicode(data):
-    if _ttp_["python_major_version"] == 3:
+    if _ttp_["python_major_version"] == 3: # pylint: disable=undefined-variable
         return data, None
     for key, value in data.items():
         if isinstance(value, str):
-            data[key] = unicode(value)
+            data[key] = unicode(value) # pylint: disable=undefined-variable
     return data, None
     
 def to_int(data, *keys):

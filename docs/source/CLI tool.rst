@@ -20,7 +20,7 @@ Sample usage::
 * ``-l, --logging`` Logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 * ``-lf, --log-file`` OS path to file where to write logs instead of printing them to terminal
 * ``-T, --Timing`` Print simple timing information to screen about time spent on parsing data
-* ``s,  --structure`` Final results structure - 'list' or 'dictionary'
-* ``-v,  --vars`` Json string containing variables to add to TTP object
+* ``s,  --structure`` Final results structure - 'list', 'dictionary' or 'flat_list'
+* ``-v,  --vars`` JSON string containing variables to add to TTP object
 * ``--one`` Forcefully run parsing using single process
 * ``--multi`` Forcefully run parsing in multiple processes

@@ -16,7 +16,7 @@ setup(
     url="https://github.com/dmulyalin/ttp",
     packages=find_packages(),
     include_package_data=True,
-    data_files=[('', 'LICENSE')],
+    data_files=[('', ['LICENSE'])],
     classifiers=[
         "Topic :: Utilities",
         "Programming Language :: Python :: 2.7",

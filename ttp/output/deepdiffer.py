@@ -66,7 +66,7 @@ def deepdiff_func(data, input_before=None, input_after=None, template_before=Non
     elif mode == "iterate":
         result = [DeepDiff(data_before[0], item, **kwargs) for item in data_after]   
     else:
-        log.error("ttp.output.deepdiff; Unsupported compare mode: '{}', supported are 'bulk' or 'iterate'".format(compare_mode))
+        log.error("ttp.output.deepdiff; Unsupported compare mode: '{}', supported are 'bulk' or 'iterate'".format(mode))
         return data
         
     # return results

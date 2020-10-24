@@ -1,3 +1,7 @@
+import logging
+
+log = logging.getLogger(__name__)
+
 def unrange(data, rangechar, joinchar):
     """
     data - string, e.g. '8,10-13,20'
