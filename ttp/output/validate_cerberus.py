@@ -1,19 +1,23 @@
 import logging
-import json
+
 log = logging.getLogger(__name__)
 
 try:
     from cerberus import Validator
+
     HAS_LIBS = True
 except ImportError:
-    log.error("ttp.validate, failed to import Cerberus library, make sure it is installed")
+    log.error(
+        "ttp.validate, failed to import Cerberus library, make sure it is installed"
+    )
     HAS_LIBS = False
-    
+
 if HAS_LIBS:
     validator_engine = Validator()
 
+
 def _run_validation(data, schema_data, info, errors, result, validator_engine):
-    ret = {result: validator_engine.validate(document=data, schema=schema_data)} 
+    ret = {result: validator_engine.validate(document=data, schema=schema_data)}
     if info:
         try:
             formatted, _ = _ttp_["group"]["sformat"](data, string=info, add_field="inf")
@@ -21,9 +25,10 @@ def _run_validation(data, schema_data, info, errors, result, validator_engine):
         except:
             ret["info"] = info
     if errors:
-        ret[errors] = validator_engine.errors    
+        ret[errors] = validator_engine.errors
     return ret
-    
+
+
 def validate(data, schema, result="valid", info="", errors="", allow_unknown=True):
     """Function to validate data using Cerberus validation library.
     Args::
@@ -35,18 +40,20 @@ def validate(data, schema, result="valid", info="", errors="", allow_unknown=Tru
     """
     if not HAS_LIBS:
         return data
-    ret = {}
     # get validation schema from template variables
     schema_data = _ttp_["output_object"].template_obj.vars.get(schema, None)
     if not schema_data:
         log.error("ttp.output.validate, schema '{}' not found".format(schema))
-        return data    
+        return data
     validator_engine.allow_unknown = allow_unknown
     # run validation
     if isinstance(data, dict):
-        return _run_validation(data, schema_data, info, errors, result, validator_engine)
+        return _run_validation(
+            data, schema_data, info, errors, result, validator_engine
+        )
     elif isinstance(data, list):
         return [
-            _run_validation(i, schema_data, info, errors, result, validator_engine) 
-            for i in data if isinstance(i, dict)
+            _run_validation(i, schema_data, info, errors, result, validator_engine)
+            for i in data
+            if isinstance(i, dict)
         ]

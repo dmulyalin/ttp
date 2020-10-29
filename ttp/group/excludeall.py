@@ -3,7 +3,7 @@ def excludeall(data, *args):
     found_vars = []
     for var in args:
         if var in data:
-            if var in _ttp_["results_object"].record['DEFAULTS']:
+            if var in _ttp_["results_object"].record["DEFAULTS"]:
                 continue
             found_vars.append(var)
     if list(args) == found_vars:

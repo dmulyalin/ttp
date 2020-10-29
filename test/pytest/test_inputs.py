@@ -31,7 +31,7 @@ interface {{ interface }}
  description {{ description | ORPHRASE }}
  ip address {[ ip }} {{ mask }}    
 </group>
-"""
+    """
     parser = ttp(template=template)
     parser.parse()
     res = parser.result()
@@ -159,7 +159,8 @@ Operating System: {{ os | ORPHRASE }}
                                 'hostname': 'localhost.localdomain',
                                 'machine_id': '2a26648f68764152a772fc20c9a3ddb3',
                                 'os': 'CentOS Linux 7 (Core)'}}]]
-                            def test_input_to_groups_mapping():
+
+def test_input_to_groups_mapping():
     template = """
 <input name="sys_host" load="text">
  Static hostname: localhost.localdomain

@@ -1,21 +1,32 @@
 import logging
+
 log = logging.getLogger(__name__)
 
-def lookup(data, key, name=None, template=None, group=None, add_field=False, replace=True, update=False):
+
+def lookup(
+    data,
+    key,
+    name=None,
+    template=None,
+    group=None,
+    add_field=False,
+    replace=True,
+    update=False,
+):
     found_value = None
     lookup_data = {}
     # try get lookup dictionary/data from lookup tags:
     if name:
-        path = [i.strip() for i in name.split('.')]
+        path = [i.strip() for i in name.split(".")]
         lookup_data = _ttp_["parser_object"].lookups
     # get lookup data from template results
     elif template:
-        path = [i.strip() for i in template.split('.')]
-        for template in _ttp_['ttp_object']._templates:
+        path = [i.strip() for i in template.split(".")]
+        for template in _ttp_["ttp_object"]._templates:
             if template.name == path[0]:
                 # use first input results in the template:
                 if isinstance(template.results, list):
-                    lookup_data = template.results[0]     
+                    lookup_data = template.results[0]
                 # if not list its dictionary, per_template results mode used
                 else:
                     lookup_data = template.results
@@ -23,7 +34,7 @@ def lookup(data, key, name=None, template=None, group=None, add_field=False, rep
                 break
     # get lookup data from group results
     elif group:
-        path = [i.strip() for i in group.split('.')]
+        path = [i.strip() for i in group.split(".")]
         # look for group that parses same input
         if path[0] in _ttp_["parser_object"].main_results:
             lookup_data = _ttp_["parser_object"].main_results[path[0]]
@@ -37,9 +48,9 @@ def lookup(data, key, name=None, template=None, group=None, add_field=False, rep
     else:
         log.info("ttp.group.lookup no lookup data found, doing nothing.")
         return data, None
-    # traverse to lookup data 
+    # traverse to lookup data
     for i in path:
-        lookup_data = lookup_data.get(i,{})
+        lookup_data = lookup_data.get(i, {})
     # perform lookup:
     try:
         if isinstance(lookup_data, dict):
@@ -57,5 +68,7 @@ def lookup(data, key, name=None, template=None, group=None, add_field=False, rep
     elif replace:
         data[key] = found_value
     else:
-        log.warning("ttp.group.lookup nothing done, make sure action directives are correct")
+        log.warning(
+            "ttp.group.lookup nothing done, make sure action directives are correct"
+        )
     return data, None

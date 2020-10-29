@@ -1,6 +1,5 @@
-_name_map_ = {
-"set_func": "set"
-}
+_name_map_ = {"set_func": "set"}
+
 
 def set_func(data, source, target="_use_source_", default="_no_default_value_"):
     # source - name of source variable to retrieve value

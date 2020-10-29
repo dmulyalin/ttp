@@ -1,5 +1,7 @@
 import logging
+
 log = logging.getLogger(__name__)
+
 
 def traverse(data, path):
     """Method to traverse dictionary data and return element
@@ -18,26 +20,28 @@ def traverse(data, path):
         return result
     else:
         return data
-        
+
+
 def _set_data(data, path, new_data):
     # not yet tested, hence not available
     # add new_data to data at given path or override existing results
     if isinstance(path, str):
-        path = [i.strip() for i in path.split('.')]
+        path = [i.strip() for i in path.split(".")]
     last_index = len(path) - 1
     datum = data
     for path_index, path_item in enumerate(path):
-        if not isinstance(datum, dict): 
+        if not isinstance(datum, dict):
             break
         if last_index == path_index:
             datum[path_item] = new_data
-            break        
+            break
         if path_item in datum:
             datum = datum[path_item]
         else:
             datum[path_item] = {}
-    
-def dict_to_list(data, key_name='key', path=None):
+
+
+def dict_to_list(data, key_name="key", path=None):
     """Flatten dictionary data, e.g. if data is this:
     { "Fa0"  : {"admin": "administratively down"},
       "Ge0/1": {"access_vlan": "24"}}
@@ -55,6 +59,6 @@ def dict_to_list(data, key_name='key', path=None):
             v.update({key_name: k})
             result.append(v)
     elif isinstance(data, list):
-		# run recusrsion
+        # run recusrsion
         result = [dict_to_list(data=item, key_name=key_name) for item in data]
     return result

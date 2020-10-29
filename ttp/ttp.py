@@ -19,7 +19,7 @@ _ttp_ = {
     "python_major_version": version_info.major,
     "global_vars": {},
     "template_obj": {},
-    "vars": {}
+    "vars": {},
 }
 
 
@@ -46,7 +46,7 @@ class CachedModule:
     def load(self):
         # import cached function and insert it into _ttp_ dictionary
         abs_import = "ttp."
-        if __name__ in ('__main__', '__mp_main__'):
+        if __name__ in ("__main__", "__mp_main__"):
             abs_import = ""
         path = "{abs}{imp}".format(abs=abs_import, imp=self.import_path)
         module = __import__(path, fromlist=[None])
@@ -95,7 +95,7 @@ def lazy_import_functions():
                 f.endswith(".py")
                 and not f.startswith("_")
                 and not f.endswith(exclude)
-                and not f in exclude_modules
+                and f not in exclude_modules
             )
         ]
     log.info("ttp.lazy_import_functions: files loaded, starting ast parsing")
@@ -140,7 +140,7 @@ MAIN TTP CLASS
 
 
 class ttp:
-    """ Template Text Parser main class to load data, templates, lookups, variables
+    """Template Text Parser main class to load data, templates, lookups, variables
     and dispatch data to parser object to parse in single or multiple processes,
     construct final results and run outputs.
 
@@ -213,7 +213,9 @@ class ttp:
         * ``template_name`` (str) name of the template to add input for
         """
         if not self._templates:
-            log.warning("ttp.add_input: no TTP templates to associate input data with, load template(s) first.")
+            log.warning(
+                "ttp.add_input: no TTP templates to associate input data with, load template(s) first."
+            )
         # form a list of ((type, url|text,), input_name, groups,) tuples
         data_items = _ttp_["utils"]["load_files"](path=data, read=False)
         if data_items:
@@ -247,7 +249,9 @@ class ttp:
         * ``template_name`` (str) name of the template to set input for
         """
         if not self._templates:
-            log.warning("ttp.set_input: no TTP templates to associate input data with, load template(s) first.")
+            log.warning(
+                "ttp.set_input: no TTP templates to associate input data with, load template(s) first."
+            )
         self.clear_input(template_name=template_name)
         self.add_input(
             data=data, input_name=input_name, groups=groups, template_name=template_name
@@ -269,8 +273,7 @@ class ttp:
                 template.inputs = {}
 
     def _calculate_overall_data_size(self):
-        """Method to calculate overall data size and count
-        """
+        """Method to calculate overall data size and count"""
         self.__data_size = 0
         self.__datums_count = 0
         for template in self._templates:
@@ -308,7 +311,7 @@ class ttp:
                 ttp_vars=self.vars,
                 name=template_name,
                 filters=filters,
-                ttp_macro=_ttp_.get("_custom_functions_", {}).get("macro", {})
+                ttp_macro=_ttp_.get("_custom_functions_", {}).get("macro", {}),
             )
             # if not template_obj.templates - no 'template' tags in template
             self._templates += (
@@ -406,7 +409,7 @@ class ttp:
                     vars=template.vars,
                     groups=template.groups,
                     macro_text=template.macro_text,
-                    custom_functions=_ttp_.get("_custom_functions_", {})
+                    custom_functions=_ttp_.get("_custom_functions_", {}),
                 )
                 for i in range(num_processes)
             ]
@@ -646,7 +649,7 @@ class ttp:
             [t_obj.results.clear() for t_obj in self._templates]
 
     def add_function(self, fun, scope, name=None, add_ttp=False):
-        """ Method to add custom function in ``_ttp_`` dictionary.
+        """Method to add custom function in ``_ttp_`` dictionary.
         Function can be referenced in template depending on scope.
 
         **Parameters**
@@ -742,10 +745,18 @@ TTP PARSER MULTIPROCESSING WORKER
 
 
 class _worker(Process):
-    """Class used in multiprocessing to parse data
-    """
+    """Class used in multiprocessing to parse data"""
 
-    def __init__(self, task_queue, results_queue, lookups, vars, groups, macro_text, custom_functions):
+    def __init__(
+        self,
+        task_queue,
+        results_queue,
+        lookups,
+        vars,
+        groups,
+        macro_text,
+        custom_functions,
+    ):
         Process.__init__(self)
         self.custom_functions = custom_functions
         self.task_queue = task_queue
@@ -804,8 +815,7 @@ TTP TEMPLATE CLASS
 
 
 class _template_class:
-    """Template class to hold template data
-    """
+    """Template class to hold template data"""
 
     def __init__(
         self,
@@ -814,7 +824,7 @@ class _template_class:
         ttp_vars={},
         name="_root_template_",
         filters=[],
-        ttp_macro={}
+        ttp_macro={},
     ):
         self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here
         self.vars = {  # dictionary to store template variables
@@ -867,27 +877,23 @@ class _template_class:
         log.debug(text)
 
     def add_lookup(self, data):
-        """Method to load lookup data
-        """
+        """Method to load lookup data"""
         self.lookups.update(data)
         [template.add_lookup(data) for template in self.templates]
 
     def add_vars(self, data):
-        """Method to update vars with given data
-        """
+        """Method to update vars with given data"""
         if isinstance(data, dict):
             self.vars.update(data)
             [template.add_vars(data) for template in self.templates]
 
     def run_outputs(self):
-        """Method to run template outputs with template results
-        """
+        """Method to run template outputs with template results"""
         for output in self.outputs:
             self.results = output.run(self.results, macro=self.macro)
 
     def form_results(self, result):
-        """Method to add results to self.results
-        """
+        """Method to add results to self.results"""
         datum = []
         # result is always a dictionary, but if have _anonymous_
         # group, need to merge it with the rest of results, at the
@@ -1194,8 +1200,7 @@ TTP INPUT CLASS
 
 
 class _input_class:
-    """Template input class to hold inputs data
-    """
+    """Template input class to hold inputs data"""
 
     def __init__(
         self,
@@ -1411,8 +1416,7 @@ GROUP CLASS
 
 
 class _group_class:
-    """group class to store template group objects data
-    """
+    """group class to store template group objects data"""
 
     def __init__(
         self,
@@ -1469,8 +1473,7 @@ class _group_class:
         self.get_children(list(element))
 
     def set_anonymous_path(self):
-        """Method to set anonymous path for top group without name attribute.
-        """
+        """Method to set anonymous path for top group without name attribute."""
         if self.top is True:
             if self.path == []:
                 self.path = ["_anonymous_*"]
@@ -1507,8 +1510,7 @@ class _group_class:
             self.name = ".".join(self.path)
 
         def extract_chain(var_name):
-            """add items from chain to group functions
-            """
+            """add items from chain to group functions"""
             variable_value = self.vars.get(var_name, var_name)
             if isinstance(variable_value, str):
                 attributes = _ttp_["utils"]["get_attributes"](variable_value)
@@ -1592,7 +1594,7 @@ class _group_class:
             skip_regex = False
             for variable in i["variables"]:
                 variableObj = _variable_class(variable, i["line"], group=self)
-            
+
                 # check if need to skip appending regex dict to regexes list
                 # have to skip it for unconditional 'set' function
                 if variableObj.skip_regex_dict == True:
@@ -1618,10 +1620,10 @@ class _group_class:
                 # and if it is not an ignore to not override other actions:
                 if not "start" in action and not variableObj.var_name in ["ignore"]:
                     action = variableObj.SAVEACTION
-                    
+
             if skip_regex is True:
                 continue
-                
+
             regexes.append(
                 {
                     "REGEX": re.compile(regex),  # re element
@@ -1749,19 +1751,19 @@ class _variable_class:
         self.skip_variable_dict = False  # will be set to true for 'ignore'
         self.skip_regex_dict = False  # will be set to true for 'set'
         self.var_res = []  # list of variable regexes
-        self.sub_variables = {} # dictionary to store child/sub variables
-        self.regex = "" # Regular expression sstring
+        self.sub_variables = {}  # dictionary to store child/sub variables
+        self.regex = ""  # Regular expression sstring
 
         # form attributes - list of dictionaries:
         self.attributes = _ttp_["utils"]["get_attributes"](variable)
         self.var_dict = self.attributes.pop(0)
-        self.var_name = self.var_dict["name"]        
-        self.var_name_original = str(self.var_name) # store original variable name
+        self.var_name = self.var_dict["name"]
+        self.var_name_original = str(self.var_name)  # store original variable name
 
         # sanitize variable name to make it valid python identifier
         # by replacing all non alpha-characters with underscore
         # and prepending underscore if var name starts with digit
-        self.var_name = re.sub(r'\W+|^(?=\d)','_', self.var_name)
+        self.var_name = re.sub(r"\W+|^(?=\d)", "_", self.var_name)
 
         # list of variables names that should not have defaults:
         self.skip_defaults = ["_end_", "_line_", "ignore", "_start_"]
@@ -1775,8 +1777,7 @@ class _variable_class:
         self.extract_functions()
 
     def extract_functions(self):
-        """Method to extract variable actions and conditions.
-        """
+        """Method to extract variable actions and conditions."""
 
         def extract__start_(data):
             self.SAVEACTION = "start"
@@ -1823,8 +1824,7 @@ class _variable_class:
             self.skip_variable_dict = True
 
         def extract_chain(data):
-            """add items from chain to variable attributes and functions
-            """
+            """add items from chain to variable attributes and functions"""
             variable_value = self.group.vars.get(data["args"][0], None)
             if variable_value is None:
                 log.error(
@@ -1911,7 +1911,7 @@ class _variable_class:
             "contains": get_arg_from_vars,
             "equal": get_arg_from_vars,
             "notequal": get_arg_from_vars,
-            "sformat": get_arg_from_vars
+            "sformat": get_arg_from_vars,
         }
         # handle _start_, _line_ etc.
         if self.var_name in extract_funcs:
@@ -1927,8 +1927,7 @@ class _variable_class:
                 self.functions.append(i)
 
     def form_regex(self, regex):
-        """Method to form regular expression for template line.
-        """
+        """Method to form regular expression for template line."""
         # form escaped line by finding all spans of match variables in line,
         # after that split line in chunks and escape special chars, replace spaces and digits
         # for chunks that are not match variable, join chunks in esc_line string after that
@@ -1936,9 +1935,19 @@ class _variable_class:
         no_indent_line = self.LINE.lstrip()
         llen = len(self.LINE)
         vars_spans = (
-            [(0, 0,)]
+            [
+                (
+                    0,
+                    0,
+                )
+            ]
             + [i.span() for i in re.finditer(r"{{([\S\s]+?)}}", no_indent_line)]
-            + [(llen, llen,)]
+            + [
+                (
+                    llen,
+                    llen,
+                )
+            ]
         )
         for index, var_span in enumerate(vars_spans[1:]):
             previous_var_span = vars_spans[index]
@@ -2012,11 +2021,15 @@ class _variable_class:
             # create regex out of headers
             headers = re.findall(r"(\S+\s+|\S+)", self.regex)
             # reconstruct headers line indentation
-            self.regex = re.sub(r"\t", " "*4, self.regex) # replace tabs with 4 spaces
+            self.regex = re.sub(
+                r"\t", " " * 4, self.regex
+            )  # replace tabs with 4 spaces
             headers[0] = " " * (len(self.regex) - len(self.regex.lstrip())) + headers[0]
             # form regex
-            row_re = ["(?P<{}>.{{1,{}}})".format(header.strip(), len(header))
-                      for header in headers[:-1]]
+            row_re = [
+                "(?P<{}>.{{1,{}}})".format(header.strip(), len(header))
+                for header in headers[:-1]
+            ]
             row_re.append("(?P<{}>.*)".format(headers[-1].strip()))
             self.regex = r"\n" + "".join(row_re) + r"(?=\n)"
             # form sub variables dictionary out of headers
@@ -2024,7 +2037,7 @@ class _variable_class:
                 var.strip(): _variable_class(
                     "{var} | strip | exclude({var})".format(var=var.strip()),
                     line="",
-                    group=self.group
+                    group=self.group,
                 )
                 for var in headers
             }
@@ -2034,7 +2047,7 @@ class _variable_class:
             "ignore": regex_ignore,
             "_start_": regex_deleteVar,
             "_end_": regex_deleteVar,
-            "_headers_": regex_headers
+            "_headers_": regex_headers,
         }
         if self.var_name in regexFuncsVar:
             regexFuncsVar[self.var_name](self.var_dict)
@@ -2056,7 +2069,7 @@ class _variable_class:
             self.regex = self.regex.replace(
                 esc_var,
                 r"(?P<{}>(?:{}))".format(self.var_name, r")|(?:".join(self.var_res)),
-                1
+                1,
             )
         # after regexes formed we can delete unnecessary variables:
         if log.isEnabledFor(logging.DEBUG) == False:
@@ -2083,8 +2096,7 @@ TTP PARSER OBJECT
 
 
 class _parser_class:
-    """Parser Object to run parsing of data and constructong resulted dictionary/list
-    """
+    """Parser Object to run parsing of data and constructong resulted dictionary/list"""
 
     def __init__(self, lookups, vars, groups):
         self.lookups = lookups
@@ -2093,7 +2105,6 @@ class _parser_class:
         self.main_results = {}
         self.DATATEXT = ""
         self.DATANAME = ""
-
 
     def set_data(self, D, main_results={}, input_functions=[]):
         """Method to load data:
@@ -2142,8 +2153,7 @@ class _parser_class:
             G.update_runs(D)
 
     def run_var_functions(self):
-        """Method to run variables functions before parsing data
-        """
+        """Method to run variables functions before parsing data"""
         for VARname, VARvalue in self.vars["_var_functions_"].items():
             try:
                 result = _ttp_["variable"][VARvalue](self.DATATEXT, self.DATANAME)
@@ -2235,12 +2245,11 @@ class _parser_class:
                                 flags.update(flag)
                     if result is False:
                         break
-                    
-                    result.update({
-                            regex["VARIABLES"][var_name].var_name_original: data
-                        }
+
+                    result.update(
+                        {regex["VARIABLES"][var_name].var_name_original: data}
                     )
-                        
+
                     # run flags
                     if "new_field" in flags:
                         result.update(flags["new_field"])
@@ -2250,13 +2259,22 @@ class _parser_class:
                 # form result dictionary of dictionaries:
                 span_start = start + match.span()[0]
                 if span_start not in results:
-                    results[span_start] = [(regex, result,)]
+                    results[span_start] = [
+                        (
+                            regex,
+                            result,
+                        )
+                    ]
                 else:
-                    results[span_start].append((regex, result,))
+                    results[span_start].append(
+                        (
+                            regex,
+                            result,
+                        )
+                    )
 
         def run_re(group, results, start=0, end=-1):
-            """Recursive function to run REs
-            """
+            """Recursive function to run REs"""
             # results - dict of {span_start: [(re1, match1), (re2, match2)]}
             s = 0  # int to get the lowest start re span value
             e = -1  # int to get the biggest end re span value
@@ -2283,9 +2301,14 @@ class _parser_class:
                 elif group.has_start_re_default:
                     key = -1
                     stop = False
-                    while stop == False:
+                    while stop is False:
                         if not key in results:
-                            results[key] = [(group.start_re[0], {},)]
+                            results[key] = [
+                                (
+                                    group.start_re[0],
+                                    {},
+                                )
+                            ]
                             stop = True
                         else:
                             key -= 1
@@ -2312,7 +2335,7 @@ class _parser_class:
                 for span_start, mathches in results.items():
                     for item in mathches:
                         if item[0]["GROUP"] is group and span_start > end:
-                            mathches.remove(item) 
+                            mathches.remove(item)
                     # if no matches left
                     if mathches == []:
                         empty_matches_keys.append(span_start)
@@ -2343,7 +2366,12 @@ class _parser_class:
             # get results for groups with group specific results:
             else:
                 # form a tuple of ({results}, [group.outputs],)
-                grps_unsort_rslts.append((run_re(group, results={}), group.outputs,))
+                grps_unsort_rslts.append(
+                    (
+                        run_re(group, results={}),
+                        group.outputs,
+                    )
+                )
 
         # update groups runs (group default values) with global variables
         self.update_groups_runs(_ttp_["global_vars"])
@@ -2464,7 +2492,10 @@ class _results_class:
                             result_data = result[index][1]
                             # prefer result with same path as current record
                             # skip results that did not pass validation check
-                            if re_["GROUP"].path == self.record["PATH"] and result_data != False:
+                            if (
+                                re_["GROUP"].path == self.record["PATH"]
+                                and result_data != False
+                            ):
                                 break
                     # normal REs preferred next
                     elif normal_re:
@@ -2666,8 +2697,7 @@ class _results_class:
             )  # run recursion with last item in the list
 
     def save_curelements(self, result_data, result_path):
-        """Method to save current group results in self.results
-        """
+        """Method to save current group results in self.results"""
         # get ELEMENT from self.results by result_path
         E = self.dict_by_path(PATH=result_path, ELEMENT=self.results)
         if isinstance(E, list):
@@ -2771,8 +2801,7 @@ class _results_class:
         self.GRPLOCK["GROUP"] = list(PATH)
 
     def form_path(self, path):
-        """Method to form dynamic path
-        """
+        """Method to form dynamic path"""
         for index, path_item in enumerate(path):
             match = re.findall(r"{{\s*(\S+)\s*}}", path_item)
             if not match:
@@ -2793,8 +2822,7 @@ class _results_class:
         return path
 
     def processgrp(self):
-        """Method to process group results
-        """
+        """Method to process group results"""
         # add default values to group results
         for k, v in self.record["DEFAULTS"].items():
             self.record["result"].setdefault(k, v)
@@ -2825,17 +2853,12 @@ TTP OUTPUTTER CLASS
 
 
 class _outputter_class:
-    """Class to serve run output functions, returners and formatters
-    """
+    """Class to serve run output functions, returners and formatters"""
 
     def __init__(self, element=None, template_obj=None, **kwargs):
 
         # set attributes default values
-        self.attributes = {
-            "returner": "self",
-            "format": "raw",
-            "load": "python"
-        }
+        self.attributes = {"returner": "self", "format": "raw", "load": "python"}
         self.tag_load = {}
         self.template_obj = template_obj
         self.name = None
@@ -2855,9 +2878,7 @@ class _outputter_class:
         if self.attributes.get("format") == "jinja2":
             self.attributes["load"] = "text"
         # run attributes extraction
-        attribs = _ttp_["utils"]["load_struct"](
-            element.text, **self.attributes
-        )
+        attribs = _ttp_["utils"]["load_struct"](element.text, **self.attributes)
         self.tag_load = attribs if attribs else element.text
         if isinstance(attribs, dict):
             self.attributes.update(attribs)
@@ -2870,15 +2891,13 @@ class _outputter_class:
             self.attributes["returner"] = [i.strip() for i in O.split(",")]
 
         def extract_filename(O):
-            """File name can contain time formatters supported by strftime
-            """
+            """File name can contain time formatters supported by strftime"""
             from time import strftime
 
             self.attributes["filename"] = strftime(O)
 
         def extract_format_attributes(O):
-            """Extract formatter attributes
-            """
+            """Extract formatter attributes"""
             format_attributes = _ttp_["utils"]["get_attributes"](
                 "format_attributes({})".format(O)
             )
@@ -3027,6 +3046,7 @@ TTP CLI PROGRAMM
 def cli_tool():
     import argparse
     import time
+
     # use this to fix logging when used as a cli tool
     _ttp_["_used_as_cli_tool_"] = True
 
@@ -3178,10 +3198,11 @@ def cli_tool():
 
     def timing(message):
         if TIMING:
-            print("{:<9} {:<25}; {} MByte of RAM in use".format(
+            print(
+                "{:<9} {:<25}; {} MByte of RAM in use".format(
                     round(time.time() - t0, 5),
                     message,
-                    process.memory_info().rss/1000000
+                    process.memory_info().rss / 1000000,
                 )
             )
 
@@ -3191,6 +3212,7 @@ def cli_tool():
     if TIMING:
         t0 = time.time()
         import psutil
+
         process = psutil.Process(os.getpid())
     else:
         t0 = 0

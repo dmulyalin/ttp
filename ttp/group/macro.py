@@ -3,7 +3,9 @@ def macro(data, *macro):
     # extract macro names
     macro_names_list = []
     for item in macro:
-        macro_names_list += [i.strip() for i in item.split(",")] if "," in item else [item]
+        macro_names_list += (
+            [i.strip() for i in item.split(",")] if "," in item else [item]
+        )
     # run macro
     for macro_item in macro_names_list:
         if macro_item in _ttp_["macro"]:

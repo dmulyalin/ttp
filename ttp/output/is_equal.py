@@ -3,11 +3,13 @@ def is_equal(data):
     is_equal = False
     if "_anonymous_" in data:
         if data["_anonymous_"] == data_to_compare_with:
-            is_equal = True               
+            is_equal = True
     elif data == data_to_compare_with:
         is_equal = True
     return {
-        'output_name'        : _ttp_["output_object"].name,
-        'output_description' : _ttp_["output_object"].attributes.get('description', 'None'),
-        'is_equal'           : is_equal
+        "output_name": _ttp_["output_object"].name,
+        "output_description": _ttp_["output_object"].attributes.get(
+            "description", "None"
+        ),
+        "is_equal": is_equal,
     }

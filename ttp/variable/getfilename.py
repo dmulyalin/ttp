@@ -1,4 +1,3 @@
 def getfilename(data, *args, **kwargs):
-    """Return dataname
-    """
+    """Return dataname"""
     return args[0]

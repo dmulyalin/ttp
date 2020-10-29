@@ -1,6 +1,5 @@
-_name_map_ = {
-"delete_func": "del"
-}
+_name_map_ = {"delete_func": "del"}
+
 
 def delete_func(data, *args):
     for key in args:
