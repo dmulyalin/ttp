@@ -589,15 +589,15 @@ def test_github_issue_24():
     http: rport http, group 11, health http (HTTP), pbind clientip
         Real Servers:
         22: 10.10.10.10, web1, group ena, health  (runtime HTTP), 0 ms, FAILED
-			Reason: N/A
+            Reason: N/A
         23: 10.11.11.11, web2, group ena, health  (runtime HTTP), 0 ms, FAILED
-			Reason: N/A
+            Reason: N/A
     https: rport https, group 12, health tcp (TCP), pbind clientip
         Real Servers:
         22: 10.10.10.10, web1, group ena, health  (runtime TCP), 0 ms, FAILED
-			Reason: N/A
+            Reason: N/A
         23: 10.11.11.11, web2, group ena, health  (runtime TCP), 0 ms, FAILED
-			Reason: N/A
+            Reason: N/A
     """
     template = """
 <template name="VIP_cfg" results="per_template">
@@ -607,7 +607,7 @@ def test_github_issue_24():
     {{ vs_service }}: rport {{ rport }},{{ ignore(".+") }}
 <group name="pool*" default="">
         {{ node_id }}: {{ node_ip }},{{ ignore(".+") }}
-			Reason: {{ reason }}
+            Reason: {{ reason }}
 </group>
 </group>
 </group>
@@ -707,3 +707,285 @@ headers = "Hostname, Port_Number, Untagged_VLAN, Tagged_VLAN"
     assert res == ['"Hostname","Port_Number","Untagged_VLAN","Tagged_VLAN"\n"SWITCH","2/11","101","60 70 105 116 117"\n"SWITCH","2/12","103","61 71"']
     
 # test_reddit_answer_1()
+
+def test_reddit_answer_2():
+    data = """
+config router ospf
+    set abr-type standard
+    set auto-cost-ref-bandwidth 1000
+    set distance-external 110
+    set distance-inter-area 110
+    set distance-intra-area 110
+    set database-overflow disable
+    set database-overflow-max-lsas 10000
+    set database-overflow-time-to-recover 300
+    set default-information-originate disable
+    set default-information-metric 10
+    set default-information-metric-type 2
+    set default-information-route-map ''
+    set default-metric 10
+    set distance 110
+    set rfc1583-compatible disable
+    set router-id 10.1.1.1
+    set spf-timers 5 10
+    set bfd disable
+    set log-neighbour-changes enable
+    set distribute-list-in "OSPF_IMPORT_PREFIX"
+    set distribute-route-map-in ''
+    set restart-mode none
+    set restart-period 120
+    config area
+        edit 0.0.0.1
+            set shortcut disable
+            set authentication none
+            set default-cost 10
+            set nssa-translator-role candidate
+            set stub-type summary
+            set type nssa
+            set nssa-default-information-originate disable
+            set nssa-default-information-originate-metric 10
+            set nssa-default-information-originate-metric-type 2
+            set nssa-redistribution enable
+        next
+    end
+    config ospf-interface
+        edit "vlan1-int"
+            set interface "Vlan1"
+            set ip 0.0.0.0
+            set authentication text
+            set authentication-key netconanRemoved13
+            set prefix-length 0
+            set retransmit-interval 5
+            set transmit-delay 1
+            set cost 0
+            set priority 1
+            set dead-interval 40
+            set hello-interval 10
+            set hello-multiplier 0
+            set database-filter-out disable
+            set mtu 0
+            set mtu-ignore disable
+            set network-type point-to-point
+            set bfd global
+            set status enable
+            set resync-timeout 40
+        next
+        edit "vlan2-int"
+            set interface "vlan2"
+            set ip 0.0.0.0
+            set authentication text
+            set authentication-key netconanRemoved14
+            set prefix-length 0
+            set retransmit-interval 5
+            set transmit-delay 1
+            set cost 0
+            set priority 1
+            set dead-interval 40
+            set hello-interval 10
+            set hello-multiplier 0
+            set database-filter-out disable
+            set mtu 0
+            set mtu-ignore disable
+            set network-type point-to-point
+            set bfd global
+            set status enable
+            set resync-timeout 40
+        next
+    end
+    config network
+        edit 1
+            set prefix 10.1.1.1 255.255.255.252
+            set area 0.0.0.1
+        next
+        edit 2
+            set prefix 10.1.1.3 255.255.255.252
+            set area 0.0.0.1
+        next
+    end
+    config redistribute "connected"
+        set status enable
+        set metric 0
+        set routemap ''
+        set metric-type 2
+        set tag 0
+    end
+    config redistribute "static"
+        set status enable
+        set metric 0
+        set routemap ''
+        set metric-type 2
+        set tag 0
+    end
+    config redistribute "rip"
+        set status disable
+        set metric 0
+        set routemap ''
+        set metric-type 2
+        set tag 0
+    end
+    config redistribute "bgp"
+        set status enable
+        set metric 0
+        set routemap ''
+        set metric-type 2
+        set tag 0
+    end
+    config redistribute "isis"
+        set status disable
+        set metric 0
+        set routemap ''
+        set metric-type 2
+        set tag 0
+    end
+end
+    """
+    template = """
+<vars>
+clean_phrase = [
+    'ORPHRASE',
+    'macro(\"clean_str\")'
+]
+clean_list = [
+    'ORPHRASE',
+    'macro(\"build_list\")'
+]
+</vars>
+<macro>
+def build_list(data):
+    if "\\" \\"" in data:
+        t = data.split("\\" \\"")
+        for i in range(0, len(t)):
+            t[i] = t[i].strip("\\"").replace(" ", "_")
+            i+=1
+        return t
+    else:
+        return [data.strip("\\"").replace(" ", "_")]
+def clean_str(data):
+    return data.replace("\\"","").replace(" ", "_")
+def match_ip_or_any(data):
+    import ipaddress
+    if data == \"any\":
+        return data
+    elif "/" in data:
+        return str(data)
+    else:    
+        t = data.replace(" ", "/")
+        return str(ipaddress.IPv4Network(t, strict=False))
+def ignore_empty(data):
+    if data == "\'\'":
+        return bool(False)
+    else:
+        return data
+</macro>
+<macro>
+def skip_empty(data):
+    if data == {}:
+        return False
+    return data
+</macro>
+<group name="ospf">
+config router ospf {{ _start_ }}
+    set auto-cost-ref-bandwidth {{ ref_bw }}
+    set default-information-originate {{ default_originate | contains("enable") }}
+    set default-information-metric {{ default_originate_metric }}
+    set default-information-metric-type {{ default_originate_metric_type }}
+    set default-information-route-map {{ default_originate_routemap | chain("clean_phrase") | macro("ignore_empty") }}
+    set default-metric {{ default_rt_metric }} 
+    set rfc1583-compatible {{ rfc1583_compat | contains("enable") }}
+    set router-id {{ router_id }}  
+    set distribute-list-in {{ dist_list_in | chain("clean_phrase") | macro("ignore_empty") }} 
+    set distribute-route-map-in {{ dist_routemap_in | chain("clean_phrase") | macro("ignore_empty") }} 
+    <group name="areas*" macro="skip_empty">
+    config area {{ _start_ }}
+        <group>
+        edit {{ area | _start_ }}
+            set stub-type {{ stub_type }}
+            set type {{ area_type }}
+            set nssa-default-information-originate {{ nssa_default_originate | contains("enable") }}
+            set nssa-default-information-originate-metric {{ nssa_default_metric }}
+            set nssa-default-information-originate-metric-type {{ nssa_default_metric_type }}
+            set nssa-redistribution {{ nssa_redis }}
+        next {{ _end_ }}
+        </group>
+    end {{ _end_ }}
+    </group>
+    <group name="interfaces*" macro="skip_empty">
+    config ospf-interface {{ _start_ }}
+        <group contains="status">
+        edit {{ name | chain("clean_phrase") | _start_ }}
+            set interface {{ interface | chain("clean_phrase")}} 
+            set ip {{ ip | exclude("0.0.0.0") }}
+            set cost {{ cost | exclude("0") }}
+            set priority {{ priority }}
+            set mtu {{ mtu | exclude("0") }}
+            set network-type {{ network }} 
+            set status {{ status | contains("enable") }}
+        next {{ _end_ }}
+        </group>
+    end {{ _end_ }}
+    </group>
+    <group name="networks*" macro="skip_empty">
+    config network {{ _start_ }}
+        <group>
+        edit {{ id | _start_ }}
+            set prefix {{ prefix | ORPHRASE | to_ip | with_prefixlen }} 
+            set area {{ area }} 
+        next {{ _end_ }}
+        </group>
+    end {{ _end_ }}
+    </group>
+    <group name="redistribute*" contains="status">
+    config redistribute {{ protocol | chain("clean_phrase") | _start_ }}
+        set status {{ status | contains('enable') }}
+        set route-map {{ route_map | chain("clean_phrase") | macro("ignore_empty") }}
+        set metric-type {{ metric-type }} 
+        set metric {{ metric | exclude("0") }}
+        set tag {{ tag | exclude("0")}}
+    end {{ _end_ }}
+    </group>
+end {{ _end_ }}
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'ospf': {'areas': [{'area': '0.0.0.1',
+                       'area_type': 'nssa',
+                       'nssa_default_metric': '10',
+                       'nssa_default_metric_type': '2',
+                       'nssa_redis': 'enable',
+                       'stub_type': 'summary'}],
+            'default_originate_metric': '10',
+            'default_originate_metric_type': '2',
+            'default_rt_metric': '10',
+            'dist_list_in': 'OSPF_IMPORT_PREFIX',
+            'interfaces': [{'interface': 'Vlan1',
+                            'name': 'vlan1-int',
+                            'network': 'point-to-point',
+                            'priority': '1',
+                            'status': 'enable'},
+                           {'interface': 'vlan2',
+                            'name': 'vlan2-int',
+                            'network': 'point-to-point',
+                            'priority': '1',
+                            'status': 'enable'}],
+            'networks': [{'area': '0.0.0.1',
+                          'id': '1',
+                          'prefix': '10.1.1.1/30'},
+                         {'area': '0.0.0.1',
+                          'id': '2',
+                          'prefix': '10.1.1.3/30'}],
+            'redistribute': [{'metric-type': '2',
+                              'protocol': 'connected',
+                              'status': 'enable'},
+                             {'metric-type': '2',
+                              'protocol': 'static',
+                              'status': 'enable'},
+                             {'metric-type': '2',
+                              'protocol': 'bgp',
+                              'status': 'enable'}],
+            'ref_bw': '1000',
+            'router_id': '10.1.1.1'}}]]
+
+# test_reddit_answer_2()

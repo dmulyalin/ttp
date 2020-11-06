@@ -2026,10 +2026,9 @@ class _variable_class:
             )  # replace tabs with 4 spaces
             headers[0] = " " * (len(self.regex) - len(self.regex.lstrip())) + headers[0]
             # form regex
-            row_re = [
-                "(?P<{}>.{{1,{}}})".format(header.strip(), len(header))
-                for header in headers[:-1]
-            ]
+            row_re = ["(?P<{}>.{{{}}})".format(header.strip(), len(header))
+                      for header in headers[:-2]]
+            row_re.append("(?P<{}>.{{1,{}}})".format(headers[-2].strip(), len(headers[-2])))
             row_re.append("(?P<{}>.*)".format(headers[-1].strip()))
             self.regex = r"\n" + "".join(row_re) + r"(?=\n)"
             # form sub variables dictionary out of headers

@@ -125,5 +125,7 @@
   "test/pytest/test_inputs.py::test_inputs_url_filters_extensions",
   "test/pytest/test_inputs.py::test_group_inputs",
   "test/pytest/test_inputs.py::test_inputs_with_template_base_path",
-  "test/pytest/test_inputs.py::test_input_to_groups_mapping"
+  "test/pytest/test_inputs.py::test_input_to_groups_mapping",
+  "test/pytest/test_answers_and_docs.py::test_reddit_answer_2",
+  "test/pytest/test_headers_indicator.py::test_with_garbage"
 ]

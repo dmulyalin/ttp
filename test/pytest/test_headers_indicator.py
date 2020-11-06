@@ -408,7 +408,7 @@ Port   Name             Status    Vlan       Duplex  Speed Type   {{ _headers_ }
 def test_headers_indicator_tab_indented_header():
     template = """
 <input load="text">
-	Network			   Next Hop            Metric     LocPrf     Weight Path
+    Network               Next Hop            Metric     LocPrf     Weight Path
 *>ef11.11.1.111/32     12.123.12.1              0                     0 65000 ?
 *>ef222.222.222.2/32   12.123.12.1              0                     0 65000 ?
 *>ef333.333.333.333/32 12.123.12.1              0                     0 65000 ?
@@ -555,3 +555,50 @@ Filesystem              K1_blocks Used    Available Use_ Mounted_on {{ _headers_
                       'Used': '220604'}]]]
     
 # test_headers_last_column_empty()
+
+def test_with_garbage():
+    template = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50/29
+!
+interface Lo1
+ ip address 1.1.1.1/30
+!
+Port      Name               Status       Vlan       Duplex  Speed Type
+Gi0/1     PIT-VDU213         connected    18         a-full  a-100 10/100/1000BaseTX
+Gi0/4                        connected    18         a-full  a-100 10/100/1000BaseTX
+Gi0/16    pitrs2201 te1/1/4  connected    trunk        full   1000  1000BaseLX SFP
+</input>
+
+<group>
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ }}
+</group>   
+    """
+    parser = ttp(template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()    
+    # pprint.pprint(res)
+    assert res == [[[{'Duplex': 'a-full',
+                      'Name': 'PIT-VDU213',
+                      'Port': 'Gi0/1',
+                      'Speed': 'a-100',
+                      'Status': 'connected',
+                      'Type': '10/100/1000BaseTX',
+                      'Vlan': '18'},
+                     {'Duplex': 'a-full',
+                      'Name': '',
+                      'Port': 'Gi0/4',
+                      'Speed': 'a-100',
+                      'Status': 'connected',
+                      'Type': '10/100/1000BaseTX',
+                      'Vlan': '18'},
+                     {'Duplex': 'full',
+                      'Name': 'pitrs2201 te1/1/4',
+                      'Port': 'Gi0/16',
+                      'Speed': '1000',
+                      'Status': 'connected',
+                      'Type': '1000BaseLX SFP',
+                      'Vlan': 'trunk'}]]]
+    
+# test_with_garbage()

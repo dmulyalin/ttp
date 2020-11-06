@@ -11,7 +11,7 @@ At the end ``_anonymous_`` group results merged with the rest of groups' results
 
 .. note::
 
-    <group> tag without name attribute does have support for all group attributes and functions as well as nested groups, however, nested groups *must* have name attribute set on them otherwise nested hierarchy will not be preserved leading to unpredictable results. 
+    <group> tag without name attribute does have support for all group attributes and functions as well as nested groups. However, keep in mind that for nested groups name attribute inherited from parent groups.
 
 **Example**
 
