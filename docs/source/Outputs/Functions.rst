@@ -278,18 +278,20 @@ Results::
 
     [
         [
-            {
-                "interface": "Vlan778",
-                "ip": "2002::fd37::91",
-                "is_svi": true,
-                "mask": "124"
-            },
-            {
-                "interface": "Loopback991",
-                "ip": "192.168.0.1",
-                "is_svi": false,
-                "mask": "32"
-            }
+            [
+                {
+                    "interface": "Vlan778",
+                    "ip": "2002::fd37::91",
+                    "is_svi": true,
+                    "mask": "124"
+                },
+                {
+                    "interface": "Loopback991",
+                    "ip": "192.168.0.1",
+                    "is_svi": false,
+                    "mask": "32"
+                }
+            ]
         ]
     ]
     

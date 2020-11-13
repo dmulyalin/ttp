@@ -147,19 +147,22 @@ Template::
  </group>
 
 Result::
-
- {
-     "interfaces": [
-         {
-             "description": ["cpe", "1"],
-             "interface": "TUNNEL2422"
-         },
-         {
-             "description": ["core", "1"],
-             "interface": "GIGABITETHERNET1/1"
-         }
-     ]
- }
+    [
+        [
+            {
+                "interfaces": [
+                    {
+                        "description": ["cpe", "1"],
+                        "interface": "TUNNEL2422"
+                    },
+                    {
+                        "description": ["core", "1"],
+                        "interface": "GIGABITETHERNET1/1"
+                    }
+                ]
+            }
+        ]
+    ]
 
 chain
 ------------------------------------------------------------------------------
@@ -194,12 +197,16 @@ Template::
 
 Result::
 
- {
-     "interfaces": {
-         "interface": "GigabitEthernet3/3",
-         "trunk_vlans": "138:166:167:168:169:170:171:172:173:400:401:410"
-     }
- }
+    [
+        [
+            {
+                "interfaces": {
+                    "interface": "GigabitEthernet3/3",
+                    "trunk_vlans": "138:166:167:168:169:170:171:172:173:400:401:410"
+                }
+            }
+        ]
+    ]
  
 **Example-2**
 
@@ -229,12 +236,16 @@ Template::
 
 Result::
 
- {
-     "interfaces": {
-         "interface": "GigabitEthernet3/3",
-         "trunk_vlans": "138:166:167:168:169:170:171:172:173:400:401:410"
-     }
- }
+    [
+        [
+            {
+                "interfaces": {
+                    "interface": "GigabitEthernet3/3",
+                    "trunk_vlans": "138:166:167:168:169:170:171:172:173:400:401:410"
+                }
+            }
+        ]
+    ]
     
 record
 ------------------------------------------------------------------------------
@@ -290,30 +301,32 @@ Template::
 Result::
 
     [
-        {
-            "interfaces": {
-                "interface": "Vlan778",
-                "ip": "2002:fd37::91",
-                "mask": "124",
-                "vrf": "VRF_NAME_1"
-            }
-        },
-        {
-            "interfaces": [
-                {
-                    "description": "some description input2",
-                    "interface": "Vlan779",
-                    "my_descript": "some description input2",
-                    "my_vrf": "VRF_NAME_1"
-                },
-                {
-                    "interface": "Vlan780",
-                    "my_descript": "some description input2",
-                    "my_vrf": "VRF_NAME_1",
-                    "sec_mac": "4"
+        [
+            {
+                "interfaces": {
+                    "interface": "Vlan778",
+                    "ip": "2002:fd37::91",
+                    "mask": "124",
+                    "vrf": "VRF_NAME_1"
                 }
-            ]
-        }
+            },
+            {
+                "interfaces": [
+                    {
+                        "description": "some description input2",
+                        "interface": "Vlan779",
+                        "my_descript": "some description input2",
+                        "my_vrf": "VRF_NAME_1"
+                    },
+                    {
+                        "interface": "Vlan780",
+                        "my_descript": "some description input2",
+                        "my_vrf": "VRF_NAME_1",
+                        "sec_mac": "4"
+                    }
+                ]
+            }
+        ]
     ]
     
 In above example ``{{ my_vrf | set("VRF") }}`` uses "VRF" variable from Global scope, while ``{{ my_descript | set("my_description") }}`` retrieves "my_description" variable value from per-input scope. 
@@ -346,14 +359,16 @@ Template::
 Result::
 
     [
-        {
-            "interfaces": {
-                "description": "description_undefined",
-                "interface": "Loopback0",
-                "ip": "192.168.0.113/24",
-                "netmask": "255.255.255.0"
+        [
+            {
+                "interfaces": {
+                    "description": "description_undefined",
+                    "interface": "Loopback0",
+                    "ip": "192.168.0.113/24",
+                    "netmask": "255.255.255.0"
+                }
             }
-        }
+        ]
     ]
 
 truncate
@@ -395,10 +410,14 @@ Template::
 
 Result::
 
-    {
-        "interface": "GigabitEthernet3/3"  
-        "trunkVlans": "138,166,173,400,401,410"
-    }
+    [
+        [
+            {
+                "interface": "GigabitEthernet3/3",
+                "trunk_vlans": "138,166,173,400,401,410"
+            }
+        ]
+    ]
     
 **Example-2**
 
@@ -417,10 +436,14 @@ Template::
 
 Result::
 
-    {
-        "interface": "GigabitEthernet3/3"  
-        "trunkVlans": ["138,166,173", "400,401,410"]
-    }
+    [
+        [    
+            {
+                "interface": "GigabitEthernet3/3"  
+                "trunkVlans": ["138,166,173", "400,401,410"]
+            }
+        ]
+    ]
 
 resub
 ------------------------------------------------------------------------------
@@ -444,9 +467,13 @@ Template is::
 
 Result::
 
-    {
-        "interface": "Ge3/3"  
-    }
+    [
+        [    
+            {
+                "interface": "Ge3/3"  
+            }
+        ]
+    ]
     
 join
 ------------------------------------------------------------------------------
@@ -471,9 +498,13 @@ Template is::
 
 Result::
 
-    {
-        "description": "s.o.m.e.i.m.p.o.r.t.a.n.t.d.e.s.c.r.i.p.t.i.o.n"  
-    }
+    [
+        [
+            {
+                "description": "s.o.m.e.i.m.p.o.r.t.a.n.t.d.e.s.c.r.i.p.t.i.o.n"  
+            }
+        ]
+    ]
     
 **Example**-2:
 
@@ -491,10 +522,14 @@ Template::
 
 Result::
 
-    {
-        "interface": "GigabitEthernet3/3"  
-        "trunkVlans": "138:166:173:400:401:410"
-    }
+    [
+        [
+            {
+                "interface": "GigabitEthernet3/3"  
+                "trunkVlans": "138:166:173:400:401:410"
+            }
+        ]
+    ]
     
 append
 ------------------------------------------------------------------------------
@@ -516,9 +551,13 @@ Template is::
 
 Result::
 
-    {
-        "interface": "Ge3/3 - non production"  
-    }
+    [
+        [
+            {
+                "interface": "Ge3/3 - non production"  
+            }
+        ]
+    ]
 
 prepend
 ------------------------------------------------------------------------------
@@ -574,10 +613,14 @@ Template::
 
 Result::
 
-    {
-        "interface": "GigabitEthernet3/3"  
-        "trunkVlans": "138,166,170,171,172,173"
-    }
+    [
+        [
+            {
+                "interface": "GigabitEthernet3/3"  
+                "trunkVlans": "138,166,170,171,172,173"
+            }
+        ]
+    ]
     
 set
 ------------------------------------------------------------------------------
@@ -625,25 +668,29 @@ Template::
 
 Result::
 
-    {
-        "interfacesset": [
+    [
+        [
             {
-                "disabled": "True",
-                "encap": "dot1q",
-                "interface": "GigabitEthernet3/4",
-                "mode": "Trunk",
-                "mode_access": "True",
-                "test_var": "my_set_value",
-                "vlans": "all_vlans"
-            },
-            {
-                "interface": "GigabitEthernet3/7",
-                "mode": "Trunk",
-                "mode_access": "True",
-                "vlans": "all_vlans"
+                "interfacesset": [
+                    {
+                        "disabled": "True",
+                        "encap": "dot1q",
+                        "interface": "GigabitEthernet3/4",
+                        "mode": "Trunk",
+                        "mode_access": "True",
+                        "test_var": "my_set_value",
+                        "vlans": "all_vlans"
+                    },
+                    {
+                        "interface": "GigabitEthernet3/7",
+                        "mode": "Trunk",
+                        "mode_access": "True",
+                        "vlans": "all_vlans"
+                    }
+                ]
             }
         ]
-    }
+    ]
     
 .. note:: Multiple set statements are supported within the line, however, no other variables can be specified except with *set*, as match performed based on the string preceding variables with *set* function, for instance below will not work: ``switchport mode {{ mode }} {{ switchport_mode | set('Trunk') }} {{ trunk_vlans | set('all') }}``
 
@@ -678,15 +725,17 @@ Template::
 Result::
 
     [
-        {
-            "description": "Management",
-            "interface": "Vlan777",
-            "interface_role": "Uplink",
-            "ip": "192.168.0.1",
-            "mask": "24",
-            "provider": "L2VC",
-            "vrf": "MGMT"
-        }
+        [
+            {
+                "description": "Management",
+                "interface": "Vlan777",
+                "interface_role": "Uplink",
+                "ip": "192.168.0.1",
+                "mask": "24",
+                "provider": "L2VC",
+                "vrf": "MGMT"
+            }
+        ]
     ]
     
 replaceall
@@ -713,9 +762,13 @@ Template::
 
 Result::
 
-    {'interface': 'Gigabit3/3'} 
-    {'interface': 'Gig5/7'} 
-    {'interface': 'Ge1/5'}
+    [
+        [
+            {'interface': 'Gigabit3/3'} 
+            {'interface': 'Gig5/7'} 
+            {'interface': 'Ge1/5'}
+        ]
+    ]
     
 **Example-1.2** With *new* set to 'Ge'
 
@@ -731,9 +784,13 @@ Template::
 
 Result::
 
-    {'interface': 'Ge3/3'} 
-    {'interface': 'Ge5/7'} 
-    {'interface': 'Ge1/5'}
+    [
+        [
+            {'interface': 'Ge3/3'} 
+            {'interface': 'Ge5/7'} 
+            {'interface': 'Ge1/5'}
+        ]
+    ]
     
 **Case 2** If value found in variables that variable used, if variable value is  a list, function will iterate over list and for each item run replace where *new* set either to "" empty or to first value and *old* equal to each list item
 
@@ -757,19 +814,23 @@ Template::
     
 Result::
 
-    {
-        "ifs": [
+    [
+        [
             {
-                "interface": "GE3/3"
-            },
-            {
-                "interface": "GE5/7"
-            },
-            {
-                "interface": "GE1/5"
+                "ifs": [
+                    {
+                        "interface": "GE3/3"
+                    },
+                    {
+                        "interface": "GE5/7"
+                    },
+                    {
+                        "interface": "GE1/5"
+                    }
+                ]
             }
         ]
-    }
+    ]
     
 **Example-2.2** With *new* set to '' empty value
 
@@ -791,19 +852,23 @@ Template::
     
 Result::
 
-    {
-        "ifs": [
+    [
+        [
             {
-                "interface": "3/3"
-            },
-            {
-                "interface": "5/7"
-            },
-            {
-                "interface": "1/5"
+                "ifs": [
+                    {
+                        "interface": "3/3"
+                    },
+                    {
+                        "interface": "5/7"
+                    },
+                    {
+                        "interface": "1/5"
+                    }
+                ]
             }
         ]
-    }
+    ]
     
 **Case 3** If value found in variables that variable used, if variable value is  a dictionary, function will iterate over dictionary items and set *new* to item key and *old* to item value. 
 
@@ -838,28 +903,32 @@ Template::
     
 Result::
 
-    {
-        "ifs": [
+    [
+        [
             {
-                "interface": "Ge3/3"
-            },
-            {
-                "interface": "Ge5/7"
-            },
-            {
-                "interface": "Ge1/5"
-            },
-            {
-                "interface": "Lo1/5"
-            },
-            {
-                "interface": "Te3/3"
-            },
-            {
-                "interface": "Te5/7"
+                "ifs": [
+                    {
+                        "interface": "Ge3/3"
+                    },
+                    {
+                        "interface": "Ge5/7"
+                    },
+                    {
+                        "interface": "Ge1/5"
+                    },
+                    {
+                        "interface": "Lo1/5"
+                    },
+                    {
+                        "interface": "Te3/3"
+                    },
+                    {
+                        "interface": "Te5/7"
+                    }
+                ]
             }
         ]
-    }
+    ]
     
 resuball
 ------------------------------------------------------------------------------
@@ -893,28 +962,32 @@ Template::
  
 Result::
 
- {
-     "ifs": [
-         {
-             "interface": "Ge3/3"
-         },
-         {
-             "interface": "Ge5/7"
-         },
-         {
-             "interface": "Ge1/5"
-         },
-         {
-             "interface": "Lo1/5"
-         },
-         {
-             "interface": "Te3/3"
-         },
-         {
-             "interface": "Te5/7"
-         }
-     ]
- }
+    [
+        [
+            {
+                "ifs": [
+                    {
+                        "interface": "Ge3/3"
+                    },
+                    {
+                        "interface": "Ge5/7"
+                    },
+                    {
+                        "interface": "Ge1/5"
+                    },
+                    {
+                        "interface": "Lo1/5"
+                    },
+                    {
+                        "interface": "Te3/3"
+                    },
+                    {
+                        "interface": "Te5/7"
+                    }
+                ]
+            }
+        ]
+    ]
  
 lookup
 ------------------------------------------------------------------------------
@@ -964,24 +1037,28 @@ Template::
  
 Result::
 
- {
-     "bgp_config": {
-         "bgp_as": "65100",
-         "peers": [
-             {
-                 "peer": "10.145.1.9",
-                 "remote_as": {
-                     "as_description": "Private ASN for FTTB CPEs",
-                     "as_name": "CPEs"
-                 }
-             },
-             {
-                 "peer": "192.168.101.1",
-                 "remote_as": "65102"
-             }
-         ]
-     }
- }
+    [
+        [
+            {
+                "bgp_config": {
+                    "bgp_as": "65100",
+                    "peers": [
+                        {
+                            "peer": "10.145.1.9",
+                            "remote_as": {
+                                "as_description": "Private ASN for FTTB CPEs",
+                                "as_name": "CPEs"
+                            }
+                        },
+                        {
+                            "peer": "192.168.101.1",
+                            "remote_as": "65102"
+                        }
+                    ]
+                }
+            }
+        ]
+    ]
 
 **Example-2** With additional field
 
@@ -1012,25 +1089,29 @@ Template::
  
 Result::
 
- {
-     "bgp_config": {
-         "bgp_as": "65100",
-         "peers": [
-             {
-                 "asn_details": {
-                     "as_description": "Private ASN for FTTB CPEs",
-                     "as_name": "CPEs"
-                 },
-                 "peer": "10.145.1.9",
-                 "remote_as": "65101"
-             },
-             {
-                 "peer": "192.168.101.1",
-                 "remote_as": "65102"
-             }
-         ]
-     }
- }
+    [
+        [
+            {
+                "bgp_config": {
+                    "bgp_as": "65100",
+                    "peers": [
+                        {
+                            "asn_details": {
+                                "as_description": "Private ASN for FTTB CPEs",
+                                "as_name": "CPEs"
+                            },
+                            "peer": "10.145.1.9",
+                            "remote_as": "65101"
+                        },
+                        {
+                            "peer": "192.168.101.1",
+                            "remote_as": "65102"
+                        }
+                    ]
+                }
+            }
+        ]
+    ]
  
 **Example-3**
 
