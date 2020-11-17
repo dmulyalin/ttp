@@ -1,130 +1,132 @@
 Functions
 ===============
 
-TTP contains a set of TTP match variables functions that can be applied to match results to transform them in a desired way or validate and filter match results. 
+TTP contains a set of TTP match variables functions that can be applied to match results to transform them in a desired way or validate and filter match results.
 
 Action functions act upon match result to transform into desired state.
-  
+
 .. list-table:: Action functions
    :widths: 10 90
    :header-rows: 1
 
    * - Name
      - Description
-   * - `chain`_ 
-     - add functions from chain variable 
-   * - `record`_ 
-     - Save match result to variable with given name, which can be referenced by actions
-   * - `let`_ 
-     - Assigns provided value to match variable
-   * - `truncate`_ 
-     - truncate match results
-   * - `joinmatches`_ 
-     - join matches using provided character
-   * - `resub`_ 
-     - replace old patter with new pattern in match using re substitute method
-   * - `join`_ 
-     - join match using provided character
-   * - `append`_ 
+   * - `append`_
      - append provided string to the end of match result
-   * - `prepend`_ 
-     - prepend provided string at the beginning of match result
-   * - `print`_ 
-     - print match result to terminal
-   * - `unrange`_ 
-     - unrange match result using given parameters
-   * - `set`_ 
-     - set result to specific value based if certain string was matched
-   * - `replaceall`_ 
-     - run replace against match for all given values
-   * - `resuball`_ 
-     - run re substitute against match for all given values
-   * - `lookup`_ 
-     - find match value in lookup table and return result
-   * - `rlookup`_ 
-     - find rlookup table key in match result and return associated values
-   * - `gpvlookup`_ 
-     - Glob Patterns Values lookup uses glob patterns testing against match result
-   * - `geoip_lookup`_ 
-     - Uses GeoIP2 database to lookup ASN, Country or City information
-   * - `item`_ 
-     - returns item at given index on match result
-   * - `macro`_ 
-     - runs match result against macro function
-   * - `to_list`_ 
-     - creates empty list nd appends match result to it
-   * - `to_int`_ 
-     - transforms result to integer
-   * - `to_str`_ 
-     - transforms result to python string
-   * - `to_ip`_ 
-     - transforms result to python ipaddress module IPvXAddress or IPvXInterface object
-   * - `to_net`_ 
-     - transforms result to python ipaddress module IPvXNetwork object
-   * - `to_cidr`_ 
-     - transforms netmask to cidr (prefix length) notation
-   * - `ip_info`_ 
-     - produces a dictionary with information about give ip address or subnet
-   * - `dns`_ 
-     - performs DNS forward lookup
-   * - `rdns`_ 
-     - performs DNS reverse lookup
-   * - `sformat`_ 
-     - string format using python string format method
-   * - `uptimeparse`_ 
-     - function to parse uptime string
-   * - `mac_eui`_ 
-     - transforms mac string into EUI format
-   * - `count`_ 
+   * - `chain`_
+     - add functions from chain variable
+   * - `count`_
      - function to count matches
-   * - `void`_ 
-     - returns False on results validation, allowing to skip them
-   * - `to_float`_ 
+   * - `default`_
+     - default value to use for match variable if no matches produced
+   * - `dns`_
+     - performs DNS forward lookup
+   * - `geoip_lookup`_
+     - Uses GeoIP2 database to lookup ASN, Country or City information
+   * - `gpvlookup`_
+     - Glob Patterns Values lookup uses glob patterns testing against match result
+   * - `ip_info`_
+     - produces a dictionary with information about give ip address or subnet
+   * - `item`_
+     - returns item at given index of match result
+   * - `join`_
+     - join match using provided character
+   * - `joinmatches`_
+     - join matches using provided character
+   * - `let`_
+     - Assigns provided value to match variable
+   * - `lookup`_
+     - find match value in lookup table and return result
+   * - `mac_eui`_
+     - transforms mac string into EUI format
+   * - `macro`_
+     - runs match result against macro function
+   * - `prepend`_
+     - prepend provided string at the beginning of match result
+   * - `print`_
+     - print match result to terminal
+   * - `rdns`_
+     - performs DNS reverse lookup
+   * - `record`_
+     - save match result in template variable with given name
+   * - `replaceall`_
+     - run string replace against match result for all given values
+   * - `resub`_
+     - replace old patter with new pattern in match using re substitute method
+   * - `resuball`_
+     - run re substitute against match for all given values
+   * - `rlookup`_
+     - find rlookup table key in match result and return associated values
+   * - `set`_
+     - set match result to specific value if certain string matched or unconditionally
+   * - `sformat`_
+     - format string using python string format method
+   * - `to_cidr`_
+     - transforms netmask to cidr (prefix length) notation
+   * - `to_float`_
      - converts match variable value to float integer
-   * - `to_unicode`_ 
-     - if script run by python2, converts string to unicode
- 
+   * - `to_int`_
+     - transforms result to integer
+   * - `to_ip`_
+     - transforms result to python ipaddress module IPvXAddress or IPvXInterface object
+   * - `to_list`_
+     - creates empty list nd appends match result to it
+   * - `to_net`_
+     - transforms result to python ipaddress module IPvXNetwork object
+   * - `to_str`_
+     - transforms result to python string
+   * - `to_unicode`_
+     - if script run by python2, converts match result string to unicode
+   * - `truncate`_
+     - truncate match results
+   * - `unrange`_
+     - unrange match result using given parameters
+   * - `uptimeparse`_
+     - function to parse uptime string
+   * - `void`_
+     - always returns False on results validation, allowing to skip them
+
 Condition functions can perform various checks with match results and returns either True or False depending on check results.
 
 .. list-table:: Condition functions
    :widths: 10 90
    :header-rows: 1
-   
+
    * - Name
-     - Description  
+     - Description
    * - `equal`_
      - check if match is equal to provided value
    * - `notequal`_
      - check if match is not equal to provided value
-   * - `startswith_re`_ 
+   * - `startswith_re`_
      - checks if match starts with certain string using regular expression
-   * - `endswith_re`_ 
+   * - `endswith_re`_
      - checks if match ends with certain string using regular expression
-   * - `contains_re`_ 
+   * - `contains_re`_
      - checks if match contains certain string using regular expression
-   * - `contains`_ 
+   * - `contains`_
      - checks if match contains certain string patterns
-   * - `notstartswith_re`_ 
+   * - `notstartswith_re`_
      - checks if match not starts with certain string using regular expression
-   * - `notendswith_re`_ 
+   * - `notendswith_re`_
      - checks if match not ends with certain string using regular expression
-   * - `exclude_re`_ 
+   * - `exclude_re`_
      - checks if match not contains certain string using regular expression
-   * - `exclude`_ 
+   * - `exclude`_
      - checks if match not contains certain string
-   * - `isdigit`_ 
+   * - `isdigit`_
      - checks if match is digit string e.g. '42'
-   * - `notdigit`_ 
+   * - `notdigit`_
      - checks if match is not digit string
-   * - `greaterthan`_ 
+   * - `greaterthan`_
      - checks if match is greater than given value
-   * - `lessthan`_ 
+   * - `lessthan`_
      - checks if match is less than given value
-   * - `is_ip`_ 
+   * - `is_ip`_
      - tries to convert match result to ipaddress object and returns True if so, False otherwise
-   * - `cidr_match`_ 
+   * - `cidr_match`_
      - transforms result to ipaddress object and checks if it overlaps with given prefix
-     
+
 Python built-ins
 ------------------------------------------------------------------------------
 Apart from functions provided by ttp, python objects built-in functions can be used as well. For instance string *upper* method can be used to convert match into upper case, or list *index* method to return index of certain value.
@@ -138,7 +140,7 @@ Data::
  !
  interface GigabitEthernet1/1
   description core-1
- 
+
 Template::
 
  <group name="interfaces">
@@ -170,7 +172,7 @@ chain
 
 * variable_name (mandatory) - string containing variable name
 
-Sometime when many functions needs to be run against match result the template can become difficult to read, in addition if same set of functions needs to be run against several matches and changes needs to be done to the set of functions it can become difficult to maintain such a template. 
+Sometime when many functions needs to be run against match result the template can become difficult to read, in addition if same set of functions needs to be run against several matches and changes needs to be done to the set of functions it can become difficult to maintain such a template.
 
 To solve above problem *chain* function can be used. Value supplied to that function must reference a valid variable name, that variable should contain string of functions names that should be used for match result, alternatively variable can reference a list of items, each item is a string representing function to run.
 
@@ -181,15 +183,15 @@ chain referencing variable that contains string of functions separated by pipe s
 Data::
 
  interface GigabitEthernet3/3
-  switchport trunk allowed vlan add 138,166-173 
+  switchport trunk allowed vlan add 138,166-173
   switchport trunk allowed vlan add 400,401,410
- 
+
 Template::
 
  <vars>
  vlans = "unrange(rangechar='-', joinchar=',') | split(',') | join(':') | joinmatches(':')"
  </vars>
- 
+
  <group name="interfaces">
  interface {{ interface }}
   switchport trunk allowed vlan add {{ trunk_vlans | chain('vlans') }}
@@ -207,7 +209,7 @@ Result::
             }
         ]
     ]
- 
+
 **Example-2**
 
 chain referencing variable that contains list of strings, each string is a function.
@@ -215,9 +217,9 @@ chain referencing variable that contains list of strings, each string is a funct
 Data::
 
  interface GigabitEthernet3/3
-  switchport trunk allowed vlan add 138,166-173 
+  switchport trunk allowed vlan add 138,166-173
   switchport trunk allowed vlan add 400,401,410
- 
+
 Template::
 
  <vars>
@@ -228,7 +230,7 @@ Template::
     "joinmatches(':')"
  ]
  </vars>
- 
+
  <group name="interfaces">
  interface {{ interface }}
   switchport trunk allowed vlan add {{ trunk_vlans | chain('vlans') }}
@@ -246,7 +248,7 @@ Result::
             }
         ]
     ]
-    
+
 record
 ------------------------------------------------------------------------------
 ``{{ name | record(var_name) }}``
@@ -272,7 +274,7 @@ Template::
      ip address 2002:fd37::91/124
     !
     </input>
-    
+
     <input load="text" name="in2">
     myswitch2#show run int
     interface Vlan779
@@ -282,14 +284,14 @@ Template::
      switchport port-security mac 4
     !
     </input>
-    
+
     <group name="interfaces" input="in1">
     interface {{ interface }}
      ip address {{ ip }}/{{ mask }}
      ip vrf forwarding {{ vrf | record("VRF") }}
      switchport port-security mac {{ sec_mac }}
     </group>
-    
+
     <group name="interfaces" input="in2">
     interface {{ interface }}
      description {{ description | ORPHRASE | record("my_description") }}
@@ -328,8 +330,8 @@ Result::
             }
         ]
     ]
-    
-In above example ``{{ my_vrf | set("VRF") }}`` uses "VRF" variable from Global scope, while ``{{ my_descript | set("my_description") }}`` retrieves "my_description" variable value from per-input scope. 
+
+In above example ``{{ my_vrf | set("VRF") }}`` uses "VRF" variable from Global scope, while ``{{ my_descript | set("my_description") }}`` retrieves "my_description" variable value from per-input scope.
 
 let
 ------------------------------------------------------------------------------
@@ -349,7 +351,7 @@ Template::
      ip address 192.168.0.113/24
     !
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      description {{ description | let("description_undefined") }}
@@ -381,15 +383,15 @@ Splits match result using " "(space) char and joins it back up to truncate value
 
 **Example**
 
-If match is "foo bar foo-bar" and truncate(2) will produce "foo bar". 
-  
+If match is "foo bar foo-bar" and truncate(2) will produce "foo bar".
+
 joinmatches
 ------------------------------------------------------------------------------
 ``{{ name | joinmatches(char) }}``
 
 * char (optional) - character to use to join matches, default is new line '\\n'
 
-Join results from different matches into a single result string using provider character or string. 
+Join results from different matches into a single result string using provider character or string.
 
 In case if data items passed to ``joinmatches`` are lists, ``joinmatches`` will combine them in one single list, if any of the items is a string and at list one of the items is a list, all items will be combined in a list as well. For instance, to convert match results to a list `to_list`_ function can be used.
 
@@ -400,9 +402,9 @@ In case if data items passed to ``joinmatches`` are lists, ``joinmatches`` will 
 Data::
 
     interface GigabitEthernet3/3
-     switchport trunk allowed vlan add 138,166,173 
+     switchport trunk allowed vlan add 138,166,173
      switchport trunk allowed vlan add 400,401,410
- 
+
 Template::
 
     interface {{ interface }}
@@ -418,7 +420,7 @@ Result::
             }
         ]
     ]
-    
+
 **Example-2**
 
 Using ``to_list`` function to join results in a list.
@@ -426,9 +428,9 @@ Using ``to_list`` function to join results in a list.
 Data::
 
     interface GigabitEthernet3/3
-     switchport trunk allowed vlan add 138,166,173 
+     switchport trunk allowed vlan add 138,166,173
      switchport trunk allowed vlan add 400,401,410
- 
+
 Template::
 
     interface {{ interface }}
@@ -437,9 +439,9 @@ Template::
 Result::
 
     [
-        [    
+        [
             {
-                "interface": "GigabitEthernet3/3"  
+                "interface": "GigabitEthernet3/3"
                 "trunkVlans": ["138,166,173", "400,401,410"]
             }
         ]
@@ -460,7 +462,7 @@ Performs re.sub(old, new, match, count) on match result and returns produced val
 Data::
 
     interface GigabitEthernet3/3
- 
+
 Template is::
 
     interface {{ interface | resub(old = '^GigabitEthernet'), new = 'Ge'}}
@@ -468,13 +470,13 @@ Template is::
 Result::
 
     [
-        [    
+        [
             {
-                "interface": "Ge3/3"  
+                "interface": "Ge3/3"
             }
         ]
     ]
-    
+
 join
 ------------------------------------------------------------------------------
 ``{{ name | match(char) }}``
@@ -486,12 +488,12 @@ Run joins against match result using provided character and return string
 
 **Example**-1:
 
-Match is a string here and running join against it will insert '.' in between each character 
+Match is a string here and running join against it will insert '.' in between each character
 
 Data::
 
     description someimportantdescription
- 
+
 Template is::
 
     description {{ description | join('.') }}
@@ -501,23 +503,23 @@ Result::
     [
         [
             {
-                "description": "s.o.m.e.i.m.p.o.r.t.a.n.t.d.e.s.c.r.i.p.t.i.o.n"  
+                "description": "s.o.m.e.i.m.p.o.r.t.a.n.t.d.e.s.c.r.i.p.t.i.o.n"
             }
         ]
     ]
-    
+
 **Example**-2:
 
 After running split function match result transformed into list object, running join against list will produce string with values separated by ":" character
 
 Data::
 
-    interface GigabitEthernet3/3 
+    interface GigabitEthernet3/3
      switchport trunk allowed vlan add 138,166,173,400,401,410
- 
+
 Template::
 
-    interface {{ interface }}  
+    interface {{ interface }}
      switchport trunk allowed vlan add {{ trunk_vlans | split(',') | join(':') }}
 
 Result::
@@ -525,12 +527,12 @@ Result::
     [
         [
             {
-                "interface": "GigabitEthernet3/3"  
+                "interface": "GigabitEthernet3/3"
                 "trunkVlans": "138:166:173:400:401:410"
             }
         ]
     ]
-    
+
 append
 ------------------------------------------------------------------------------
 ``{{ name | append(string) }}``
@@ -544,7 +546,7 @@ Appends string to match result and returns produced value
 Data::
 
     interface Ge3/3
- 
+
 Template is::
 
     interface {{ interface | append(' - non production') }}
@@ -554,7 +556,7 @@ Result::
     [
         [
             {
-                "interface": "Ge3/3 - non production"  
+                "interface": "Ge3/3 - non production"
             }
         ]
     ]
@@ -566,7 +568,7 @@ prepend
 * string (mandatory) - string to prepend
 
 Prepends string to match result and returns produced value
-    
+
 print
 ------------------------------------------------------------------------------
 ``{{ name | print }}``
@@ -578,8 +580,8 @@ Will print match result to terminal as is at the given position, can be used for
 Data::
 
     interface GigabitEthernet3/3
-     switchport trunk allowed vlan add 138,166,173  
- 
+     switchport trunk allowed vlan add 138,166,173
+
 Template::
 
     interface {{ interface }}
@@ -589,7 +591,7 @@ Results printed to terminal::
 
     ['138', '166', '173']  <--First print statement
     138:166:173            <--Second print statement
-    
+
 unrange
 ------------------------------------------------------------------------------
 ``{{ name | unrange('rangechar', 'joinchar') }}``
@@ -605,7 +607,7 @@ Data::
 
     interface GigabitEthernet3/3
      switchport trunk allowed vlan add 138,166,170-173
- 
+
 Template::
 
     interface {{ interface }}
@@ -616,12 +618,12 @@ Result::
     [
         [
             {
-                "interface": "GigabitEthernet3/3"  
+                "interface": "GigabitEthernet3/3"
                 "trunkVlans": "138,166,170,171,172,173"
             }
         ]
     ]
-    
+
 set
 ------------------------------------------------------------------------------
 ``{{ name | set('var_set_value') }}``
@@ -639,24 +641,24 @@ Conditional set function - set only will be invoked in case if preceding line ma
 Data::
 
     interface GigabitEthernet3/4
-     switchport mode access 
+     switchport mode access
      switchport trunk encapsulation dot1q
      switchport mode trunk
      switchport nonegotiate
      shutdown
     !
     interface GigabitEthernet3/7
-     switchport mode access 
+     switchport mode access
      switchport mode trunk
      switchport nonegotiate
     !
- 
+
 Template::
 
     <vars>
     mys_set_var = "my_set_value"
     </vars>
-    
+
     <group name="interfacesset">
     interface {{ interface }}
      switchport mode access {{ mode_access | set("True") }}
@@ -691,7 +693,7 @@ Result::
             }
         ]
     ]
-    
+
 .. note:: Multiple set statements are supported within the line, however, no other variables can be specified except with *set*, as match performed based on the string preceding variables with *set* function, for instance below will not work: ``switchport mode {{ mode }} {{ switchport_mode | set('Trunk') }} {{ trunk_vlans | set('all') }}``
 
 **Example-2**
@@ -737,7 +739,7 @@ Result::
             }
         ]
     ]
-    
+
 replaceall
 ------------------------------------------------------------------------------
 ``{{ name | replaceall('value1', 'value2', ..., 'valueN') }}``
@@ -752,10 +754,10 @@ Run string replace method on match with *new* and *old* values derived using bel
 
 Data::
 
-    interface GigabitEthernet3/3 
-    interface GigEthernet5/7 
+    interface GigabitEthernet3/3
+    interface GigEthernet5/7
     interface GeEthernet1/5
- 
+
 Template::
 
     interface {{ interface | replaceall('Ethernet') }}
@@ -764,20 +766,20 @@ Result::
 
     [
         [
-            {'interface': 'Gigabit3/3'} 
-            {'interface': 'Gig5/7'} 
+            {'interface': 'Gigabit3/3'}
+            {'interface': 'Gig5/7'}
             {'interface': 'Ge1/5'}
         ]
     ]
-    
+
 **Example-1.2** With *new* set to 'Ge'
 
 Data::
 
-    interface GigabitEthernet3/3 
-    interface GigEth5/7 
+    interface GigabitEthernet3/3
+    interface GigEth5/7
     interface Ethernet1/5
- 
+
 Template::
 
     interface {{ interface | replaceall('Ge', 'GigabitEthernet', 'GigEth', 'Ethernet') }}
@@ -786,32 +788,32 @@ Result::
 
     [
         [
-            {'interface': 'Ge3/3'} 
-            {'interface': 'Ge5/7'} 
+            {'interface': 'Ge3/3'}
+            {'interface': 'Ge5/7'}
             {'interface': 'Ge1/5'}
         ]
     ]
-    
+
 **Case 2** If value found in variables that variable used, if variable value is  a list, function will iterate over list and for each item run replace where *new* set either to "" empty or to first value and *old* equal to each list item
 
 **Example-2.1** With *new* set to 'GE' value
 
 Data::
 
-    interface GigabitEthernet3/3 
-    interface GigEthernet5/7 
+    interface GigabitEthernet3/3
+    interface GigEthernet5/7
     interface GeEthernet1/5
- 
+
 Template::
 
     <vars load="python">
     intf_replace = ['GigabitEthernet', 'GigEthernet', 'GeEthernet']
     </vars>
-    
+
     <group name="ifs">
     interface {{ interface | replaceall('GE', 'intf_replace') }}
-    <group>   
-    
+    <group>
+
 Result::
 
     [
@@ -831,25 +833,25 @@ Result::
             }
         ]
     ]
-    
+
 **Example-2.2** With *new* set to '' empty value
 
 Data::
 
-    interface GigabitEthernet3/3 
-    interface GigEthernet5/7 
+    interface GigabitEthernet3/3
+    interface GigEthernet5/7
     interface GeEthernet1/5
- 
+
 Template::
 
     <vars load="python">
     intf_replace = ['GigabitEthernet', 'GigEthernet', 'GeEthernet']
     </vars>
-    
+
     <group name="ifs">
     interface {{ interface | replaceall('intf_replace') }}
-    <group>   
-    
+    <group>
+
 Result::
 
     [
@@ -869,8 +871,8 @@ Result::
             }
         ]
     ]
-    
-**Case 3** If value found in variables that variable used, if variable value is  a dictionary, function will iterate over dictionary items and set *new* to item key and *old* to item value. 
+
+**Case 3** If value found in variables that variable used, if variable value is  a dictionary, function will iterate over dictionary items and set *new* to item key and *old* to item value.
 
 * If item value is a list, function will iterate over list and run replace using each entry as *old* value
 * If item value is a string, function will use that string as *old* value
@@ -879,14 +881,14 @@ Result::
 
 Data::
 
-    interface GigabitEthernet3/3 
-    interface GigEthernet5/7 
+    interface GigabitEthernet3/3
+    interface GigEthernet5/7
     interface GeEthernet1/5
     interface Loopback1/5
-    interface TenGigabitEth3/3 
-    interface TeGe5/7 
+    interface TenGigabitEth3/3
+    interface TeGe5/7
     interface 10GE1/5
- 
+
 Template::
 
     <vars load="python">
@@ -896,11 +898,11 @@ Template::
                     'Te': ['TenGigabitEth', 'TeGe', '10GE']
                     }
     </vars>
-    
+
     <group name="ifs">
     interface {{ interface | replaceall('intf_replace') }}
-    <group>   
-    
+    <group>
+
 Result::
 
     [
@@ -929,14 +931,14 @@ Result::
             }
         ]
     ]
-    
+
 resuball
 ------------------------------------------------------------------------------
 ``{{ name | resuball('value1', 'value2', ..., 'valueN') }}``
 
 * value(mandatory) - string to replace in match, can reference template variable name.
 
-Same as `replaceall`_ but instead of string replace this function runs python re substitute method, allowing the use of regular expression to match *old* values. 
+Same as `replaceall`_ but instead of string replace this function runs python re substitute method, allowing the use of regular expression to match *old* values.
 
 **Example**
 
@@ -944,9 +946,9 @@ If *new* set to "Ge" and *old* set to "GigabitEthernet", running string replace 
 
 Data::
 
- interface GigabitEthernet3/3 
- interface TenGigabitEthernet3/3 
- 
+ interface GigabitEthernet3/3
+ interface TenGigabitEthernet3/3
+
 Template::
 
  <vars load="python">
@@ -955,11 +957,11 @@ Template::
                  'Te': ['^TenGigabitEthernet']
                  }
  </vars>
- 
+
  <group name="ifs">
  interface {{ interface | resuball('intf_replace') }}
- <group>   
- 
+ <group>
+
 Result::
 
     [
@@ -988,7 +990,7 @@ Result::
             }
         ]
     ]
- 
+
 lookup
 ------------------------------------------------------------------------------
 ``{{ name | lookup('name', 'group', 'template', 'add_field') }}``
@@ -1018,7 +1020,7 @@ Data::
    !
    neighbor 192.168.101.1
      remote-as 65102
- 
+
 Template::
 
  <lookup name="ASNs" load="csv">
@@ -1026,15 +1028,15 @@ Template::
  65100,Customer_1,Private ASN for CN451275
  65101,CPEs,Private ASN for FTTB CPEs
  </lookup>
- 
+
  <group name="bgp_config">
  router bgp {{ bgp_as }}
   <group name="peers">
    neighbor {{ peer }}
      remote-as {{ remote_as | lookup('ASNs') }}
   </group>
- </group> 
- 
+ </group>
+
 Result::
 
     [
@@ -1070,7 +1072,7 @@ Data::
    !
    neighbor 192.168.101.1
      remote-as 65102
- 
+
 Template::
 
  <lookup name="ASNs" load="csv">
@@ -1078,15 +1080,15 @@ Template::
  65100,Customer_1,Private ASN for CN451275
  65101,CPEs,Private ASN for FTTB CPEs
  </lookup>
- 
+
  <group name="bgp_config">
  router bgp {{ bgp_as }}
   <group name="peers">
    neighbor {{ peer }}
      remote-as {{ remote_as | lookup('ASNs', add_field='asn_details') }}
   </group>
- </group> 
- 
+ </group>
+
 Result::
 
     [
@@ -1112,7 +1114,7 @@ Result::
             }
         ]
     ]
- 
+
 **Example-3**
 
 This example uses group "interfaces_data" results to perform lookup and add additional data in results produced by "arp" group
@@ -1131,20 +1133,20 @@ Template::
      vrf forwarding CUST1
     !
     </input>
-    
+
     <group name="interfaces.{{ interface }}" input="interfaces_data">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
      ip address {{ subnet | PHRASE | to_ip | network | to_str }}
      vrf forwarding {{ vrf }}
     </group>
-    
+
     <input name="arp_data" load="text">
     Protocol  Address     Age (min)  Hardware Addr   Type   Interface
     Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
     Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
     </input>
-    
+
     <group name="arp" input="arp_data">
     Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface | lookup(group="interfaces", add_field="subnet_info") }}
     </group>
@@ -1215,7 +1217,7 @@ Template::
      vrf forwarding CUST1
     !
     </input>
-    
+
     <group name="interfaces.{{ interface }}">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
@@ -1223,19 +1225,19 @@ Template::
      vrf forwarding {{ vrf }}
     </group>
     </template>
-    
+
     <template>
     <input load="text">
     Protocol  Address     Age (min)  Hardware Addr   Type   Interface
     Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
     Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
     </input>
-    
+
     <group name="arp">
     Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface | lookup(template="interfaces_data.interfaces", add_field="subnet_info") }}
     </group>
     </template>
-    
+
 Results::
 
     [
@@ -1300,7 +1302,7 @@ If lookup was unsuccessful no changes introduces to match result, if it was succ
 
 **Example**
 
-In this example, bgp neighbors descriptions set to hostnames of peering devices, usually hostnames tend to follow some naming convention to indicate physical location of device or its network role, in below example, naming convention is *<state>-<city>-<role><num>* 
+In this example, bgp neighbors descriptions set to hostnames of peering devices, usually hostnames tend to follow some naming convention to indicate physical location of device or its network role, in below example, naming convention is *<state>-<city>-<role><num>*
 
 Data::
 
@@ -1310,7 +1312,7 @@ Data::
    !
    neighbor 192.168.101.1
      description qld-bri-core1
- 
+
 Template::
 
  <lookup name="locations" load="ini">
@@ -1318,15 +1320,15 @@ Template::
  -mel- : 7 Name St, Suburb A, Melbourne, Postal Code
  -bri- : 8 Name St, Suburb B, Brisbane, Postal Code
  </lookup>
- 
+
  <group name="bgp_config">
  router bgp {{ bgp_as }}
   <group name="peers">
    neighbor {{ peer }}
      description {{ remote_as | rlookup('locations.cities', add_field='location') }}
   </group>
- </group> 
- 
+ </group>
+
 Result::
 
  {
@@ -1346,7 +1348,7 @@ Result::
          ]
      }
  }
- 
+
 gpvlookup
 ------------------------------------------------------------------------------
 ``{{ name | gpvlookup('name', 'add_field', 'record', 'multimatch') }}``
@@ -1378,7 +1380,7 @@ Template::
     hostname WIFI-CORE-RT-1
     hostname DC2-CORP-FW-02
     </input>
-    
+
     <lookup name="domains" load="python">
     {
         "NETWORK_DOMAINS": {
@@ -1387,7 +1389,7 @@ Template::
         }
     }
     </lookup>
-    
+
     <group name="devices">
     hostname {{ hostname | gpvlookup("domains.NETWORK_DOMAINS", add_field="Network Domains") }}
     </group>
@@ -1426,7 +1428,7 @@ Results::
             }
         ]
     ]
-    
+
 Because lookup data is actually a dictionary, first match will be non-deterministic. For instance, in above example hostname DC2-CORP-FW-02 was matched by "corporate" patterns, but not by "datacentre" patterns, even though "datacentre" patterns would produce positive match as well.
 
 **Example-2**
@@ -1441,14 +1443,14 @@ Template::
     interface Lo0
      ip address 5.3.3.3/32
     </input>
-    
+
     <input load="text">
     hostname WIFI-CORE-RT-1
     !
     interface Lo0
      ip address 6.3.3.3/32
     </input>
-    
+
     <lookup name="domains" load="python">
     {
         "NETWORK_DOMAINS": {
@@ -1457,17 +1459,17 @@ Template::
         }
     }
     </lookup>
-    
+
     <group void="">
     hostname {{ hostname | gpvlookup("domains.NETWORK_DOMAINS", multimatch=True, record="domain") }}
     </group>
-    
+
     <group name="device.{{ interface }}">
     interface {{ interface }}
      ip address {{ ip }}
      {{ domain | set(domain) }}
     </group>
-    
+
 Results::
 
     [
@@ -1495,7 +1497,7 @@ Results::
             }
         ]
     ]
-    
+
 Group function "void" used to deny match results for this particular group to make output cleaner.
 
 geoip_lookup
@@ -1507,7 +1509,7 @@ geoip_lookup
 
 geoip_lookup function use GeoIP2 databases to create Python geoip2 module lookup objects that can be used to enreach results output with information about BGP ASN, Country or City associated with given IP address. db_name reference to lookup tag name with database type separated by dot, such as `lookup_tag_name.database_name`, reference :ref:`Lookup Tables/Lookup Tables:geoip2 database` on how to properly structure lookup tag.
 
-This function need valid IPv4 orIPv6 address as an input to perfrom lookup against. 
+This function need valid IPv4 orIPv6 address as an input to perfrom lookup against.
 
 **Prerequisites**
 
@@ -1521,23 +1523,23 @@ Template::
     interface Lo0
      ip address 123.209.0.1 32
     </input>
-    
+
     <lookup name="geoip2_test" database="geoip2">
     citY    = 'C:/path/to/GeoLite2-City.mmdb'
     AsN     = 'C:/path/to/GeoLite2-ASN.mmdb'
     Country = 'C:/path/to/GeoLite2-Country.mmdb'
     </lookup>
-    
+
     <group name="intf_with_city_data">
     interface {{ interface }}
      ip address {{ ip | geoip_lookup(db_name="geoip2_test.citY", add_field="city_data") }} {{ mask }}
     </group>
-    
+
     <group name="intf_with_asn_data">
     interface {{ interface }}
      ip address {{ ip | geoip_lookup("geoip2_test.AsN", add_field="asn_data") }} {{ mask }}
     </group>
-    
+
     <group name="intf_with_country_data">
     interface {{ interface }}
      ip address {{ ip | geoip_lookup("geoip2_test.Country", "country_data") }} {{ mask }}
@@ -1643,7 +1645,7 @@ Data::
  !
  interface Loopback0
   description Routing ID loopback
- 
+
 Template::
 
  <group name="SVIs">
@@ -1651,7 +1653,7 @@ Template::
   description {{ description | ORPHRASE}}
   ip address {{ ip }} {{ mask }}
  </group>
- 
+
 Result::
 
  {
@@ -1672,7 +1674,7 @@ Result::
  }
 
 If first line in the group contains match variables it is considered start re, if start re condition check result evaluated to *False*, all the matches that belong to this group will be filtered. In example above line "interface {{ interface | contains('Vlan') }}" is a start re, hence if "interface" variable match will not contain "Vlan", group results will be discarded.
- 
+
 notstartswith_re
 ------------------------------------------------------------------------------
 ``{{ name | notstartswith_re('pattern') }}``
@@ -1755,8 +1757,8 @@ item
 
 * item_index(mandatory) - integer, index of item to return
 
-Return item value at given index of iterable. If match result (iterable) is string, *item* returns letter at given index, if match been transformed to list by 
-the moment *item* function runs, returns list item at given index. item_index can be positive or negative digit, same rules as for retrieving list items applies 
+Return item value at given index of iterable. If match result (iterable) is string, *item* returns letter at given index, if match been transformed to list by
+the moment *item* function runs, returns list item at given index. item_index can be positive or negative digit, same rules as for retrieving list items applies
 e.g. if item_index is -1, last item will be returned.
 
 In addition, ttp preforms index out of range checks, returning last or first item if item_index exceeds length of match result.
@@ -1804,36 +1806,36 @@ Template::
      description Routing ID loopback
     !
     </input>
-    
+
     <macro>
     def check_if_svi(data):
         if "Vlan" in data:
             return data, {"is_svi": True}
         else:
            return data, {"is_svi": False}
-            
+
     def check_if_loop(data):
         if "Loopback" in data:
             return data, {"is_loop": True}
         else:
            return data, {"is_loop": False}
     </macro>
-     
+
     <macro>
     def description_mod(data):
         # To revert words order in descripotion
         words_list = data.split(" ")
         words_list_reversed = list(reversed(words_list))
-        words_reversed = " ".join(words_list_reversed) 
+        words_reversed = " ".join(words_list_reversed)
         return words_reversed
     </macro>
- 
+
     <group name="interfaces_macro">
     interface {{ interface | macro("check_if_svi") | macro("check_if_loop") }}
      description {{ description | ORPHRASE | macro("description_mod")}}
      ip address {{ ip }} {{ mask }}
     </group>
- 
+
 Result::
 
     [
@@ -1870,7 +1872,7 @@ Result::
             ]
         }
     ]
-    
+
 to_list
 ------------------------------------------------------------------------------
 ``{{ name | to_list }}``
@@ -1886,8 +1888,8 @@ Template::
      description to core-1
      ip address 192.168.123.1 255.255.255.0
     !
-    </input> 
-    <group name="interfaces_functions_test1_18" 
+    </input>
+    <group name="interfaces_functions_test1_18"
     input="test1-18"
     output="test1-18"
     >
@@ -1948,13 +1950,13 @@ Template::
      ip address 192.168.0.1/24
     !
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      ip address {{ ip | PHRASE | to_ip | with_prefixlen }}
      ip address {{ ip | to_ip | with_netmask }}
     </group>
-    
+
 Result::
 
     [
@@ -1972,7 +1974,7 @@ Result::
         }
     ]
 
-with_prefixlen and with_netmask are python ipaddress module IPv4Interface object's built-in functions. 
+with_prefixlen and with_netmask are python ipaddress module IPv4Interface object's built-in functions.
 
 to_net
 ------------------------------------------------------------------------------
@@ -1980,7 +1982,7 @@ to_net
 
 This function leverages python built-in ipaddress module to transform match result into IPNetwork object provided that match is a valid ipv4 or ipv6 network strings e.g. 192.168.0.0/24
  or fe80:ab23::/64.
- 
+
 **Example**
 
 Let's assume we need to get results for private routes only from below data, to_net can be used to transform match result into network object together with IPNetwork built-in function is_private to filter results.
@@ -1993,11 +1995,11 @@ Template::
     i L2 172.16.0.3/32 [115/10] via 10.1.34.3, 00:45:11, GigabitEthernet0/0/0/0.34
     i L2 1.1.23.0/24 [115/20] via 10.1.34.3, 00:45:11, GigabitEthernet0/0/0/0.34
     </input>
-    
+
     <group name="routes">
     {{ code }} {{ subcode }} {{ net | to_net | is_private | to_str }} [{{ ad }}/{{ metric }}] via {{ nh_ip }}, {{ age }}, {{ nh_interface }}
     </group>
-    
+
 Result::
 
     [
@@ -2058,13 +2060,13 @@ Template::
      ip address fe80::fd37/124
     !
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      ip address {{ ip | to_ip | ip_info }} {{ mask }}
      ip address {{ ip | to_ip | ip_info }}
     </group>
-    
+
 Result::
 
     [
@@ -2163,7 +2165,7 @@ Template::
      ip address 192.168.1.341/24
     !
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      ip address {{ ip | is_ip }}
@@ -2184,7 +2186,7 @@ Result::
             ]
         }
     ]
-    
+
 192.168.1.341/24 match result was invalidated as it is not a valid IP address.
 
 cidr_match
@@ -2209,7 +2211,7 @@ Template::
      ip address 10.0.1.251/24
     !
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      ip address {{ ip | cidr_match("192.168.0.0/16") }}
@@ -2242,11 +2244,11 @@ Template::
     interface Lo1
     ip address 1.1.1.1 32
     </input>
-    
+
     <vars>
     subnet="1.1.1.0/24"
     </vars>
-    
+
     <group contains="ip">
     interface {{ interface }}
     ip address {{ ip | cidr_match(subnet) }} {{ mask }}
@@ -2268,7 +2270,7 @@ dns
 ------------------------------------------------------------------------------
 ``{{ name | dns(record='A', timeout=1, servers=[], add_field=False) }}``
 
-This function performs forward DNS lookup of match results and returns sorted list of IP addresses returned by DNS. 
+This function performs forward DNS lookup of match results and returns sorted list of IP addresses returned by DNS.
 
 Prerequisites: `dnspython <http://www.dnspython.org/>`_ needs to be installed
 
@@ -2290,27 +2292,27 @@ Template::
      description wikipedia.org
     !
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      description {{ description | dns }}
     </group>
-    
+
     <group name="interfaces_dnsv6">
     interface {{ interface }}
      description {{ description | dns(record='AAAA') }}
     </group>
-    
+
     <group name="interfaces_dnsv4_google_dns">
     interface {{ interface }}
      description {{ description | dns(record='A', servers='8.8.8.8') }}
     </group>
-    
+
     <group name="interfaces_dnsv6_add_field">
     interface {{ interface }}
      description {{ description | dns(record='AAAA', add_field='IPs') }}
     </group>
-    
+
 Result::
 
     [
@@ -2342,12 +2344,12 @@ Result::
             }
         }
     ]
-    
+
 rdns
 ------------------------------------------------------------------------------
 ``{{ name | dns(timeout=1, servers=[], add_field=False) }}``
 
-This function performs reverse DNS lookup of match results and returns FQDN obtained from DNS. 
+This function performs reverse DNS lookup of match results and returns FQDN obtained from DNS.
 
 Prerequisites: `dnspython <http://www.dnspython.org/>`_ needs to be installed
 
@@ -2368,22 +2370,22 @@ Template::
      ip address 8.8.8.8 255.255.255.255
     !
     </input>
-    
+
     <group name="interfaces_rdns">
     interface {{ interface }}
      ip address {{ ip | rdns }} {{ mask }}
     </group>
-    
+
     <group name="interfaces_rdns_google_server">
     interface {{ interface }}
      ip address {{ ip | rdns(servers='8.8.8.8') }} {{ mask }}
     </group>
-    
+
     <group name="interfaces_rdns_add_field">
     interface {{ interface }}
      ip address {{ ip | rdns(add_field='FQDN') }} {{ mask }}
     </group>
-    
+
 Result::
 
     [
@@ -2406,7 +2408,7 @@ Result::
             }
         }
     ]
-    
+
 sformat
 ------------------------------------------------------------------------------
 ``{{ name | sformat("value") }}``
@@ -2424,7 +2426,7 @@ Template::
      ip address 2002:fd37::91/124
     !
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      ip address {{ ip | sformat("ASN 65100 IP - {}") }}
@@ -2451,12 +2453,12 @@ This function can be used to parse text strings of below format to extract uptim
     27 weeks, 3 days, 10 hours, 46 minutes
     10 hours, 46 minutes
     1 minutes
-    
+
 Arguments:
 
 * ``format`` - default is seconds, optional argument to specify format of returned results, if seconds - integer, number of seconds will be returned, if dict - will return a dictionary of extracted time
 
-    
+
 **Example**
 
 Template::
@@ -2464,11 +2466,11 @@ Template::
     <input load="text">
     device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
     </input>
-    
+
     <group name="uptime-1-seconds">
     device-hostame uptime is {{ uptime | PHRASE | uptimeparse }}
     </group>
-    
+
     <group name="uptime-2-dictionary">
     device-hostame uptime is {{ uptime | PHRASE | uptimeparse(format="dict") }}
     </group>
@@ -2491,7 +2493,7 @@ Results::
             }
         }
     ]
-    
+
 mac_eui
 ------------------------------------------------------------------------------
 ``{{ name | mac_eui }}``
@@ -2520,7 +2522,7 @@ Template::
     GigabitEthernet0/3     unassigned      YES unset  up                    up
     GigabitEthernet0/4     unassigned      YES unset  down                  down
     </input>
-    
+
     <input name="device-2" load="text">
     device-2#show ip int brief
     Interface              IP-Address      OK? Method Status                Protocol
@@ -2528,22 +2530,22 @@ Template::
     Vlan41                 172.29.52.34    YES NVRAM  up                    up
     GigabitEthernet0/1     unassigned      YES unset  down                  down
     </input>
-    
+
     <vars name="counters">
     interfaces_up = 0
     </vars>
-    
+
     <group name="interfaces*">
     {{ interface }}  {{ ip }}  YES {{ ignore }}  {{ status | equal("up") | count(var="interfaces_up", globvar="overall_interfaces_up") }}   {{ protocol }}
     </group>
-    
+
     <output macro="add_glob_counters"/>
-    
+
     <macro>
     def add_glob_counters(data):
         data.append({ "overall_interfaces_up": _ttp_["global_vars"]["overall_interfaces_up"] })
     </macro>
-    
+
 Results::
 
     [
@@ -2585,7 +2587,7 @@ Results::
             }
         ]
     ]
-    
+
 void
 ------------------------------------------------------------------------------
 ``{{ name | void }}``
@@ -2603,3 +2605,80 @@ to_unicode
 ``{{ name | to_unicode }}``
 
 If python2 used to run TTP script, this function will try to convert match variable value to unicode string, e.g. string "abc" will become u"abc"
+
+default
+------------------------------------------------------------------------------
+``{{ name | default(default_value) }}``
+
+``default_value`` - any valid python structure: string, list, dictionary, None, boolean etc.
+
+If no matches found in data for given match variable ``default_value`` will be used to form results.
+
+If match variable is ``_start_`` regular expression and no match found, TTP will create group result structure populated with default values.
+
+.. warning:: ``default`` for ``_start_`` match variables works well for top groups, for child groups it can produce unpredictable results and should be used with caution (test before use).
+
+**Example-1**
+
+Set default value for match variable.
+
+Template::
+
+    <input load="text">
+    interface Port-Channel11
+      ip address 1.1.1.1/24
+    interface Loopback0
+    </input>
+    
+    <group>
+    interface {{ interface }}
+      ip address {{ ip | default("Undefined") }}
+    </group>
+
+Result::
+
+    [
+        [
+            [    
+                {
+                    'interface': 'Port-Channel11', 
+                    'ip': '1.1.1.1/24'
+                }, 
+                {
+                    'interface': 'Loopback0', 
+                    'ip': 'Undefined'
+                }
+            ]
+        ]
+    ]
+
+Template::
+
+**Example-2**
+
+Set default value for ``_start_`` match variable ``server``. Match variable ``server`` is start because it is defined in first line in group.
+
+Template::
+
+    <input load="text">
+    interface Port-Channel11
+      description Staff ports
+    </input>
+    
+    <group name="ntp-1**">
+    ntp server {{ server | default('Unconfigured') }}
+     ntp source {{ source | default("undefined") }}
+    </group>
+    
+Results::
+
+    [
+        [
+            {
+                "ntp-1": {
+                    "server": "Unconfigured",
+                    "source": "undefined"
+                }
+            }
+        ]
+    ]

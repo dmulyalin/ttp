@@ -989,3 +989,91 @@ end {{ _end_ }}
             'router_id': '10.1.1.1'}}]]
 
 # test_reddit_answer_2()
+
+def test_github_issue_32():
+    data = """
+.id=*c;export-route-targets=65001:48;65001:0;import-route-targets=65001:48;interfaces=lo-ext;vlan56;route-distinguisher=65001:48;routing-mark=VRF_EXT
+.id=*10;comment=;export-route-targets=65001:80;import-route-targets=65001:80;65001:0;interfaces=lo-private;route-distinguisher=65001:80;routing-mark=VRF_PRIVATE
+    """
+    template = """
+<group method="table">
+.id={{ id | exclude(";") }};export-route-targets={{ export-route-targets }};import-route-targets={{ import-route-targets }};interfaces={{ interfaces }};route-distinguisher={{ route-distinguisher }};routing-mark={{ routing-mark }}
+.id={{ id }};comment{{ comment }};export-route-targets={{ export-route-targets }};import-route-targets={{ import-route-targets }};interfaces={{ interfaces }};route-distinguisher={{ route-distinguisher }};routing-mark={{ routing-mark }}
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result(structure="flat_list")
+    # pprint.pprint(res)
+    assert res == [{'export-route-targets': '65001:48;65001:0',
+                    'id': '*c',
+                    'import-route-targets': '65001:48',
+                    'interfaces': 'lo-ext;vlan56',
+                    'route-distinguisher': '65001:48',
+                    'routing-mark': 'VRF_EXT'},
+                   {'comment': '=',
+                    'export-route-targets': '65001:80',
+                    'id': '*10',
+                    'import-route-targets': '65001:80;65001:0',
+                    'interfaces': 'lo-private',
+                    'route-distinguisher': '65001:80',
+                    'routing-mark': 'VRF_PRIVATE'}]
+
+# test_github_issue_32()
+
+def test_slack_answer_1():
+    data = """
+Firmware
+Version
+----------------
+02.1.1 Build 002
+
+Hardware
+Version
+----------------
+V2R4
+    """
+    template = """
+<group name="versions">
+Hardware {{ _start_ }}
+Firmware {{ _start_ }}
+{{ version | PHRASE | let("type", "firmware") }}
+{{ version | exclude("---") | exclude("Vers") | let("type", "hardware") }}
+{{ _end_ }}
+</group>    
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result(structure="flat_list")
+    # pprint.pprint(res)
+    assert res == [{'versions': [{'type': 'firmware', 'version': '02.1.1 Build 002'},
+                                 {'type': 'hardware', 'version': 'V2R4'}]}]
+			   
+# test_slack_answer_1()
+
+def test_group_default_docs():
+    template = """
+<input load="text">
+device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
+</input>
+
+<group name="uptime**">
+device-hostame uptime is {{ uptime | PHRASE }}
+    <group name="software">
+     software version {{ version | default("uncknown") }}
+    </group>
+</group>
+
+<group name="domain" default="Uncknown">
+Default domain is {{ fqdn }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)  
+    assert res == [[{'domain': {'fqdn': 'Uncknown'},
+                     'uptime': {'software': {'version': 'uncknown'},
+                                'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds'}}]]
+			  
+# test_group_default_docs()

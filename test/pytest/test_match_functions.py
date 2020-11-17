@@ -1,6 +1,9 @@
 import sys
 sys.path.insert(0,'../..')
 import pprint
+import logging
+import json
+logging.basicConfig(level=logging.DEBUG)
 
 from ttp import ttp
 
@@ -217,3 +220,66 @@ Status and Counters - VLAN Information - for ports {{ Port_Number }}
                      'Port_Number': '2/12',
                      'Tagged_VLAN': '61 71',
                      'Untagged_VLAN': '103'}]}]]
+					 
+def test_match_variable_default_set_to_list():
+    template = """
+<input load="text">
+interface Port-Channel11
+  ip address 1.1.1.1/24
+interface Loopback0
+</input>
+
+<group>
+interface {{ interface }}
+  ip address {{ ip | default([]) }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[[{'interface': 'Port-Channel11', 'ip': '1.1.1.1/24'}, {'interface': 'Loopback0', 'ip': []}]]]
+
+#test_match_variable_default_set_to_list()    
+
+def test_match_variable_default_set_to_string():
+    template = """
+<input load="text">
+interface Port-Channel11
+  ip address 1.1.1.1/24
+interface Loopback0
+</input>
+
+<group>
+interface {{ interface }}
+  ip address {{ ip | default("Undefined") }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[[{'interface': 'Port-Channel11', 'ip': '1.1.1.1/24'}, {'interface': 'Loopback0', 'ip': 'Undefined'}]]]
+
+#test_match_variable_default_set_to_string()  
+
+def test_match_variable_default_for_start_regex():
+    template = """
+<input load="text">
+interface Port-Channel11
+  description Staff ports
+</input>
+
+<group name="ntp-1**">
+ntp server {{ server | default('Unconfigured') }}
+ ntp source {{ source | default("undefined") }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    # print(json.dumps(res, sort_keys=True, indent=4, separators=(",", ": ")))
+    assert res == [[{'ntp-1': {'server': 'Unconfigured', 'source': 'undefined'}}]]
+
+# test_match_variable_default_for_start_regex()  

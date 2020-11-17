@@ -127,5 +127,11 @@
   "test/pytest/test_inputs.py::test_inputs_with_template_base_path",
   "test/pytest/test_inputs.py::test_input_to_groups_mapping",
   "test/pytest/test_answers_and_docs.py::test_reddit_answer_2",
-  "test/pytest/test_headers_indicator.py::test_with_garbage"
+  "test/pytest/test_headers_indicator.py::test_with_garbage",
+  "test/pytest/test_answers_and_docs.py::test_github_issue_32",
+  "test/pytest/test_match_functions.py::test_match_variable_default_set_to_string",
+  "test/pytest/test_match_functions.py::test_match_variable_default_set_to_list",
+  "test/pytest/test_match_functions.py::test_match_variable_default_for_start_regex",
+  "test/pytest/test_answers_and_docs.py::test_slack_answer_1",
+  "test/pytest/test_answers_and_docs.py::test_group_default_docs"
 ]
