@@ -140,5 +140,7 @@
   "test/pytest/test_group_functions.py::test_group_default_referencing_variable_parent_group_no_re_one_input",
   "test/pytest/test_group_functions.py::test_group_default_referencing_variable_dictionary",
   "test/pytest/test_group_functions.py::test_top_group_default_referencing_variable_dictionary",
-  "test/pytest/test_group_functions.py::test_child_group_default_referencing_variable_dictionary"
+  "test/pytest/test_group_functions.py::test_child_group_default_referencing_variable_dictionary",
+  "test/pytest/test_group_functions.py::test_group_default",
+  "test/pytest/test_group_functions.py::test_child_group_default_referencing_variable_is_ignored"
 ]

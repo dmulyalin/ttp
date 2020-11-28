@@ -5,12 +5,14 @@ __version__ = "0.5.0"
 import re
 import os
 import logging
+import copy
+import ast
 from xml.etree import cElementTree as ET
 from multiprocessing import Process, cpu_count, JoinableQueue, Queue
 from sys import version_info
 from sys import getsizeof
 from collections import OrderedDict
-import ast
+
 
 # Initiate global variables
 log = logging.getLogger(__name__)
@@ -424,7 +426,6 @@ class ttp:
                     }
                     tasks.put(task_dict)
                     num_jobs += 1
-
             [tasks.put(None) for i in range(num_processes)]
 
             # wait for all tasks to complete
@@ -1176,13 +1177,11 @@ class _template_class:
                 template_ET = ET.XML(
                     "<template>\n{}\n</template>".format(template_text)
                 )
-
             # filter templates based on names filter provided - do not load template groups
             # if template name not listed in filter
             if self.filters:
                 if not self.name in self.filters:
                     return
-
             # check if template has children:
             if not list(template_ET):
                 parse__anonymous_(template_ET)
@@ -1481,7 +1480,7 @@ class _group_class:
 
     def get_attributes(self, data):
         def extract_default(O):
-            self.default = O
+            self.default = self.vars.get(O, O)
 
         def extract_method(O):
             self.method = O.lower().strip()
@@ -1585,7 +1584,6 @@ class _group_class:
                 )
                 continue
             varaibles_matches.append({"variables": match, "line": line})
-
         for i in varaibles_matches:
             regex = ""
             variables = {}
@@ -1600,30 +1598,24 @@ class _group_class:
                 if variableObj.skip_regex_dict == True:
                     skip_regex = True
                     continue
-
                 # create variable dict:
                 if variableObj.skip_variable_dict is False:
                     variables[variableObj.var_name] = variableObj
-
                 # form regex:
                 regex = variableObj.form_regex(regex)
 
                 # check if has sub variables:
                 if variableObj.sub_variables:
                     variables.update(variableObj.sub_variables)
-
                 # check if IS_LINE:
                 if is_line == False:
                     is_line = variableObj.IS_LINE
-
                 # modify save action only if it is not start or startempty already
                 # and if it is not an ignore to not override other actions:
                 if not "start" in action and not variableObj.var_name in ["ignore"]:
                     action = variableObj.SAVEACTION
-
             if skip_regex is True:
                 continue
-
             regexes.append(
                 {
                     "REGEX": re.compile(regex),  # re element
@@ -1633,7 +1625,6 @@ class _group_class:
                     "IS_LINE": is_line,  # boolean to indicate _line_ regex
                 }
             )
-
         # form re, start re and end re lists:
         for index, re_dict in enumerate(regexes):
             if "end" in re_dict["ACTION"]:
@@ -1652,7 +1643,11 @@ class _group_class:
                 self.start_re.append(re_dict)
             else:
                 self.re.append(re_dict)
-
+        # if no regexes in this top group, set it to start unconditionally
+        if isinstance(self.default, dict) and self.top == True:
+            self.defaults.update(self.default)
+            if self.start_re == []:
+                self.has_start_re_default = True
         # check if has_start_re_default
         for start_re in self.start_re:
             if self.has_start_re_default:
@@ -1683,11 +1678,11 @@ class _group_class:
     def set_runs(self):
         """runs - default variable values during group
         parsing run, have to preserve original defaults
-        as values in defaults dictionried can change for 'set'
+        as values in defaults dictionaries can change for 'set'
         function
         """
-        self.runs = self.defaults.copy()
-        # run reursion for children:
+        self.runs = copy.deepcopy(self.defaults)
+        # run recursion for children:
         for child in self.children:
             child.set_runs()
 
@@ -1768,11 +1763,10 @@ class _variable_class:
         # list of variables names that should not have defaults:
         self.skip_defaults = ["_end_", "_line_", "ignore", "_start_"]
         # add defaults
-        if self.group.default != "_Not_Given_":
+        if self.group.default != "_Not_Given_" and isinstance(self.group.default, str):
             if self.var_name not in self.group.defaults:
                 if self.var_name not in self.skip_defaults:
                     self.group.defaults.update({self.var_name: self.group.default})
-
         # perform extractions:
         self.extract_functions()
 
@@ -2026,9 +2020,13 @@ class _variable_class:
             )  # replace tabs with 4 spaces
             headers[0] = " " * (len(self.regex) - len(self.regex.lstrip())) + headers[0]
             # form regex
-            row_re = ["(?P<{}>.{{{}}})".format(header.strip(), len(header))
-                      for header in headers[:-2]]
-            row_re.append("(?P<{}>.{{1,{}}})".format(headers[-2].strip(), len(headers[-2])))
+            row_re = [
+                "(?P<{}>.{{{}}})".format(header.strip(), len(header))
+                for header in headers[:-2]
+            ]
+            row_re.append(
+                "(?P<{}>.{{1,{}}})".format(headers[-2].strip(), len(headers[-2]))
+            )
             row_re.append("(?P<{}>.*)".format(headers[-1].strip()))
             self.regex = r"\n" + "".join(row_re) + r"(?=\n)"
             # form sub variables dictionary out of headers
@@ -2050,14 +2048,12 @@ class _variable_class:
         }
         if self.var_name in regexFuncsVar:
             regexFuncsVar[self.var_name](self.var_dict)
-
         # for the rest of functions:
         regexFuncs = {"set": regex_deleteVar}
         # go over all keywords to form regex:
         for i in self.functions:
             if i["name"] in regexFuncs:
                 regexFuncs[i["name"]](i)
-
         # assign default re if variable without regex formatters:
         if self.var_res == []:
             self.var_res.append(_ttp_["patterns"]["get"](name="WORD"))
@@ -2075,7 +2071,6 @@ class _variable_class:
             del self.attributes, esc_line
             del self.LINE, self.skip_defaults
             del self.var_dict, self.var_res
-
         return self.regex
 
     def debug(self):
@@ -2189,7 +2184,6 @@ class _parser_class:
                 # we have match but no variables - set regex, need to check it as well:
                 else:
                     temp = {key: match.group() for key in regex["VARIABLES"].keys()}
-
                 # process matched values
                 for var_name, data in temp.items():
                     flags = {}
@@ -2244,7 +2238,6 @@ class _parser_class:
                                 flags.update(flag)
                     if result is False:
                         break
-
                     result.update(
                         {regex["VARIABLES"][var_name].var_name_original: data}
                     )
@@ -2292,30 +2285,31 @@ class _parser_class:
             start = start + s
             # if no matches found for any start REs of this group - skip the rest of REs
             if not group_start_found:
-                # if empty group - tag only, no start REs - run children to fill in results
-                if not group.start_re:
-                    for child_group in group.children:
-                        run_re(child_group, results, start, end)
                 # handle group with no matches but with start re default values
-                elif group.has_start_re_default:
+                if group.has_start_re_default:
                     key = -1
                     stop = False
+                    # group.start_re == [] only for tag with no regexes
+                    start_re = (
+                        {"ACTION": "start", "VARIABLES": group.runs, "GROUP": group}
+                        if group.start_re == []
+                        else group.start_re[0]
+                    )
                     while stop is False:
                         if not key in results:
                             results[key] = [
                                 (
-                                    group.start_re[0],
+                                    start_re,
                                     {},
                                 )
                             ]
                             stop = True
                         else:
                             key -= 1
-                    # run recursion to fill in results for children
-                    for child_group in group.children:
-                        run_re(child_group, results, start, end)
+                # run recursion to fill in results for children
+                for child_group in group.children:
+                    run_re(child_group, results, start, end)
                 return results
-
             # run end REs:
             for R in group.end_re:
                 matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
@@ -2325,7 +2319,6 @@ class _parser_class:
                 # if e is smaller, make it bigger
                 if e < matches[-1].span()[1]:
                     e = matches[-1].span()[1]
-
             if e != -1:
                 end = start + e
                 # clean up results beyond last _end_ match
@@ -2340,7 +2333,6 @@ class _parser_class:
                         empty_matches_keys.append(span_start)
                 for key in empty_matches_keys:
                     results.pop(key)
-
             # run normal REs:
             for R in group.re:
                 check_matches(
@@ -2349,11 +2341,9 @@ class _parser_class:
                     results,
                     start,
                 )
-
             # run recursion:
             for child_group in group.children:
                 run_re(child_group, results, start, end)
-
             return results
 
         # run parsing to produce unsorted results:
@@ -2371,7 +2361,6 @@ class _parser_class:
                         group.outputs,
                     )
                 )
-
         # update groups runs (group default values) with global variables
         self.update_groups_runs(_ttp_["global_vars"])
         # update groups runs (group default values) with group specific/local variables
@@ -2383,7 +2372,6 @@ class _parser_class:
                 raw_results.append(
                     [group_result[key] for key in sorted(list(group_result.keys()))]
                 )
-
         # import pprint
         # pprint.pprint(raw_results)
 
@@ -2405,7 +2393,6 @@ class _parser_class:
                         group_result[1],
                     )
                 )
-
         # form results for groups specific results with running groups through outputs:
         for grp_raw_result in grps_raw_results:
             RSLTSOBJ = _results_class()
@@ -2460,7 +2447,6 @@ class _results_class:
         # save _vars_to_results_ to results if any:
         if raw_results:
             self.save_vars(variables)
-
         # iterate over group results and form results structure:
         for group_results in raw_results:
             # clear LOCK between groups as LOCK has intra group significance only:
@@ -2510,7 +2496,6 @@ class _results_class:
                             result_data = result[index][1]
                             if re_["GROUP"].path == self.record["PATH"]:
                                 break
-
                 group = re_["GROUP"]
 
                 # check if result is false, lock the group if so:
@@ -2538,7 +2523,6 @@ class _results_class:
                     # skip children
                     elif ".".join(group.path).startswith(".".join(locked_group_path)):
                         continue
-
                 # Save results:
                 saveFuncs[re_["ACTION"]](
                     result=result_data,
@@ -2825,6 +2809,7 @@ class _results_class:
         # add default values to group results
         for k, v in self.record["DEFAULTS"].items():
             self.record["result"].setdefault(k, v)
+        # import pprint; pprint.pprint(self.record)
         # process group functions
         for item in self.record["FUNCTIONS"]:
             func_name = item["name"]
@@ -3215,7 +3200,6 @@ def cli_tool():
         process = psutil.Process(os.getpid())
     else:
         t0 = 0
-
     # extract vars
     ttp_vars = {}
     if VARS:
@@ -3230,7 +3214,6 @@ def cli_tool():
                 )
             )
             raise SystemExit()
-
     # create parser object
     parser_Obj = ttp(base_path=BASE_PATH, vars=ttp_vars)
 
@@ -3242,7 +3225,6 @@ def cli_tool():
                 text_data=ttp_template, load="python"
             )
             ttp_template = ttp_template[TEMPLATE_NAME]
-
     # add data and templates
     parser_Obj.add_template(template=ttp_template)
     if DATA:
@@ -3270,7 +3252,6 @@ def cli_tool():
         results = parser_Obj.result(structure=STRUCTURE, templates=OUT_TEMPLATE)
         print(_ttp_["formatters"][OUTPUTTER](results))
         timing("{} dumped".format(OUTPUTTER))
-
     timing("Done")
 
 

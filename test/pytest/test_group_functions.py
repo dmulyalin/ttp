@@ -171,7 +171,34 @@ interface {{ interface }}
                    
 # test_top_group_default_referencing_variable_dictionary()
 
-def test_child_group_default_referencing_variable_dictionary():
+def test_group_default():
+    template = """
+<input load="text">
+device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
+</input>
+
+<group name="uptime**">
+device-hostame uptime is {{ uptime | PHRASE }}
+<group name="software">
+ software version {{ version | default("uncknown") }}
+</group>
+</group>
+
+<group name="domain" default="Uncknown">
+Default domain is {{ fqdn }}
+</group>
+    """
+    parser = ttp(template=template, log_level="WARNING")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'domain': {'fqdn': 'Uncknown'},
+                     'uptime': {'software': {'version': 'uncknown'},
+                                'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds'}}]]
+    
+# test_group_default()
+
+def test_child_group_default_referencing_variable_is_ignored():
     template_123 = """
 <input load="text">
 device-1#
@@ -193,21 +220,29 @@ interface Lo11
 <vars>
 var_name = {
     "IP": False,
-	"MASK": False
+    "MASK": False
 }
 </vars>
 
 <group name="interfaces">
 interface {{ interface }}
  description {{ description | ORPHRASE }}
- <group name="IPv4_addresses" default="var_name">
+ <group name="IPv4_addresses">
  ip address {{ IP }} {{ MASK }}
  </group>
 </group>
 """
-    parser = ttp(template=template_123, log_level="DEBUG")
+    parser = ttp(template=template_123, log_level="WARNING")
     parser.parse()
     res = parser.result()
-    pprint.pprint(res)
-	
-test_child_group_default_referencing_variable_dictionary()
+    # pprint.pprint(res)
+    assert res == [[{'interfaces': [{'IPv4_addresses': {'IP': '1.1.1.1',
+                                                        'MASK': '255.255.255.255'},
+                                     'interface': 'Lo0'},
+                                    {'description': 'this interface has description',
+                                     'interface': 'Lo1'}]},
+                    {'interfaces': [{'interface': 'Lo10'},
+                                    {'description': 'another interface with description',
+                                     'interface': 'Lo11'}]}]]
+    
+test_child_group_default_referencing_variable_is_ignored()
