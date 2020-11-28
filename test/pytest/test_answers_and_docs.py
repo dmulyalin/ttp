@@ -1077,3 +1077,23 @@ Default domain is {{ fqdn }}
                                 'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds'}}]]
 			  
 # test_group_default_docs()
+
+def test_github_issue_34_answer():
+    template = """
+<input load="text">
+Hi World
+</input>
+
+<group name='demo'>
+<group name='audiences*'>
+Hello {{ audience | default([]) }}
+</group>
+</group>
+    """
+    parser = ttp(template=template, log_level="DEBUG")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res) 
+    assert res == [[{'demo': {'audiences': [{'audience': []}]}}]]
+	
+# test_github_issue_34_answer()

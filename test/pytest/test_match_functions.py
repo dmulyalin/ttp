@@ -283,3 +283,24 @@ ntp server {{ server | default('Unconfigured') }}
     assert res == [[{'ntp-1': {'server': 'Unconfigured', 'source': 'undefined'}}]]
 
 # test_match_variable_default_for_start_regex()  
+
+def test_match_variable_default_set_to_dictionary():
+    template = """
+<input load="text">
+interface Port-Channel11
+  ip address 1.1.1.1/24
+interface Loopback0
+</input>
+
+<group>
+interface {{ interface }}
+  ip address {{ ip | default({"defined": False}) }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[[{'interface': 'Port-Channel11', 'ip': '1.1.1.1/24'}, {'interface': 'Loopback0', 'ip': {'defined': False}}]]]
+
+# test_match_variable_default_set_to_dictionary()    

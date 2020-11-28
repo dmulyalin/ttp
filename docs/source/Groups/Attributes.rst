@@ -200,7 +200,7 @@ Result::
         ]
     ]
     
-In above example in input there is not data to match by group ``domain``, this group default values were saved in results. Same is for child group ``software`` - no data to match in input, hence default values appears in results, because match variable ``software`` is start RE.
+In above example in input there is no data to match by group ``domain``, this group default values were saved in results. Same is for child group ``software`` - no data to match in input, hence default values appears in results, because match variable ``software`` is start RE.
 
 method
 ------------------------------------------------------------------------------

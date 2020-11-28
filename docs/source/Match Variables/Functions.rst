@@ -2635,7 +2635,7 @@ Template::
       ip address {{ ip | default("Undefined") }}
     </group>
 
-Result::
+Results::
 
     [
         [
@@ -2651,8 +2651,6 @@ Result::
             ]
         ]
     ]
-
-Template::
 
 **Example-2**
 
