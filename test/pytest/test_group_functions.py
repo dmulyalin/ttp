@@ -198,10 +198,9 @@ Default domain is {{ fqdn }}
     
 # test_group_default()
 
-def test_child_group_default_referencing_variable_is_ignored():
+def test_child_group_default_referencing_variable():
     template_123 = """
 <input load="text">
-device-1#
 interface Lo0
  ip address 1.1.1.1 255.255.255.255
 !
@@ -210,24 +209,25 @@ interface Lo1
 </input>
 
 <input load="text">
-device-2#
 interface Lo10
+ ip address 1.1.1.2 255.255.255.255
 !
 interface Lo11
  description another interface with description
+ ip address 1.1.1.3 255.255.255.255
 </input>
 
 <vars>
 var_name = {
-    "IP": False,
-    "MASK": False
+    "L3": True,
+    "has_ip": True
 }
 </vars>
 
 <group name="interfaces">
 interface {{ interface }}
  description {{ description | ORPHRASE }}
- <group name="IPv4_addresses">
+ <group name="IPv4_addresses" default="var_name">
  ip address {{ IP }} {{ MASK }}
  </group>
 </group>
@@ -237,12 +237,22 @@ interface {{ interface }}
     res = parser.result()
     # pprint.pprint(res)
     assert res == [[{'interfaces': [{'IPv4_addresses': {'IP': '1.1.1.1',
-                                                        'MASK': '255.255.255.255'},
+                                                        'L3': True,
+                                                        'MASK': '255.255.255.255',
+                                                        'has_ip': True},
                                      'interface': 'Lo0'},
                                     {'description': 'this interface has description',
                                      'interface': 'Lo1'}]},
-                    {'interfaces': [{'interface': 'Lo10'},
-                                    {'description': 'another interface with description',
+                    {'interfaces': [{'IPv4_addresses': {'IP': '1.1.1.2',
+                                                        'L3': True,
+                                                        'MASK': '255.255.255.255',
+                                                        'has_ip': True},
+                                     'interface': 'Lo10'},
+                                    {'IPv4_addresses': {'IP': '1.1.1.3',
+                                                        'L3': True,
+                                                        'MASK': '255.255.255.255',
+                                                        'has_ip': True},
+                                     'description': 'another interface with description',
                                      'interface': 'Lo11'}]}]]
     
-test_child_group_default_referencing_variable_is_ignored()
+# test_child_group_default_referencing_variable()

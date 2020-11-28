@@ -128,7 +128,11 @@ default
 ------------------------------------------------------------------------------
 ``default="value"``
 
-* value (optional) - string that should be used as a default value for all variables within this group.
+* value (optional) - string that should be used as a default value for all variables within this group or template variable name. 
+
+If default value reference template variable that contains dictionary, that dictionary structure will merge with group results. If group does not have matches, in that case default structure will be uses as group results.
+
+.. warning:: referencing default might produce unexpected results for groups that has matches versus groups without matches, as always, test before use.
 
 **Example-1**
 
@@ -173,9 +177,9 @@ Template::
     
     <group name="uptime**">
     device-hostame uptime is {{ uptime | PHRASE }}
-	<group name="software">
-	 software version {{ version | default("uncknown") }}
-	</group>
+    <group name="software">
+     software version {{ version | default("uncknown") }}
+    </group>
     </group>
     
     <group name="domain" default="Uncknown">
@@ -201,6 +205,65 @@ Result::
     ]
     
 In above example in input there is no data to match by group ``domain``, this group default values were saved in results. Same is for child group ``software`` - no data to match in input, hence default values appears in results, because match variable ``software`` is start RE.
+
+**Example-3**
+
+In this template, ``default`` attribute reference dictionary defined in template variable.
+
+Template::
+
+    <input load="text">
+    interface Lo0
+     ip address 1.1.1.1 255.255.255.255
+    !
+    interface Lo1
+     description this interface has description
+    </input>
+    
+    <input load="text">
+    interface Lo10
+     ip address 1.1.1.2 255.255.255.255
+    !
+    interface Lo11
+     description another interface with description
+     ip address 1.1.1.3 255.255.255.255
+    </input>
+    
+    <vars>
+    var_name = {
+        "L3": True,
+        "has_ip": True
+    }
+    </vars>
+    
+    <group name="interfaces">
+    interface {{ interface }}
+     description {{ description | ORPHRASE }}
+     <group name="IPv4_addresses" default="var_name">
+     ip address {{ IP }} {{ MASK }}
+     </group>
+    </group>
+    
+Results::
+
+    [[{'interfaces': [{'IPv4_addresses': {'IP': '1.1.1.1',
+                                          'L3': True,
+                                          'MASK': '255.255.255.255',
+                                          'has_ip': True},
+                       'interface': 'Lo0'},
+                      {'description': 'this interface has description',
+                       'interface': 'Lo1'}]},
+      {'interfaces': [{'IPv4_addresses': {'IP': '1.1.1.2',
+                                          'L3': True,
+                                          'MASK': '255.255.255.255',
+                                          'has_ip': True},
+                       'interface': 'Lo10'},
+                      {'IPv4_addresses': {'IP': '1.1.1.3',
+                                          'L3': True,
+                                          'MASK': '255.255.255.255',
+                                          'has_ip': True},
+                       'description': 'another interface with description',
+                       'interface': 'Lo11'}]}]]
 
 method
 ------------------------------------------------------------------------------

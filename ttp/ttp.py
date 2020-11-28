@@ -1644,7 +1644,7 @@ class _group_class:
             else:
                 self.re.append(re_dict)
         # if no regexes in this top group, set it to start unconditionally
-        if isinstance(self.default, dict) and self.top == True:
+        if isinstance(self.default, dict):
             self.defaults.update(self.default)
             if self.start_re == []:
                 self.has_start_re_default = True
