@@ -1048,7 +1048,7 @@ Firmware {{ _start_ }}
     # pprint.pprint(res)
     assert res == [{'versions': [{'type': 'firmware', 'version': '02.1.1 Build 002'},
                                  {'type': 'hardware', 'version': 'V2R4'}]}]
-			   
+               
 # test_slack_answer_1()
 
 def test_group_default_docs():
@@ -1075,7 +1075,7 @@ Default domain is {{ fqdn }}
     assert res == [[{'domain': {'fqdn': 'Uncknown'},
                      'uptime': {'software': {'version': 'uncknown'},
                                 'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds'}}]]
-			  
+              
 # test_group_default_docs()
 
 def test_github_issue_34_answer():
@@ -1090,10 +1090,136 @@ Hello {{ audience | default([]) }}
 </group>
 </group>
     """
-    parser = ttp(template=template, log_level="DEBUG")
+    parser = ttp(template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    pprint.pprint(res) 
+    # pprint.pprint(res) 
     assert res == [[{'demo': {'audiences': [{'audience': []}]}}]]
-	
+    
 # test_github_issue_34_answer()
+
+def test_github_issue_33_answer_1():
+    template = """
+<input load="text">
+server 1.1.1.1
+server 2.2.2.2 3.3.3.3
+server 4.4.4.4 5.5.5.5 6.6.6.6
+</input>
+
+<group name="servers" method="table">
+server {{ server | re(r"\\S+") | let("servers_number", 1 ) }}
+server {{ server | re(r"\\S+ \\S+") | let("servers_number", 2) }}
+server {{ server | re(r"\\S+ \\S+ \\S+") | let("servers_number", 3) }}
+</group>
+    """
+    parser = ttp(template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res) 
+    assert res == [[{'servers': [{'server': '1.1.1.1', 'servers_number': 1},
+                                 {'server': '2.2.2.2 3.3.3.3', 'servers_number': 2},
+                                 {'server': '4.4.4.4 5.5.5.5 6.6.6.6', 'servers_number': 3}]}]]
+                    
+# test_github_issue_33_answer_1()
+
+def test_issue_36():
+    template = """
+<input load="text">
+ip access-list standard 42
+ 10 remark machine_A
+ 10 permit 192.168.200.162
+ 20 remark machine_B
+ 20 permit 192.168.200.149
+ 30 deny   any log
+ip access-list standard 98
+ 10 permit 10.10.10.1
+ 20 remark toto
+ 20 permit 30.30.30.1
+ 30 permit 30.30.30.0 0.0.0.255
+ip access-list standard 99
+ 10 permit 10.20.30.40 log
+ 20 permit 20.30.40.1 log
+ 30 remark DEVICE - SNMP RW
+ 30 permit 50.50.50.128 0.0.0.127
+ 40 permit 60.60.60.64 0.0.0.63
+ip access-list extended 199
+ 10 remark COLLECTOR - SNMP
+ 10 permit ip 70.70.70.0 0.0.0.255 any
+ 20 remark RETURN - Back
+ 20 permit ip 80.80.80.0 0.0.0.127 any
+ 30 remark VISUALIZE
+ 30 permit ip host 90.90.90.138 any
+</input>
+
+<group name="ip.{{ acl_type }}.{{ acl_name }}">
+ip access-list {{ acl_type }} {{ acl_name }}
+ <group name="{{ entry_id }}*" method="table">
+ {{ entry_id }} remark {{ remark_name | re(".+") | let("action", "remark") }}
+ {{ entry_id }} {{ action }} {{ src_host }}
+ {{ entry_id }} {{ action }} {{ src_host | let("log", "log") }} log
+ {{ entry_id }} {{ action }} {{ protocol }} host {{ src_host | let("dest_any", "any") }} any
+ {{ entry_id }} {{ action }} {{ protocol }} {{ src_ntw | let("dest_any", "any") }} {{ src_wildcard | IP }} any
+ {{ entry_id }} {{ action }} {{ src_ntw }} {{ src_wildcard | IP }}
+ </group>
+</group>
+    """
+    parser = ttp(template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res) 
+    assert res == [[{'ip': {'extended': {'199': {'10': [{'action': 'remark',
+                                                         'remark_name': 'COLLECTOR - SNMP'},
+                                                        {'action': 'permit',
+                                                         'dest_any': 'any',
+                                                         'protocol': 'ip',
+                                                         'src_ntw': '70.70.70.0',
+                                                         'src_wildcard': '0.0.0.255'}],
+                                                 '20': [{'action': 'remark',
+                                                         'remark_name': 'RETURN - Back'},
+                                                        {'action': 'permit',
+                                                         'dest_any': 'any',
+                                                         'protocol': 'ip',
+                                                         'src_ntw': '80.80.80.0',
+                                                         'src_wildcard': '0.0.0.127'}],
+                                                 '30': [{'action': 'remark',
+                                                         'remark_name': 'VISUALIZE'},
+                                                        {'action': 'permit',
+                                                         'dest_any': 'any',
+                                                         'protocol': 'ip',
+                                                         'src_host': '90.90.90.138'}]}},
+                            'standard': {'42': {'10': [{'action': 'remark',
+                                                        'src_host': 'machine_A'},
+                                                       {'action': 'permit',
+                                                        'src_host': '192.168.200.162'}],
+                                                '20': [{'action': 'remark',
+                                                        'remark_name': 'machine_B'},
+                                                       {'action': 'permit',
+                                                        'src_host': '192.168.200.149'}],
+                                                '30': [{'action': 'deny',
+                                                        'log': 'log',
+                                                        'src_host': 'any'}]},
+                                         '98': {'10': [{'action': 'permit',
+                                                        'src_host': '10.10.10.1'}],
+                                                '20': [{'action': 'remark',
+                                                        'remark_name': 'toto'},
+                                                       {'action': 'permit',
+                                                        'src_host': '30.30.30.1'}],
+                                                '30': [{'action': 'permit',
+                                                        'src_ntw': '30.30.30.0',
+                                                        'src_wildcard': '0.0.0.255'}]},
+                                         '99': {'10': [{'action': 'permit',
+                                                        'log': 'log',
+                                                        'src_host': '10.20.30.40'}],
+                                                '20': [{'action': 'permit',
+                                                        'log': 'log',
+                                                        'src_host': '20.30.40.1'}],
+                                                '30': [{'action': 'remark',
+                                                        'remark_name': 'DEVICE - SNMP RW'},
+                                                       {'action': 'permit',
+                                                        'src_ntw': '50.50.50.128',
+                                                        'src_wildcard': '0.0.0.127'}],
+                                                '40': [{'action': 'permit',
+                                                        'src_ntw': '60.60.60.64',
+                                                        'src_wildcard': '0.0.0.63'}]}}}}]]
+    
+# test_issue_36()

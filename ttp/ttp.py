@@ -1764,9 +1764,9 @@ class _variable_class:
         self.skip_defaults = ["_end_", "_line_", "ignore", "_start_"]
         # add defaults
         if self.group.default != "_Not_Given_" and isinstance(self.group.default, str):
-            if self.var_name not in self.group.defaults:
-                if self.var_name not in self.skip_defaults:
-                    self.group.defaults.update({self.var_name: self.group.default})
+            if self.var_name_original not in self.group.defaults:
+                if self.var_name_original not in self.skip_defaults:
+                    self.group.defaults.update({self.var_name_original: self.group.default})
         # perform extractions:
         self.extract_functions()
 
@@ -1791,17 +1791,16 @@ class _variable_class:
                 self.functions.append(data)
             # handle unconditional set without line to match
             else:
-                # self.group.defaults.update({self.var_name: {"set": data['args'][0]}})
-                self.group.defaults.update({self.var_name: data["args"][0]})
+                self.group.defaults.update({self.var_name_original: data["args"][0]})
                 self.skip_regex_dict = True
 
         def extract_default(data):
-            if self.var_name in self.skip_defaults:
+            if self.var_name_original in self.skip_defaults:
                 return
             if len(data["args"]) == 1:
-                self.group.defaults.update({self.var_name: data["args"][0]})
+                self.group.defaults.update({self.var_name_original: data["args"][0]})
             else:
-                self.group.defaults.update({self.var_name: "None"})
+                self.group.defaults.update({self.var_name_original: "None"})
 
         def extract_joinmatches(data):
             self.functions.append(data)

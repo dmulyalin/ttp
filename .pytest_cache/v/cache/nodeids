@@ -143,5 +143,8 @@
   "test/pytest/test_group_functions.py::test_child_group_default_referencing_variable_dictionary",
   "test/pytest/test_group_functions.py::test_group_default",
   "test/pytest/test_group_functions.py::test_child_group_default_referencing_variable_is_ignored",
-  "test/pytest/test_group_functions.py::test_child_group_default_referencing_variable"
+  "test/pytest/test_group_functions.py::test_child_group_default_referencing_variable",
+  "test/pytest/test_answers_and_docs.py::test_github_issue_33_answer_1",
+  "test/pytest/test_answers_and_docs.py::test_issue_36",
+  "test/pytest/test_misc.py::test_match_vars_set_with_hyphen"
 ]
