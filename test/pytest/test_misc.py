@@ -140,7 +140,7 @@ interface {{ interface-name }}
   {{ is-shutdown | set(False) }}
 </group>
     """
-    parser = ttp(template=template, log_level="DEBUG")
+    parser = ttp(template=template, log_level="ERROR")
     parser.parse()    
     res = parser.result()
     # pprint.pprint(res, width=150)
@@ -151,3 +151,43 @@ interface {{ interface-name }}
                      {'description-bla': 'Undefined', 'interface-name': 'Port-Channel27', 'is-shutdown': False, 'no-switchport': True}]]]
    
 # test_match_vars_set_with_hyphen()
+
+def test_per_template_mode():
+    data_1 = """
+interface Port-Chanel11
+  description Storage Management
+interface Loopback0
+  description RID
+interface Vlan777
+  description Management
+    """
+    data_2 = """
+interface Port-Chane10
+  description Storage Management
+interface Loopback77
+  description RID
+interface Vlan321
+  description Management    
+    """
+    template = """
+<template name="top_key_name" results="per_template">
+<group name="interfaces*">
+interface {{ interface }}
+  description {{ description }}
+</group>
+</template>
+    """
+    parser = ttp(template=template, log_level="ERROR")
+    parser.add_input(data_1, template_name="top_key_name")
+    parser.add_input(data_2, template_name="top_key_name")
+    parser.parse()    
+    res = parser.result(structure="dictionary")
+    # pprint.pprint(res, width=150)    
+    assert res == {'top_key_name': {'interfaces': [{'interface': 'Port-Chanel11'},
+                                   {'description': 'RID', 'interface': 'Loopback0'},
+                                   {'description': 'Management', 'interface': 'Vlan777'},
+                                   {'interface': 'Port-Chane10'},
+                                   {'description': 'RID', 'interface': 'Loopback77'},
+                                   {'description': 'Management', 'interface': 'Vlan321'}]}}
+                                 
+test_per_template_mode()

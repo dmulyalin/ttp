@@ -1,0 +1,46 @@
+{
+  "ietf-yang-library:modules-state": {
+    "module-set-id": "",
+    "module": [
+      {
+        "name": "iana-if-type",
+        "revision": "2017-01-19",
+        "namespace": "urn:ietf:params:xml:ns:yang:iana-if-type",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-inet-types",
+        "revision": "2013-07-15",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-inet-types",
+        "conformance-type": "import"
+      },
+      {
+        "name": "ietf-interfaces",
+        "revision": "2018-02-20",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-interfaces",
+        "feature": [
+          "arbitrary-names",
+          "pre-provisioning",
+          "if-mib"
+        ],
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-ip",
+        "revision": "2018-02-22",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-ip",
+        "feature": [
+          "ipv4-non-contiguous-netmasks",
+          "ipv6-privacy-autoconf"
+        ],
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-yang-types",
+        "revision": "2013-07-15",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-yang-types",
+        "conformance-type": "import"
+      }
+    ]
+  }
+}

@@ -159,31 +159,5 @@ Operating System: {{ os | ORPHRASE }}
                                 'hostname': 'localhost.localdomain',
                                 'machine_id': '2a26648f68764152a772fc20c9a3ddb3',
                                 'os': 'CentOS Linux 7 (Core)'}}]]
-
-def test_input_to_groups_mapping():
-    template = """
-<input name="sys_host" load="text">
- Static hostname: localhost.localdomain
-         Chassis: vm
-      Machine ID: 2a26648f68764152a772fc20c9a3ddb3
-Operating System: CentOS Linux 7 (Core)
-</input>
-    
-<group name="system">
- Static hostname: {{ hostname }}
-         Chassis: {{ chassis }}
-      Machine ID: {{ machine_id }}
-Operating System: {{ os | ORPHRASE }}
-</group>
-    """
-    parser = ttp(template=template)
-    # import ipdb; ipdb.set_trace()
-    parser.parse()
-    res = parser.result()
-    # pprint.pprint(res)
-    assert res == [[{'system': {'chassis': 'vm',
-                                'hostname': 'localhost.localdomain',
-                                'machine_id': '2a26648f68764152a772fc20c9a3ddb3',
-                                'os': 'CentOS Linux 7 (Core)'}}]]
                                 
 # test_input_to_groups_mapping()

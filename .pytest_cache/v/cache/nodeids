@@ -146,5 +146,15 @@
   "test/pytest/test_group_functions.py::test_child_group_default_referencing_variable",
   "test/pytest/test_answers_and_docs.py::test_github_issue_33_answer_1",
   "test/pytest/test_answers_and_docs.py::test_issue_36",
-  "test/pytest/test_misc.py::test_match_vars_set_with_hyphen"
+  "test/pytest/test_misc.py::test_match_vars_set_with_hyphen",
+  "test/pytest/test_output_functions.py::test_yangson_validate",
+  "test/pytest/test_output_functions.py::test_yangson_validate_yang_lib_in_output_tag_data",
+  "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_input_yang_lib_in_output_tag",
+  "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_output_tag",
+  "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_template",
+  "test/pytest/test_output_functions.py::test_yangson_validate_invalid_data_in_first_input_item",
+  "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file",
+  "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file_to_xml",
+  "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_template_to_xml",
+  "test/pytest/test_misc.py::test_per_template_mode"
 ]
