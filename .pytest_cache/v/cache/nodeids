@@ -156,5 +156,7 @@
   "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file",
   "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file_to_xml",
   "test/pytest/test_output_functions.py::test_yangson_validate_multiple_inputs_mode_per_template_to_xml",
-  "test/pytest/test_misc.py::test_per_template_mode"
+  "test/pytest/test_misc.py::test_per_template_mode",
+  "test/pytest/test_answers_and_docs.py::test_github_issue_37_original_data_template",
+  "test/pytest/test_answers_and_docs.py::test_github_issue_37_cleaned_up_data"
 ]
