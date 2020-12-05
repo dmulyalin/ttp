@@ -1480,15 +1480,114 @@ def qinq(data):
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    pprint.pprint(res) 
+    # pprint.pprint(res) 
+    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:',
+                                    'regular_sdp': {'8051': {'state': 'enabled',
+                                                             'vc_id': '103076'}},
+                                    'sap': {'1/2/12:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:',
+                                                               'egress': {'sap_egress': '1)',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '1',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN10',
+                                                               'state': 'enabled'}},
+                                    'service_mtu': '1588',
+                                    'service_name': 'EPIPE service-103076 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103206': {'customer_id': '1904',
+                                    'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                                   'UK PLC Stepney Green E1 '
+                                                   "3DG'",
+                                    'regular_sdp': {'8035': {'state': 'enabled',
+                                                             'vc_id': '103206'}},
+                                    'sap': {'2/2/3:401.100': {'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                                                             'UK '
+                                                                             'PLC '
+                                                                             'Stepney '
+                                                                             'Green '
+                                                                             'E1 '
+                                                                             "3DG'",
+                                                              'egress': {'sap_egress': '11010',
+                                                                         'scheduler_policy': 'none'},
+                                                              'ingress': {'sap_ingress': '11010',
+                                                                          'scheduler_policy': 'none'},
+                                                              'mss_name': 'SKANSKA_E13DG_A825_LAN1',
+                                                              'state': 'disabled'}},
+                                    'service_mtu': '1988',
+                                    'service_name': 'EPIPE service-103206 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103256': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:',
+                                    'regular_sdp': {'8139': {'state': 'enabled',
+                                                             'vc_id': '103256'}},
+                                    'sap': {'1/2/12:15.qinq': {'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:',
+                                                               'egress': {'sap_egress': '11000',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '11000',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN5',
+                                                               'state': 'disabled'}},
+                                    'service_mtu': '1988',
+                                    'service_name': 'EPIPE service-103256 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103742': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:',
+                                    'regular_sdp': {'8061': {'state': 'enabled',
+                                                             'vc_id': '103742'}},
+                                    'sap': {'5/2/50:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:',
+                                                               'egress': {'sap_egress': '11000',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '11000',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_STRAT_LON_A206_LANA',
+                                                               'state': 'disabled'}},
+                                    'service_mtu': '1588',
+                                    'service_name': 'EPIPE service-103742 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '55517673': {'customer_id': '4',
+                                      'description': 'vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA '
+                                                     'EPIPE#BAACTQ#VLAN 901',
+                                      'endpoint': {'endpoint': '"SDP"',
+                                                   'revert_time': 'infinite'},
+                                      'pwr_sdp': {'8243': {'endpoint': '"SDP"',
+                                                           'precedence': '1',
+                                                           'state': 'enabled',
+                                                           'vc_id': '55517673'},
+                                                  '8245': {'endpoint': '"SDP"',
+                                                           'precedence': 'primary',
+                                                           'state': 'enabled',
+                                                           'vc_id': '55517673'}},
+                                      'sap': {'2/2/3:901.qinq': {'description': '2_2_3,H0505824A,Bulldog,VLAN '
+                                                                                '901',
+                                                                 'egress': {'sap_egress': '20010',
+                                                                            'scheduler_policy': '"NGA-LLU-300M"'},
+                                                                 'ingress': {'sap_ingress': '20010',
+                                                                             'scheduler_policy': '"NGA-LLU-300M"'},
+                                                                 'mss_name': 'none',
+                                                                 'state': 'disabled'}},
+                                      'service_mtu': '1526',
+                                      'service_name': 'epipe service-64585 '
+                                                      'DKTN08a-D0105 '
+                                                      '(63.130.108.41)',
+                                      'state': 'enabled'}}}}]]
     
+# test_github_issue_37_original_data_template()
 
 def test_github_issue_37_cleaned_up_data():
     template = """
 <group name="service">
     service {{ ignore }}
     <group name="epipe.{{ service_id }}">
-        epipe {{ service_id }} customer {{ customer_id }} create					
+        epipe {{ service_id }} customer {{ customer_id }} create                    
             <group name="regular_sdp.{{r_spoke_sdp_id}}**"> 
             spoke-sdp {{ r_spoke_sdp_id }}:{{vc_id }} create             
                 no shutdown {{ state | set("enabled") }}
@@ -1581,6 +1680,12 @@ def test_github_issue_37_cleaned_up_data():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    pprint.pprint(res) 
+    # pprint.pprint(res) 
+    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
+                                    'regular_sdp': {'8051': {'state': 'enabled',
+                                                             'vc_id': '103076'}}},
+                         '103206': {'customer_id': '1904',
+                                    'regular_sdp': {'8035': {'state': 'enabled',
+                                                             'vc_id': '103206'}}}}}}]]
     
-test_github_issue_37_cleaned_up_data()
+# test_github_issue_37_cleaned_up_data()

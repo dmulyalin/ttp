@@ -2425,6 +2425,7 @@ class _results_class:
 
     def __init__(self):
         self.results = {}
+        self.started_groups = set() # keeps track of started groups to not add false matches
         self.GRPLOCK = {
             "LOCK": False,
             "GROUP": (),
@@ -2699,6 +2700,14 @@ class _results_class:
                 E.update(result_data)
 
     def start(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+        new_path = ".".join(PATH)
+        previous_path = ".".join(self.record["PATH"])
+        self.started_groups.add(new_path)
+        # if not child of previous group, new, different group started,
+        # remove previous path from started groups
+        if not new_path.startswith(previous_path):
+            self.started_groups.remove(previous_path)        
+            
         if self.processgrp() != False:
             self.save_curelements(
                 result_data=self.record["result"], result_path=self.record["PATH"]
@@ -2711,6 +2720,14 @@ class _results_class:
         }
 
     def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+        new_path = ".".join(PATH)
+        previous_path = ".".join(self.record["PATH"])
+        self.started_groups.add(new_path)
+        # if not child of previous group, new, different group started,
+        # remove previous path from started groups
+        if not new_path.startswith(previous_path):
+            self.started_groups.remove(previous_path)       
+            
         if self.processgrp() != False:
             self.save_curelements(
                 result_data=self.record["result"], result_path=self.record["PATH"]
@@ -2723,13 +2740,15 @@ class _results_class:
         }
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+        new_path = ".".join(PATH)
         if self.record["PATH"] == PATH:  # if same path - save into self.record
             # update without overriding already existing values:
             result.update(self.record["result"])
             self.record["result"] = result
         # if different path - that can happen if we have group ended and result
-        # actually belong to another group, hence have save directly into results
-        else:
+        # actually belong to another already started group, hence have save 
+        # directly into results
+        elif new_path in self.started_groups:
             processed_path = self.form_path(PATH)
             if processed_path is False:
                 return
@@ -2769,13 +2788,15 @@ class _results_class:
                 self.record["result"][k] = result[k]  # if first result
 
     def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+        new_path = ".".join(PATH)
+        previous_path = ".".join(self.record["PATH"])
         # if path not the same and this is not child
         # results belong to different group, skip them
         if (
             self.record["PATH"] != PATH
             and
             # if below is true, this is child group:
-            not ".".join(self.record["PATH"]).startswith(".".join(PATH))
+            new_path.startswith(previous_path)
         ):
             return
         # action to end current group by locking it

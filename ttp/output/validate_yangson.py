@@ -101,7 +101,7 @@ def _make_library(ydir):
     for infile in os.listdir(ydir):
         if not infile.endswith(".yang"):
             continue
-        with open(f"{ydir}/{infile}", "r", encoding="utf-8") as yf:
+        with open("{ydir}/{infile}".format(ydir=ydir, infile=infile), "r", encoding="utf-8") as yf:
             _module_entry(yf)
     marr = []
     for (yam, mrev) in modmap:
@@ -116,12 +116,12 @@ def _make_library(ydir):
             try:
                 srec = submodmap[subm]
             except KeyError:
-                print(f"Submodule {subm} not available.", file=sys.stderr)
+                print("Submodule {} not available.".format(subm))
                 return 1
             if srev is None or srev == srec["revision"]:
                 sen["revision"] = srec["revision"]
             else:
-                print(f"Submodule {subm} revision mismatch.", file=sys.stderr)
+                print("Submodule {} revision mismatch.".format(subm))
                 return 1
             imp_only = imp_only or srec["import-only"]
             fts += srec["features"]
