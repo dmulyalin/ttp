@@ -1229,7 +1229,7 @@ def test_github_issue_37_original_data_template():
 <macro>
 import re
 def qinq(data):
-    data = re.sub(r"\*", r"qinq", data)
+    data = re.sub(r"\\*", r"qinq", data)
     return data 
 </macro>
 
@@ -1583,6 +1583,20 @@ def qinq(data):
 # test_github_issue_37_original_data_template()
 
 def test_github_issue_37_cleaned_up_data():
+    """
+    Problem with below template without bug fix, was that
+    'no shutdown' statement for sap group was matched by 
+    spoke-sdp group as well and added to results causing
+    false match. To fix it, added tracking of previously
+    started groups in results object, so that before add
+    match results to overall results if PATH differ need
+    to check that this particular item groups has been 
+    started before, previous logic was not checking for that.
+    
+    Have not noticed any issues with other 200+ tests or
+    any performance degradation for single/multi-process
+    parsing.
+    """
     template = """
 <group name="service">
     service {{ ignore }}
@@ -1689,3 +1703,354 @@ def test_github_issue_37_cleaned_up_data():
                                                              'vc_id': '103206'}}}}}}]]
     
 # test_github_issue_37_cleaned_up_data()
+
+def test_github_issue_37_cleaned_data_template():
+    template = """
+<group name="service">
+    service {{ ignore }}
+    <group name="epipe.{{ service_id }}"  default="none">
+        epipe {{ service_id }} customer {{ customer_id }} create
+            description "{{ description | ORPHRASE }}"
+            service-mtu {{ service_mtu }}
+            service-name "{{ service_name | ORPHRASE }}"
+        <group name="endpoint"  default="none">
+            endpoint {{ endpoint }} create
+                revert-time {{ revert_time }}
+            exit {{ _end_ }}
+        </group>     
+        <group name="sap.{{ sap_id }}"  default="none">
+            sap {{ sap_id | resub(r"\\*", "qinq") | ORPHRASE }} create
+                description "{{ description | ORPHRASE }}"
+                multi-service-site "{{ mss_name }}"
+            <group name="ingress">
+                ingress {{ _start_ }}
+                    qos {{ sap_ingress | default("1") }}                 
+                    scheduler-policy {{ scheduler_policy | default("none")}}
+                exit {{ _end_ }}
+            </group>
+            <group name="egress">
+                egress {{ _start_ }}
+                    scheduler-policy {{ scheduler_policy | default("none") }}
+                    qos {{ sap_egress | default("1)") }}
+                exit {{ _end_ }}
+            </group>
+                no shutdown {{ state | set("enabled") | default("disabled") }}
+            exit {{ _end_ }}
+        </group>
+        <group name="pwr_sdp.{{pwr_spoke_sdp_id}}**" default="none"> 
+            spoke-sdp {{ pwr_spoke_sdp_id }}:{{vc_id }} endpoint {{ endpoint }} create             
+                precedence {{ precedence | default("default_precedence") }}
+                no shutdown {{ state | set("enabled") | default("disabled") }}
+            exit {{ _end_ }}
+        </group> 
+        <group name="regular_sdp.{{r_spoke_sdp_id}}**" default="none"> 
+            spoke-sdp {{ r_spoke_sdp_id }}:{{vc_id }} create             
+                no shutdown {{ state | set("enabled") | default("disabled") }}
+            exit {{ _end_ }}
+        </group> 
+            no shutdown {{ state | set("enabled") | default("disabled") }}
+        exit {{ _end_ }}
+    </group>
+    exit {{ _end_ }}
+</group>
+    """
+    data = """
+    service foo
+        epipe 103076 customer 160 create
+            description "vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:"
+            service-mtu 1588
+            service-name "EPIPE service-103076 DKTN08a-D0105 (63.130.108.41)"
+            sap 1/2/12:20.* create
+                description "vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:"
+                multi-service-site "TATA_VSNL_STRAT_A206_LAN10"
+                ingress
+                    queue-override
+                        queue 1 create
+                            cbs default
+                            mbs 40 kilobytes
+                            rate 10000 cir 10000
+                        exit
+                    exit
+                exit
+                egress
+                    queue-override
+                        queue 1 create
+                            cbs default
+                            mbs 40 kilobytes
+                            rate 10000 cir 10000
+                        exit
+                    exit
+                exit
+                accounting-policy 4
+                no shutdown
+            exit
+            spoke-sdp 8051:103076 create
+                no shutdown
+            exit
+            no shutdown
+        exit
+        epipe 103206 customer 1904 create
+            description "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA UK PLC Stepney Green E1 3DG'"
+            service-mtu 1988
+            service-name "EPIPE service-103206 DKTN08a-D0105 (63.130.108.41)"
+            sap 2/2/3:401.100 create
+                description "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA UK PLC Stepney Green E1 3DG'"
+                multi-service-site "SKANSKA_E13DG_A825_LAN1"
+                ingress
+                    qos 11010
+                    queue-override
+                        queue 1 create
+                            cbs default
+                            mbs 1188 kilobytes
+                            rate max cir 47500
+                        exit
+                        queue 3 create
+                            cbs default
+                            mbs 63 kilobytes
+                            rate max cir 2500
+                        exit
+                    exit
+                exit
+                egress
+                    qos 11010
+                    queue-override
+                        queue 1 create
+                            cbs default
+                            mbs 1188 kilobytes
+                            rate max cir 47500
+                        exit
+                        queue 3 create
+                            cbs default
+                            mbs 63 kilobytes
+                            rate max cir 2500
+                        exit
+                    exit
+                exit
+                collect-stats
+                accounting-policy 4
+                no shutdown
+            exit
+            spoke-sdp 8035:103206 create
+                no shutdown
+            exit
+            no shutdown
+        exit
+        epipe 103256 customer 160 create
+            description "vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:"
+            service-mtu 1988
+            service-name "EPIPE service-103256 DKTN08a-D0105 (63.130.108.41)"
+            sap 1/2/12:15.* create
+                description "vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:"
+                multi-service-site "TATA_VSNL_STRAT_A206_LAN5"
+                ingress
+                    qos 11000
+                    queue-override
+                        queue 1 create
+                            cbs default
+                            mbs 391 kilobytes
+                            rate 100000 cir 100000
+                        exit
+                    exit
+                exit
+                egress
+                    qos 11000
+                    queue-override
+                        queue 1 create
+                            cbs default
+                            mbs 391 kilobytes
+                            rate 100000 cir 100000
+                        exit
+                    exit
+                exit
+                accounting-policy 4
+                no shutdown
+            exit
+            spoke-sdp 8139:103256 create
+                no shutdown
+            exit
+            no shutdown
+        exit
+        epipe 103742 customer 160 create
+            description "vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:"
+            service-mtu 1588
+            service-name "EPIPE service-103742 DKTN08a-D0105 (63.130.108.41)"
+            sap 5/2/50:20.* create
+                description "vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:"
+                multi-service-site "TATA_STRAT_LON_A206_LANA"
+                ingress
+                    qos 11000
+                    queue-override
+                        queue 1 create
+                            cbs default
+                            mbs 32 kilobytes
+                            rate 8000 cir 8000
+                        exit
+                    exit
+                exit
+                egress
+                    qos 11000
+                    queue-override
+                        queue 1 create
+                            cbs default
+                            mbs 32 kilobytes
+                            rate 8000 cir 8000
+                        exit
+                    exit
+                exit
+                accounting-policy 4
+                no shutdown
+            exit
+            spoke-sdp 8061:103742 create
+                no shutdown
+            exit
+            no shutdown
+        exit
+        epipe 55513386 customer 4 vc-switching create
+            description "vf=EAGG:cn=Bulldog:tl=VF"
+            service-mtu 1526
+            spoke-sdp 78:55513386 create
+                control-word
+                no shutdown
+            exit
+            spoke-sdp 8245:55513386 create
+                control-word
+                no shutdown
+            exit
+            no shutdown
+        exit
+        epipe 55517673 customer 4 create
+            description "vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA EPIPE#BAACTQ#VLAN 901"
+            service-mtu 1526
+            service-name "epipe service-64585 DKTN08a-D0105 (63.130.108.41)"
+            endpoint "SDP" create
+                revert-time infinite
+            exit
+            sap 2/2/3:901.* create
+                description "2_2_3,H0505824A,Bulldog,VLAN 901"
+                ingress
+                    scheduler-policy "NGA-LLU-300M"
+                    qos 20010
+                exit
+                egress
+                    scheduler-policy "NGA-LLU-300M"
+                    qos 20010
+                exit
+                no shutdown
+            exit
+            spoke-sdp 8243:55517673 endpoint "SDP" create
+                collect-stats
+                precedence 1
+                no shutdown
+            exit
+            spoke-sdp 8245:55517673 endpoint "SDP" create
+                collect-stats
+                precedence primary
+                no shutdown
+            exit
+            no shutdown
+        exit   
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res) 
+    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:',
+                                    'regular_sdp': {'8051': {'state': 'enabled',
+                                                             'vc_id': '103076'}},
+                                    'sap': {'1/2/12:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:',
+                                                               'egress': {'sap_egress': '1)',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '1',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN10',
+                                                               'state': 'enabled'}},
+                                    'service_mtu': '1588',
+                                    'service_name': 'EPIPE service-103076 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103206': {'customer_id': '1904',
+                                    'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                                   'UK PLC Stepney Green E1 '
+                                                   "3DG'",
+                                    'regular_sdp': {'8035': {'state': 'enabled',
+                                                             'vc_id': '103206'}},
+                                    'sap': {'2/2/3:401.100': {'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                                                             'UK '
+                                                                             'PLC '
+                                                                             'Stepney '
+                                                                             'Green '
+                                                                             'E1 '
+                                                                             "3DG'",
+                                                              'egress': {'sap_egress': '11010',
+                                                                         'scheduler_policy': 'none'},
+                                                              'ingress': {'sap_ingress': '11010',
+                                                                          'scheduler_policy': 'none'},
+                                                              'mss_name': 'SKANSKA_E13DG_A825_LAN1',
+                                                              'state': 'disabled'}},
+                                    'service_mtu': '1988',
+                                    'service_name': 'EPIPE service-103206 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103256': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:',
+                                    'regular_sdp': {'8139': {'state': 'enabled',
+                                                             'vc_id': '103256'}},
+                                    'sap': {'1/2/12:15.qinq': {'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:',
+                                                               'egress': {'sap_egress': '11000',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '11000',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN5',
+                                                               'state': 'disabled'}},
+                                    'service_mtu': '1988',
+                                    'service_name': 'EPIPE service-103256 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103742': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:',
+                                    'regular_sdp': {'8061': {'state': 'enabled',
+                                                             'vc_id': '103742'}},
+                                    'sap': {'5/2/50:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:',
+                                                               'egress': {'sap_egress': '11000',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '11000',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_STRAT_LON_A206_LANA',
+                                                               'state': 'disabled'}},
+                                    'service_mtu': '1588',
+                                    'service_name': 'EPIPE service-103742 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '55517673': {'customer_id': '4',
+                                      'description': 'vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA '
+                                                     'EPIPE#BAACTQ#VLAN 901',
+                                      'endpoint': {'endpoint': '"SDP"',
+                                                   'revert_time': 'infinite'},
+                                      'pwr_sdp': {'8243': {'endpoint': '"SDP"',
+                                                           'precedence': '1',
+                                                           'state': 'enabled',
+                                                           'vc_id': '55517673'},
+                                                  '8245': {'endpoint': '"SDP"',
+                                                           'precedence': 'primary',
+                                                           'state': 'enabled',
+                                                           'vc_id': '55517673'}},
+                                      'sap': {'2/2/3:901.qinq': {'description': '2_2_3,H0505824A,Bulldog,VLAN '
+                                                                                '901',
+                                                                 'egress': {'sap_egress': '20010',
+                                                                            'scheduler_policy': '"NGA-LLU-300M"'},
+                                                                 'ingress': {'sap_ingress': '20010',
+                                                                             'scheduler_policy': '"NGA-LLU-300M"'},
+                                                                 'mss_name': 'none',
+                                                                 'state': 'disabled'}},
+                                      'service_mtu': '1526',
+                                      'service_name': 'epipe service-64585 '
+                                                      'DKTN08a-D0105 '
+                                                      '(63.130.108.41)',
+                                      'state': 'enabled'}}}}]]
+    
+test_github_issue_37_cleaned_data_template()
