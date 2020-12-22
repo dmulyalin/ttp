@@ -19,6 +19,7 @@ Template Text Parser
    Doc Tag/Doc Tag
    Writing templates/index
    CLI tool
+   TTP Templates Collection
    API reference
    Performance
    TTP Internals/index

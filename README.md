@@ -30,6 +30,8 @@ TTP [Networktocode Slack channel](https://networktocode.slack.com/archives/C018H
 
 Playground - [online TTP tester](http://netpalm.tech:8080/)
 
+Collection of [TTP Templates](https://github.com/dmulyalin/ttp_templates)
+
 ## Example - as simple as it can be
 
 Simple interfaces configuration parsing example

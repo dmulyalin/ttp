@@ -1150,10 +1150,10 @@ some data
 # test_get_input_load_anonymous_template()
 
 def to_test_globals_injection(data):
-	if "_ttp_" in globals():
-		return data, True
-	return data, False
-	
+    if "_ttp_" in globals():
+        return data, True
+    return data, False
+    
 def test_add_function_method_group_globals_injection():
     template_1 = """
 <input load="text">
@@ -1218,3 +1218,26 @@ interface {{ interface }}
                      {'description': 'this interface has description', 'interface': 'Lo1'}]]]
     
 # test_add_input_structured_data_list()
+
+def test_loading_template_from_ttp_templates():
+    data1 = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+    """
+    parser = ttp(data=data1, template="ttp://platform/test_platform_show_run_pipe_sec_interface.txt")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+                     {'description': 'this interface has description',
+                      'interface': 'Lo1',
+                      'ip': '1.1.1.1',
+                      'mask': '32'}]]]
+
+# test_loading_template_from_ttp_templates()

@@ -46,8 +46,12 @@ def load_files(path, extensions=[], filters=[], read=False):
                 )
             ]
 
+    # check if path is a reference to template in ttp_templates collection
+    if path.startswith("ttp://"):
+        from ttp_templates import get_template
+        return [("text_data", get_template(path=path.replace("ttp://", "")))]            
     # check if path is a path to file:
-    if os.path.isfile(path[:5000]):
+    elif os.path.isfile(path[:5000]):
         if read:
             try:
                 if _ttp_["python_major_version"] == 2:
