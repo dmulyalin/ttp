@@ -303,4 +303,31 @@ interface {{ interface }}
     # pprint.pprint(res, width=150)
     assert res == [[[{'interface': 'Port-Channel11', 'ip': '1.1.1.1/24'}, {'interface': 'Loopback0', 'ip': {'defined': False}}]]]
 
-# test_match_variable_default_set_to_dictionary()    
+# test_match_variable_default_set_to_dictionary()  
+
+def test_match_variable_set_and_let_for_same_variable_with_special_chars():
+    template = """
+<input load="text">
+interface Port-Channel11
+ ip address 1.1.1.1/24
+interface Loopback0
+ ip address 1.1.2.1/24
+ shutdown
+</input>
+
+<group>
+interface {{ interface }}
+ ip address {{ ip | default({"defined": False}) }}
+ shutdown {{ enabled | set(False) | let("admin-status", "down") }}
+ {{ link-up-down-trap-enable | set(enabled) }}
+ {{ admin-status | set(up) }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[[{'admin-status': 'up', 'interface': 'Port-Channel11', 'ip': '1.1.1.1/24', 'link-up-down-trap-enable': 'enabled'},
+                      {'admin-status': 'down', 'enabled': False, 'interface': 'Loopback0', 'ip': '1.1.2.1/24', 'link-up-down-trap-enable': 'enabled'}]]]
+                      
+# test_match_variable_set_and_let_for_same_variable_with_special_chars()
