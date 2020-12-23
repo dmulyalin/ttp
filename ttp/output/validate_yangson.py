@@ -7,9 +7,9 @@ Dependencies:
 
 On each call, generates YANG library data in JSON format in accordance with
 RFC7895. YANG library used to validate results structures for compatibility
-with certain YANG modules. 
-    
-YANG library can be provided within output tag or using yang_mod_lib attribute, 
+with certain YANG modules.
+
+YANG library can be provided within output tag or using yang_mod_lib attribute,
 in that case, YANG JSON library generation step will be skipped. That
 can increase execution time.
 
@@ -19,8 +19,9 @@ YANG JSON library of YANG modules used for validation.
 import logging
 import json
 import os
-import sys
 import traceback
+
+log = logging.getLogger(__name__)
 
 try:
     from yangson.statement import ModuleParser
@@ -33,7 +34,6 @@ except ImportError:
         "ttp.yang_validate, failed to import Cerberus library, make sure it is installed"
     )
     HAS_LIBS = False
-log = logging.getLogger(__name__)
 
 data_kws = [
     "augment",
@@ -143,13 +143,14 @@ def validate_yangson(
     validation_scope="all",
     content_type="all",
     to_xml=False,
+    metadata=True
 ):
     """
     Validate instance_data for compliance with YANG modules at
     yang_mod_dir directory.
 
     Args:
-        instance_data (dictionary): parsing results to validate
+        instance_data (dictionary or list): parsing results to validate
         yang_mod_dir (str): OS path to directory with YANG modules
         yang_mod_lib (str): optional, OS path to file with JSON-encoded YANG library data [RFC7895]
         content_type (str): optional, content type
@@ -159,16 +160,21 @@ def validate_yangson(
             as per https://yangson.labs.nic.cz/enumerations.html
             supported - all, semantics, syntax
         to_xml (bool): default is False, converts results to XML if True
+        metadata (bool): default is True, return data with validation results
 
     Returns:
 
-        Dictionary of::
+        Dictionary of if metadata is True::
             {
                 "result": instance_data or to_xml results,
                 "exception": {},
                 "valid": {},
                 "comment": ""
             }
+
+        If metadata is False returns results as is on successful validation or False otherwise
+
+        If metadata is False but to_xml is True, return parsing results converted to XML string
     """
     if to_xml:
         from xml.etree import cElementTree as ET
@@ -196,15 +202,16 @@ def validate_yangson(
             yang_modules_library = _make_library(yang_mod_dir)
         dm = DataModel(yltxt=yang_modules_library, mod_path=[yang_mod_dir])
     except:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        ret["exception"] = "".join(
-            traceback.format_exception(exc_type, exc_value, exc_traceback)
-        )
+        ret["exception"] = traceback.format_exc()
         ret["success"] = False
         ret[
             "comment"
         ] = "Failed to instantiate DataModel, check YANG library and path to YANG modules."
-        return ret
+        if not metadata:
+            return False
+        else:
+            return ret
+            
     # decide on scopes and content
     if validation_scope == "all":
         scope = enumerations.ValidationScope.all
@@ -218,6 +225,7 @@ def validate_yangson(
         ctype = enumerations.ContentType.config
     elif content_type == "nonconfig":
         ctype = enumerations.ContentType.nonconfig
+        
     # run validation of data
     if isinstance(instance_data, list):
         for index, item in enumerate(instance_data):
@@ -228,10 +236,9 @@ def validate_yangson(
                 if to_xml:
                     ret["result"].append(ET.tostring(inst.to_xml(), encoding="unicode"))
             except:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                ret["exception"][index] = "".join(
-                    traceback.format_exception(exc_type, exc_value, exc_traceback)
-                )
+                if not metadata:
+                    return False
+                ret["exception"][index] = traceback.format_exc()
                 ret["valid"][index] = False
     elif isinstance(instance_data, dict):
         try:
@@ -241,9 +248,13 @@ def validate_yangson(
             if to_xml:
                 ret["result"] = ET.tostring(inst.to_xml(), encoding="unicode")
         except:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            ret["exception"] = "".join(
-                traceback.format_exception(exc_type, exc_value, exc_traceback)
-            )
+            if not metadata:
+                return False
+            ret["exception"] = traceback.format_exc()
             ret["valid"] = False
-    return ret
+            
+    # return results
+    if not metadata:
+        return ret["result"]
+    else:
+        return ret

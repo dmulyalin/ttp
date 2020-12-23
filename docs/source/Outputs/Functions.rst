@@ -641,7 +641,16 @@ validate_yangson
 
 Function to validate parsing results using YANG modules with the help of yangson library.
 
-This function returns a dictionary of::
+**Supported parameters**
+
+* ``yang_mod_dir`` str, OS path to directory with YANG modules
+* ``yang_mod_lib`` str, optional, OS path to file with JSON-encoded YANG library data [RFC7895]
+* ``content_type`` str, optional, content type as per https://yangson.labs.nic.cz/enumerations.html, supported values - ``all, config, nonconfig``
+* ``validation_scope`` str, optional, validation scope as per https://yangson.labs.nic.cz/enumerations.html, supported values - ``all, semantics, syntax``
+* ``to_xml`` bool, default is False, convert parsing results to XML if ``True``
+* ``metadata`` bool, default is True, add validation metadata to results
+
+This function returns this dictionary if ``metadata`` argument is True::
 
     {
         "result": parsing results or to_xml results,
@@ -650,22 +659,16 @@ This function returns a dictionary of::
         "comment": ""
     }
 
-**Supported parameters**
+If ``metadata`` argument is False:
 
-* ``yang_mod_dir`` str, OS path to directory with YANG modules
-* ``yang_mod_lib`` str, optional, OS path to file with JSON-encoded YANG library data [RFC7895]
-* ``content_type`` str, optional, content type as per https://yangson.labs.nic.cz/enumerations.html,
-        supported values - ``all, config, nonconfig``
-* ``validation_scope`` str, optional, validation scope as per https://yangson.labs.nic.cz/enumerations.html,
-        supported values - ``all, semantics, syntax``
-* ``to_xml`` bool, default is False, convert parsing results to XML if ``True``
-
+* on successful validation returns parsing results as is
+* on failed validation return False
+* if ``to_xml`` is True, returns parsing results converted to XML string
 
 **Validation Behavior**
 
 * if parsing result is a list, validates each list item independently,  and ``valid`` dictionaries key corresponds to item index
-* if parsing result is a dictionary, validates results as a whole, constructing results dictionary where ``exception`` contains
-    information about error and ``valid`` set to True or False depending in validation results
+* if parsing result is a dictionary, validates results as a whole, constructing results dictionary where ``exception`` contains information about error and ``valid`` set to True or False depending in validation results
 
 
 **Example-1**
