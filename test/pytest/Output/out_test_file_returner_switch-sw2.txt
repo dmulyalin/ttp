@@ -1,0 +1,1 @@
+[[{'vlan': 10, 'interface': 'Port-Chanel11', 'hostname': 'switch-sw1'}, {'vlan': 20, 'interface': 'Loopback0', 'hostname': 'switch-sw1'}], [{'vlan': 10, 'interface': 'Port-Chanel11', 'hostname': 'switch-sw2'}, {'vlan': 20, 'interface': 'Loopback0', 'hostname': 'switch-sw2'}]]

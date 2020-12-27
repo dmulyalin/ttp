@@ -15,7 +15,16 @@ def file_returner(D, **kwargs):
         filename (str): name of the file
     """
     url = kwargs.get("url", "./Output/")
-    filename = kwargs.get("filename", "output_{}.txt".format(ctime))
+    if "filename" in kwargs:
+        filename = kwargs["filename"]
+        try:
+            fkwargs = _ttp_["global_vars"].copy()
+            fkwargs.update(_ttp_["vars"])
+            filename = filename.format(**fkwargs)
+        except Exception as e:
+            log.error("file_returner: failed format filename - '{}'".format(e))
+    else:
+        filename = "output_{}.txt".format(ctime)
     # if no filename provided, add outputter name to filename
     if not kwargs.get("filename", False):
         filename = _ttp_["output_object"].name + "_" + filename

@@ -2975,13 +2975,13 @@ class _outputter_class:
             _ttp_["macro"] = macro
         format_type = self.attributes["format"]
         results = data
-        # run functions:
+        # run functions
         for item in self.funcs:
             func_name = item["name"]
             args = item.get("args", [])
             kwargs = item.get("kwargs", {})
             results = _ttp_["output"][func_name](results, *args, **kwargs)
-        # run formatter
+        # run formatters
         if format_type in _ttp_["formatters"]:
             results = _ttp_["formatters"][format_type](results, **self.attributes)
         else:
