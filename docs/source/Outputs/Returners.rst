@@ -49,7 +49,51 @@ Results will be saved to text file on local file system. One file will be produc
    * ``%p``  Locale's equivalent of either AM or PM.
 
    
-For instance, filename="OUT_%Y-%m-%d_%H-%M-%S_results.txt" will be rendered to "OUT_2019-09-09_18-19-58_results.txt" filename. By default filename is set to "output_<ctime>.txt", where "ctime" is a string produced after rendering "%Y-%m-%d_%H-%M-%S" by python `time.strftime() <https://docs.python.org/3/library/time.html#time.strftime>`_ function.
+For instance, ``filename="OUT_%Y-%m-%d_%H-%M-%S_results.txt"`` will render to ``"OUT_2019-09-09_18-19-58_results.txt"`` filename. By default filename is set to ``"output_<ctime>.txt"``, where ``"ctime"`` is a string produced after rendering ``"%Y-%m-%d_%H-%M-%S"`` by python `time.strftime() <https://docs.python.org/3/library/time.html#time.strftime>`_ function.
+
+In addition to formatting filename using time formatter, using ``_ttp_["vars"]`` and ``_ttp_["global_vars"]`` dictionaries also supported, but due to the way how these dictionaries populated, attention should be paid to correctness of filenames - test before use. In particular, ``_ttp_["global_vars"]`` contains variables across all templates, variables in that dictionary can be overridden as parsing progresses. On the other hand ``_ttp_["vars"]`` dictionary always contains variables from ``<vars>`` tag and values local to specific input item being processed, by the time outputters start processing data, ``_ttp_["vars"]`` dictionary contains values produced by last input item.
+
+**Example-1**
+
+Format filename using device hostname on a per-input basis.
+
+Template::
+
+    <input load="text">
+    switch-sw1# show run interfaces
+    interface Port-Chanel2
+      vlan 100
+    interface Loopback10
+      vlan 200
+    </input>
+    
+    <input load="text">
+    switch-sw2# show run interfaces
+    interface Port-Chanel11
+      vlan 10
+    interface Loopback0
+      vlan 20
+    </input>
+    
+    <vars>
+    host_name = "gethostname"
+    </vars>
+    
+    <group name="interfaces" output="save_to_file">
+    interface {{ interface }}
+      vlan {{ vlan | to_int }}
+    </group>
+    
+    <output name="save_to_file">
+    returner="file"
+    url="./Output/"
+    filename="{host_name}_interfaces.txt"
+    </output>
+
+Above template uses group specific outputter to save group results in a file, filenames will contain device hostname. These two files produced::
+
+    ./Output/switch-sw1_interfaces.txt
+    ./Output/switch-sw2_interfaces.txt
 
 terminal
 -------------------------------------
