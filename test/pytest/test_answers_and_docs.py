@@ -2053,4 +2053,93 @@ def test_github_issue_37_cleaned_data_template():
                                                       '(63.130.108.41)',
                                       'state': 'enabled'}}}}]]
     
-test_github_issue_37_cleaned_data_template()
+# test_github_issue_37_cleaned_data_template()
+
+def test_github_issue_42():
+    data = """
+vrf xyz
+ address-family ipv4 unicast
+  import route-target
+   65000:3507
+   65000:3511
+   65000:5453
+   65000:5535
+  !
+  export route-target
+   65000:5453
+   65000:5535
+  !
+ !
+!    
+    """
+    template = """
+<group name="vrfs">
+vrf {{name}}
+  <group name="route-targets">
+  import route-target {{ _start_ }}
+   {{ import | to_list | joinmatches }}
+  </group>
+  !
+  <group name="route-targets">
+  export route-target {{ _start_ }}
+   {{ export | to_list | joinmatches }}
+  </group>
+</group>
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res) 
+    assert res == [[{'vrfs': {'name': 'xyz',
+                     'route-targets': [{'import': ['65000:3507',
+                                                   '65000:3511',
+                                                   '65000:5453',
+                                                   '65000:5535']},
+                                       {'export': ['65000:5453', '65000:5535']}]}}]]
+
+# test_github_issue_42()
+
+def test_github_issue_42_answer():
+    data = """
+vrf xyz
+ address-family ipv4 unicast
+  import route-target
+   65000:3507
+   65000:3511
+   65000:5453
+   65000:5535
+  !
+  export route-target
+   65000:5453
+   65000:5535
+  !
+ !
+!    
+    """
+    template = """
+<group name="vrfs">
+vrf {{name}}
+  <group name="import_rts">
+  import route-target {{ _start_ }}
+   {{ import_rt | _start_ }}
+  </group>
+  !
+  <group name="export_rts">
+  export route-target {{ _start_ }}
+   {{ export_rt | _start_ }}
+  </group>
+</group>
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res) 
+    assert res == [[{'vrfs': {'export_rts': [{'export_rt': '65000:5453'},
+                                 {'export_rt': '65000:5535'}],
+                     'import_rts': [{'import_rt': '65000:3507'},
+                                 {'import_rt': '65000:3511'},
+                                 {'import_rt': '65000:5453'},
+                                 {'import_rt': '65000:5535'}],
+                     'name': 'xyz'}}]]
+    
+# test_github_issue_42_answer()

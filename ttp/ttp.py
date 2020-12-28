@@ -1148,10 +1148,8 @@ class _template_class:
             }
 
             # fill in tags dictionary:
-            [
+            for child in list(element):
                 tags_funcs.get(child.tag.lower(), invalid)(child)
-                for child in list(element)
-            ]
 
             # perform tags parsing:
             [parse_template(t, t_index) for t_index, t in enumerate(tags["template"])]
@@ -1444,7 +1442,7 @@ class _group_class:
             end_re (list): contains list of group end regular expressions
             children (list): contains child group objects
             vars (dict): variables dictionary from template class
-            grp_index (int): uniqie index of the group
+            grp_index (int): unique index of the group
         """
         self.pathchar = pathchar
         self.top = top
@@ -1661,19 +1659,20 @@ class _group_class:
         """Method to create child groups objects
         by iterating over all children.
         """
-        for g in child_groups:
+        for g_index, group in enumerate(child_groups):
             self.children.append(
                 _group_class(
-                    element=g,
+                    element=group,
                     top=False,
                     path=self.path,
                     pathchar=self.pathchar,
                     vars=self.vars,
+                    grp_index=g_index
                 )
             )
             # get regexes from tail
-            if g.tail.strip():
-                self.get_regexes(data=g.tail, tail=True)
+            if group.tail.strip():
+                self.get_regexes(data=group.tail, tail=True)
 
     def set_runs(self):
         """runs - default variable values during group
@@ -2430,7 +2429,7 @@ class _results_class:
             "LOCK": False,
             "GROUP": (),
         }  # GROUP - path tuple of locked group
-        self.record = {"result": {}, "PATH": [], "FUNCTIONS": [], "DEFAULTS": {}}
+        self.record = {"result": {}, "PATH": [], "FUNCTIONS": [], "DEFAULTS": {}, "GRP_INDEX": None}
         self.dyn_path_cache = {}
         _ttp_["results_object"] = self
 
@@ -2479,6 +2478,7 @@ class _results_class:
                             # skip results that did not pass validation check
                             if (
                                 re_["GROUP"].path == self.record["PATH"]
+                                and re_["GROUP"].grp_index == self.record["GRP_INDEX"]
                                 and result_data != False
                             ):
                                 break
@@ -2487,14 +2487,22 @@ class _results_class:
                         for index in normal_re:
                             re_ = result[index][0]
                             result_data = result[index][1]
-                            if re_["GROUP"].path == self.record["PATH"]:
+                            # prefer result with same path as current record
+                            if (
+                                re_["GROUP"].path == self.record["PATH"]
+                                and re_["GROUP"].grp_index == self.record["GRP_INDEX"]
+                            ):
                                 break
                     # line REs have least preference
                     elif line_re:
                         for index in line_re:
                             re_ = result[index][0]
                             result_data = result[index][1]
-                            if re_["GROUP"].path == self.record["PATH"]:
+                            # prefer result with same path as current record
+                            if (
+                                re_["GROUP"].path == self.record["PATH"]
+                                and re_["GROUP"].grp_index == self.record["GRP_INDEX"]
+                            ):
                                 break
                 group = re_["GROUP"]
 
@@ -2563,7 +2571,7 @@ class _results_class:
                 result_data=self.record["result"], result_path=self.record["PATH"]
             )
         # set record to default value:
-        self.record = {"result": {}, "PATH": [], "FUNCTIONS": [], "DEFAULTS": {}}
+        self.record = {"result": {}, "PATH": [], "FUNCTIONS": [], "DEFAULTS": {}, "GRP_INDEX": None}
 
     def value_to_list(self, DATA, PATH, result):
         """recursive function to get value at given PATH and transform it into the list
@@ -2717,6 +2725,7 @@ class _results_class:
             "DEFAULTS": DEFAULTS.copy(),
             "PATH": PATH,
             "FUNCTIONS": FUNCTIONS,
+            "GRP_INDEX": REDICT["GROUP"].grp_index
         }
 
     def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
@@ -2737,6 +2746,7 @@ class _results_class:
             "DEFAULTS": DEFAULTS.copy(),
             "PATH": PATH,
             "FUNCTIONS": FUNCTIONS,
+            "GRP_INDEX": REDICT["GROUP"].grp_index
         }
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
