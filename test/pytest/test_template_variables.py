@@ -23,7 +23,7 @@ Internet  {{ ip }}  {{ age }}   {{ mac }}  ARPA   {{ interface | re("INTF_RE") }
     parser = ttp(template=template)
     parser.parse()
     res = parser.result()
-    pprint.pprint(res)
+    # pprint.pprint(res)
     assert res == [[{'arp_test': [{'age': '98',
                                    'interface': 'FastEthernet2.13',
                                    'ip': '10.12.13.1',
@@ -41,3 +41,107 @@ Internet  {{ ip }}  {{ age }}   {{ mac }}  ARPA   {{ interface | re("INTF_RE") }
                                      'var_2': [1, 2, 3, 4, 'a']}}]]
     
 # test_include_attribute_with_yaml_loader()
+
+def test_sros_gethostname_getter():
+    """
+    Test ALU SROS prompt matching using gethostname, reference:
+    https://documentation.nokia.com/cgi-bin/dbaccessfilename.cgi/9300700701_V1_7750%20SR%20OS%20Basic%20System%20Configuration%20Guide%208.0r1.pdf
+    """
+    data = ["""
+A:ALA-12> show system information
+===============================================================================
+System Information
+===============================================================================
+System Name : A:ALA-12>
+System Contact : Fred Information Technology
+System Location : Bldg.1-floor 2-Room 201    
+    """,
+    """
+A:ALA-12# show system information
+===============================================================================
+System Information
+===============================================================================
+System Name : A:ALA-12#
+System Contact : Fred Information Technology
+System Location : Bldg.1-floor 2-Room 201    
+    """,
+    """
+*A:ALA-12> show system information
+===============================================================================
+System Information
+===============================================================================
+System Name : *A:ALA-12>
+System Contact : Fred Information Technology
+System Location : Bldg.1-floor 2-Room 201    
+    """,
+    """
+*A:ALA-12# show system information
+===============================================================================
+System Information
+===============================================================================
+System Name : *A:ALA-12#
+System Contact : Fred Information Technology
+System Location : Bldg.1-floor 2-Room 201    
+    """,
+    """
+*A:ALA-12>config>system# show system information
+===============================================================================
+System Information
+===============================================================================
+System Name : *A:ALA-12>config>system#
+System Contact : Fred Information Technology
+System Location : Bldg.1-floor 2-Room 201    
+    """,
+    """
+A:ALA-12>config>system# show system information
+===============================================================================
+System Information
+===============================================================================
+System Name : A:ALA-12>config>system#
+System Contact : Fred Information Technology
+System Location : Bldg.1-floor 2-Room 201    
+    """
+    ]
+    template = """
+<vars name="vars">
+hostname="gethostname"
+</vars>
+
+<group name="info">
+System Name : {{ sysname }}
+System Contact : {{ contacts | PHRASE }}
+System Location : {{ locarion | PHRASE }}
+</group>
+    """
+    parser = ttp(template=template)
+    for item in data:
+        parser.add_input(item)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'info': {'contacts': 'Fred Information Technology',
+                              'locarion': 'Bldg.1-floor 2-Room 201',
+                              'sysname': 'A:ALA-12>'},
+                     'vars': {'hostname': 'ALA-12'}},
+                    {'info': {'contacts': 'Fred Information Technology',
+                              'locarion': 'Bldg.1-floor 2-Room 201',
+                              'sysname': 'A:ALA-12#'},
+                     'vars': {'hostname': 'ALA-12'}},
+                    {'info': {'contacts': 'Fred Information Technology',
+                              'locarion': 'Bldg.1-floor 2-Room 201',
+                              'sysname': '*A:ALA-12>'},
+                     'vars': {'hostname': 'ALA-12'}},
+                    {'info': {'contacts': 'Fred Information Technology',
+                              'locarion': 'Bldg.1-floor 2-Room 201',
+                              'sysname': '*A:ALA-12#'},
+                     'vars': {'hostname': 'ALA-12'}},
+                    {'info': {'contacts': 'Fred Information Technology',
+                              'locarion': 'Bldg.1-floor 2-Room 201',
+                              'sysname': '*A:ALA-12>config>system#'},
+                     'vars': {'hostname': 'ALA-12'}},
+                    {'info': {'contacts': 'Fred Information Technology',
+                              'locarion': 'Bldg.1-floor 2-Room 201',
+                              'sysname': 'A:ALA-12>config>system#'},
+                     'vars': {'hostname': 'ALA-12'}}]]
+
+# test_sros_gethostname_getter()

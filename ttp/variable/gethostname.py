@@ -10,7 +10,12 @@ def gethostname(data, *args, **kwargs):
     """Description: Method to find hostname in show
     command output, uses symbols '# ', '<', '>' to find hostname
     """
-    REs = [  # ios-xr prompt re must go before ios privilege prompt re
+    REs = [
+        {
+            "alu_sros": r"\n\S{1,2}:(\S+?)[>#].*(?=\n)"
+        },  # e.g. 'A:hostname>', '*A:hostname>', 'A:hostname#', '*A:hostname#', 
+            # 'A:ALA-12>config>system#', '*A:ALA-12>config>system#'
+        # ios-xr prompt re must go before ios privilege prompt re
         {"ios_xr": r"\n\S+:(\S+)#.*(?=\n)"},  # e.g. 'RP/0/4/CPU0:hostname#'
         {"ios_priv": r"\n(\S+)#.*(?=\n)"},  # e.g. 'hostname#'
         {"juniper": r"\n\S*@(\S+)>.*(?=\n)"},  # e.g. 'some.user@router-fw-host>'
