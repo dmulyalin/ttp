@@ -7,6 +7,7 @@ import os
 import logging
 import copy
 import ast
+import pickle
 from xml.etree import cElementTree as ET
 from multiprocessing import Process, cpu_count, JoinableQueue, Queue
 from sys import version_info
@@ -78,8 +79,28 @@ def lazy_import_functions():
     parse .py files using ast and extract information about all functions
     to cache them within _ttp_ dictionary
     """
+    global _ttp_
     log.info("ttp.lazy_import_functions: starting functions lazy import")
 
+    # try to load previously pickled/cached _ttp_ dictionary
+    try:
+        with open(os.path.dirname(__file__) + "/ttp_dict_cache.pickle", "rb") as f:
+            _ttp_ = pickle.load(f)
+        # use unpickled _ttp_ dictionary if it of the same python version
+        if _ttp_["python_major_version"] == version_info.major:
+            log.info("ttp.lazy_import_functions: loaded _ttp_ dictionary from ttp_dict_cache.pickle")
+            return
+        # rebuilt _ttp_ dictionary if version is different
+        else:
+            _ttp_ = {
+                "macro": {},
+                "python_major_version": version_info.major,
+                "global_vars": {},
+                "template_obj": {},
+                "vars": {},
+            }
+    except:
+        pass
     # get exclusion suffix
     if _ttp_["python_major_version"] == 2:
         exclude = "_py3.py"
@@ -131,6 +152,12 @@ def lazy_import_functions():
                 path, parent_dir, name, functions
             )
         module_file.close()
+    # try to cache/pickle _ttp_ to a file for future use
+    try:
+        with open(os.path.dirname(__file__) + "/ttp_dict_cache.pickle", "wb") as f:
+            pickle.dump(_ttp_, f)
+    except:
+        pass
     log.info("ttp.lazy_import_functions: finished functions lazy import")
 
 
@@ -1997,7 +2024,7 @@ class _variable_class:
                 # slice regex string before esc_var start:
                 result = self.regex[:index]
                 # delete "\ +" from end of line and add " *(?=\\n)":
-                result = re.sub(r"(\\ \+)$", "", result) + r"[\t ]*(?=\n)"
+                result = re.sub(r"(\\ \+)$", "", result) + r"[\t ]*(?=\n|\r\n)"
             if result:
                 self.regex = result
 
@@ -2026,7 +2053,7 @@ class _variable_class:
                 "(?P<{}>.{{1,{}}})".format(headers[-2].strip(), len(headers[-2]))
             )
             row_re.append("(?P<{}>.*)".format(headers[-1].strip()))
-            self.regex = r"\n" + "".join(row_re) + r"(?=\n)"
+            self.regex = r"\n" + "".join(row_re) + r"(?=\n|\r\n)"
             # form sub variables dictionary out of headers
             self.sub_variables = {
                 var.strip(): _variable_class(

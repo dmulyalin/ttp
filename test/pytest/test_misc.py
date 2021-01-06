@@ -177,7 +177,7 @@ interface {{ interface }}
 </group>
 </template>
     """
-    parser = ttp(template=template, log_level="ERROR")
+    parser = ttp(template=template, log_level="error")
     parser.add_input(data_1, template_name="top_key_name")
     parser.add_input(data_2, template_name="top_key_name")
     parser.parse()    
@@ -190,7 +190,7 @@ interface {{ interface }}
                                    {'description': 'RID', 'interface': 'Loopback77'},
                                    {'description': 'Management', 'interface': 'Vlan321'}]}}
                                  
-# test_per_template_mode()
+test_per_template_mode()
 
 
 def test_newline_with_carriage_return():
