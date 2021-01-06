@@ -88,7 +88,9 @@ def lazy_import_functions():
             _ttp_ = pickle.load(f)
         # use unpickled _ttp_ dictionary if it of the same python version
         if _ttp_["python_major_version"] == version_info.major:
-            log.info("ttp.lazy_import_functions: loaded _ttp_ dictionary from ttp_dict_cache.pickle")
+            log.info(
+                "ttp.lazy_import_functions: loaded _ttp_ dictionary from ttp_dict_cache.pickle"
+            )
             return
         # rebuilt _ttp_ dictionary if version is different
         else:
@@ -99,65 +101,69 @@ def lazy_import_functions():
                 "template_obj": {},
                 "vars": {},
             }
-    except:
-        pass
+    except Exception as e:
+        log.error(
+            "ttp.lazy_import_functions: failed to load ttp_dict_cache.pickle '{}'".format(
+                e
+            )
+        )
     # get exclusion suffix
     if _ttp_["python_major_version"] == 2:
         exclude = "_py3.py"
     elif _ttp_["python_major_version"] == 3:
         exclude = "_py2.py"
-    module_files = []
     exclude_modules = ["ttp.py"]
-    # create a list of all ttp module files
+    # load and parse files
+    log.info("ttp.lazy_import_functions: loading files for ast parsing")
     for item in os.walk(os.path.dirname(__file__)):
         root, dirs, files = item
-        module_files += [
-            open("{}/{}".format(root, f), "r")
-            for f in files
-            if (
+        for f in files:
+            if not (
                 f.endswith(".py")
                 and not f.startswith("_")
                 and not f.endswith(exclude)
                 and f not in exclude_modules
-            )
-        ]
-    log.info("ttp.lazy_import_functions: files loaded, starting ast parsing")
-    # get all functions from modules and cache them in _ttp_
-    for module_file in module_files:
-        node = ast.parse(module_file.read())
-        assignments = [n for n in node.body if isinstance(n, ast.Assign)]
-        functions = [n.name for n in node.body if isinstance(n, ast.FunctionDef)]
-        functions = [f for f in functions if (not f.startswith("_"))]
-        # get _name_map_
-        _name_map_ = {}
-        for assignment in assignments:
-            # stop if _name_map_ already found
-            if _name_map_:
-                break
-            for target in assignment.targets:
-                if target.id == "_name_map_":
-                    _name_map_.update(
-                        {
-                            key.s: assignment.value.values[index].s
-                            for index, key in enumerate(assignment.value.keys)
-                        }
-                    )
-        # fill in _ttp_ dictionary with CachedModule class
-        parent_path, filename = os.path.split(module_file.name)
-        _, parent_dir = os.path.split(parent_path)
-        for func_name in functions:
-            name = _name_map_.get(func_name, func_name)
-            path = "{}.{}".format(parent_dir, filename.replace(".py", ""))
-            _ttp_.setdefault(parent_dir, {})[name] = CachedModule(
-                path, parent_dir, name, functions
-            )
-        module_file.close()
+            ):
+                continue
+            module_file = open("{}/{}".format(root, f), "r")
+            node = ast.parse(module_file.read())
+            assignments = [n for n in node.body if isinstance(n, ast.Assign)]
+            functions = [n.name for n in node.body if isinstance(n, ast.FunctionDef)]
+            functions = [f for f in functions if (not f.startswith("_"))]
+            # get _name_map_
+            _name_map_ = {}
+            for assignment in assignments:
+                # stop if _name_map_ already found
+                if _name_map_:
+                    break
+                for target in assignment.targets:
+                    if target.id == "_name_map_":
+                        _name_map_.update(
+                            {
+                                key.s: assignment.value.values[index].s
+                                for index, key in enumerate(assignment.value.keys)
+                            }
+                        )
+            # fill in _ttp_ dictionary with CachedModule class
+            parent_path, filename = os.path.split(module_file.name)
+            _, parent_dir = os.path.split(parent_path)
+            for func_name in functions:
+                name = _name_map_.get(func_name, func_name)
+                path = "{}.{}".format(parent_dir, filename.replace(".py", ""))
+                _ttp_.setdefault(parent_dir, {})[name] = CachedModule(
+                    path, parent_dir, name, functions
+                )
+            module_file.close()
     # try to cache/pickle _ttp_ to a file for future use
     try:
         with open(os.path.dirname(__file__) + "/ttp_dict_cache.pickle", "wb") as f:
             pickle.dump(_ttp_, f)
-    except:
-        pass
+    except Exception as e:
+        log.error(
+            "ttp.lazy_import_functions: failed to save ttp_dict_cache.pickle '{}'".format(
+                e
+            )
+        )
     log.info("ttp.lazy_import_functions: finished functions lazy import")
 
 
@@ -1694,7 +1700,7 @@ class _group_class:
                     path=self.path,
                     pathchar=self.pathchar,
                     vars=self.vars,
-                    grp_index=g_index
+                    grp_index=g_index,
                 )
             )
             # get regexes from tail
@@ -1792,7 +1798,9 @@ class _variable_class:
         if self.group.default != "_Not_Given_" and isinstance(self.group.default, str):
             if self.var_name_original not in self.group.defaults:
                 if self.var_name_original not in self.skip_defaults:
-                    self.group.defaults.update({self.var_name_original: self.group.default})
+                    self.group.defaults.update(
+                        {self.var_name_original: self.group.default}
+                    )
         # perform extractions:
         self.extract_functions()
 
@@ -2451,12 +2459,20 @@ class _results_class:
 
     def __init__(self):
         self.results = {}
-        self.started_groups = set() # keeps track of started groups to not add false matches
+        self.started_groups = (
+            set()
+        )  # keeps track of started groups to not add false matches
         self.GRPLOCK = {
             "LOCK": False,
             "GROUP": (),
         }  # GROUP - path tuple of locked group
-        self.record = {"result": {}, "PATH": [], "FUNCTIONS": [], "DEFAULTS": {}, "GRP_INDEX": None}
+        self.record = {
+            "result": {},
+            "PATH": [],
+            "FUNCTIONS": [],
+            "DEFAULTS": {},
+            "GRP_INDEX": None,
+        }
         self.dyn_path_cache = {}
         _ttp_["results_object"] = self
 
@@ -2598,7 +2614,13 @@ class _results_class:
                 result_data=self.record["result"], result_path=self.record["PATH"]
             )
         # set record to default value:
-        self.record = {"result": {}, "PATH": [], "FUNCTIONS": [], "DEFAULTS": {}, "GRP_INDEX": None}
+        self.record = {
+            "result": {},
+            "PATH": [],
+            "FUNCTIONS": [],
+            "DEFAULTS": {},
+            "GRP_INDEX": None,
+        }
 
     def value_to_list(self, DATA, PATH, result):
         """recursive function to get value at given PATH and transform it into the list
@@ -2741,8 +2763,8 @@ class _results_class:
         # if not child of previous group, new, different group started,
         # remove previous path from started groups
         if not new_path.startswith(previous_path):
-            self.started_groups.remove(previous_path)        
-            
+            self.started_groups.remove(previous_path)
+
         if self.processgrp() != False:
             self.save_curelements(
                 result_data=self.record["result"], result_path=self.record["PATH"]
@@ -2752,7 +2774,7 @@ class _results_class:
             "DEFAULTS": DEFAULTS.copy(),
             "PATH": PATH,
             "FUNCTIONS": FUNCTIONS,
-            "GRP_INDEX": REDICT["GROUP"].grp_index
+            "GRP_INDEX": REDICT["GROUP"].grp_index,
         }
 
     def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
@@ -2762,8 +2784,8 @@ class _results_class:
         # if not child of previous group, new, different group started,
         # remove previous path from started groups
         if not new_path.startswith(previous_path):
-            self.started_groups.remove(previous_path)       
-            
+            self.started_groups.remove(previous_path)
+
         if self.processgrp() != False:
             self.save_curelements(
                 result_data=self.record["result"], result_path=self.record["PATH"]
@@ -2773,7 +2795,7 @@ class _results_class:
             "DEFAULTS": DEFAULTS.copy(),
             "PATH": PATH,
             "FUNCTIONS": FUNCTIONS,
-            "GRP_INDEX": REDICT["GROUP"].grp_index
+            "GRP_INDEX": REDICT["GROUP"].grp_index,
         }
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
@@ -2783,7 +2805,7 @@ class _results_class:
             result.update(self.record["result"])
             self.record["result"] = result
         # if different path - that can happen if we have group ended and result
-        # actually belong to another already started group, hence have save 
+        # actually belong to another already started group, hence have save
         # directly into results
         elif new_path in self.started_groups:
             processed_path = self.form_path(PATH)
