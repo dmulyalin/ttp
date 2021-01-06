@@ -116,7 +116,7 @@ interface {{ 77interface.#$%name }}
                      {'77description.*(-bla': 'RID', '77interface.#$%name': 'Loopback0'},
                      {'77description.*(-bla': 'Management', '77interface.#$%name': 'Port-Channel12'},
                      {'77description.*(-bla': 'Management', '77interface.#$%name': 'Vlan777'}]]]
-					 
+                     
 def test_match_vars_set_with_hyphen():
     template = """
 <input load="text">
@@ -190,4 +190,23 @@ interface {{ interface }}
                                    {'description': 'RID', 'interface': 'Loopback77'},
                                    {'description': 'Management', 'interface': 'Vlan321'}]}}
                                  
-test_per_template_mode()
+# test_per_template_mode()
+
+
+def test_newline_with_carriage_return():
+    data = b"\ninterface Port-Chanel11\r\n\r\n\r\n  description Storage_Management\r\ninterface Loopback0\n  description RID\ninterface Vlan777\n  description Management\r\n".decode("utf-8")
+    template = """
+<group name="interfaces*">
+interface {{ interface }}
+  description {{ description }}
+</group>
+    """
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)    
+    assert res == [[{'interfaces': [{'description': 'Storage_Management', 'interface': 'Port-Chanel11'},
+                                     {'description': 'RID', 'interface': 'Loopback0'},
+                                     {'description': 'Management', 'interface': 'Vlan777'}]}]]
+                                     
+# test_newline_with_carriage_return()

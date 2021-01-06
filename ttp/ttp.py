@@ -1965,7 +1965,7 @@ class _variable_class:
             self.regex = esc_line
             self.regex = indent + self.regex  # reconstruct indent
             self.regex = (
-                r"\n" + self.regex + r"[\t ]*(?=\n)"
+                r"\n" + self.regex + r"[\t ]*(?=\n|\r\n)"
             )  # use lookahead assertion for end of line and match any number of trailing spaces/tabs
         else:
             self.regex = regex
