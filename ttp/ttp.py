@@ -2764,7 +2764,7 @@ class _results_class:
         # remove previous path from started groups
         if not new_path.startswith(previous_path):
             self.started_groups.remove(previous_path)
-
+         
         if self.processgrp() != False:
             self.save_curelements(
                 result_data=self.record["result"], result_path=self.record["PATH"]

@@ -2143,3 +2143,122 @@ vrf {{name}}
                      'name': 'xyz'}}]]
     
 # test_github_issue_42_answer()
+
+
+def test_issue_45():
+    data = """
+    vrf2 {
+        forwarding-options {
+            dhcp-relay {
+                server-group {
+                    IN_MEDIA_SIGNALING {
+                        10.154.6.147;
+                    }
+                    DHCP-NGN-SIG {
+                        10.154.6.147;
+                    }
+                }
+                group group2 {
+                    active-server-group IN_MEDIA_SIGNALING;
+                    overrides {
+                        trust-option-82;
+                    }
+                }
+                group NGN-SIG {
+                    active-server-group DHCP-NGN-SIG;
+                    overrides {
+                        trust-option-82;
+                    }
+                }
+            }
+        }
+    }
+    """
+    template = """
+<group name="vrfs*">
+    {{ name | _start_ }} {
+        <group name="forwarding_options">
+        forwarding-options { {{ _start_ }}
+            <group name="dhcp_relay">
+            dhcp-relay { {{ _start_ }}
+			
+                <group name="server_group">
+                server-group { {{ _start_ }}
+                    <group name="dhcp*">
+                    {{ server_group_name1 | _start_ }} {
+                        <group name="helper_addresses*">
+                        {{ helper_address | IP }};
+                        </group>
+                    } {{ _end_ }}
+                    </group>
+                } {{ _end_ }}
+                </group>
+				
+                <group name="groups*">
+                group {{ group_name | _start_ }} {
+                    active-server-group {{server_group_name2}};
+                } {{ _end_ }}
+                </group>
+				
+            } {{ _end_ }}
+            </group>
+        } {{ _end_ }}
+        </group>
+    } {{ _end_ }}
+</group>    
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res) 
+    
+# test_issue_45()
+
+def test_issue_45_1():
+    data = """
+    vrf2 {
+        forwarding-options {
+            dhcp-relay {
+                server-group {
+                    IN_MEDIA_SIGNALING {
+                        10.154.6.147;
+                    }
+                group NGN-SIG {
+                    active-server-group DHCP-NGN-SIG;
+                    overrides {
+                        trust-option-82;
+                    }
+                }
+            }
+        }
+    }
+    """
+    template = """
+<group name="vrfs*">
+    {{ name | _start_ }} {
+        <group name="forwarding_options">
+        forwarding-options { {{ _start_ }}
+            <group name="dhcp_relay">
+            dhcp-relay { {{ _start_ }}
+			
+                <group name="server_group">
+                server-group { {{ _start_ }}
+                    <group name="dhcp*">
+                    {{ server_group_name | _start_ }} {
+                    </group>
+                </group>
+				
+                <group name="groups*">
+                group {{ group_name | _start_ }} {
+                </group>
+				
+            </group>
+        </group>
+</group>    
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res) 
+    
+test_issue_45_1()
