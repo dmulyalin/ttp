@@ -286,4 +286,4 @@ snmp acl {{ acl }}
                                                    'community': 'Uncknown',
                                                    'snmp_child_with_defaults': {'ip': 'None'}}}]]]
 
-test_groups_with_defaults_only_and_with_children_with_defaults_only()
+# test_groups_with_defaults_only_and_with_children_with_defaults_only()

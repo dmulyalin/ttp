@@ -2765,18 +2765,17 @@ class _results_class:
         # perform group path tracing checks
         if self.started_groups == []:
             self.started_groups.append(REDICT["GROUP"].group_id)
-        # check if bogus child group started - github issue #45
+        # check if bogus child group started - group that does not have parent started
         elif not REDICT["GROUP"].top and REDICT["GROUP"].parent_group_id not in self.started_groups:
             return
-        # reduce self.started_groups list as until parent group found
+        # reduce self.started_groups list until parent group found
         else:
-            # _ = self.started_groups.pop()
             while self.started_groups:
-                    if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
-                        self.started_groups.append(REDICT["GROUP"].group_id)
-                        break
-                    else:
-                        _ = self.started_groups.pop()
+                # check if child group started
+                if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
+                    self.started_groups.append(REDICT["GROUP"].group_id)
+                    break
+                _ = self.started_groups.pop()
             else:
                 self.started_groups.append(REDICT["GROUP"].group_id)
          
@@ -2796,18 +2795,17 @@ class _results_class:
         # perform group path tracing checks
         if self.started_groups == []:
             self.started_groups.append(REDICT["GROUP"].group_id)
-        # check if bogus child group started - github issue #45
+        # check if bogus child group started - group that does not have parent started
         elif not REDICT["GROUP"].top and REDICT["GROUP"].parent_group_id not in self.started_groups:
             return
-        # reduce self.started_groups list as until parent group found
+        # reduce self.started_groups list until parent group found
         else:
-            # _ = self.started_groups.pop()
             while self.started_groups:
-                    if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
-                        self.started_groups.append(REDICT["GROUP"].group_id)
-                        break
-                    else:
-                        _ = self.started_groups.pop()
+                # check if child group started
+                if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
+                    self.started_groups.append(REDICT["GROUP"].group_id)
+                    break
+                _ = self.started_groups.pop()
             else:
                 self.started_groups.append(REDICT["GROUP"].group_id)
 
