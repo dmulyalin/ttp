@@ -190,7 +190,7 @@ interface {{ interface }}
                                    {'description': 'RID', 'interface': 'Loopback77'},
                                    {'description': 'Management', 'interface': 'Vlan321'}]}}
                                  
-test_per_template_mode()
+# test_per_template_mode()
 
 
 def test_newline_with_carriage_return():
@@ -210,3 +210,80 @@ interface {{ interface }}
                                      {'description': 'Management', 'interface': 'Vlan777'}]}]]
                                      
 # test_newline_with_carriage_return()
+
+
+def test_groups_with_defaults_only_and_with_children_with_defaults_only():
+    template = """
+<input load="text">
+device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
+</input>
+
+<group name="uptime-1**">
+device-hostame uptime is {{ uptime | PHRASE }}
+<group name="child_with_default">
+ some line with {{ var1 | default("val1") }}
+</group>
+</group>
+
+<group name="domain" default="Uncknown">
+Default domain is {{ fqdn }}
+</group>
+
+<group name="ntp-1**">
+ntp server {{ server | default('Unconfigured') }}
+ ntp source {{ source | default("undefined") }}
+<group name="another_child_grp_with_default**">
+ npt peer {{ val2 | default("None") }}
+<group name="deeper_child_with_defaults" default="something">
+ another string {{ val5 }}
+ my string {{ val4 }}
+</group>
+</group>
+<group name="another_child_grp_without_default">
+ npt peers {{ val3 }}
+</group>
+</group>
+
+<group name="ntp-2">
+ntp server {{ server }}
+ ntp source {{ source | default("undefined") }}
+</group>
+
+<group name="snmp-1" default="Uncknown">
+snmp community {{ community }}
+snmp acl {{ acl }}
+</group>
+
+
+<group name="snmp-2-with-group-output**" default="Uncknown" output="out-1">
+snmp community {{ community }}
+snmp acl {{ acl }}
+<group name="snmp_child_with_defaults" default="None">
+ snmp source {{ ip }}
+</group>
+<group name="snmp_child_without_defaults">
+ snmp community {{ comm_val }}
+</group>
+</group>
+
+<output name="out-1"/>
+    """
+    parser = ttp(template=template, log_level="ERROR")
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res)  
+    assert res == [[[{'domain': {'fqdn': 'Uncknown'},
+                      'ntp-1': {'another_child_grp_with_default': {'deeper_child_with_defaults': {'val4': 'something',
+                                                                                                  'val5': 'something'},
+                                                                   'val2': 'None'},
+                                'server': 'Unconfigured',
+                                'source': 'undefined'},
+                      'snmp-1': {'acl': 'Uncknown', 'community': 'Uncknown'},
+                      'uptime-1': {'child_with_default': {'var1': 'val1'},
+                                   'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 '
+                                             'seconds'}},
+                     {'snmp-2-with-group-output': {'acl': 'Uncknown',
+                                                   'community': 'Uncknown',
+                                                   'snmp_child_with_defaults': {'ip': 'None'}}}]]]
+
+test_groups_with_defaults_only_and_with_children_with_defaults_only()

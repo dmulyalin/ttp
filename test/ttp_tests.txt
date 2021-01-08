@@ -5708,8 +5708,6 @@ description="to test groups with defaults only but with children with defaults o
 
 <input load="text">
 device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
-
- another string matched_value_for_nested_child_from_input
 </input>
 
 <group name="uptime-1**">
@@ -5765,49 +5763,25 @@ snmp acl {{ acl }}
 <output
 name="test28"
 description="groups with children with start re defaults"
-load="json"
+load="python"
 functions="is_equal"
 returner="terminal" colour=""  red="False" green="True"
 format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
-[ [
-        {
-            "domain": {
-                "fqdn": "Uncknown"
-            },
-            "ntp-1": {
-                "another_child_grp_with_default": {
-                    "deeper_child_with_defaults": {
-                        "val4": "something",
-                        "val5": "matched_value_for_nested_child_from_input"
-                    },
-                    "val2": "None"
-                },
-                "server": "Unconfigured",
-                "source": "undefined"
-            },
-            "snmp-1": {
-                "acl": "Uncknown",
-                "community": "Uncknown"
-            },
-            "uptime-1": {
-                "child_with_default": {
-                    "var1": "val1"
-                },
-                "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds"
-            }
-        },
-        {
-            "snmp-2-with-group-output": {
-                "acl": "Uncknown",
-                "community": "Uncknown",
-                "snmp_child_with_defaults": {
-                    "ip": "None"
-                }
-            }
-        }
-] ]
+[[{'domain': {'fqdn': 'Uncknown'},
+    'ntp-1': {'another_child_grp_with_default': {'deeper_child_with_defaults': {'val4': 'something',
+                                                                                'val5': 'something'},
+                                                 'val2': 'None'},
+              'server': 'Unconfigured',
+              'source': 'undefined'},
+    'snmp-1': {'acl': 'Uncknown', 'community': 'Uncknown'},
+    'uptime-1': {'child_with_default': {'var1': 'val1'},
+                 'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 '
+                           'seconds'}},
+   {'snmp-2-with-group-output': {'acl': 'Uncknown',
+                                 'community': 'Uncknown',
+                                 'snmp_child_with_defaults': {'ip': 'None'}}}]]
 </output>
 </template>
 

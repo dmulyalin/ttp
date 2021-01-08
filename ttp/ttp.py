@@ -1457,6 +1457,7 @@ class _group_class:
         pathchar=".",
         vars={},
         impot_list=[],
+        parent_group_id=None
     ):
         """Init method
         Attributes:
@@ -1492,6 +1493,8 @@ class _group_class:
         self.re = []
         self.children = []  # list to hold child groups
         self.name = ""
+        self.group_id = ""
+        self.parent_group_id = parent_group_id
         self.vars = vars
         self.grp_index = grp_index
         self.inputs = []
@@ -1508,6 +1511,7 @@ class _group_class:
             if self.path == []:
                 self.path = ["_anonymous_*"]
                 self.name = "_anonymous_"
+                self.group_id = "{}::{}".format(self.name, self.grp_index)
 
     def get_attributes(self, data):
         def extract_default(O):
@@ -1538,6 +1542,7 @@ class _group_class:
             else:
                 self.path = self.path + O.split(self.pathchar)
             self.name = ".".join(self.path)
+            self.group_id = "{}::{}".format(self.name, self.grp_index)
 
         def extract_chain(var_name):
             """add items from chain to group functions"""
@@ -1701,6 +1706,7 @@ class _group_class:
                     pathchar=self.pathchar,
                     vars=self.vars,
                     grp_index=g_index,
+                    parent_group_id=self.group_id
                 )
             )
             # get regexes from tail
@@ -2320,7 +2326,7 @@ class _parser_class:
             if not group_start_found:
                 # handle group with no matches but with start re default values
                 if group.has_start_re_default:
-                    key = -1
+                    key = 10000000
                     stop = False
                     # group.start_re == [] only for tag with no regexes
                     start_re = (
@@ -2328,6 +2334,7 @@ class _parser_class:
                         if group.start_re == []
                         else group.start_re[0]
                     )
+                    # find free index to place results in
                     while stop is False:
                         if not key in results:
                             results[key] = [
@@ -2338,7 +2345,7 @@ class _parser_class:
                             ]
                             stop = True
                         else:
-                            key -= 1
+                            key += 1
                 # run recursion to fill in results for children
                 for child_group in group.children:
                     run_re(child_group, results, start, end)
@@ -2459,9 +2466,7 @@ class _results_class:
 
     def __init__(self):
         self.results = {}
-        self.started_groups = (
-            set()
-        )  # keeps track of started groups to not add false matches
+        self.started_groups = []  # keeps track of started groups to not add false matches
         self.GRPLOCK = {
             "LOCK": False,
             "GROUP": (),
@@ -2757,13 +2762,23 @@ class _results_class:
                 E.update(result_data)
 
     def start(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
-        new_path = ".".join(PATH)
-        previous_path = ".".join(self.record["PATH"])
-        self.started_groups.add(new_path)
-        # if not child of previous group, new, different group started,
-        # remove previous path from started groups
-        if not new_path.startswith(previous_path):
-            self.started_groups.remove(previous_path)
+        # perform group path tracing checks
+        if self.started_groups == []:
+            self.started_groups.append(REDICT["GROUP"].group_id)
+        # check if bogus child group started - github issue #45
+        elif not REDICT["GROUP"].top and REDICT["GROUP"].parent_group_id not in self.started_groups:
+            return
+        # reduce self.started_groups list as until parent group found
+        else:
+            # _ = self.started_groups.pop()
+            while self.started_groups:
+                    if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
+                        self.started_groups.append(REDICT["GROUP"].group_id)
+                        break
+                    else:
+                        _ = self.started_groups.pop()
+            else:
+                self.started_groups.append(REDICT["GROUP"].group_id)
          
         if self.processgrp() != False:
             self.save_curelements(
@@ -2778,13 +2793,23 @@ class _results_class:
         }
 
     def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
-        new_path = ".".join(PATH)
-        previous_path = ".".join(self.record["PATH"])
-        self.started_groups.add(new_path)
-        # if not child of previous group, new, different group started,
-        # remove previous path from started groups
-        if not new_path.startswith(previous_path):
-            self.started_groups.remove(previous_path)
+        # perform group path tracing checks
+        if self.started_groups == []:
+            self.started_groups.append(REDICT["GROUP"].group_id)
+        # check if bogus child group started - github issue #45
+        elif not REDICT["GROUP"].top and REDICT["GROUP"].parent_group_id not in self.started_groups:
+            return
+        # reduce self.started_groups list as until parent group found
+        else:
+            # _ = self.started_groups.pop()
+            while self.started_groups:
+                    if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
+                        self.started_groups.append(REDICT["GROUP"].group_id)
+                        break
+                    else:
+                        _ = self.started_groups.pop()
+            else:
+                self.started_groups.append(REDICT["GROUP"].group_id)
 
         if self.processgrp() != False:
             self.save_curelements(
@@ -2799,7 +2824,6 @@ class _results_class:
         }
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
-        new_path = ".".join(PATH)
         if self.record["PATH"] == PATH:  # if same path - save into self.record
             # update without overriding already existing values:
             result.update(self.record["result"])
@@ -2807,7 +2831,7 @@ class _results_class:
         # if different path - that can happen if we have group ended and result
         # actually belong to another already started group, hence have save
         # directly into results
-        elif new_path in self.started_groups:
+        elif REDICT["GROUP"].group_id in self.started_groups:
             processed_path = self.form_path(PATH)
             if processed_path is False:
                 return
@@ -2847,7 +2871,6 @@ class _results_class:
                 self.record["result"][k] = result[k]  # if first result
 
     def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
-        new_path = ".".join(PATH)
         previous_path = ".".join(self.record["PATH"])
         # if path not the same and this is not child
         # results belong to different group, skip them
@@ -2855,7 +2878,7 @@ class _results_class:
             self.record["PATH"] != PATH
             and
             # if below is true, this is child group:
-            new_path.startswith(previous_path)
+            REDICT["GROUP"].group_id == self.started_groups[-1]
         ):
             return
         # action to end current group by locking it

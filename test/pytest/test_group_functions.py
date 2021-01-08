@@ -79,7 +79,7 @@ Hello World
 var_name = {"audiences": []}
 </vars>
 
-<group name='demo' default="var_name">
+<group name='demo**' default="var_name">
 <group name='audiences*'>
 Hello {{ audience }}
 </group>
@@ -91,8 +91,8 @@ Hello {{ audience }}
     # pprint.pprint(res)
     assert res == [[{'demo': {'audiences': []}},
                     {'demo': {'audiences': [{'audience': 'World'}]}}]]
-    
-# test_group_default_referencing_variable_parent_group_no_re_two_inputs()
+  
+#test_group_default_referencing_variable_parent_group_no_re_two_inputs()
 
 def test_group_default_referencing_variable_parent_group_no_re_one_input():
     template_123 = """
