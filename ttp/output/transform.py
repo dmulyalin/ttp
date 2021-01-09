@@ -3,23 +3,26 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def traverse(data, path):
+def traverse(data, path, strict=True):
     """Method to traverse dictionary data and return element
     at given path.
+    
+    strict - if True will fail with KeyError if path item not in data
+             will return empty dict if fails to find path item in data
     """
     result = data
-    # need to check path, in case of standalone function use
+    # need to check path, in case if standalone function use
     if isinstance(path, str):
         path = [i.strip() for i in path.split(".")]
     if isinstance(data, dict):
         for i in path:
-            result = result.get(i, {})
+            if strict:
+                result = result[i]
+            else:
+                result = result.get(i, {})
     elif isinstance(data, list):
-        result = [traverse(i, path) for i in data]
-    if result:
-        return result
-    else:
-        return data
+        result = [traverse(i, path, strict) for i in data]
+    return result
 
 
 def _set_data(data, path, new_data):
@@ -41,7 +44,7 @@ def _set_data(data, path, new_data):
             datum[path_item] = {}
 
 
-def dict_to_list(data, key_name="key", path=None):
+def dict_to_list(data, key_name="key", path=None, strict=False):
     """Flatten dictionary data, e.g. if data is this:
     { "Fa0"  : {"admin": "administratively down"},
       "Ge0/1": {"access_vlan": "24"}}
@@ -50,15 +53,16 @@ def dict_to_list(data, key_name="key", path=None):
       {"access_vlan": "24", "interface": "Ge0/1"} ]
     """
     result = []
+    traversed_data = data
     if path:
-        data = traverse(data, path)
-    if isinstance(data, dict):
-        for k, v in data.items():
+        traversed_data = traverse(data, path, strict)
+    if isinstance(traversed_data, dict):
+        for k, v in traversed_data.items():
             if not isinstance(v, dict):
-                return data
+                return traversed_data
             v.update({key_name: k})
             result.append(v)
-    elif isinstance(data, list):
+    elif isinstance(traversed_data, list):
         # run recusrsion
-        result = [dict_to_list(data=item, key_name=key_name) for item in data]
+        result = [dict_to_list(data=item, key_name=key_name) for item in traversed_data]
     return result

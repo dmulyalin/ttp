@@ -3816,26 +3816,13 @@ format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
 [
-    [ [
-        {
-            "description": "SomeDescription in1",
-            "hostname": "router-fw-host",
-            "interface": "ge-0/0/11.0",
-            "ip": "10.0.40.121/31"
-        },
-        {
-            "description": "L3VPN: somethere",
-            "hostname": "router-fw-host",
-            "interface": "ge-5/0/5.0",
-            "ip": "10.0.31.48/31"
-        },
-        {
-            "description": "Routing Loopback",
-            "hostname": "router-fw-host",
-            "interface": "lo0.0",
-            "ip": "10.0.0.254/32"
-        }
-    ] ],
+    [
+        [
+            [],
+            [],
+            []
+        ]
+    ],
     [
         {
             "description": "SomeDescription glob1",
@@ -3889,26 +3876,13 @@ format="tabulate"
 format_attributes = "tablefmt='fancy_grid'"
 >
 [
-    [[
-        {
-            "description": "Routing Loopback",
-            "hostname": "router-fw-host",
-            "interface": "lo0.0",
-            "ip": "10.0.0.254/32"
-        },
-        {
-            "description": "L3VPN: somethere",
-            "hostname": "router-fw-host",
-            "interface": "ge-5/0/5.0",
-            "ip": "10.0.31.48/31"
-        },
-        {
-            "description": "SomeDescription in1",
-            "hostname": "router-fw-host",
-            "interface": "ge-0/0/11.0",
-            "ip": "10.0.40.121/31"
-        }
-    ]],
+    [
+        [
+            [],
+            [],
+            []
+        ]
+    ],
     [
         {
             "description": "Routing Loopback",

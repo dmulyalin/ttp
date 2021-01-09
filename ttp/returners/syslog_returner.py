@@ -2,6 +2,7 @@ import logging
 import logging.handlers
 import json
 import time
+import traceback
 
 log = logging.getLogger(__name__)
 
@@ -34,16 +35,41 @@ def syslog(data, **kwargs):
         syslog_logger.addHandler(handler)
         # send data
         for datum in source_data:
-            item = _ttp_["output"]["traverse"](datum, path)
+            try:
+                item = _ttp_["output"]["traverse"](datum, path)
+            except:
+                tb = traceback.format_exc()
+                log.error(
+                    "TTP:syslog returner, failed traverse data, path: '{}', error:\n'{}".format(
+                        path, tb
+                    )
+                )
+                continue
             if not item:  # skip empty results
                 continue
             elif isinstance(item, list) and iterate:
                 for i in item:
                     time.sleep(interval)
-                    syslog_logger.info(json.dumps(i))
+                    try:
+                        syslog_logger.info(json.dumps(i))
+                    except:
+                        tb = traceback.format_exc()
+                        log.error(
+                            "TTP:syslog returner, failed send log item; path: '{}', error:\n'{}".format(
+                                path, tb
+                            )
+                        )
             else:
                 time.sleep(interval)
-                syslog_logger.info(json.dumps(item))
+                try:
+                    syslog_logger.info(json.dumps(item))
+                except:
+                    tb = traceback.format_exc()
+                    log.error(
+                        "TTP:syslog returner, failed send log item; path: '{}', error:\n'{}".format(
+                            path, tb
+                        )
+                    )
         # clean up
         handler.close()
         syslog_logger.removeHandler(handler)
