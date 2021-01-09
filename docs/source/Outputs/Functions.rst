@@ -104,6 +104,7 @@ dict_to_list
 
 * key_name - string, name of the key to use to assign previous key as a value
 * path - string, dot separated path to data that need to be transformed
+* strict - boolean, default is False, used with traverse function to indicate behavior if path item not found in results
 
 This functions help to flatten dictionary data by converting it to list e.g. if data is::
 
@@ -176,6 +177,7 @@ traverse
 ``traverse="path='dot.separated.path'"``
 
 * path - string, dot separated path to data that need to be transformed
+* strict - boolean, default True, if True will raise KeyError exception if path item not found in results, will return empty dictionary otherwise
 
 traverse function walks results tree up to the level of given path and return data at that location.
 
