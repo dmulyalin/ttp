@@ -1512,6 +1512,8 @@ class _group_class:
                 self.path = ["_anonymous_*"]
                 self.name = "_anonymous_"
                 self.group_id = "{}::{}".format(self.name, self.grp_index)
+        if self.name == "":
+            self.group_id = "{}::{}".format(".".join(self.path), self.grp_index)
 
     def get_attributes(self, data):
         def extract_default(O):
@@ -2476,7 +2478,7 @@ class _results_class:
             "PATH": [],
             "FUNCTIONS": [],
             "DEFAULTS": {},
-            "GRP_INDEX": None,
+            "GRP_ID": None,
         }
         self.dyn_path_cache = {}
         _ttp_["results_object"] = self
@@ -2525,8 +2527,7 @@ class _results_class:
                             # prefer result with same path as current record
                             # skip results that did not pass validation check
                             if (
-                                re_["GROUP"].path == self.record["PATH"]
-                                and re_["GROUP"].grp_index == self.record["GRP_INDEX"]
+                                re_["GROUP"].group_id == self.record["GRP_ID"]
                                 and result_data != False
                             ):
                                 break
@@ -2537,8 +2538,7 @@ class _results_class:
                             result_data = result[index][1]
                             # prefer result with same path as current record
                             if (
-                                re_["GROUP"].path == self.record["PATH"]
-                                and re_["GROUP"].grp_index == self.record["GRP_INDEX"]
+                                re_["GROUP"].group_id == self.record["GRP_ID"]
                             ):
                                 break
                     # line REs have least preference
@@ -2548,8 +2548,7 @@ class _results_class:
                             result_data = result[index][1]
                             # prefer result with same path as current record
                             if (
-                                re_["GROUP"].path == self.record["PATH"]
-                                and re_["GROUP"].grp_index == self.record["GRP_INDEX"]
+                                re_["GROUP"].group_id == self.record["GRP_ID"]
                             ):
                                 break
                 group = re_["GROUP"]
@@ -2624,7 +2623,7 @@ class _results_class:
             "PATH": [],
             "FUNCTIONS": [],
             "DEFAULTS": {},
-            "GRP_INDEX": None,
+            "GRP_ID": None,
         }
 
     def value_to_list(self, DATA, PATH, result):
@@ -2788,7 +2787,7 @@ class _results_class:
             "DEFAULTS": DEFAULTS.copy(),
             "PATH": PATH,
             "FUNCTIONS": FUNCTIONS,
-            "GRP_INDEX": REDICT["GROUP"].grp_index,
+            "GRP_ID": REDICT["GROUP"].group_id,
         }
 
     def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
@@ -2818,7 +2817,7 @@ class _results_class:
             "DEFAULTS": DEFAULTS.copy(),
             "PATH": PATH,
             "FUNCTIONS": FUNCTIONS,
-            "GRP_INDEX": REDICT["GROUP"].grp_index,
+            "GRP_ID": REDICT["GROUP"].group_id,
         }
 
     def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):

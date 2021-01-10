@@ -946,7 +946,7 @@ config router ospf {{ _start_ }}
 end {{ _end_ }}
 </group>
     """
-    parser = ttp(data, template)
+    parser = ttp(data, template, log_level="DEBUG")
     parser.parse()
     res = parser.result()
     pprint.pprint(res)
@@ -988,7 +988,7 @@ end {{ _end_ }}
             'ref_bw': '1000',
             'router_id': '10.1.1.1'}}]]
 
-# test_reddit_answer_2()
+test_reddit_answer_2()
 
 def test_github_issue_32():
     data = """
