@@ -1506,14 +1506,11 @@ class _group_class:
         self.get_children(list(element))
 
     def set_anonymous_path(self):
-        """Method to set anonymous path for top group without name attribute."""
-        if self.top is True:
-            if self.path == []:
-                self.path = ["_anonymous_*"]
-                self.name = "_anonymous_"
-                self.group_id = "{}::{}".format(self.name, self.grp_index)
+        """Method to set anonymous path and name for groups with no name attribute."""     
         if self.name == "":
-            self.group_id = "{}::{}".format(".".join(self.path), self.grp_index)
+            self.path = ["_anonymous_*"] if self.top else self.path
+            self.name = ".".join(self.path)
+            self.group_id = "{}::{}".format(self.name, self.grp_index)
 
     def get_attributes(self, data):
         def extract_default(O):
