@@ -331,3 +331,29 @@ interface {{ interface }}
                       {'admin-status': 'down', 'enabled': False, 'interface': 'Loopback0', 'ip': '1.1.2.1/24', 'link-up-down-trap-enable': 'enabled'}]]]
                       
 # test_match_variable_set_and_let_for_same_variable_with_special_chars()
+
+def test_let_and_set():
+    data = """
+interface Port-Channel11
+ ip address 1.1.1.1/24
+ description bla bla bla
+ shutdown
+interface Port-Channel22
+ ip address 1.1.2.1/24
+ description bla bla2 bla2
+    """
+    template = """
+interface {{ name }}
+ description {{ description | re(".+") }}
+ shutdown {{ enabled | set(False) | let("admin-status", "down") }}
+ {{ link-up-down-trap-enable | set(enabled) }}
+ {{ admin-status | set(up) }}
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res, width=150)
+    assert res == [[[{'admin-status': 'down', 'description': 'bla bla bla', 'enabled': False, 'link-up-down-trap-enable': 'enabled', 'name': 'Port-Channel11'},
+                     {'admin-status': 'up', 'description': 'bla bla2 bla2', 'link-up-down-trap-enable': 'enabled', 'name': 'Port-Channel22'}]]]
+    
+# test_let_and_set()
