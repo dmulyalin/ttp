@@ -2326,7 +2326,6 @@ class _parser_class:
                 # handle group with no matches but with start re default values
                 if group.has_start_re_default:
                     key = 10000000
-                    stop = False
                     # group.start_re == [] only for tag with no regexes
                     start_re = (
                         {"ACTION": "start", "VARIABLES": group.runs, "GROUP": group}
@@ -2334,17 +2333,11 @@ class _parser_class:
                         else group.start_re[0]
                     )
                     # find free index to place results in
-                    while stop is False:
-                        if not key in results:
-                            results[key] = [
-                                (
-                                    start_re,
-                                    {},
-                                )
-                            ]
-                            stop = True
-                        else:
-                            key += 1
+                    while key in results:
+                        key += 1
+                    else:
+                        results[key] = [(start_re, {},)]
+                            
                 # run recursion to fill in results for children
                 for child_group in group.children:
                     run_re(child_group, results, start, end)
@@ -2758,22 +2751,15 @@ class _results_class:
                 E.update(result_data)
 
     def start(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
-        # perform group path tracing checks
-        if self.started_groups == []:
-            self.started_groups.append(REDICT["GROUP"].group_id)
-        # check if bogus child group started - group that does not have parent started
-        elif not REDICT["GROUP"].top and REDICT["GROUP"].parent_group_id not in self.started_groups:
-            return
-        # reduce self.started_groups list until parent group found
-        else:
-            while self.started_groups:
-                # check if child group started
-                if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
-                    self.started_groups.append(REDICT["GROUP"].group_id)
-                    break
-                _ = self.started_groups.pop()
-            else:
+        # perform group path tracing
+        while self.started_groups:
+            # check if child group started
+            if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
                 self.started_groups.append(REDICT["GROUP"].group_id)
+                break
+            _ = self.started_groups.pop()
+        else:
+            self.started_groups.append(REDICT["GROUP"].group_id)
          
         if self.processgrp() != False:
             self.save_curelements(
@@ -2788,22 +2774,15 @@ class _results_class:
         }
 
     def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
-        # perform group path tracing checks
-        if self.started_groups == []:
-            self.started_groups.append(REDICT["GROUP"].group_id)
-        # check if bogus child group started - group that does not have parent started
-        elif not REDICT["GROUP"].top and REDICT["GROUP"].parent_group_id not in self.started_groups:
-            return
-        # reduce self.started_groups list until parent group found
-        else:
-            while self.started_groups:
-                # check if child group started
-                if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
-                    self.started_groups.append(REDICT["GROUP"].group_id)
-                    break
-                _ = self.started_groups.pop()
-            else:
+        # perform group path tracing
+        while self.started_groups:
+            # check if child group started
+            if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
                 self.started_groups.append(REDICT["GROUP"].group_id)
+                break
+            _ = self.started_groups.pop()
+        else:
+            self.started_groups.append(REDICT["GROUP"].group_id)
 
         if self.processgrp() != False:
             self.save_curelements(

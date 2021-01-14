@@ -946,10 +946,10 @@ config router ospf {{ _start_ }}
 end {{ _end_ }}
 </group>
     """
-    parser = ttp(data, template, log_level="DEBUG")
+    parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    pprint.pprint(res)
+    # pprint.pprint(res)
     assert res == [[{'ospf': {'areas': [{'area': '0.0.0.1',
                        'area_type': 'nssa',
                        'nssa_default_metric': '10',
@@ -988,7 +988,7 @@ end {{ _end_ }}
             'ref_bw': '1000',
             'router_id': '10.1.1.1'}}]]
 
-test_reddit_answer_2()
+# test_reddit_answer_2()
 
 def test_github_issue_32():
     data = """
@@ -2218,7 +2218,9 @@ def test_issue_45():
                                                                      'server_group': {'dhcp': [{'helper_addresses': [{'helper_address': '10.154.6.147'}],
                                                                                                 'server_group_name1': 'IN_MEDIA_SIGNALING'},
                                                                                                {'helper_addresses': [{'helper_address': '10.154.6.147'}],
-                                                                                                'server_group_name1': 'DHCP-NGN-SIG'}]}}},
+                                                                                                'server_group_name1': 'DHCP-NGN-SIG'},
+                                                                                               {'server_group_name1': 'overrides'},
+                                                                                               {'server_group_name1': 'overrides'}]}}},
                                'name': 'vrf2'}]}]]
              
 # test_issue_45()
@@ -2270,7 +2272,86 @@ def test_issue_45_1():
     res = parser.result()
     # pprint.pprint(res) 
     assert res == [[{'vrfs': [{'forwarding_options': {'dhcp_relay': {'groups': [{'group_name': 'NGN-SIG'}],
-                                                                     'server_group': {'dhcp': [{'server_group_name': 'IN_MEDIA_SIGNALING'}]}}},
+                                                                     'server_group': {'dhcp': [{'server_group_name': 'IN_MEDIA_SIGNALING'},
+                                                                                               {'server_group_name': 'overrides'}]}}},
                                'name': 'vrf2'}]}]]
              
 # test_issue_45_1()
+
+def test_issue_45_filtering_fix():
+    data = """
+    vrf2 {
+        forwarding-options {
+            dhcp-relay {
+                server-group {
+                    IN_MEDIA_SIGNALING {
+                        10.154.6.147;
+                    }
+                    DHCP-NGN-SIG {
+                        10.154.6.147;
+                    }
+                }
+                group group2 {
+                    active-server-group IN_MEDIA_SIGNALING;
+                    overrides {
+                        trust-option-82;
+                    }
+                }
+                group NGN-SIG {
+                    active-server-group DHCP-NGN-SIG;
+                    overrides {
+                        trust-option-82;
+                    }
+                }
+            }
+        }
+    }
+    """
+    template = """
+<group name="vrfs*">
+    {{ name | _start_ }} {
+        <group name="forwarding_options">
+        forwarding-options { {{ _start_ }}
+            <group name="dhcp_relay">
+            dhcp-relay { {{ _start_ }}
+            
+                <group name="server_group">
+                server-group { {{ _start_ }}
+                    <group name="dhcp*">
+                    {{ server_group_name1 | _start_ | exclude("overrides") }} {
+                        <group name="helper_addresses*">
+                        {{ helper_address | IP }};
+                        </group>
+                    } {{ _end_ }}
+                    </group>
+                } {{ _end_ }}
+                </group>
+                
+                <group name="groups*">
+                group {{ group_name | _start_ }} {
+                    active-server-group {{server_group_name2}};
+                } {{ _end_ }}
+                </group>
+                
+            } {{ _end_ }}
+            </group>
+        } {{ _end_ }}
+        </group>
+    } {{ _end_ }}
+</group>    
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res) 
+    assert res == [[{'vrfs': [{'forwarding_options': {'dhcp_relay': {'groups': [{'group_name': 'group2',
+                                                                                 'server_group_name2': 'IN_MEDIA_SIGNALING'},
+                                                                                {'group_name': 'NGN-SIG',
+                                                                                 'server_group_name2': 'DHCP-NGN-SIG'}],
+                                                                     'server_group': {'dhcp': [{'helper_addresses': [{'helper_address': '10.154.6.147'}],
+                                                                                                'server_group_name1': 'IN_MEDIA_SIGNALING'},
+                                                                                               {'helper_addresses': [{'helper_address': '10.154.6.147'}],
+                                                                                                'server_group_name1': 'DHCP-NGN-SIG'}]}}},
+                               'name': 'vrf2'}]}]]
+             
+# test_issue_45_filtering_fix()

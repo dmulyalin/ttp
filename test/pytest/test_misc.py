@@ -287,3 +287,136 @@ snmp acl {{ acl }}
                                                    'snmp_child_with_defaults': {'ip': 'None'}}}]]]
 
 # test_groups_with_defaults_only_and_with_children_with_defaults_only()
+
+def test_hierarch_template():
+    template = """
+<vars>
+hostname='gethostname' 
+</vars>
+
+<group name="{{ hostname }}.bgp_config.AS_{{ loca_as }}">
+router bgp {{ bgp_as | record("loca_as") }}
+  router-id {{ rid }}
+  <group name="vrfs*.{{ VRF }}">
+  vrf {{ VRF }}
+    {{ hostname | set("hostname") }}
+    {{ local_as | set("loca_as") }}
+    <group name="afi**">
+      <group name="Unicast**.{{ AFI }}">
+    address-family {{ AFI }} unicast
+      network {{ network | joinmatches() }}
+      redistribute direct route-map {{ redistr_direct_rpl }}
+      </group>
+    </group>
+    <group name="peers**.{{ PEER }}">    
+    neighbor {{ PEER }}
+      remote-as {{ remote_as }}
+      description {{ description }}
+      <group name="afi**.{{ AFI }}">
+       <group name="Unicast**">
+      address-family {{ AFI }} unicast
+        shutdown {{ shutdown | set("True") }}
+        allowas-in {{ allow_as_in | set("True") }}
+        route-map {{ rpl_in }} in
+        route-map {{ rpl_out }} out
+       </group>
+      </group>
+    </group>
+  </group>
+</group>
+    """
+    data = """
+sw1# show run | sec bgp
+router bgp 65000
+  router-id 10.1.2.2
+  vrf cust1
+    address-family ipv4 unicast
+      network 1.1.1.10/26
+      redistribute direct route-map VRF-DIRECT->BGP-V4
+    neighbor 1.1.1.1
+      remote-as 65001
+      description FIREWALLs
+      no dynamic-capability
+      address-family ipv4 unicast
+        allowas-in
+        route-map 65001-BGP-IMPORT-V4 in
+        route-map 65001-BGP-EXPORT-V4 out
+    neighbor 2.2.2.2
+      remote-as 65002
+      description SLB Front
+      address-family ipv4 unicast
+        allowas-in
+        route-map SLB-BGP-IMPORT-V4 in
+        route-map SLB-BGP-EXPORT-V4 out
+    neighbor 3.3.3.3
+      remote-as 1234
+      description Internet BDR
+      address-family ipv4 unicast
+        route-map INTERNET-IMPORT-V4 in
+        route-map INTERNET-EXPORT-V4 out
+  vrf cust2
+    address-family ipv4 unicast
+      redistribute direct route-map  VRF-DIRECT->BGP-V4
+    neighbor 4.4.4.4
+      remote-as 4567
+      description SLB Back
+      address-family ipv4 unicast
+        allowas-in
+        route-map SLBB-BGP-IMPORT-V4 in
+        route-map SLBB-BGP-EXPORT-V4 out
+  vrf cust3
+    router-id 10.227.146.9
+    address-family ipv4 unicast
+      redistribute direct route-map C3-DIRECT->BGP-V4
+    neighbor 5.5.5.5
+      remote-as 65100
+      description cist2 core
+      no dynamic-capability
+      address-family ipv4 unicast
+        route-map C3-BGP-IMPORT-V4 in
+        route-map C3-BGP-EXPORT-V4 out
+    neighbor 6.6.6.6
+      remote-as 65200
+      description C3: Firewalls
+      address-family ipv4 unicast
+        allowas-in 1
+        route-map C3-FW-BGP-IMPORT-V4 in
+        route-map C3-FW-BGP-EXPORT-V4 out    
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()    
+    res = parser.result()
+    # pprint.pprint(res)  
+    assert res == [[{'sw1': {'bgp_config': {'AS_65000': {'bgp_as': '65000',
+                                       'rid': '10.1.2.2',
+                                       'vrfs': [{'cust1': {'afi': {'Unicast': {'ipv4': {'network': '1.1.1.10/26',
+                                                                                        'redistr_direct_rpl': 'VRF-DIRECT->BGP-V4'}}},
+                                                           'local_as': '65000',
+                                                           'peers': {'1.1.1.1': {'afi': {'ipv4': {'Unicast': {'allow_as_in': 'True',
+                                                                                                              'rpl_in': '65001-BGP-IMPORT-V4',
+                                                                                                              'rpl_out': '65001-BGP-EXPORT-V4'}}},
+                                                                                 'description': 'FIREWALLs',
+                                                                                 'remote_as': '65001'},
+                                                                     '2.2.2.2': {'afi': {'ipv4': {'Unicast': {'allow_as_in': 'True',
+                                                                                                              'rpl_in': 'SLB-BGP-IMPORT-V4',
+                                                                                                              'rpl_out': 'SLB-BGP-EXPORT-V4'}}},
+                                                                                 'remote_as': '65002'},
+                                                                     '3.3.3.3': {'afi': {'ipv4': {'Unicast': {'rpl_in': 'INTERNET-IMPORT-V4',
+                                                                                                              'rpl_out': 'INTERNET-EXPORT-V4'}}},
+                                                                                 'remote_as': '1234'}}},
+                                                 'cust2': {'afi': {'Unicast': {'ipv4': {'redistr_direct_rpl': 'VRF-DIRECT->BGP-V4'}}},
+                                                           'local_as': '65000',
+                                                           'peers': {'4.4.4.4': {'afi': {'ipv4': {'Unicast': {'allow_as_in': 'True',
+                                                                                                              'rpl_in': 'SLBB-BGP-IMPORT-V4',
+                                                                                                              'rpl_out': 'SLBB-BGP-EXPORT-V4'}}},
+                                                                                 'remote_as': '4567'}}},
+                                                 'cust3': {'afi': {'Unicast': {'ipv4': {'redistr_direct_rpl': 'C3-DIRECT->BGP-V4'}}},
+                                                           'local_as': '65000',
+                                                           'peers': {'5.5.5.5': {'afi': {'ipv4': {'Unicast': {'rpl_in': 'C3-BGP-IMPORT-V4',
+                                                                                                              'rpl_out': 'C3-BGP-EXPORT-V4'}}},
+                                                                                 'remote_as': '65100'},
+                                                                     '6.6.6.6': {'afi': {'ipv4': {'Unicast': {'rpl_in': 'C3-FW-BGP-IMPORT-V4',
+                                                                                                              'rpl_out': 'C3-FW-BGP-EXPORT-V4'}}},
+                                                                                 'remote_as': '65200'}}}}]}}}}]]
+                                                                                 
+# test_hierarch_template()
