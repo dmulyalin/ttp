@@ -189,9 +189,11 @@ Result will be::
  
 _end_
 ------------------------------------------------------------------------------
-``{{ name | _end_ }}`` or ``{{ _end_ }}``
+``pattern {{ _end_ }}``
 
 Explicitly indicates the end of the group. If line was matched that has _end_ indicator assigned - that will trigger processing and saving group results into results tree. The purpose of this indicator is to optimize parsing performance allowing TTP to determine the end of the group faster and eliminate checking of unrelated text data.
+
+.. warning :: using ``_end_`` together with match variables not supported as of TTP 0.6.0 and earlier, i.e. {{ name | _end_ }} not fully supported
 
 _line_
 ------------------------------------------------------------------------------

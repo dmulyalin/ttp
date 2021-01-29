@@ -35,13 +35,21 @@ def syslog(data, **kwargs):
         syslog_logger.addHandler(handler)
         # send data
         for datum in source_data:
+            if not datum:
+                log.error(
+                    "TTP:syslog returner, datum '{}' is empty, path: '{}'".format(
+                        str(datum), path
+                    )
+                )
+                continue
             try:
                 item = _ttp_["output"]["traverse"](datum, path)
             except:
                 tb = traceback.format_exc()
                 log.error(
-                    "TTP:syslog returner, failed traverse data, path: '{}', error:\n'{}".format(
-                        path, tb
+                    "TTP:syslog returner, failed traverse data, path: '{}', error:\n'{}\ndatum: {}..".format(
+
+                        path, tb, str(datum)[:120]
                     )
                 )
                 continue

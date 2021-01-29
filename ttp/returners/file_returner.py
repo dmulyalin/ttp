@@ -31,16 +31,18 @@ def file_returner(D, **kwargs):
     # check if path exists already, create it if not:
     if not os.path.exists(url):
         os.mkdir(url)
+    # form file path:
+    file_path = os.path.join(url, filename)
     # save excel workbook to file:
     if hasattr(D, "save") and hasattr(D, "worksheets"):
         log.info("output.returner_file: saving excel workbook")
-        if not filename.endswith(".xlsx"):
-            filename += ".xlsx"
-        D.save(url + filename)
+        if not file_path.endswith(".xlsx"):
+            file_path += ".xlsx"
+        D.save(file_path)
     # save data to text file
     else:
         log.info("output.returner_file: saving text results to file")
-        with open(url + filename, "w") as f:
+        with open(file_path, "w") as f:
             if not isinstance(D, str):
                 f.write(str(D))
             else:

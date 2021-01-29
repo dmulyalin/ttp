@@ -157,6 +157,79 @@ table:
     
 # test_excel_formatter()
 
+def test_excel_formatter_file_returner_incomplete_url():
+    template = """
+<input load="text">
+interface Loopback0
+ description Router-id-loopback
+ ip address 192.168.0.113/24
+!
+interface Loopback1
+ description Router-id-loopback
+ ip address 192.168.0.1/24
+!
+interface Vlan778
+ ip address 2002::fd37/124
+ ip vrf CPE1
+!
+interface Vlan779
+ ip address 2002::bbcd/124
+ ip vrf CPE2
+!
+</input>
+
+<group name="loopbacks**.{{ interface }}">
+interface {{ interface | contains("Loop") }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description }}
+ ip vrf {{ vrf }}
+</group>
+
+<group name="vlans*">
+interface {{ interface | contains("Vlan") }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description }}
+ ip vrf {{ vrf }}
+</group>
+
+<output 
+format="excel" 
+returner="file"
+filename="test_excel_formatter_file_returner_incomplete_url"
+url="./Output"
+load="yaml"
+>
+table:
+  - headers: interface, ip, mask, vrf, description
+    path: loopbacks
+    key: interface
+    tab_name: loopbacks
+  - path: vlans
+</output>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    # res = parser.result()
+    # pprint.pprint(res)
+    # load created workbook and test it
+    from openpyxl import load_workbook
+    wb = load_workbook('./Output/test_excel_formatter_file_returner_incomplete_url.xlsx', data_only=True)
+    table = {}
+    for sheet_name in wb.sheetnames:
+        table[sheet_name] = []
+        sheet_obj = wb[sheet_name]
+        for row in sheet_obj.rows:
+            table[sheet_name].append([i.value for i in row])
+    # pprint.pprint(table)
+    assert table == {'Sheet1': [['interface', 'ip', 'mask', 'vrf'],
+                                ['Vlan778', '2002::fd37', '124', 'CPE1'],
+                                ['Vlan779', '2002::bbcd', '124', 'CPE2']],
+                     'loopbacks': [['interface', 'ip', 'mask', 'vrf', 'description'],
+                                   ['Loopback0', '192.168.0.113', '24', None, 'Router-id-loopback'],
+                                   ['Loopback1', '192.168.0.1', '24', None, 'Router-id-loopback']]}
+    
+# test_excel_formatter_file_returner_incomplete_url()
+
 def test_tabulate_formatter():
     template = """
 <input load="text">

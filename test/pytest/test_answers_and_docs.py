@@ -2355,3 +2355,218 @@ def test_issue_45_filtering_fix():
                                'name': 'vrf2'}]}]]
              
 # test_issue_45_filtering_fix()
+
+def test_issue_47_answer():
+    data = """
+Some text which indicates that below block should be included in results ABC
+interface Loopback0
+ description Router-id-loopback
+ ip address 192.168.0.113/24
+!
+Some text which indicates that below block should be included in results DEF
+interface Loopback2
+ description Router-id-loopback 2
+ ip address 192.168.0.114/24
+!
+Some text which indicates that below block should NOT be included in results
+interface Vlan778
+ description CPE_Acces_Vlan
+ ip address 2002::fd37/124
+ ip vrf CPE1
+!
+Some text which indicates that below block should be included in results GKL
+interface Loopback3
+ description Router-id-loopback 3
+ ip address 192.168.0.115/24
+!
+"""
+    template = """
+Some text which indicates that below block should be included in results ABC {{ _start_ }}
+Some text which indicates that below block should be included in results DEF {{ _start_ }}
+Some text which indicates that below block should be included in results GKL {{ _start_ }}
+interface {{ interface }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description | re(".+") }}
+ ip vrf {{ vrf }}
+! {{ _end_ }}
+"""
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=150) 
+    assert res == [[[{'description': 'Router-id-loopback', 'interface': 'Loopback0', 'ip': '192.168.0.113', 'mask': '24'},
+                     {'description': 'Router-id-loopback 2', 'interface': 'Loopback2', 'ip': '192.168.0.114', 'mask': '24'},
+                     {'description': 'Router-id-loopback 3', 'interface': 'Loopback3', 'ip': '192.168.0.115', 'mask': '24'}]]]
+   
+# test_issue_47_answer()
+
+
+def test_issue_48_answer():
+    data = """
+ECON*3400 The Economics of Personnel Management U (3-0) [0.50]
+In this course, we examine the economics of personnel management in organizations.
+Using mainstream microeconomic and behavioural economic theory, we will consider
+such issues as recruitment, promotion, financial and non-financial incentives,
+compensation, job performance, performance evaluation, and investment in personnel.
+The interplay between theoretical models and empirical evidence will be emphasized in
+considering different approaches to the management of personnel.
+Prerequisite(s): ECON*2310 or ECON*2200
+Department(s): Department of Economics and Finance    
+
+ECON*4400 The Economics of Personnel Management U (7-1) [0.90]
+In this course, we examine the economics of personnel management in organizations.
+Using mainstream microeconomic and behavioural economic theory, we will consider
+such issues as recruitment, promotion, financial and non-financial incentives,
+compensation, job performance, performance evaluation, and investment in personnel.
+Prerequisite(s): ECON*2310
+Department(s): Department of Economics
+    """
+    template = """
+<vars>
+descr_chain = [
+    "PHRASE",
+    "exclude('Prerequisite(s)')",
+    "exclude('Department(s)')",
+    "joinmatches"
+]
+</vars>
+
+<group>
+{{ course }}*{{ code }} {{ name | PHRASE }} {{ semester }} ({{ lecture_lab_time }}) [{{ weight }}]
+{{ description | chain(descr_chain) }}
+Prerequisite(s): {{ prereqs | ORPHRASE }}
+Department(s): {{ department | ORPHRASE }}   
+</group>
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=150)     
+    assert res == [[[{'code': '3400',
+                      'course': 'ECON',
+                      'department': 'Department of Economics and Finance',
+                      'description': 'In this course, we examine the economics of personnel management in organizations.\n'
+                                     'Using mainstream microeconomic and behavioural economic theory, we will consider\n'
+                                     'such issues as recruitment, promotion, financial and non-financial incentives,\n'
+                                     'compensation, job performance, performance evaluation, and investment in personnel.\n'
+                                     'The interplay between theoretical models and empirical evidence will be emphasized in\n'
+                                     'considering different approaches to the management of personnel.',
+                      'lecture_lab_time': '3-0',
+                      'name': 'The Economics of Personnel Management',
+                      'prereqs': 'ECON*2310 or ECON*2200',
+                      'semester': 'U',
+                      'weight': '0.50'},
+                     {'code': '4400',
+                      'course': 'ECON',
+                      'department': 'Department of Economics',
+                      'description': 'In this course, we examine the economics of personnel management in organizations.\n'
+                                     'Using mainstream microeconomic and behavioural economic theory, we will consider\n'
+                                     'such issues as recruitment, promotion, financial and non-financial incentives,\n'
+                                     'compensation, job performance, performance evaluation, and investment in personnel.',
+                      'lecture_lab_time': '7-1',
+                      'name': 'The Economics of Personnel Management',
+                      'prereqs': 'ECON*2310',
+                      'semester': 'U',
+                      'weight': '0.90'}]]]
+    
+# test_issue_48_answer()
+
+def test_issue_48_answer_more():
+    data = """
+IBIO*4521 Thesis in Integrative Biology F (0-12) [1.00]
+This course is the first part of the two-semester course IBIO*4521/2. This course is
+a two-semester (F,W) undergraduate project in which students conduct a comprehensive,
+independent research project in organismal biology under the supervision of a faculty
+member in the Department of Integrative Biology. Projects involve a thorough literature
+review, a research proposal, original research communicated in oral and poster
+presentations, and in a written, publication quality document. This two-semester course
+offers students the opportunity to pursue research questions and experimental designs
+that cannot be completed in the single semester research courses. Students must make
+arrangements with both a faculty supervisor and the course coordinator at least one
+semester in advance. A departmental registration form must be obtained from the course
+coordinator and submitted no later than the second class day of the fall semester. This is
+a twosemester course offered over consecutive semesters F-W. When you select this
+course, you must select IBIO*4521 in the Fall semester and IBIO*4522 in the Winter
+semester.A grade will not be assigned to IBIO*4521 until IBIO*4522 has been completed.
+Prerequisite(s): 12.00 credits
+Restriction(s): Normally a minimum cumulative average of 70%. Permission of course
+coordinator.
+Department(s): Department of Integrative Biology
+
+IBIO*4533 Thesis in Integrative Biology F (0-14) [2.00]
+This course is the first part of the two-semester course IBIO*4521/2. This course is
+a two-semester (F,W) undergraduate project in which students conduct a comprehensive,
+independent research project in organismal biology under the supervision of a faculty
+member in the Department of Integrative Biology. 
+Restriction(s): Normally a minimum cumulative average of 80%. Permission of course
+coordinator. Normally a minimum cumulative average of 90%. Permission of course
+coordinator. 
+Department(s): Department of Integrative Biology
+    """
+    template = """
+<vars>
+chain_1 = [
+    "ORPHRASE",
+    "exclude('Prerequisite(s)')",
+    "exclude('Department(s)')",
+    "exclude('Restriction(s)')",
+    "joinmatches"
+]
+</vars>
+
+<group>
+{{ course }}*{{ code }} {{ name | PHRASE }} {{ semester }} ({{ lecture_lab_time }}) [{{ weight }}]
+{{ description | chain(chain_1) }}
+Prerequisite(s): {{ prereqs | ORPHRASE }}
+Department(s): {{ department | ORPHRASE }}   
+
+<group name="_">
+Restriction(s): {{ restrictions | PHRASE | joinmatches }}
+{{ restrictions | chain(chain_1) }}
+</group>
+
+</group>
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=150)    
+    assert res == [[[{'code': '4521',
+                      'course': 'IBIO',
+                      'department': 'Department of Integrative Biology',
+                      'description': 'This course is the first part of the two-semester course IBIO*4521/2. This course is\n'
+                                     'a two-semester (F,W) undergraduate project in which students conduct a comprehensive,\n'
+                                     'independent research project in organismal biology under the supervision of a faculty\n'
+                                     'member in the Department of Integrative Biology. Projects involve a thorough literature\n'
+                                     'review, a research proposal, original research communicated in oral and poster\n'
+                                     'presentations, and in a written, publication quality document. This two-semester course\n'
+                                     'offers students the opportunity to pursue research questions and experimental designs\n'
+                                     'that cannot be completed in the single semester research courses. Students must make\n'
+                                     'arrangements with both a faculty supervisor and the course coordinator at least one\n'
+                                     'semester in advance. A departmental registration form must be obtained from the course\n'
+                                     'coordinator and submitted no later than the second class day of the fall semester. This is\n'
+                                     'a twosemester course offered over consecutive semesters F-W. When you select this\n'
+                                     'course, you must select IBIO*4521 in the Fall semester and IBIO*4522 in the Winter\n'
+                                     'semester.A grade will not be assigned to IBIO*4521 until IBIO*4522 has been completed.',
+                      'lecture_lab_time': '0-12',
+                      'name': 'Thesis in Integrative Biology',
+                      'prereqs': '12.00 credits',
+                      'restrictions': 'Normally a minimum cumulative average of 70%. Permission of course\ncoordinator.',
+                      'semester': 'F',
+                      'weight': '1.00'},
+                     {'code': '4533',
+                      'course': 'IBIO',
+                      'department': 'Department of Integrative Biology',
+                      'description': 'This course is the first part of the two-semester course IBIO*4521/2. This course is\n'
+                                     'a two-semester (F,W) undergraduate project in which students conduct a comprehensive,\n'
+                                     'independent research project in organismal biology under the supervision of a faculty\n'
+                                     'member in the Department of Integrative Biology.',
+                      'lecture_lab_time': '0-14',
+                      'name': 'Thesis in Integrative Biology',
+                      'restrictions': 'Normally a minimum cumulative average of 80%. Permission of course\n'
+                                      'coordinator. Normally a minimum cumulative average of 90%. Permission of course\n'
+                                      'coordinator.',
+                      'semester': 'F',
+                      'weight': '2.00'}]]]
+    
+# test_issue_48_answer_more()
