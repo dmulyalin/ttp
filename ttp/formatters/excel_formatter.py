@@ -1,9 +1,10 @@
 import logging
+import os
 
 log = logging.getLogger(__name__)
 
 try:
-    from openpyxl import Workbook
+    from openpyxl import Workbook, load_workbook
 except ImportError:
     log.critical(
         "output.formatter_excel: openpyxl not installed, install: 'python -m pip install openpyxl'. Exiting"
@@ -15,7 +16,7 @@ _name_map_ = {"excel_formatter": "excel"}
 
 def excel_formatter(data, **kwargs):
     """Method to format data as an .xlsx table using openpyxl module."""
-    # form table_tabs - list of dictionaries
+    # get arguments
     try:
         table = _ttp_["output_object"].tag_load["table"]
     except KeyError:
@@ -23,6 +24,11 @@ def excel_formatter(data, **kwargs):
             "output.formatter_excel: output tag missing table definition. Exiting"
         )
         raise SystemExit()
+    update = kwargs.get("update")
+    url = kwargs.get("url", "./Output/")
+    filename = kwargs.get("filename")
+    
+    # form table_tabs - list of dictionaries
     table_tabs = []
     for index, tab_det in enumerate(table):
         tab_name = (
@@ -43,9 +49,24 @@ def excel_formatter(data, **kwargs):
         # form tab table
         tab_table_data = _ttp_["formatters"]["table"](data, **tab_kwargs)
         table_tabs.append({"name": tab_name, "data": tab_table_data})
+        
+    # check if need to load existing workbook
+    if update and os.path.exists(os.path.join(url, filename)):
+        wb = load_workbook(os.path.join(url, filename))
     # create workbook
-    wb = Workbook(write_only=True)
+    else:
+        wb = Workbook(write_only=True)
+
+    # add data to workbook
     for tab in table_tabs:
-        ws = wb.create_sheet(title=tab["name"])
-        [ws.append(row) for row in tab["data"]]
+        # check if need to add to existing tab
+        if tab["name"] in wb and update:
+            ws = wb[tab["name"]]
+            for row in tab["data"][1:]:
+                ws.append(row)
+        # create new tab
+        else:
+            ws = wb.create_sheet(title=tab["name"])
+            for row in tab["data"]:
+                ws.append(row)
     return wb

@@ -346,7 +346,8 @@ This formatter takes table structure defined in output tag text and transforms p
 
 **Supported formatter arguments**
 
-* ``table`` list of dictionaries describing excel table structure
+* ``table`` list of dictionaries describing excel tabs and tables structure
+* ``update`` boolean, if set to True will update `.xlsx` document if it exists, default is False
 
 Each dictionary item in ``table`` structure can have these attributes:
 
@@ -355,6 +356,13 @@ Each dictionary item in ``table`` structure can have these attributes:
 * ``headers`` comma separated string of tab table headers, headers put randomly otherwise
 * ``missing`` value to use to substitute empty cells in table, default is empty string - ""
 * ``key`` key name to transform dictionary data to list of dictionaries
+
+**Notes on update**
+
+By default ``excel`` formatter will replace existing `.xlsx` file, if ``update`` parameter set to ``True`` and output xlsx file exists, spreadsheet updated following this logic:
+
+* existing tabs appended with new data or left intact
+* new tabs created if they does not exists and filed with data
 
 **Example**
 
