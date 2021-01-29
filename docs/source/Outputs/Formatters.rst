@@ -362,7 +362,7 @@ Each dictionary item in ``table`` structure can have these attributes:
 By default ``excel`` formatter will replace existing `.xlsx` file, if ``update`` parameter set to ``True`` and output xlsx file exists, spreadsheet updated following this logic:
 
 * existing tabs appended with new data or left intact
-* new tabs created if they does not exists and filed with data
+* new tabs created if they does not exists and filled with data
 
 **Example**
 

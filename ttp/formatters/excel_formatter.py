@@ -18,7 +18,7 @@ def excel_formatter(data, **kwargs):
     """Method to format data as an .xlsx table using openpyxl module."""
     # get arguments
     try:
-        table = _ttp_["output_object"].tag_load["table"]
+        table = kwargs["table"]
     except KeyError:
         log.critical(
             "output.formatter_excel: output tag missing table definition. Exiting"

@@ -314,6 +314,93 @@ table:
     
 # test_excel_formatter_update()
 
+def test_excel_formatter_update_using_result_kwargs():
+    template = """
+<input load="text">
+interface Loopback0
+ description Router-id-loopback
+ ip address 192.168.0.113/24
+!
+interface Loopback1
+ description Router-id-loopback
+ ip address 192.168.0.1/24
+!
+interface Vlan778
+ ip address 2002::fd37/124
+ ip vrf CPE1
+!
+interface Vlan779
+ ip address 2002::bbcd/124
+ ip vrf CPE2
+!
+</input>
+
+<group name="loopbacks_new**.{{ interface }}">
+interface {{ interface | contains("Loop") }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description }}
+ ip vrf {{ vrf }}
+</group>
+
+<group name="vlans*">
+interface {{ interface | contains("Vlan") }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description }}
+ ip vrf {{ vrf }}
+</group>
+    """
+    # copy workbook to update it
+    copyfile(
+        src="./Output/excel_out_test_excel_formatter_update_source.xlsx",
+        dst="./Output/excel_out_test_excel_formatter_update.xlsx"
+    )
+    # run parsing
+    parser = ttp(template=template)
+    parser.parse()
+    # form excel table and save in file
+    parser.result(
+        format="excel",
+        filename="excel_out_test_excel_formatter_update.xlsx",
+        returner="file",
+        update=True,
+        url="./Output/",
+        table = [
+            { 
+                "headers": ["interface", "ip", "mask", "vrf", "description"],
+                "path": "loopbacks_new",
+                "key": "interface",
+                "tab_name": "loopbacks_new",
+            },
+            {
+                "path": "vlans"
+            }
+        ]
+    )
+    # pprint.pprint(res)
+    # load updated workbook and test it
+    from openpyxl import load_workbook
+    wb = load_workbook('./Output/excel_out_test_excel_formatter_update.xlsx', data_only=True)
+    table = {}
+    for sheet_name in wb.sheetnames:
+        table[sheet_name] = []
+        sheet_obj = wb[sheet_name]
+        for row in sheet_obj.rows:
+            table[sheet_name].append([i.value for i in row])
+    # pprint.pprint(table, width=150)
+    assert table == {'Sheet1': [['interface', 'ip', 'mask', 'vrf'],
+                                ['Vlan778', '2002::fd37', '124', 'CPE1'],
+                                ['Vlan779', '2002::bbcd', '124', 'CPE2'],
+                                ['Vlan778', '2002::fd37', '124', 'CPE1'], # << appended to existing tab
+                                ['Vlan779', '2002::bbcd', '124', 'CPE2']], # << appended to existing tab
+                     'loopbacks': [['interface', 'ip', 'mask', 'vrf', 'description'], # << existing tab unchanged
+                                   ['Loopback0', '192.168.0.113', '24', None, 'Router-id-loopback'],
+                                   ['Loopback1', '192.168.0.1', '24', None, 'Router-id-loopback']],
+                     'loopbacks_new': [['interface', 'ip', 'mask', 'vrf', 'description'], # << new tab created
+                                       ['Loopback0', '192.168.0.113', '24', None, 'Router-id-loopback'],
+                                       ['Loopback1', '192.168.0.1', '24', None, 'Router-id-loopback']]}
+    
+# test_excel_formatter_update_using_result_kwargs()
+
 def test_tabulate_formatter():
     template = """
 <input load="text">
