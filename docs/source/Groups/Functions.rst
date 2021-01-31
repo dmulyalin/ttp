@@ -1137,7 +1137,7 @@ record
 Depending on requirements match variable ``record`` might not be enough due to the fact that it can only record values during parsing phase, group ``record`` function on the other hand can record variable values during results processing phase. Group `set`_ function can make use of this recorded variables adding them to produced results.
 
 Group ``record`` function saved variable value in two dictionaries that represent different scopes of access:
-  1. Per-input scope - this dictionary available during processing of all groups for this particular input; ``_ttp_["results_object"].vars`` dictionary
+  1. Per-input scope - this dictionary available during processing of all groups for this particular input; ``_ttp_["results_object"].variables`` dictionary
   2. Global scope - this dictionary available across all templates, inputs and groups; ``_ttp_["global_vars"]`` dictionary
 
 **Example-0**
@@ -1364,7 +1364,7 @@ set
 * ``target`` - optional, name of variable to assign value to
 * ``default`` - optional, default value to assign to target variable if no source variable found
 
-This function uses ``_ttp_["results_object"].vars`` dictionary to retrieve values and assign them to variable with name provided. Reference group `record`_ function for examples.
+This function uses ``_ttp_["results_object"].variables`` dictionary to retrieve values and assign them to variable with name provided. Reference group `record`_ function for examples.
 
 **Example**
 
@@ -1441,7 +1441,7 @@ Results::
         ]
     ]
     
-.. warning:: default value will not be used as long as variable with given name found in ``_ttp_["results_object"].vars`` dictionary. 
+.. warning:: default value will not be used as long as variable with given name found in ``_ttp_["results_object"].variables`` dictionary. 
 
 For instance, reordering text data above as::
 

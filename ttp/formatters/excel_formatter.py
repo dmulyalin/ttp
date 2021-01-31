@@ -26,8 +26,12 @@ def excel_formatter(data, **kwargs):
         raise SystemExit()
     update = kwargs.get("update")
     url = kwargs.get("url", "./Output/")
-    filename = kwargs.get("filename")
     
+    # from filename
+    filename = kwargs.get("filename")
+    if not filename.endswith(".xlsx"):
+        filename = "{}.xlsx".format(filename)
+        
     # form table_tabs - list of dictionaries
     table_tabs = []
     for index, tab_det in enumerate(table):
