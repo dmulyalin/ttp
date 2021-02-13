@@ -1,3 +1,5 @@
+.. _results_structure:
+
 Forming Results Structure
 =========================
 

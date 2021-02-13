@@ -1,3 +1,5 @@
+.. _path_formatters:
+
 Path formatters
 ===============
 

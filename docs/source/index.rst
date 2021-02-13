@@ -7,6 +7,7 @@ Template Text Parser
    Overview
    Installation
    Quick start
+   FAQ
    Match Variables/index
    Groups/index
    Forming Results Structure/index
