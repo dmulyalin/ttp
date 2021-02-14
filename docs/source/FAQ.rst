@@ -3,8 +3,10 @@ FAQ
 
 Collection of answers to frequently asked questions.
 
+.. contents:: :local:
+
 Why TTP returns nested list of lists of lists?
-==============================================
+----------------------------------------------
 
 By default TTP accounts for most general case where several templates added in TTP object,
 each template producing its own results, that is why top structure is a list.
@@ -24,7 +26,7 @@ using TTP built-in techniques, otherwise, Python results post-processing proved 
 as well.
 
 How to add comments in TTP templates?
-=====================================
+-------------------------------------
 
 To put single line comment within TTP group use double hash tag - ``##``, e.g.::
 
@@ -60,7 +62,7 @@ could be another option::
     </group>
 
 How to make TTP always return a list even if single item matched?
-=================================================================
+-----------------------------------------------------------------
 
 Please reference TTP :ref:`path_formatters` for details on how 
 to enforce list or dictionary as part of results structure.
