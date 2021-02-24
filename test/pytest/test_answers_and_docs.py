@@ -2570,3 +2570,63 @@ Restriction(s): {{ restrictions | PHRASE | joinmatches }}
                       'weight': '2.00'}]]]
     
 # test_issue_48_answer_more()
+
+def test_slack_channel_answer_for_Noif():
+    data = """
+# not disabled and no comment
+/ip address add address=10.4.1.245 interface=lo0 network=10.4.1.245
+/ip address add address=10.4.1.246 interface=lo1 network=10.4.1.246
+# not disabled and comment with no quotes
+/ip address add address=10.9.48.241/29 comment=SITEMON interface=ether2 network=10.9.48.240
+/ip address add address=10.9.48.233/29 comment=Camera interface=vlan205@bond1 network=10.9.48.232
+/ip address add address=10.9.49.1/24 comment=SM-Management interface=vlan200@bond1 network=10.9.49.0
+# not disabled and comment with quotes
+/ip address add address=10.4.1.130/30 comment="to core01" interface=vlan996@bond4 network=10.4.1.128
+/ip address add address=10.4.250.28/29 comment="BH 01" interface=vlan210@bond1 network=10.4.250.24
+/ip address add address=10.9.50.13/30 comment="Cust: site01-PE" interface=vlan11@bond1 network=10.9.50.12
+# disabled no comment
+/ip address add address=10.0.0.2/30 disabled=yes interface=bridge:customer99 network=10.0.0.0
+# disabled with comment
+/ip address add address=169.254.1.100/24 comment=Cambium disabled=yes interface=vlan200@bond1 network=169.254.1.0
+# disabled with comment with quotes
+/ip address add address=10.4.248.20/29 comment="Backhaul to AGR (Test Segment)" disabled=yes interface=vlan209@bond1 network=10.4.248.16
+    """
+    template = """
+<vars>
+default_values = {
+    "comment": "",
+    "disabled": False
+}
+</vars>
+
+<group default="default_values">
+## not disabled and no comment
+/ip address add address={{ ip | _start_ }} interface={{ interface }} network={{ network }}
+
+## not disabled and comment with/without quotes
+/ip address add address={{ ip | _start_ }}/{{ mask }} comment={{ comment | ORPHRASE | exclude("disabled=") | strip('"')}} interface={{ interface }} network={{ network }}
+
+## disabled no comment
+/ip address add address={{ ip | _start_ }}/{{ mask }} disabled={{ disabled }} interface={{ interface }} network={{ network }}
+
+## disabled with comment with/without quotes
+/ip address add address={{ ip | _start_ }}/{{ mask }} comment={{ comment | ORPHRASE | exclude("disabled=") | strip('"') }} disabled={{ disabled }} interface={{ interface }} network={{ network }}
+</group>
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result(structure="flat_list")
+    # pprint.pprint(res, width=200)  
+    assert res == [{'comment': '', 'disabled': False, 'interface': 'lo0', 'ip': '10.4.1.245', 'network': '10.4.1.245'},
+                   {'comment': '', 'disabled': False, 'interface': 'lo1', 'ip': '10.4.1.246', 'network': '10.4.1.246'},
+                   {'comment': 'SITEMON', 'disabled': False, 'interface': 'ether2', 'ip': '10.9.48.241', 'mask': '29', 'network': '10.9.48.240'},
+                   {'comment': 'Camera', 'disabled': False, 'interface': 'vlan205@bond1', 'ip': '10.9.48.233', 'mask': '29', 'network': '10.9.48.232'},
+                   {'comment': 'SM-Management', 'disabled': False, 'interface': 'vlan200@bond1', 'ip': '10.9.49.1', 'mask': '24', 'network': '10.9.49.0'},
+                   {'comment': 'to core01', 'disabled': False, 'interface': 'vlan996@bond4', 'ip': '10.4.1.130', 'mask': '30', 'network': '10.4.1.128'},
+                   {'comment': 'BH 01', 'disabled': False, 'interface': 'vlan210@bond1', 'ip': '10.4.250.28', 'mask': '29', 'network': '10.4.250.24'},
+                   {'comment': 'Cust: site01-PE', 'disabled': False, 'interface': 'vlan11@bond1', 'ip': '10.9.50.13', 'mask': '30', 'network': '10.9.50.12'},
+                   {'comment': '', 'disabled': 'yes', 'interface': 'bridge:customer99', 'ip': '10.0.0.2', 'mask': '30', 'network': '10.0.0.0'},
+                   {'comment': 'Cambium', 'disabled': 'yes', 'interface': 'vlan200@bond1', 'ip': '169.254.1.100', 'mask': '24', 'network': '169.254.1.0'},
+                   {'comment': 'Backhaul to AGR (Test Segment)', 'disabled': 'yes', 'interface': 'vlan209@bond1', 'ip': '10.4.248.20', 'mask': '29', 'network': '10.4.248.16'}]
+
+# test_slack_channel_answer_for_Noif()
