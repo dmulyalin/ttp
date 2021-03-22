@@ -2630,3 +2630,180 @@ default_values = {
                    {'comment': 'Backhaul to AGR (Test Segment)', 'disabled': 'yes', 'interface': 'vlan209@bond1', 'ip': '10.4.248.20', 'mask': '29', 'network': '10.4.248.16'}]
 
 # test_slack_channel_answer_for_Noif()
+
+def test_slack_answer_2():
+    data_to_parse = """
+    port 1/1/1
+        description "port 1 description"
+        ethernet
+            mode hybrid
+            encap-type dot1q
+            crc-monitor
+                sd-threshold 5 multiplier 5
+                sf-threshold 3 multiplier 5
+                window-size 60
+            exit
+            network
+                queue-policy "ncq-only"
+                accounting-policy 12
+                collect-stats
+                egress
+                    queue-group "qos-policy-for-router1" instance 1 create
+                        accounting-policy 1
+                        collect-stats
+                        agg-rate
+                            rate 50000
+                        exit
+                    exit
+                exit
+            exit
+            access
+                egress
+                    queue-group "policer-output-queues" instance 1 create
+                        accounting-policy 1
+                        collect-stats
+                    exit
+                exit
+            exit
+            lldp
+                dest-mac nearest-bridge
+                    admin-status tx-rx
+                    notification
+                    tx-tlvs port-desc sys-name sys-desc sys-cap
+                    tx-mgmt-address system
+                exit
+            exit
+            down-on-internal-error
+        exit
+        no shutdown
+    exit
+    port 1/1/2
+        description "another port to a another router"
+        ethernet
+            mode hybrid
+            encap-type dot1q
+            egress-scheduler-policy "qos-port-scheduler"
+            crc-monitor
+                sd-threshold 5 multiplier 5
+                sf-threshold 3 multiplier 5
+                window-size 60
+            exit
+            access
+                egress
+                    queue-group "policer-output-queues" instance 1 create
+                        accounting-policy 1
+                        collect-stats
+                    exit
+                exit
+            exit
+            down-on-internal-error
+        exit
+        no shutdown
+    exit
+    port 1/1/3
+        description "port 3 to some third router"
+        ethernet
+            mode access
+            encap-type dot1q
+            mtu 2000
+            egress-scheduler-policy "strict-scheduler"
+            network
+                queue-policy "ncq-only"
+                accounting-policy 12
+                collect-stats
+                egress
+                    queue-group "some-shaping-policy" instance 1 create
+                        accounting-policy 1
+                        collect-stats
+                        agg-rate
+                            rate 50000
+                        exit
+                    exit
+                    queue-group "another-shaping-policy" instance 1 create
+                        accounting-policy 1
+                        collect-stats
+                        agg-rate
+                            rate 50000
+                        exit
+                    exit
+                    queue-group "this-shaper-is-cool" instance 1 create
+                        agg-rate
+                            rate 1000000
+                        exit
+                    exit
+                exit
+            exit
+        exit
+        no shutdown
+    exit
+    """
+    template = """
+    <group name="system.ports">
+    port {{ id }}
+        shutdown {{ admin_enabled | set(false) }}
+        description "{{ description | ORPHRASE | strip('"') }}"
+        <group name="ethernet">
+        ethernet {{ _start_ }}
+            mode {{ mode }}
+            encap-type {{ encap_type }}
+            mtu {{ mtu | DIGIT }}
+            egress-scheduler-policy {{ egress_sched_policy | strip('"') }}
+            loopback internal persistent {{ loop_internal | set(true) }}
+            <group name="network">
+            network {{ _start_ }}
+                queue-policy {{ queue_policy | ORPHRASE | strip('"') }}
+                accounting-policy {{ accounting_policy | DIGIT }}
+                collect-stats {{ collect_stats | set(true) }}
+                <group name="egress">
+                egress {{ _start_ }}
+                    <group name="queuegroups*">
+                    queue-group {{ name | strip('"') }} instance 1 create
+                            rate {{ agg_rate | DIGIT }}
+                    exit {{_end_}}
+                    </group>
+## this "exit {{ _end_ }}" had wrong indentation level, leading to 
+## group name="egress" finishing too early
+                exit {{_end_}}
+                </group>
+            exit {{_end_}}
+            </group>
+            lldp {{ lldp_enabled | set(true) }}
+        exit {{_end_}}
+        </group>
+        no shutdown {{admin_enabled | set(true)}}
+    exit {{_end_}}
+    </group>
+    """
+    parser = ttp(data=data_to_parse, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=150) 
+    assert res == [[{'system': {'ports': [{'admin_enabled': True,
+                                           'description': 'port 1 description',
+                                           'ethernet': {'encap_type': 'dot1q',
+                                                        'lldp_enabled': True,
+                                                        'mode': 'hybrid',
+                                                        'network': {'accounting_policy': '12',
+                                                                    'collect_stats': True,
+                                                                    'egress': {'queuegroups': [{'agg_rate': '50000', 'name': 'qos-policy-for-router1'}]},
+                                                                    'queue_policy': 'ncq-only'}},
+                                           'id': '1/1/1'},
+                                          {'admin_enabled': True,
+                                           'description': 'another port to a another router',
+                                           'ethernet': {'egress_sched_policy': 'qos-port-scheduler', 'encap_type': 'dot1q', 'mode': 'hybrid'},
+                                           'id': '1/1/2'},
+                                          {'admin_enabled': True,
+                                           'description': 'port 3 to some third router',
+                                           'ethernet': {'egress_sched_policy': 'strict-scheduler',
+                                                        'encap_type': 'dot1q',
+                                                        'mode': 'access',
+                                                        'mtu': '2000',
+                                                        'network': {'accounting_policy': '12',
+                                                                    'collect_stats': True,
+                                                                    'egress': {'queuegroups': [{'agg_rate': '50000', 'name': 'some-shaping-policy'},
+                                                                                               {'agg_rate': '50000', 'name': 'another-shaping-policy'},
+                                                                                               {'agg_rate': '1000000', 'name': 'this-shaper-is-cool'}]},
+                                                                    'queue_policy': 'ncq-only'}},
+                                           'id': '1/1/3'}]}}]]
+	
+# test_slack_answer_2()

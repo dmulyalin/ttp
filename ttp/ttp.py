@@ -1636,6 +1636,8 @@ class _group_class:
                 # create variable dict:
                 if variableObj.skip_variable_dict is False:
                     variables[variableObj.var_name] = variableObj
+                    # add var_name_original for joinmatches function
+                    variables[variableObj.var_name_original] = variableObj
                 # form regex:
                 regex = variableObj.form_regex(regex)
 
@@ -2276,6 +2278,7 @@ class _parser_class:
                                 flags.update(flag)
                     if result is False:
                         break
+                    # add match result to results using original match variable name
                     result.update(
                         {regex["VARIABLES"][var_name].var_name_original: data}
                     )
@@ -2818,16 +2821,16 @@ class _results_class:
         # if path not the same, results belong to different group, skip them
         if self.record["PATH"] != PATH:
             return
+        # retrieve joinchar to use
         joinchar = "\n"
         for varname, varvalue in result.items():
-            # skip vars that were added to results on the go
+            # check if need to skip vars that were added to results on the go
             if not varname in REDICT["VARIABLES"]:
                 continue
             for item in REDICT["VARIABLES"][varname].functions:
                 if item["name"] == "joinmatches":
-                    if item["args"]:
-                        joinchar = item["args"][0]
-                        break
+                    joinchar = item["args"][0] if item["args"] else joinchar
+                    break
         # join results:
         for k in result.keys():
             if k in self.record["result"]:  # if we already have results

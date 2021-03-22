@@ -357,3 +357,42 @@ interface {{ name }}
                      {'admin-status': 'up', 'description': 'bla bla2 bla2', 'link-up-down-trap-enable': 'enabled', 'name': 'Port-Channel22'}]]]
     
 # test_let_and_set()
+
+
+def test_line_with_joinmatches():
+    """
+    Issue - when having to use sanitized variable names, joinmatches was failing
+    to find variable in group re variables dictionary, as that dictionary was keyd
+    byt sanitized variable name, but by the time joinmatches seeing results, results
+    already have original variable name.
+    """
+    data = """
+Chassis id: 12346.1234.1234
+Port id: Eth1/1
+Local Port id: Eth6/1
+Port Description: Uplink to vrf1
+System Name: switch-name-1
+System Description: Cisco Nexus Operating System (NX-OS) Software 21.324(3)N2(3.12b)
+TAC support: http://www.cisco.com/tac
+Copyright (c) 2002-2099, Cisco Systems, Inc. All rights reserved.
+Time remaining: 333 seconds
+System Capabilities: B, R
+Enabled Capabilities: B, R
+Management Address: 1.1.1.1
+Vlan ID: 111
+    """
+    template = """
+System Description: {{ system-description | re(".+") | joinmatches(" ") }}
+{{ system-description | _line_ | joinmatches(" ") }}
+Time remaining: {{ ignore }} seconds {{ _end_ }}
+    """
+    parser = ttp(data, template, log_level="error")
+    parser.parse()
+    
+    res = parser.result()
+    # pprint.pprint(res, width=100)
+    assert res == [[{'system-description': 'Cisco Nexus Operating System (NX-OS) Software 21.324(3)N2(3.12b) TAC '
+                                           'support: http://www.cisco.com/tac Copyright (c) 2002-2099, Cisco '
+                                           'Systems, Inc. All rights reserved.'}]]
+    
+# test_line_with_joinmatches()
