@@ -1607,7 +1607,7 @@ class _group_class:
             # skip empty lines and comments:
             if not line.strip():
                 continue
-            elif line.startswith("##"):
+            elif line.lstrip().startswith("##"):
                 continue
             # strip leading spaces as they will be reconstructed in regex
             line = line.rstrip()

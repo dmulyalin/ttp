@@ -420,3 +420,18 @@ router bgp 65000
                                                                                  'remote_as': '65200'}}}}]}}}}]]
                                                                                  
 # test_hierarch_template()
+
+def test_comments_with_indentation():
+    """
+    Need to manually run this test to see if log message generated:
+    WARNING:ttp.ttp:group.get_regexes: variable not found in line: '    ## some comment line'
+    
+    it should not, if all working properly
+    """
+    template = """
+    ## some comment line
+some string {{ var_1 }}
+    """
+    parser = ttp(template=template, log_level="warning")
+
+# test_comments_with_indentation()
