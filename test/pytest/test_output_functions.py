@@ -1426,3 +1426,47 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
                     'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces>']]
     
 # test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file_to_xml_metadata_false()
+
+
+def test_output_condition_attribute():
+    data = """
+interface GigabitEthernet1/3.251
+ description Customer #32148
+ encapsulation dot1q 251
+ ip address 172.16.33.10 255.255.255.128
+ shutdown
+!
+interface GigabitEthernet1/4
+ description vCPEs access control
+ ip address 172.16.33.10 255.255.255.128
+    """    
+    template = """
+<group>
+interface {{ interface }}
+ description {{ description }}
+ encapsulation dot1q {{ vlan }}
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<output condition="convert_to_csv, True" format="csv"/>
+    """
+    parser1 = ttp(data=data, template=template, vars={"convert_to_csv": False})
+    parser1.parse()
+    res1 = parser1.result()
+    parser2 = ttp(data=data, template=template, vars={"convert_to_csv": True})
+    parser2.parse()
+    res2 = parser2.result()
+    # pprint.pprint(res1)
+    # pprint.pprint(res2)
+    assert res1 == [[[{'interface': 'GigabitEthernet1/3.251',
+                       'ip': '172.16.33.10',
+                       'mask': '255.255.255.128',
+                       'vlan': '251'},
+                      {'interface': 'GigabitEthernet1/4',
+                       'ip': '172.16.33.10',
+                       'mask': '255.255.255.128'}]]]
+    assert res2 == ['"interface","ip","mask","vlan"\n'
+                    '"GigabitEthernet1/3.251","172.16.33.10","255.255.255.128","251"\n'
+                    '"GigabitEthernet1/4","172.16.33.10","255.255.255.128",""']
+                   
+test_output_condition_attribute()

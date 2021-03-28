@@ -18,7 +18,9 @@ There are a number of attributes that outputs system can use. Some attributes ca
    * - `returner`_ 
      - returner to use to return data e.g. self, file, terminal
    * - `format`_ 
-     - formatter to use to format results        
+     - formatter to use to format results    
+   * - `condition`_ 
+     - condition to check before running output       
 
 name
 ******************************************************************************
@@ -57,3 +59,69 @@ format
 ``format=formatter_name"``    
 
 Name of the formatter to use to format results.
+
+condition
+******************************************************************************
+``condition="template_variable_name, template_variable_value"`` 
+
+Where:
+
+* ``template_variable_name`` - name of template variable to use for condition check
+* ``template_variable_value`` - value to evaluate
+
+Attribute to check condition for equality - if ``template_variable_value`` parameter equal to value of
+template variable with name ``template_variable_name`` condition satisfied.
+
+Used to conditionally run outputters - if condition met, outputter will run, outputter skipped otherwise.
+
+**Example**
+
+Here we conditionally run csv output formatter using ``convert_to_csv`` template variable::
+
+    data = """
+    interface GigabitEthernet1/3.251
+     description Customer #32148
+     encapsulation dot1q 251
+     ip address 172.16.33.10 255.255.255.128
+     shutdown
+    !
+    interface GigabitEthernet1/4
+     description vCPEs access control
+     ip address 172.16.33.10 255.255.255.128
+    """    
+    template = """
+    <group>
+    interface {{ interface }}
+     description {{ description }}
+     encapsulation dot1q {{ vlan }}
+     ip address {{ ip }} {{ mask }}
+    </group>
+    
+    <output condition="convert_to_csv, True" format="csv"/>
+    """
+    parser1 = ttp(data=data, template=template, vars={"convert_to_csv": False})
+    parser1.parse()
+    res1 = parser1.result()
+    
+    parser2 = ttp(data=data, template=template, vars={"convert_to_csv": True})
+    parser2.parse()
+    res2 = parser2.result()
+    
+    pprint.pprint(res1)
+    # prints:
+    # [[[{'interface': 'GigabitEthernet1/3.251',
+    #     'ip': '172.16.33.10',
+    #     'mask': '255.255.255.128',
+    #     'vlan': '251'},
+    #    {'interface': 'GigabitEthernet1/4',
+    #     'ip': '172.16.33.10',
+    #     'mask': '255.255.255.128'}]]]
+                           
+    pprint.pprint(res2)
+    # prints:
+    # ['"interface","ip","mask","vlan"\n'
+    #  '"GigabitEthernet1/3.251","172.16.33.10","255.255.255.128","251"\n'
+    #  '"GigabitEthernet1/4","172.16.33.10","255.255.255.128",""']
+    
+Outputter ``<output condition="convert_to_csv, True" format="csv"/>`` indicates that this outputter will only run if 
+``convert_to_csv`` template variable set to ``True``

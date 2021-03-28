@@ -2977,6 +2977,12 @@ class _outputter_class:
             else:
                 self.attributes["headers"] = O
 
+        def extract_condition(O):
+            condition_attributes = _ttp_["utils"]["get_attributes"](
+                "condition({})".format(O)
+            )
+            self.attributes["condition"] = condition_attributes[0]["args"]
+
         def extract_functions(O):
             funcs = _ttp_["utils"]["get_attributes"](O)
             for i in funcs:
@@ -3015,6 +3021,7 @@ class _outputter_class:
             "format_attributes": extract_format_attributes,
             "path": extract_path,
             "headers": extract_headers,
+            "condition": extract_condition                                          
         }
         functions = {"functions": extract_functions}
         for attr_name, attributes in data.items():
@@ -3033,6 +3040,12 @@ class _outputter_class:
             _ttp_["macro"] = macro
         format_type = self.attributes["format"]
         results = data
+        # check condition to see if need to run this output
+        if self.attributes.get("condition"):
+            condition_var_name, condition_var_value = self.attributes["condition"]
+            var_value = self.template_obj.vars.get(condition_var_name, "_undef_")
+            if not var_value == condition_var_value:
+                return data
         # run functions
         for item in self.funcs:
             func_name = item["name"]
