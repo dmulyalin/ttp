@@ -3304,3 +3304,162 @@ echo "Service Configuration" {{ ignore }}
                                                          'passive': 'True'}]}}}]}}]]
     
 # test_slack_answer_3_full()
+
+def test_issue_45_for_junos_cfg():
+    data = """
+system {
+    host-name LAB-MX-1;
+    time-zone some/time;
+    default-address-selection;
+    no-redirects;
+    no-ping-record-route;
+    no-ping-time-stamp;
+    tacplus-server {
+        1.1.1.1 {
+            port 49;
+            secret "<SECRET_HASH>"; ## SECRET-DATA
+            source-address 5.5.5.5;
+        }
+        2.2.2.2 {
+            port 49;
+            secret "<SECRET_HASH>"; ## SECRET-DATA
+            source-address 5.5.5.5;
+        }
+        4.4.4.4 {
+            port 49;
+            secret "<SECRET_HASH>"; ## SECRET-DATA
+            source-address 5.5.5.5;
+        }
+    }
+    services {
+        ssh {
+            root-login deny;
+            no-tcp-forwarding;
+            protocol-version v2;
+            max-sessions-per-connection 32;
+            client-alive-count-max 3;
+            client-alive-interval 10;
+            connection-limit 10;
+            rate-limit 5;
+        }
+        netconf {
+            ssh {
+                connection-limit 10;
+                rate-limit 4;
+            }
+        }
+    }
+}
+    """
+    template = """
+<group name="system_level">
+system { {{ _start_ }}
+    host-name {{ HOSTNAME }};
+    time-zone {{ TZ }};
+    default-address-selection; {{ default_address_selection | set(True) }}
+    no-redirects; {{ no_redirects | set(True) }}
+    no-ping-record-route; {{ no_ping_record_route | set(True) }}
+    no-ping-time-stamp; {{ no_ping_time_stamp | set(True) }}
+    
+ <group name="services">
+    services { {{ _start_ }}
+    <group name="{{ service }}">
+        {{ service }} {
+            http; {{ http | set(true) }}
+            https; {{ https | set(true) }}
+            no-tcp-forwarding; {{ no-tcp-fwding | set(true) }}
+            protocol-version {{ ssh-proto }};
+            connection-limit {{ connection-limit | DIGIT }};
+            rate-limit {{rate-limit | DIGIT }};
+            root-login deny; {{ root-login | set(false) }}
+            max-sessions-per-connection {{ max-sessions | DIGIT }};
+            client-alive-count-max {{ client-alive-count-max | DIGIT }};
+            client-alive-interval {{ client-alive-interval | DIGIT }};
+          <group name="ssh">
+            ssh; {{ ssh | set(true) }}
+          </group>
+          <group name="ssh">
+            ssh { {{ _start_ }}
+                connection-limit {{ connection-limit | DIGIT }};
+                rate-limit {{ rate-limit | DIGIT }};
+            } {{ _end_ }}
+          </group>
+        } {{ _end_ }}
+    </group>
+    } {{ _end_ }}
+ </group>
+ <group name="internet-options">
+    internet-options { {{ _start_ }}
+        icmpv4-rate-limit packet-rate {{ packet-rate| DIGIT }};
+        icmpv6-rate-limit packet-rate {{ packet-rate| DIGIT }};
+        no-source-quench; {{ no-source-quench | set(true) }}
+        tcp-drop-synfin-set; {{ tcp-drop-synfin-set | set(true) }}
+        no-tcp-reset {{ no-tcp-reset }};
+    } {{ _end_ }}
+ </group>
+    authentication-order [{{ authentication-order }}];
+ <group name="ports">
+    ports { {{ _start_ }}
+        auxiliary disable; {{ auxiliary | set(false) }}
+    } {{ _end_ }}
+ </group>
+ <group name="root-authentication">
+    root-authentication { {{ _start_ }}
+        encrypted-password "{{ encrypted-password }}"; ## SECRET-DATA
+    } {{ _end_ }}
+ </group>
+ <group name="dns" itemize="name_server">
+    name-server {  {{ _start_ }}
+        {{ name_server | IP | _line_ | to_list }};
+    } {{ _end_ }}
+ </group>
+ <group name="commit">
+    commit { {{ _start_ }}
+        synchronize; {{ commit_sync | set(true) }}
+        persist-groups-inheritance; {{ commit_persist-groups-inherit | set(true) }}
+    } {{ _end_ }}
+ </group> 
+ <group name="tacacs">
+    tacplus-server { {{ _start_ }}
+       <group name="tacacs-servers.{{ tac_server }}">
+        {{ tac_server | IP }} {
+            port {{ tac_port }};
+            secret "{{ tac_secret }}"; ## SECRET-DATA
+            source-address {{ tac_source | IP }};
+        } {{ end }}
+        </group>
+    } {{ end }}
+ </group>
+} {{ end }}
+</group>
+    """
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=100)
+    assert res == [[{'system_level': {'HOSTNAME': 'LAB-MX-1',
+                                      'TZ': 'some/time',
+                                      'default_address_selection': True,
+                                      'no_ping_record_route': True,
+                                      'no_ping_time_stamp': True,
+                                      'no_redirects': True,
+                                      'services': {'netconf': {'ssh': {'connection-limit': '10', 'rate-limit': '4'}},
+                                                   'ssh': {'client-alive-count-max': '3',
+                                                           'client-alive-interval': '10',
+                                                           'connection-limit': '10',
+                                                           'max-sessions': '32',
+                                                           'no-tcp-fwding': True,
+                                                           'rate-limit': '5',
+                                                           'root-login': False,
+                                                           'ssh-proto': 'v2'}},
+                                      'tacacs': {'tacacs-servers': {'1.1.1.1': {'tac_port': '49',
+                                                                                'tac_secret': '<SECRET_HASH>',
+                                                                                'tac_source': '5.5.5.5'},
+                                                                    '2.2.2.2': {'tac_port': '49',
+                                                                                'tac_secret': '<SECRET_HASH>',
+                                                                                'tac_source': '5.5.5.5'},
+                                                                    '4.4.4.4': {'tac_port': '49',
+                                                                                'tac_secret': '<SECRET_HASH>',
+                                                                                'tac_source': '5.5.5.5'}}}}}]]
+    
+# test_issue_45_for_junos_cfg()
