@@ -1166,7 +1166,7 @@ ip access-list {{ acl_type }} {{ acl_name }}
     parser = ttp(template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
+    pprint.pprint(res) 
     assert res == [[{'ip': {'extended': {'199': {'10': [{'action': 'remark',
                                                          'remark_name': 'COLLECTOR - SNMP'},
                                                         {'action': 'permit',
@@ -1188,7 +1188,7 @@ ip access-list {{ acl_type }} {{ acl_name }}
                                                          'protocol': 'ip',
                                                          'src_host': '90.90.90.138'}]}},
                             'standard': {'42': {'10': [{'action': 'remark',
-                                                        'src_host': 'machine_A'},
+                                                        'remark_name': 'machine_A'},
                                                        {'action': 'permit',
                                                         'src_host': '192.168.200.162'}],
                                                 '20': [{'action': 'remark',
@@ -2805,5 +2805,502 @@ def test_slack_answer_2():
                                                                                                {'agg_rate': '1000000', 'name': 'this-shaper-is-cool'}]},
                                                                     'queue_policy': 'ncq-only'}},
                                            'id': '1/1/3'}]}}]]
-	
+    
 # test_slack_answer_2()
+
+def test_slack_answer_3():
+    """
+    Problem was that interfaces were matched by regexes from both ospf and ospfv3
+    groups, decision logic was not able to properly work out to which group result
+    should belong, changed behavior to check if match is a child of current record 
+    group and use it if so. Also had to change how group id encoded from string to 
+    tuple of two elements ("group path", "group index",)
+    
+    Here is some debug output until problem was fixed:
+    self.record["GRP_ID"]:  service.vprns*.{{id}}**.ospf3**::1
+    re_["GROUP"].group_id:  service.vprns*.{{id}}**.ospf**.interfaces*::0
+    re_idex: 0
+    
+    self.record["GRP_ID"]:  service.vprns*.{{id}}**.ospf3**::1
+    re_["GROUP"].group_id:  service.vprns*.{{id}}**.ospf3**.interfaces*::0
+    re_idex: 1
+    
+    # problem was happening because logic was not able to decide that need to use this match
+    self.record["GRP_ID"]:  service.vprns*.{{id}}**.ospf**::0
+    re_["GROUP"].group_id:  service.vprns*.{{id}}**.ospf**.interfaces*::0
+    re_idex: 0
+    
+    # problem was happening because logic was picking up this match
+    self.record["GRP_ID"]:  service.vprns*.{{id}}**.ospf**::0
+    re_["GROUP"].group_id:  service.vprns*.{{id}}**.ospf3**.interfaces*::0
+    re_idex: 1
+    
+    Wrong results:
+    [[{'service': {'vprns': [{'4': {'name': 'ospf_version3_vprn',
+                                    'ospf': {'area': '0.0.0.0', 'interfaces': [{'name': 'interface-one'}]},
+                                    'ospf3': {'area': '0.0.0.0', 'interfaces': [{'name': 'interface-two'}]}},
+                              '5': {'name': 'vprn5', 'ospf': {'area': '0.0.0.0'}, 
+                                                     'ospf3': {'interfaces': [{'name': 'interface-three'}]}}}]}}]]
+    """
+    data = """
+    service
+        vprn 4 name "ospf_version3_vprn" customer 40 create
+            ospf
+                area 0.0.0.0
+                    interface "interface-one"
+            ospf3 0
+                area 0.0.0.0
+                    interface "interface-two"
+        vprn 5 name "vprn5" customer 50 create
+            ospf
+                area 0.0.0.0
+                    interface "interface-three"
+    """
+    template="""
+        <group name="service.vprns*.{{id}}**">
+        vprn {{ id }} name {{ name | ORPHRASE | strip('"') }} customer {{ ignore }} create
+            <group name="ospf**">
+            ospf {{ _start_ }}
+                area {{ area }}
+                    <group name="interfaces*">
+                    interface {{ name | ORPHRASE | strip('"') }}
+                    </group>
+            </group>
+            <group name="ospf3**">
+            ospf3 0 {{ _start_ }}
+                area {{ area }}
+                    <group name="interfaces*">
+                    interface {{ name | ORPHRASE | strip('"') }}
+                    </group>
+            </group>
+        </group>
+    """
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=100) 
+    assert res == [[{'service': {'vprns': [{'4': {'name': 'ospf_version3_vprn',
+                                                  'ospf': {'area': '0.0.0.0',
+                                                           'interfaces': [{'name': 'interface-one'}]},
+                                                  'ospf3': {'area': '0.0.0.0',
+                                                            'interfaces': [{'name': 'interface-two'}]}},
+                                            '5': {'name': 'vprn5',
+                                                  'ospf': {'area': '0.0.0.0',
+                                                           'interfaces': [{'name': 'interface-three'}]}}}]}}]]
+    
+# test_slack_answer_3()
+
+def test_slack_answer_3_full():
+    data = """
+    service
+        vprn 1 name "vprn1" customer 10 create
+            interface "loopback" create
+            exit
+            interface "interface-one" create
+            exit
+            interface "interface-two" create
+            exit
+            interface "bgp-interface" create
+            exit
+        exit
+        vprn 2 name "vprn2" customer 20 create
+            interface "loopback" create
+            exit
+            interface "interface-two" create
+            exit
+            interface "bgp-interface" create
+            exit
+        exit
+        vprn 3 name "vprn3" customer 30 create
+            interface "loopback" create
+            exit
+            interface "interface-two" create
+            exit
+        exit
+        vprn 4 name "ospf_version3_vprn" customer 40 create
+            interface "loopback" create
+            exit
+            interface "interface-two" create
+            exit
+        exit
+        vprn 5 name "vprn5" customer 50 create
+            interface "loopback" create
+            exit
+            interface "interface-two" create
+            exit
+            interface "bgp-interface" create
+            exit
+        exit
+        vprn 1 name "vprn1" customer 10 create
+            interface "loopback" create
+                address 10.10.10.1/32
+                loopback
+            exit
+            interface "interface-one" create
+                address 10.10.10.10/30
+                sap 1/1/1:10 create
+                exit
+            exit
+            interface "interface-two" create
+                address 10.10.10.100/31
+                sap lag-5:80 create
+                exit
+            exit
+            interface "bgp-interface" create
+                address 10.10.10.200/31
+                sap lag-4:100 create
+                exit
+            exit
+            ospf
+                area 0.0.0.0
+                    interface "interface-two"
+                        passive
+                        no shutdown
+                    exit
+                exit
+                no shutdown
+            exit
+            no shutdown
+        exit
+        vprn 2 name "vprn2" customer 20 create
+            interface "interface-two" create
+                address 10.11.11.10/31
+                sap lag-1:50 create
+                exit
+            exit
+            ospf
+                area 0.0.0.0
+                    interface "interface-two"
+                        passive
+                        no shutdown
+                    exit
+                exit
+                no shutdown
+            exit
+            no shutdown
+        exit
+        vprn 3 name "vprn3" customer 30 create
+            interface "loopback" create
+                address 10.12.12.12/32
+                loopback
+            exit
+            interface "interface-two" create
+                address 10.12.12.100/31
+                sap lag-5:33 create
+                exit
+            exit
+            ospf
+                area 0.0.0.0
+                    interface "interface-two"
+                        passive
+                        no shutdown
+                    exit
+                exit
+                no shutdown
+            exit
+            no shutdown
+        exit
+        vprn 4 name "ospf_version3_vprn" customer 40 create
+            interface "loopback" create
+                address 10.40.40.10/32
+                ipv6
+                    address 1500:1000:460e::a03:ae46/128
+                exit
+                loopback
+            exit
+            interface "interface-two" create
+                address 10.40.40.100/31
+                ipv6
+                    address 1500:1000:460e::2222:1111/64
+                exit
+                sap lag-5:800 create
+                exit
+            exit
+            ospf
+                area 0.0.0.0
+                    interface "interface-two"
+                        passive
+                        no shutdown
+                    exit
+                exit
+                no shutdown
+            exit
+            ospf3 0
+                area 0.0.0.0
+                    interface "interface-two"
+                        passive
+                        no shutdown
+                    exit
+                exit
+                no shutdown
+            exit
+            no shutdown
+        exit
+        vprn 5 name "vprn5" customer 50 create
+            interface "loopback" create
+                address 10.50.50.50/32
+                loopback
+            exit
+            interface "interface-two" create
+                address 10.50.50.100/31
+                sap lag-5:5 create
+                exit
+            exit
+            interface "bgp-interface" create
+                address 10.50.50.200/31
+                sap lag-1:602 create
+                exit
+            exit
+            bgp
+                group "eBGP"
+                    peer-as 4444
+                    neighbor 10.50.50.201
+                    exit
+                exit
+                no shutdown
+            exit
+            ospf
+                area 0.0.0.0
+                    interface "interface-two"
+                        passive
+                        no shutdown
+                    exit
+                exit
+                no shutdown
+            exit
+            no shutdown
+        exit
+    exit
+    """
+    template = """
+#-------------------------------------------------- {{ ignore }}
+echo "Service Configuration" {{ ignore }}
+#-------------------------------------------------- {{ ignore }}
+    service {{ ignore }}
+<group name="service.vprns*.{{id}}**">
+        vprn {{ id }} name {{ name | ORPHRASE | strip('"') }} customer {{ ignore }} create
+            shutdown {{ admin_enabled | set("False") }}
+            description {{ description | ORPHRASE | strip('"') }}
+            vrf-import {{ import_policy | ORPHRASE | strip('"') }}
+            router-id {{ router_id }}
+            autonomous-system {{ local_as }}
+            route-distinguisher {{ loopback_ip }}:{{ vrf_routedist }}
+            vrf-target target:{{ ignore }}:{{ vrf_routetarget }}
+            vrf-target {{ vrf_export }} target:{{ ignore }}:{{ vrf_routetarget }}
+        <group name="interfaces*.{{name}}**">
+            interface {{ name | ORPHRASE | strip('"') }} create
+                shutdown {{ admin_enabled | set("False") }}
+                description {{ description | ORPHRASE | strip('"') }}
+                address {{ address | IP }}/{{ mask | DIGIT }}
+                ip-mtu {{ mtu }}
+                bfd {{ bfd_timers }} receive {{ ignore }} multiplier {{ bfd_interval }}
+            <group name="vrrp">
+                vrrp {{ instance }}
+                    backup {{ backup }}
+                    priority {{ priority }}
+                    policy {{ policy }}
+                    ping-reply {{ pingreply | set("True") }}
+                    traceroute-reply {{ traceroute_reply | set("True") }}
+                    init-delay {{ initdelay }}
+                    message-interval {{ message_int_seconds }}
+                    message-interval  milliseconds {{ message_int_milliseconds }}
+                    bfd-enable 1 interface {{ bfd_interface | ORPHRASE | strip('"')}} dst-ip {{ bfd_dst_ip }}
+                exit {{ _end_ }}
+            </group>
+            <group name="ipv6">
+                ipv6 {{ _start_ }}
+                    address {{ address | IPV6 }}/{{ mask | DIGIT }}
+                    address {{ address | _start_ | IPV6 }}/{{ mask | DIGIT }} dad-disable
+                    link-local-address {{ linklocal_address | IPV6 }} dad-disable
+                <group name="vrrp">
+                    vrrp {{ instance | _start_ }}
+                    <group name="backup*">
+                        backup {{ ip }}
+                    </group>
+                        priority {{ priority }}
+                        policy {{ policy }}
+                        ping-reply {{ pingreplay | set("True") }}
+                        traceroute-reply {{ traceroute_reply | set("True") }}
+                        init-delay {{ initdelay }}
+                        message-interval milliseconds {{ message_int_milliseconds }}
+                    exit {{ _end_ }}
+                </group>
+                exit {{ _end_ }}
+            </group>
+            <group name="vpls">
+                vpls {{ vpls_name | ORPHRASE | strip('"') | _start_ }}
+                exit {{ _end_ }}
+            </group>
+            <group name="sap**">
+                sap {{ port | _start_ }}:{{ vlan | DIGIT }} create
+                    ingress {{ _exact_ }}
+                        qos {{ qos_sap_ingress }}
+                <group name="_">
+                    egress {{ _start_ }}
+                        qos {{ qos_sap_egress }}
+                </group>
+                    collect-stats {{ collect_stats | set("True") }}
+                    accounting-policy {{ accounting_policy }}
+                exit {{ _end_}}
+            </group>
+            exit {{ _end_}}
+        </group>
+        <group name="staticroutes*">
+            static-route-entry {{ prefix | PREFIX | _start_ }}
+                black-hole {{ blackhole | set("True") }}
+                next-hop {{ nexthop | IP }}
+                    shutdown {{ admin_enabled | set("False") }}
+                    no shutdown {{ admin_enabled | set("True") }}
+            exit {{ _end_ }}
+        </group>
+        <group name="aggregates">
+            aggregate {{ agg_block | PREFIX | _start_ }} summary-only
+        </group>
+        <group name="router_advertisement">
+            router-advertisement {{ _start_ }}
+                interface {{ interface | ORPHRASE | strip('"') }}
+                    use-virtual-mac {{ use_virtualmac | set("True") }}
+                    no shutdown {{ admin_enabled | set("True") }}
+            exit {{ _end_ }}
+        </group>
+        <group name="bgp**">
+            bgp {{ _start_ }}
+                min-route-advertisement {{ min_route_advertisement | DIGIT }}
+                <group name="peergroups*">
+                group {{ name | ORPHRASE | strip('"') }}
+                    family {{ family | ORPHRASE | split(" ") }}
+                    type {{ peer_type | ORPHRASE }}
+                    import {{ importpolicy | ORPHRASE | strip('"') }}
+                    export {{ exportpolicy | ORPHRASE | strip('"') }}
+                    peer-as {{ remote_as }}
+                    bfd-enable {{ bfd_enabled | set("True") }}
+                    <group name="neighbors*">
+                    neighbor {{ address | IP | _start_ }}
+                    neighbor {{ address | IPV6 | _start_ }}
+                        shutdown {{ admin_enabled | set("False") }}
+                        keepalive {{ keepalive }}
+                        hold-time {{ holdtime }}
+                        bfd-enable {{ bfd_enabled | set("True") }}
+                        as-override {{ as_override | set("True") }}
+                    exit {{ _end_ }}
+                    </group>
+                exit {{ _end_ }}
+                </group>
+                no shutdown {{ admin_enabled | set("True") | _start_ }}
+            exit {{ _end_ }}
+        </group>
+        <group name="ospf**">
+            ospf {{ _start_ }}{{ _exact_ }}
+                area {{ area }}
+                <group name="interfaces*">
+                    interface {{ name | ORPHRASE | strip('"') | _start_ }}
+                        passive {{ passive | set("True") }}
+                    exit {{ _end_ }}
+                </group>
+                no shutdown {{ admin_enabled | set("True") }}
+            exit {{ _end_ }}
+        </group>
+        <group name="ospf3**">
+            ospf3 0 {{ _start_ }}{{ _exact_ }}
+                area {{ area }}
+                <group name="interfaces*">
+                    interface {{ name | ORPHRASE | strip('"') | _start_ }}
+                        passive {{ passive | set("True") }}
+                    exit {{ _end_ }}
+                </group>
+                no shutdown {{ admin_enabled | set("True") }}
+            exit {{ _end_ }}
+        </group>
+            no shutdown {{ admin_enabled | set("True") }}
+        exit {{ _end_ }}
+</group>    
+    """
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=100) 
+    assert res == [[{'service': {'vprns': [{'1': {'admin_enabled': 'True',
+                                'interfaces': [{'bgp-interface': {'address': '10.10.10.200',
+                                                                  'mask': '31',
+                                                                  'sap': {'port': 'lag-4',
+                                                                          'vlan': '100'}},
+                                                'interface-one': {'address': '10.10.10.10',
+                                                                  'mask': '30',
+                                                                  'sap': {'port': '1/1/1',
+                                                                          'vlan': '10'}},
+                                                'interface-two': {'address': '10.10.10.100',
+                                                                  'mask': '31',
+                                                                  'sap': {'port': 'lag-5',
+                                                                          'vlan': '80'}},
+                                                'loopback': {'address': '10.10.10.1',
+                                                             'mask': '32'}}],
+                                'name': 'vprn1',
+                                'ospf': {'admin_enabled': 'True',
+                                         'area': '0.0.0.0',
+                                         'interfaces': [{'name': 'interface-two',
+                                                         'passive': 'True'}]}},
+                          '2': {'admin_enabled': 'True',
+                                'interfaces': [{'bgp-interface': {},
+                                                'interface-two': {'address': '10.11.11.10',
+                                                                  'mask': '31',
+                                                                  'sap': {'port': 'lag-1',
+                                                                          'vlan': '50'}},
+                                                'loopback': {}}],
+                                'name': 'vprn2',
+                                'ospf': {'admin_enabled': 'True',
+                                         'area': '0.0.0.0',
+                                         'interfaces': [{'name': 'interface-two',
+                                                         'passive': 'True'}]}},
+                          '3': {'admin_enabled': 'True',
+                                'interfaces': [{'interface-two': {'address': '10.12.12.100',
+                                                                  'mask': '31',
+                                                                  'sap': {'port': 'lag-5',
+                                                                          'vlan': '33'}},
+                                                'loopback': {'address': '10.12.12.12',
+                                                             'mask': '32'}}],
+                                'name': 'vprn3',
+                                'ospf': {'admin_enabled': 'True',
+                                         'area': '0.0.0.0',
+                                         'interfaces': [{'name': 'interface-two',
+                                                         'passive': 'True'}]}},
+                          '4': {'admin_enabled': 'True',
+                                'interfaces': [{'interface-two': {'address': '10.40.40.100',
+                                                                  'ipv6': {'address': '1500:1000:460e::2222:1111',
+                                                                           'mask': '64'},
+                                                                  'mask': '31',
+                                                                  'sap': {'port': 'lag-5',
+                                                                          'vlan': '800'}},
+                                                'loopback': {'address': '10.40.40.10',
+                                                             'ipv6': {'address': '1500:1000:460e::a03:ae46',
+                                                                      'mask': '128'},
+                                                             'mask': '32'}}],
+                                'name': 'ospf_version3_vprn',
+                                'ospf': {'admin_enabled': 'True',
+                                         'area': '0.0.0.0',
+                                         'interfaces': [{'name': 'interface-two',
+                                                         'passive': 'True'}]},
+                                'ospf3': {'admin_enabled': 'True',
+                                          'area': '0.0.0.0',
+                                          'interfaces': [{'name': 'interface-two',
+                                                          'passive': 'True'}]}},
+                          '5': {'admin_enabled': 'True',
+                                'bgp': {'admin_enabled': 'True',
+                                        'peergroups': [{'name': 'eBGP',
+                                                        'neighbors': [{'address': '10.50.50.201'}],
+                                                        'remote_as': '4444'}]},
+                                'interfaces': [{'bgp-interface': {'address': '10.50.50.200',
+                                                                  'mask': '31',
+                                                                  'sap': {'port': 'lag-1',
+                                                                          'vlan': '602'}},
+                                                'interface-two': {'address': '10.50.50.100',
+                                                                  'mask': '31',
+                                                                  'sap': {'port': 'lag-5',
+                                                                          'vlan': '5'}},
+                                                'loopback': {'address': '10.50.50.50',
+                                                             'mask': '32'}}],
+                                'name': 'vprn5',
+                                'ospf': {'area': '0.0.0.0',
+                                         'interfaces': [{'name': 'interface-two',
+                                                         'passive': 'True'}]}}}]}}]]
+    
+# test_slack_answer_3_full()

@@ -942,22 +942,27 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     # pprint.pprint(res)
     assert res == [{'comment': '',
                     'exception': {},
-                    'result': ['<interfaces '
+                    'result': ['<content-data '
+                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
                                'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                               '#32148</description><name>GigabitEthernet1/3.251</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>False</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                               '#32148</description><name>GigabitEthernet1/3.251</name><type '
+                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                                'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
-                               'access '
-                               'control</description><name>GigabitEthernet1/4</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                               'access control</description><name>GigabitEthernet1/4</name><type '
+                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                                'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
-                               'data</description><name>GigabitEthernet1/5</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                               'data</description><name>GigabitEthernet1/5</name><type '
+                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                                'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
-                               'data '
-                               'v6</description><name>GigabitEthernet1/7</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface></interfaces>',
-                               '<interfaces '
+                               'data v6</description><name>GigabitEthernet1/7</name><type '
+                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
+                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface></interfaces></content-data>',
+                               '<content-data '
+                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
                                'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                               '#5618</description><name>GigabitEthernet1/3.254</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>False</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces>'],
+                               '#5618</description><name>GigabitEthernet1/3.254</name><type '
+                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>'],
                     'valid': {0: True, 1: True}}]
   
 # test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file_to_xml()
@@ -1043,20 +1048,26 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     # pprint.pprint(res)
     assert res == {'ietf:interfaces': {'comment': '',
                                        'exception': {},
-                                       'result': '<interfaces '
+                                       'result': '<content-data '
+                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
                                                  'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                                                 '#32148</description><name>GigabitEthernet1/3.251</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>False</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                                                 '#32148</description><name>GigabitEthernet1/3.251</name><type '
+                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                                                  'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
                                                  'access '
-                                                 'control</description><name>GigabitEthernet1/4</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                                                 'control</description><name>GigabitEthernet1/4</name><type '
+                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                                                  'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
-                                                 'data</description><name>GigabitEthernet1/5</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                                                 'data</description><name>GigabitEthernet1/5</name><type '
+                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                                                  'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
                                                  'data '
-                                                 'v6</description><name>GigabitEthernet1/7</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
+                                                 'v6</description><name>GigabitEthernet1/7</name><type '
+                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
                                                  'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface><interface><description>Customer '
-                                                 '#5618</description><name>GigabitEthernet1/3.254</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>False</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces>',
+                                                 '#5618</description><name>GigabitEthernet1/3.254</name><type '
+                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>',
                                        'valid': True}}
     
 # test_yangson_validate_multiple_inputs_mode_per_template_to_xml()
@@ -1408,24 +1419,29 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [['<interfaces '
+    assert res == [['<content-data '
+                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
                     'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                    '#32148</description><name>GigabitEthernet1/3.251</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>False</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                    '#32148</description><name>GigabitEthernet1/3.251</name><type '
+                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                     'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
-                    'access '
-                    'control</description><name>GigabitEthernet1/4</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                    'access control</description><name>GigabitEthernet1/4</name><type '
+                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                     'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
-                    'data</description><name>GigabitEthernet1/5</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                    'data</description><name>GigabitEthernet1/5</name><type '
+                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
                     'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
-                    'data '
-                    'v6</description><name>GigabitEthernet1/7</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>True</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface></interfaces>',
-                    '<interfaces '
+                    'data v6</description><name>GigabitEthernet1/7</name><type '
+                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
+                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface></interfaces></content-data>',
+                    '<content-data '
+                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
                     'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                    '#5618</description><name>GigabitEthernet1/3.254</name><type>iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>False</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces>']]
+                    '#5618</description><name>GigabitEthernet1/3.254</name><type '
+                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>']]
     
-# test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file_to_xml_metadata_false()
+# test_yangson_validate_metadata_false_multiple_inputs_mode_per_input_to_xml()
 
 
 def test_output_condition_attribute():
@@ -1469,4 +1485,4 @@ interface {{ interface }}
                     '"GigabitEthernet1/3.251","172.16.33.10","255.255.255.128","251"\n'
                     '"GigabitEthernet1/4","172.16.33.10","255.255.255.128",""']
                    
-test_output_condition_attribute()
+# test_output_condition_attribute()

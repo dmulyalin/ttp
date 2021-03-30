@@ -1510,7 +1510,7 @@ class _group_class:
         if self.name == "":
             self.path = ["_anonymous_*"] if self.top else self.path
             self.name = ".".join(self.path)
-            self.group_id = "{}::{}".format(self.name, self.grp_index)
+            self.group_id = (self.name, self.grp_index,)
 
     def get_attributes(self, data):
         def extract_default(O):
@@ -1541,7 +1541,7 @@ class _group_class:
             else:
                 self.path = self.path + O.split(self.pathchar)
             self.name = ".".join(self.path)
-            self.group_id = "{}::{}".format(self.name, self.grp_index)
+            self.group_id = (self.name, self.grp_index,)
 
         def extract_chain(var_name):
             """add items from chain to group functions"""
@@ -2517,11 +2517,16 @@ class _results_class:
                         for index in start_re:
                             re_ = result[index][0]
                             result_data = result[index][1]
-                            # prefer result with same path as current record
                             # skip results that did not pass validation check
-                            if (
-                                re_["GROUP"].group_id == self.record["GRP_ID"]
-                                and result_data != False
+                            if result_data == False:
+                                continue
+                            # prefer result with same path as current record
+                            elif re_["GROUP"].group_id == self.record["GRP_ID"]:
+                                break
+                            # prefer children of current record group
+                            elif (
+                                self.record["GRP_ID"]
+                                and re_["GROUP"].group_id[0].startswith(self.record["GRP_ID"][0])
                             ):
                                 break
                     # normal REs preferred next
