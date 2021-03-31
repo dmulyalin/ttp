@@ -3463,3 +3463,44 @@ system { {{ _start_ }}
                                                                                 'tac_source': '5.5.5.5'}}}}}]]
     
 # test_issue_45_for_junos_cfg()
+
+def test_faq_multiline_output_matching():
+    data = """
+Local Intf: Te2/1/23
+System Name: r1.lab.local
+
+System Description: 
+Cisco IOS Software, Catalyst 1234 L3 Switch Software (cat1234e-ENTSERVICESK9-M), Version 1534.1(1)SG, RELEASE SOFTWARE (fc3)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2012 by Cisco Systems, Inc.
+Compiled Sun 15-Apr-12 02:35 by p
+
+Time remaining: 92 seconds    
+    """
+    template = """
+<group>
+Local Intf: {{ local_intf }}
+System Name: {{ peer_name }}
+
+<group name="peer_system_description">
+System Description: {{ _start_ }}
+{{ sys_description | _line_ | joinmatches(" ") }}
+Time remaining: {{ ignore }} seconds {{ _end_ }}
+</group>
+
+</group>
+    """
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=100)    
+    assert res == [[[{'local_intf': 'Te2/1/23',
+                      'peer_name': 'r1.lab.local',
+                      'peer_system_description': {'sys_description': 'Cisco IOS Software, Catalyst 1234 L3 Switch '
+                                                                     'Software (cat1234e-ENTSERVICESK9-M), Version '
+                                                                     '1534.1(1)SG, RELEASE SOFTWARE (fc3) Technical '
+                                                                     'Support: http://www.cisco.com/techsupport '
+                                                                     'Copyright (c) 1986-2012 by Cisco Systems, Inc. '
+                                                                     'Compiled Sun 15-Apr-12 02:35 by p'}}]]]
+                                                   
+# test_faq_multiline_output_matching()

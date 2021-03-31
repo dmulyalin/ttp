@@ -61,6 +61,8 @@ could be another option::
      description {{ description }}
     </group>
 
+Starting with TTP 0.7.0 double hash ## comments can be indented.
+
 How to make TTP always return a list even if single item matched?
 -----------------------------------------------------------------
 
@@ -80,7 +82,9 @@ can be "fun" with results fragile. Keep reading if you have no other choice.
 In general case, TTP transform templates in regular expressions, if your data changing, 
 so your template should as well. For instance, several ``_start_`` lines could be 
 used in a template or group ``method`` attribute could be set to ``table`` to match
-several variations of output.
+several variations of output. In addition ``ignore`` indicator could be used to ignore 
+portion of the text data or add additional regular expressions to match and ignore varying 
+data.
 
 Consider this data::
 
@@ -156,3 +160,118 @@ Notes:
 3. ``ORPHRASE`` regex pattern to match single word or several words separated by single space (phrase)
 4. ``exclude("disabled=")`` because of ``ORPHRASE`` false matches could be produced, e.g.: ``{'comment': 'Cambium disabled=yes'...`` - that is due to regular expression behavior, need to filter such results
 5. ``strip('"')`` removes quote character from left and right of the matched string
+
+How to combine multiple matches for the same match varible? 
+-----------------------------------------------------------
+
+It is possible to use ``joinmatch`` match variable function to join multiple matches for the same variable. Sample
+usecase could be to combine multiple configuration statements for the same type of parameter under same variable,
+for instance consider example below.
+
+Data::
+
+    interface GigabitEthernet3/3
+     switchport trunk allowed vlan add 138,166,173
+     switchport trunk allowed vlan add 400,401,410
+
+Template::
+
+    interface {{ interface }}
+     switchport trunk allowed vlan add {{ trunk_vlans | joinmatches(',') }}
+
+Result::
+
+    [
+        [
+            {
+                "interface": "GigabitEthernet3/3",
+                "trunk_vlans": "138,166,173,400,401,410"
+            }
+        ]
+    ]
+
+
+How to capture all non matched lines?
+-------------------------------------
+
+There is ``_line_`` indicators exists for the purpose of matching text lines, ``_line_`` indicator combined
+with ``joinmatches`` match variable function can be used to capture all lines not matched by other match
+variables, have a look at below example.
+
+Data::
+
+    interface Gi0/37
+     description CPE_Acces
+     switchport mode trunk
+     switchport port-security
+     switchport port-security maximum 5
+     switchport port-security mac-address sticky
+    !
+
+Template::
+    
+    <group>
+    interface {{ interface }}
+     description {{ description }}
+     switchport mode {{ mode }
+     {{ remaining_config | _line_ | joinmatches }}
+    ! {{ _end_ }}
+    </group>
+
+Results::
+
+    [[{'description': 'CPE_Acces',
+       'mode': 'trunk',
+       'interface': 'Gi0/37',
+       'remaining_config': 'switchport port-security\n'
+                           'switchport port-security maximum 5\n'
+                           'switchport port-security mac-address sticky'}
+                          ]]
+
+How to capture multi-line output?
+---------------------------------
+
+For the purpose of matching multiple lines and combining them under same variable ``_line_`` indicator
+with ``joinmatches`` match variable function could be used.
+
+For instance, we want to match system description in LLDP neighbors output but it spans multiple lines,
+here is how that can be done.
+
+Sample data::
+
+    Local Intf: Te2/1/23
+    System Name: r1.lab.local
+    
+    System Description: 
+    Cisco IOS Software, Catalyst 1234 L3 Switch Software (cat1234e-ENTSERVICESK9-M), Version 1534.1(1)SG, RELEASE SOFTWARE (fc3)
+    Technical Support: http://www.cisco.com/techsupport
+    Copyright (c) 1986-2012 by Cisco Systems, Inc.
+    Compiled Sun 15-Apr-12 02:35 by p
+    
+    Time remaining: 92 seconds
+
+Template::
+
+    <group>
+    Local Intf: {{ local_intf }}
+    System Name: {{ peer_name }}
+    
+    <group name="peer_system_description">
+    System Description: {{ _start_ }}
+    {{ sys_description | _line_ | joinmatches(" ") }}
+    Time remaining: {{ ignore }} seconds {{ _end_ }}
+    </group>
+    
+    </group>
+
+Result::
+
+    [[[{'local_intf': 'Te2/1/23',
+        'peer_name': 'r1.lab.local',
+        'peer_system_description': {'sys_description': 'Cisco IOS Software, Catalyst 1234 L3 Switch '
+                                                       'Software (cat1234e-ENTSERVICESK9-M), Version '
+                                                       '1534.1(1)SG, RELEASE SOFTWARE (fc3) Technical '
+                                                       'Support: http://www.cisco.com/techsupport '
+                                                       'Copyright (c) 1986-2012 by Cisco Systems, Inc. '
+                                                       'Compiled Sun 15-Apr-12 02:35 by p'}}]]]
+
