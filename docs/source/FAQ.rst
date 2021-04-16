@@ -275,3 +275,29 @@ Result::
                                                        'Copyright (c) 1986-2012 by Cisco Systems, Inc. '
                                                        'Compiled Sun 15-Apr-12 02:35 by p'}}]]]
 
+How to escape < and >  characters in a template?
+------------------------------------------------
+
+In XML characters ``<`` and ``>`` has special meaning, TTP templates are XML documents, because 
+of that if tags' data needs to contain ``<`` or ``>`` need to use escape sequences. Consider below example.
+
+Data::
+
+    Name:Jane<br>
+    Name:Michael<br>
+    Name:July<br>
+
+This template would **not** work as Python XML Etree library will transform ``&lt;br&gt;`` to ``<br>`` and 
+will fail to parse it as there is no closing tag::
+
+    Name:{{ name }}&lt;br&gt;
+    
+Instead need to envelope template string in ``<group>`` tag, that way escape sequences interpreted properly::
+
+    <group name="people">
+    Name:{{ name }}&lt;br&gt;
+    </group>
+
+Result::
+
+    [[{'people': [{'name': 'Jane'}, {'name': 'Michael'}, {'name': 'July'}]}]]

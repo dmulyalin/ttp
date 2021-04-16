@@ -182,7 +182,7 @@ class ttp:
     **Parameters**
 
     * ``data`` file object or OS path to text file or directory with text files with data to parse
-    * ``template`` file object or OS path to text file with template
+    * ``template`` file object or OS path to text file with template or template text string
     * ``base_path`` (str) base OS path prefix to load data from for template's inputs
     * ``log_level`` (str) level of logging "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
     * ``log_file`` (str) path where to save log file

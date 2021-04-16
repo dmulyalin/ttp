@@ -3504,3 +3504,74 @@ Time remaining: {{ ignore }} seconds {{ _end_ }}
                                                                      'Compiled Sun 15-Apr-12 02:35 by p'}}]]]
                                                    
 # test_faq_multiline_output_matching()
+
+def test_issue_52_answer():
+    data = """
+Origin:
+Some random name
+Example Address, example number, example city
+
+Origin:
+Some random name 2
+Example Address, example number, example city 2
+
+Origin:
+Some random name 3
+Example Address, example number, example city 3
+One more string
+    """
+    template = """
+<macro>
+def process(data):
+    lines = data["match"].splitlines()
+    name = lines[0]
+    address = lines[1]
+    return {"name": name, "address": address}
+</macro>
+
+<group name="origin*" macro="process">
+Origin: {{ _start_ }}
+{{ match | _line_ | joinmatches }}
+</group>
+    """ 
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=100) 
+    assert res == [[{'origin': [{'address': 'Example Address, example number, example city',
+                                 'name': 'Some random name'},
+                                {'address': 'Example Address, example number, example city 2',
+                                 'name': 'Some random name 2'},
+                                {'address': 'Example Address, example number, example city 3',
+                                 'name': 'Some random name 3'}]}]]
+   
+# test_issue_52_answer()
+
+def test_issue_51_answer():
+    """ test workaround for removing <> chars from input data """
+    data = """
+Name:Jane<br>
+Name:Michael<br>
+Name:July<br>
+	"""
+    template = """
+<group name="people">
+Name:{{ name }}&lt;br&gt;
+</group>
+	"""
+
+    # this works as well
+    # template = "Name:{{ name }}br"
+    # data = data.replace("<", "").replace(">", "")
+
+    # this did not work. fails with xml parsing error
+    # template = "Name:{{ name }}&lt;br&gt;"
+    # data = data.replace("<", "&lt;").replace(">", "&gt;")
+	
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=100)    
+    assert res == [[{'people': [{'name': 'Jane'}, {'name': 'Michael'}, {'name': 'July'}]}]]
+	
+# test_issue_51_answer()
