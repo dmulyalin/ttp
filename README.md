@@ -28,8 +28,6 @@ Reference [documentation](https://ttp.readthedocs.io) for more information.
 
 TTP [Networktocode Slack channel](https://networktocode.slack.com/archives/C018HMJQECB)
 
-Playground - [online TTP tester](http://netpalm.tech:8080/)
-
 Collection of [TTP Templates](https://github.com/dmulyalin/ttp_templates)
 
 ## Example - as simple as it can be

@@ -3575,3 +3575,152 @@ Name:{{ name }}&lt;br&gt;
     assert res == [[{'people': [{'name': 'Jane'}, {'name': 'Michael'}, {'name': 'July'}]}]]
 	
 # test_issue_51_answer()
+
+def test_issue_50():
+    template = """
+<input load="text">
+
+        interface "BNG-RH201-CORE"
+            address 11.11.11.11/31
+            description "BNG-RH201-CORE"
+            ldp-sync-timer 10
+            port lag-107:709
+            ipv6
+                address 1111:0:1111:1111::1/64
+            exit
+            bfd 150 receive 150 multiplier 3
+            no shutdown
+        exit
+        interface "BNG-RH202-CORE"
+            address 22.22.22.22/31
+            description "BNG-RH201-CORE"
+            ldp-sync-timer 10
+            port lag-108:809
+            ipv6
+                address 2222:0:2222:2222::2/64
+            exit
+            bfd 150 receive 150 multiplier 3
+            no shutdown
+        exit
+        interface "system"
+            address 33.33.33.33/32
+            ipv6
+                address 3333:0:3333:3333::3/128
+            exit
+            no shutdown
+        exit
+
+        ies 97 name "OTDR-MGT" customer 1 create
+            description "OTDR-MGT"
+            interface "OTDR-MGT" create
+                address 44.44.44.44/25
+                vrrp 97
+                    backup 10.20.30.1
+                    priority 200
+                exit
+                vpls "OTDR-MGT-VPLS"
+                exit
+            exit
+            no shutdown
+        exit
+
+        ies 99 name "OLT-MGT" customer 1 create
+            description "OLT-INBAND-MGT"
+            interface "OLT-MGT" create
+                address 55.55.55.55/25
+                vrrp 1
+                    backup 10.20.40.1
+                    priority 200
+                exit
+                vpls "OLT-MGT-VPLS"
+                exit
+            exit
+            no shutdown
+        exit
+        ies 100 name "100" customer 1 create
+            description "IES 100 for subscribers"
+            redundant-interface "shunt" create
+                address 66.66.66.66/31
+                spoke-sdp 1:100 create
+                    no shutdown
+                exit
+            exit
+            subscriber-interface "s100" create
+                description " Subscriber interface for subscribers"
+                allow-unmatching-subnets
+                address 77.77.77.77/22 gw-ip-address 77.77.77.1
+                address 88.88.88.88/20 gw-ip-address 88.88.88.1
+                group-interface "s100-lag210-vlan101" create
+                    tos-marking-state trusted
+                    ipv6
+                        router-advertisements
+                            managed-configuration
+                            no shutdown
+                        exit
+                        dhcp6
+                            proxy-server
+                                no shutdown
+                            exit
+                        exit
+                    exit
+                exit
+            exit
+</input>
+
+
+<group name="ifaces.{{ name }}" contains="ipv4,ipv6">
+## group to match top level interfaces
+        interface "{{ name }}"
+            description {{ description | re(".+") | strip('"') }}
+            address  {{ ipv4 | joinmatches('; ') }}
+                address {{ ipv6 | contains(":") | joinmatches('; ') }}
+        exit {{ _end_ }}
+</group>
+
+<group name="ifaces.{{ name }}" contains="ipv4,ipv6">
+## group to match lower level interfaces
+            interface "{{ name | _start_ }}" create
+            {{ iftype }}-interface "{{ name | _start_ }}" create
+                description {{ description | re(".+") | strip('"') | strip }}
+                address {{ ipv4 | contains(".") | joinmatches('; ') }}
+                address {{ ipv4 | contains(".") | joinmatches('; ') }} gw-ip-address {{ ignore }}
+            exit {{ _end_ }}
+</group>
+    """
+    parser = ttp(template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)   
+    assert res == [[{'ifaces': {'BNG-RH201-CORE': {'description': 'BNG-RH201-CORE',
+                                                   'ipv4': '11.11.11.11/31',
+                                                   'ipv6': '1111:0:1111:1111::1/64'},
+                                'BNG-RH202-CORE': {'description': 'BNG-RH201-CORE',
+                                                   'ipv4': '22.22.22.22/31',
+                                                   'ipv6': '2222:0:2222:2222::2/64'},
+                                'OLT-MGT': {'ipv4': '55.55.55.55/25'},
+                                'OTDR-MGT': {'ipv4': '44.44.44.44/25'},
+                                's100': {'description': 'Subscriber interface for subscribers',
+                                         'iftype': 'subscriber',
+                                         'ipv4': '77.77.77.77/22; 88.88.88.88/20'},
+                                'shunt': {'iftype': 'redundant', 'ipv4': '66.66.66.66/31'},
+                                'system': {'ipv4': '33.33.33.33/32',
+                                           'ipv6': '3333:0:3333:3333::3/128'}}}]]
+                         
+# test_issue_50()
+
+def test_start_with_set():
+    data = """
+authentication { 
+inactive: authentication { 
+    """
+    template = """
+authentication { {{ inactive | set(False) | _start_ }}
+inactive: authentication { {{ inactive | set(True) | _start_ }}
+    """
+    parser = ttp(data, template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res) 
+    assert res == [[[{'inactive': False}, {'inactive': True}]]]
+
+# test_start_with_set()
