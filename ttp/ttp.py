@@ -82,32 +82,34 @@ def lazy_import_functions():
     global _ttp_
     log.info("ttp.lazy_import_functions: starting functions lazy import")
 
-    # try to load previously pickled/cached _ttp_ dictionary
+    # try to load previously pickled/cached _ttp_ dictionary if it exists
     try:
-        with open(os.path.dirname(__file__) + "/ttp_dict_cache.pickle", "rb") as f:
-            _ttp_ = pickle.load(f)
-        # use unpickled _ttp_ dictionary if it of the same python version
-        if _ttp_["python_major_version"] == version_info.major:
-            log.info(
-                "ttp.lazy_import_functions: loaded _ttp_ dictionary from ttp_dict_cache.pickle"
-            )
-            return
-        # rebuilt _ttp_ dictionary if version is different
-        else:
-            _ttp_ = {
-                "macro": {},
-                "python_major_version": version_info.major,
-                "global_vars": {},
-                "template_obj": {},
-                "vars": {},
-            }
+        path_to_cache = os.path.dirname(__file__) + "/ttp_dict_cache.pickle"
+        if os.path.isfile(path_to_cache):
+            with open(path_to_cache, "rb") as f:
+                _ttp_ = pickle.load(f)
+            # use unpickled _ttp_ dictionary if it of the same python version
+            if _ttp_["python_major_version"] == version_info.major:
+                log.info(
+                    "ttp.lazy_import_functions: loaded _ttp_ dictionary from ttp_dict_cache.pickle"
+                )
+                return
+            # rebuilt _ttp_ dictionary if version is different
+            else:
+                _ttp_ = {
+                    "macro": {},
+                    "python_major_version": version_info.major,
+                    "global_vars": {},
+                    "template_obj": {},
+                    "vars": {},
+                }
     except Exception as e:
         log.error(
-            "ttp.lazy_import_functions: failed to load ttp_dict_cache.pickle '{}'".format(
+            "ttp.lazy_import_functions: failed load ttp_dict_cache.pickle, loading functions directly, error '{}'".format(
                 e
             )
         )
-    # get exclusion suffix
+    # load functions from files instead
     if _ttp_["python_major_version"] == 2:
         exclude = "_py3.py"
     elif _ttp_["python_major_version"] == 3:
@@ -125,7 +127,11 @@ def lazy_import_functions():
                 and f not in exclude_modules
             ):
                 continue
-            module_file = open("{}/{}".format(root, f), "r")
+            try: 
+                module_file = open("{}/{}".format(root, f), mode="r", encoding="utf-8")
+            except:
+                # in some versions of python open() does not support encoding
+                module_file = open("{}/{}".format(root, f), mode="r")
             node = ast.parse(module_file.read())
             assignments = [n for n in node.body if isinstance(n, ast.Assign)]
             functions = [n.name for n in node.body if isinstance(n, ast.FunctionDef)]
