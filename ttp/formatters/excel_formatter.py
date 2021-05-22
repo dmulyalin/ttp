@@ -49,6 +49,7 @@ def excel_formatter(data, **kwargs):
             "headers": headers,
             "missing": tab_det.get("missing", ""),
             "key": tab_det.get("key", ""),
+			"strict": tab_det.get("strict", True)
         }
         # form tab table
         tab_table_data = _ttp_["formatters"]["table"](data, **tab_kwargs)

@@ -252,6 +252,8 @@ def load_python(text_data, include=None, **kwargs):
     data = {}
     if include:
         text_data = _get_include_data(text_data, include)
+    if not text_data.strip():
+        return {}
     try:
         data = _ttp_["utils"]["load_python_exec"](text_data)
         return data

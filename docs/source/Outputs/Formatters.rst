@@ -77,6 +77,7 @@ Flat dictionary - such a dictionary where all values are strings. It is not a li
 * ``headers`` comma separated string of tab table headers, headers put randomly otherwise
 * ``missing`` value to use to substitute empty cells in table, default is empty string - ""
 * ``key`` key name to transform dictionary data to list of dictionaries
+* ``strict`` (release 0.7.1) to indicate traverse function behavior while getting table data from results 
 
 .. note:: csv, excel and tabulate formatter use table formatter to construct a table structure. As a result all attributes supported by table formatter, inherently supported by csv, excel and tabulate formatters.
 
@@ -347,7 +348,7 @@ This formatter takes table structure defined in output tag text and transforms p
 **Supported formatter arguments**
 
 * ``table`` list of dictionaries describing excel tabs and tables structure
-* ``update`` boolean, if set to True will update `.xlsx` document if it exists, default is False
+* ``update`` (release 0.7.0) boolean, if set to True will update `.xlsx` document if it exists, default is False
 
 Each dictionary item in ``table`` structure can have these attributes:
 
@@ -356,6 +357,7 @@ Each dictionary item in ``table`` structure can have these attributes:
 * ``headers`` comma separated string of tab table headers, headers put randomly otherwise
 * ``missing`` value to use to substitute empty cells in table, default is empty string - ""
 * ``key`` key name to transform dictionary data to list of dictionaries
+* ``strict`` (release 0.7.1) to indicate traverse function behavior while getting table data from results 
 
 **Notes on update**
 

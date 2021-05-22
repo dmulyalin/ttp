@@ -16,10 +16,7 @@ def traverse(data, path, strict=True):
         path = [i.strip() for i in path.split(".")]
     if isinstance(data, dict):
         for i in path:
-            if strict:
-                result = result[i]
-            else:
-                result = result.get(i, {})
+            result = result[i] if strict else result.get(i, {})
     elif isinstance(data, list):
         result = [traverse(i, path, strict) for i in data]
     return result

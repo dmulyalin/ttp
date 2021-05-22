@@ -1,6 +1,7 @@
 import sys
 sys.path.insert(0,'../..')
 import pprint
+import pytest
 from shutil import copyfile
 
 import logging
@@ -31,6 +32,32 @@ format="csv"
     res = parser.result()
     assert res == ['"interface","vlan"\n"Port-Chanel11","10"\n"Loopback0","20"']
     
+def test_csv_formatter_simple_empty_tag():
+    template_1 = """
+<input load="text">
+interface Port-Chanel11
+  vlan 10
+interface Loopback0
+  vlan 20
+</input>
+
+<group>
+interface {{ interface }}
+  vlan {{ vlan | to_int }}
+</group>
+
+<output
+format="csv"
+>
+</output>
+"""
+    parser = ttp(template=template_1)
+    parser.parse()
+    res = parser.result()
+    assert res == ['"interface","vlan"\n"Port-Chanel11","10"\n"Loopback0","20"']
+    
+# test_csv_formatter_simple_empty_tag()
+
 def test_csv_formatter_with_is_equal():
     template = """
 <input load="text" groups="interfaces2.trunks2">
@@ -400,6 +427,107 @@ interface {{ interface | contains("Vlan") }}
                                        ['Loopback1', '192.168.0.1', '24', None, 'Router-id-loopback']]}
     
 # test_excel_formatter_update_using_result_kwargs()
+
+def test_excel_formatter_no_results_at_path_strict_false():
+    template = """
+<input load="text">
+interface Loopback0
+ description Router-id-loopback
+ ip address 192.168.0.113/24
+!
+interface Loopback1
+ description Router-id-loopback
+ ip address 192.168.0.1/24
+</input>
+
+<group name="loopbacks**.{{ interface }}">
+interface {{ interface | contains("Loop") }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description }}
+ ip vrf {{ vrf }}
+</group>
+
+<output 
+format="excel" 
+returner="file"
+filename="test_excel_formatter_no_results_at_path_strict_false"
+url="./Output/"
+load="yaml"
+>
+table:
+  - headers: interface, ip, mask, vrf, description
+    path: loopbacks
+    key: interface
+    tab_name: loopbacks
+  - path: vlans
+    strict: False
+</output>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    # res = parser.result()
+    # pprint.pprint(res)
+    # load created workbook and test it
+    from openpyxl import load_workbook
+    wb = load_workbook('./Output/test_excel_formatter_no_results_at_path_strict_false.xlsx', data_only=True)
+    table = {}
+    for sheet_name in wb.sheetnames:
+        table[sheet_name] = []
+        sheet_obj = wb[sheet_name]
+        for row in sheet_obj.rows:
+            table[sheet_name].append([i.value for i in row])
+    # pprint.pprint(table)
+    assert table == {'Sheet1': [],
+                     'loopbacks': [['interface', 'ip', 'mask', 'vrf', 'description'],
+                                   ['Loopback0', '192.168.0.113', '24', None, 'Router-id-loopback'],
+                                   ['Loopback1', '192.168.0.1', '24', None, 'Router-id-loopback']]}
+                                   
+# test_excel_formatter_no_results_at_path_strict_false()
+
+def test_excel_formatter_no_results_at_path_strict_true():
+    """ 
+    This test should raise key-error exception within traverse function 
+    as path: vlans not found in results 
+    """
+    template = """
+<input load="text">
+interface Loopback0
+ description Router-id-loopback
+ ip address 192.168.0.113/24
+!
+interface Loopback1
+ description Router-id-loopback
+ ip address 192.168.0.1/24
+</input>
+
+<group name="loopbacks**.{{ interface }}">
+interface {{ interface | contains("Loop") }}
+ ip address {{ ip }}/{{ mask }}
+ description {{ description }}
+ ip vrf {{ vrf }}
+</group>
+
+<output 
+format="excel" 
+returner="file"
+filename="test_excel_formatter_no_results_at_path_strict_true"
+url="./Output/"
+load="yaml"
+>
+table:
+  - headers: interface, ip, mask, vrf, description
+    path: loopbacks
+    key: interface
+    tab_name: loopbacks
+  - path: vlans
+    strict: True
+</output>
+    """
+    parser = ttp(template=template)
+    with pytest.raises(KeyError):
+        parser.parse()
+                                   
+test_excel_formatter_no_results_at_path_strict_true()
 
 def test_tabulate_formatter():
     template = """
