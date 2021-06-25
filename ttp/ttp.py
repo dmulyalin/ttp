@@ -165,7 +165,7 @@ def lazy_import_functions():
         with open(os.path.dirname(__file__) + "/ttp_dict_cache.pickle", "wb") as f:
             pickle.dump(_ttp_, f)
     except Exception as e:
-        log.error(
+        log.warning(
             "ttp.lazy_import_functions: failed to save ttp_dict_cache.pickle '{}'".format(
                 e
             )
