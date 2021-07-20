@@ -1364,7 +1364,7 @@ set
 * ``target`` - optional, name of variable to assign value to
 * ``default`` - optional, default value to assign to target variable if no source variable found
 
-This function uses ``_ttp_["results_object"].variables`` dictionary to retrieve values and assign them to variable with name provided. Reference group `record`_ function for examples.
+This function uses ``_ttp_["vars"]`` and ``_ttp_["global_vars"]``  dictionaries to retrieve values and assign them to variable with name provided. These dictionaries could be populated using match variable or group ``record`` functions.
 
 **Example**
 
@@ -1441,9 +1441,9 @@ Results::
         ]
     ]
     
-.. warning:: default value will not be used as long as variable with given name found in ``_ttp_["results_object"].variables`` dictionary. 
+.. warning:: default value will not be used as long as variable with given name found in ``_ttp_["vars"]`` or ``_ttp_["global_vars"]`` dictionary. 
 
-For instance, reordering text data above as::
+Above warning is significant for cases where values recorded and set in wrong order. For instance, this text data was re-ordered to produce wrong results::
 
     router bgp 65123
      !

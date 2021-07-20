@@ -256,3 +256,42 @@ interface {{ interface }}
                                      'interface': 'Lo11'}]}]]
     
 # test_child_group_default_referencing_variable()
+
+def test_group_set_function_source_from_global_vars():
+    template_123 = """
+<input name="cfg" load="text">
+hostname router_1
+</input>
+
+<input name="intf" load="text">
+interface Lo0
+ ip address 1.1.1.1 255.255.255.255
+!
+interface Lo0
+ ip address 1.1.1.2 255.255.255.255
+</input>
+
+<group input="cfg" record="hostname">
+hostname {{ hostname }}
+</group>
+
+<group name="interfaces" set="hostname" input="intf">
+interface {{ interface }}
+ ip address {{ IP }} {{ MASK }}
+</group>
+"""
+    parser = ttp(template=template_123, log_level="WARNING")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'hostname': 'router_1'}],
+                     {'interfaces': [{'IP': '1.1.1.1',
+                                      'MASK': '255.255.255.255',
+                                      'hostname': 'router_1',
+                                      'interface': 'Lo0'},
+                                     {'IP': '1.1.1.2',
+                                      'MASK': '255.255.255.255',
+                                      'hostname': 'router_1',
+                                      'interface': 'Lo0'}]}]]
+    
+# test_group_set_function_source_from_global_vars()

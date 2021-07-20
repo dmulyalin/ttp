@@ -635,6 +635,8 @@ Not all configuration statements have variables or values associated with them, 
 
 It is also possible to use *set* function to introduce arbitrary key-value pairs in match result if set function used without any text in front of it.
 
+.. warning:: Multiple set statements are supported within the line, however, no other variables can be specified except with *set*, as match performed based on the string preceding variables with *set* function, for instance below will not work: ``switchport mode {{ mode }} {{ switchport_mode | set('Trunk') }} {{ trunk_vlans | set('all') }}``. For that case can use `let`_ function instead.
+
 **Example-1**
 
 Conditional set function - set only will be invoked in case if preceding line matched. In below example " switchport trunk encapsulation dot1q" line will be searched for, if found, "encap" variable will have "dot1q" value set.
@@ -694,8 +696,6 @@ Result::
             }
         ]
     ]
-
-.. note:: Multiple set statements are supported within the line, however, no other variables can be specified except with *set*, as match performed based on the string preceding variables with *set* function, for instance below will not work: ``switchport mode {{ mode }} {{ switchport_mode | set('Trunk') }} {{ trunk_vlans | set('all') }}``
 
 **Example-2**
 

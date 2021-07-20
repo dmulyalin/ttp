@@ -3553,12 +3553,12 @@ def test_issue_51_answer():
 Name:Jane<br>
 Name:Michael<br>
 Name:July<br>
-	"""
+    """
     template = """
 <group name="people">
 Name:{{ name }}&lt;br&gt;
 </group>
-	"""
+    """
 
     # this works as well
     # template = "Name:{{ name }}br"
@@ -3567,13 +3567,13 @@ Name:{{ name }}&lt;br&gt;
     # this did not work. fails with xml parsing error
     # template = "Name:{{ name }}&lt;br&gt;"
     # data = data.replace("<", "&lt;").replace(">", "&gt;")
-	
+    
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=100)    
     assert res == [[{'people': [{'name': 'Jane'}, {'name': 'Michael'}, {'name': 'July'}]}]]
-	
+    
 # test_issue_51_answer()
 
 def test_issue_50():
@@ -3724,3 +3724,62 @@ inactive: authentication { {{ inactive | set(True) | _start_ }}
     assert res == [[[{'inactive': False}, {'inactive': True}]]]
 
 # test_start_with_set()
+
+
+def test_ios_bgp_pers_pars():
+    template = """
+<vars>
+defaults_bgp_peers = {
+ "description": "",
+ "remote-as": "",
+ "shutdown": "no",
+ "inherit_peer-session": "",
+ "update-source": "",
+ "password": ""
+}
+</vars>
+
+<group name="bgp_peers">
+<group name="{{ ASN }}">
+router bgp {{ ASN }}
+ <group name="{{ PeerIP }}" default="defaults_bgp_peers">
+ neighbor {{ PeerIP }} remote-as {{ remote-as }}
+ neighbor {{ PeerIP }} description {{ description | ORPHRASE }}
+ neighbor {{ PeerIP | let("shutdown", "yes") }} shutdown
+ neighbor {{ PeerIP }} inherit peer-session {{ inherit_peer-session }}
+ neighbor {{ PeerIP }} password {{ password | ORPHRASE }}
+ neighbor {{ PeerIP }} update-source {{ update-source }}
+ </group>
+ </group>
+</group>
+    """
+    data = """
+router bgp 65100
+ neighbor 1.1.1.1 remote-as 1234
+ neighbor 1.1.1.1 description Some Description here
+ neighbor 1.1.1.1 shutdown
+ neighbor 1.1.1.1 inherit peer-session session_1
+ neighbor 1.1.1.1 password 12345678
+ neighbor 1.1.1.1 update-source Loopback 1
+ neighbor 1.1.1.2 remote-as 1234
+ neighbor 1.1.1.2 inherit peer-session session_1
+ neighbor 1.1.1.2 update-source Loopback 1
+    """
+    parser = ttp(data, template, log_level="DEBUG")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res) 
+    assert res == [[{'bgp_peers': {'65100': {'1.1.1.1': {'description': 'Some Description here',
+                                                         'inherit_peer-session': 'session_1',
+                                                         'password': '12345678',
+                                                         'remote-as': '1234',
+                                                         'shutdown': 'yes',
+                                                         'update-source': ''},
+                                             '1.1.1.2': {'description': '',
+                                                         'inherit_peer-session': 'session_1',
+                                                         'password': '',
+                                                         'remote-as': '1234',
+                                                         'shutdown': 'no',
+                                                         'update-source': ''}}}}]]
+    
+# test_ios_bgp_pers_pars()

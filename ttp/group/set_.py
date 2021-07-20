@@ -6,6 +6,8 @@ def set_func(data, source, target="_use_source_", default="_no_default_value_"):
     # target - name of variable to save into
     if source in _ttp_["vars"]:
         source_var_value = _ttp_["vars"][source]
+    elif source in _ttp_["global_vars"]:
+        source_var_value = _ttp_["global_vars"][source]
     elif default != "_no_default_value_":
         source_var_value = default
     else:
