@@ -1,11 +1,14 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 import logging
+
 logging.basicConfig(level="INFO")
 
 from ttp import ttp
+
 
 def test_netmiko_input_source():
     template = """
@@ -47,6 +50,7 @@ interface {{ interface }}
     # parser.parse()
     # res = parser.result()
     # pprint.pprint(res)
-   
+
+
 # uncomment to test it - need some devices running
 # test_netmiko_input_source()

@@ -1,5 +1,6 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 from ttp import ttp
 
@@ -34,9 +35,16 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'description': 'test loopback0', 'interface': 'Loopback0'},
-                     {'description': 'test loopback1', 'interface': 'Loopback1'}]]]
-                     
+    assert res == [
+        [
+            [
+                {"description": "test loopback0", "interface": "Loopback0"},
+                {"description": "test loopback1", "interface": "Loopback1"},
+            ]
+        ]
+    ]
+
+
 def test_group_chain_attribute_list_multi_func():
     template_1 = """
 <input load="text">
@@ -92,23 +100,34 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'description': 'test loopback0',
-                      'interface': 'Loopback0',
-                      'set_key': 'set_value',
-                      'test_macro': 'DONE',
-                      'test_macro1': 'DONE',
-                      'test_macro2': 'DONE',
-                      'test_macro3': 'DONE',
-                      'test_macro4': 'DONE'},
-                     {'description': 'test loopback1',
-                      'interface': 'Loopback1',
-                      'set_key': 'set_value',
-                      'test_macro': 'DONE',
-                      'test_macro1': 'DONE',
-                      'test_macro2': 'DONE',
-                      'test_macro3': 'DONE',
-                      'test_macro4': 'DONE'}]]]
-					  
+    assert res == [
+        [
+            [
+                {
+                    "description": "test loopback0",
+                    "interface": "Loopback0",
+                    "set_key": "set_value",
+                    "test_macro": "DONE",
+                    "test_macro1": "DONE",
+                    "test_macro2": "DONE",
+                    "test_macro3": "DONE",
+                    "test_macro4": "DONE",
+                },
+                {
+                    "description": "test loopback1",
+                    "interface": "Loopback1",
+                    "set_key": "set_value",
+                    "test_macro": "DONE",
+                    "test_macro1": "DONE",
+                    "test_macro2": "DONE",
+                    "test_macro3": "DONE",
+                    "test_macro4": "DONE",
+                },
+            ]
+        ]
+    ]
+
+
 def test_group_chain_attribute_string_var():
     template_1 = """
 <input load="text">
@@ -142,15 +161,26 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'description': 'test loopback0',
-                      'interface': 'Loopback0',
-                      'set_key': 'set_value',
-                      'test_macro': 'DONE'},
-                     {'description': 'test loopback1',
-                      'interface': 'Loopback1',
-                      'set_key': 'set_value',
-                      'test_macro': 'DONE'}]]]
-					  
+    assert res == [
+        [
+            [
+                {
+                    "description": "test loopback0",
+                    "interface": "Loopback0",
+                    "set_key": "set_value",
+                    "test_macro": "DONE",
+                },
+                {
+                    "description": "test loopback1",
+                    "interface": "Loopback1",
+                    "set_key": "set_value",
+                    "test_macro": "DONE",
+                },
+            ]
+        ]
+    ]
+
+
 def test_group_chain_attribute_string_inline():
     template_1 = """
 <input load="text">
@@ -184,14 +214,23 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'description': 'test loopback0',
-                      'interface': 'Loopback0',
-                      'set_key': 'set_value',
-                      'test_macro': 'DONE',
-                      'test_macro1': 'DONE'},
-                     {'description': 'test loopback1',
-                      'interface': 'Loopback1',
-                      'set_key': 'set_value',
-                      'test_macro': 'DONE',
-                      'test_macro1': 'DONE'}]]]
-					  
+    assert res == [
+        [
+            [
+                {
+                    "description": "test loopback0",
+                    "interface": "Loopback0",
+                    "set_key": "set_value",
+                    "test_macro": "DONE",
+                    "test_macro1": "DONE",
+                },
+                {
+                    "description": "test loopback1",
+                    "interface": "Loopback1",
+                    "set_key": "set_value",
+                    "test_macro": "DONE",
+                    "test_macro1": "DONE",
+                },
+            ]
+        ]
+    ]

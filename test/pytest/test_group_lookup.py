@@ -1,8 +1,10 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 from ttp import ttp
+
 
 def test_group_lookup_using_lookup_table_action_replace():
     template_1 = """
@@ -26,15 +28,28 @@ Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'arp': [{'age': '98',
-                     'interface': 'FastEthernet2.13',
-                     'ip': 'app_1',
-                     'mac': '0950.5785.5cd1'},
-                    {'age': '131',
-                     'interface': 'GigabitEthernet2.13',
-                     'ip': 'app_2',
-                     'mac': '0150.7685.14d5'}]}]]
-                     
+    assert res == [
+        [
+            {
+                "arp": [
+                    {
+                        "age": "98",
+                        "interface": "FastEthernet2.13",
+                        "ip": "app_1",
+                        "mac": "0950.5785.5cd1",
+                    },
+                    {
+                        "age": "131",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "app_2",
+                        "mac": "0150.7685.14d5",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 def test_group_lookup_using_lookup_table_action_add_field():
     template_1 = """
 <input load="text">
@@ -57,18 +72,30 @@ Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'arp': [{'APP': 'app_1',
-                     'age': '98',
-                     'interface': 'FastEthernet2.13',
-                     'ip': '10.12.13.2',
-                     'mac': '0950.5785.5cd1'},
-                    {'APP': 'app_2',
-                     'age': '131',
-                     'interface': 'GigabitEthernet2.13',
-                     'ip': '10.12.14.3',
-                     'mac': '0150.7685.14d5'}]}]]
-    
-    
+    assert res == [
+        [
+            {
+                "arp": [
+                    {
+                        "APP": "app_1",
+                        "age": "98",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.2",
+                        "mac": "0950.5785.5cd1",
+                    },
+                    {
+                        "APP": "app_2",
+                        "age": "131",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.14.3",
+                        "mac": "0150.7685.14d5",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 def test_group_lookup_using_lookup_table_action_update():
     template_1 = """
 <input load="text">
@@ -95,20 +122,32 @@ Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'arp': [{'age': '98',
-                     'app_name': 'app_1',
-                     'app_owner': 'team2',
-                     'interface': 'FastEthernet2.13',
-                     'ip': '10.12.13.2',
-                     'mac': '0950.5785.5cd1'},
-                    {'age': '131',
-                     'app_name': 'app_2',
-                     'app_owner': 'team_2',
-                     'interface': 'GigabitEthernet2.13',
-                     'ip': '10.12.14.3',
-                     'mac': '0150.7685.14d5'}]}]]
-                     
-                     
+    assert res == [
+        [
+            {
+                "arp": [
+                    {
+                        "age": "98",
+                        "app_name": "app_1",
+                        "app_owner": "team2",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.2",
+                        "mac": "0950.5785.5cd1",
+                    },
+                    {
+                        "age": "131",
+                        "app_name": "app_2",
+                        "app_owner": "team_2",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.14.3",
+                        "mac": "0150.7685.14d5",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 def test_group_lookup_using_group_in_same_input_action_update():
     template_1 = """
 <input load="text">
@@ -142,28 +181,46 @@ Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'arp': [{'age': '98',
-                     'description': 'Customer CPE interface',
-                     'interface': 'FastEthernet2.13',
-                     'ip': '10.12.13.2',
-                     'mac': '0950.5785.5cd1',
-                     'subnet': '10.12.13.0/24',
-                     'vrf': 'CPE-VRF'},
-                    {'age': '131',
-                     'description': 'Customer CPE interface',
-                     'interface': 'GigabitEthernet2.13',
-                     'ip': '10.12.14.3',
-                     'mac': '0150.7685.14d5',
-                     'subnet': '10.12.14.0/24',
-                     'vrf': 'CUST1'}],
-              'interfaces': {'FastEthernet2.13': {'description': 'Customer CPE interface',
-                                                  'subnet': '10.12.13.0/24',
-                                                  'vrf': 'CPE-VRF'},
-                             'GigabitEthernet2.13': {'description': 'Customer CPE '
-                                                                    'interface',
-                                                     'subnet': '10.12.14.0/24',
-                                                     'vrf': 'CUST1'}}}]]
-               
+    assert res == [
+        [
+            {
+                "arp": [
+                    {
+                        "age": "98",
+                        "description": "Customer CPE interface",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.2",
+                        "mac": "0950.5785.5cd1",
+                        "subnet": "10.12.13.0/24",
+                        "vrf": "CPE-VRF",
+                    },
+                    {
+                        "age": "131",
+                        "description": "Customer CPE interface",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.14.3",
+                        "mac": "0150.7685.14d5",
+                        "subnet": "10.12.14.0/24",
+                        "vrf": "CUST1",
+                    },
+                ],
+                "interfaces": {
+                    "FastEthernet2.13": {
+                        "description": "Customer CPE interface",
+                        "subnet": "10.12.13.0/24",
+                        "vrf": "CPE-VRF",
+                    },
+                    "GigabitEthernet2.13": {
+                        "description": "Customer CPE " "interface",
+                        "subnet": "10.12.14.0/24",
+                        "vrf": "CUST1",
+                    },
+                },
+            }
+        ]
+    ]
+
+
 def test_group_lookup_using_group_from_another_input_action_update():
     template_1 = """
 <input name="interfaces" load="text">
@@ -200,28 +257,48 @@ Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interfaces': {'FastEthernet2.13': {'description': 'Customer CPE interface',
-                                                         'subnet': '10.12.13.0/24',
-                                                         'vrf': 'CPE-VRF'},
-                                    'GigabitEthernet2.13': {'description': 'Customer CPE '
-                                                                           'interface',
-                                                            'subnet': '10.12.14.0/24',
-                                                            'vrf': 'CUST1'}}},
-                    {'arp': [{'age': '98',
-                              'description': 'Customer CPE interface',
-                              'interface': 'FastEthernet2.13',
-                              'ip': '10.12.13.2',
-                              'mac': '0950.5785.5cd1',
-                              'subnet': '10.12.13.0/24',
-                              'vrf': 'CPE-VRF'},
-                             {'age': '131',
-                              'description': 'Customer CPE interface',
-                              'interface': 'GigabitEthernet2.13',
-                              'ip': '10.12.14.3',
-                              'mac': '0150.7685.14d5',
-                              'subnet': '10.12.14.0/24',
-                              'vrf': 'CUST1'}]}]]
-                                                     
+    assert res == [
+        [
+            {
+                "interfaces": {
+                    "FastEthernet2.13": {
+                        "description": "Customer CPE interface",
+                        "subnet": "10.12.13.0/24",
+                        "vrf": "CPE-VRF",
+                    },
+                    "GigabitEthernet2.13": {
+                        "description": "Customer CPE " "interface",
+                        "subnet": "10.12.14.0/24",
+                        "vrf": "CUST1",
+                    },
+                }
+            },
+            {
+                "arp": [
+                    {
+                        "age": "98",
+                        "description": "Customer CPE interface",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.2",
+                        "mac": "0950.5785.5cd1",
+                        "subnet": "10.12.13.0/24",
+                        "vrf": "CPE-VRF",
+                    },
+                    {
+                        "age": "131",
+                        "description": "Customer CPE interface",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.14.3",
+                        "mac": "0150.7685.14d5",
+                        "subnet": "10.12.14.0/24",
+                        "vrf": "CUST1",
+                    },
+                ]
+            },
+        ]
+    ]
+
+
 def test_group_lookup_in_template_results_per_input_action_update():
     template_1 = """
 <template name="interfaces">
@@ -262,27 +339,46 @@ Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'FastEthernet2.13': {'description': 'Customer CPE interface',
-                                          'subnet': '10.12.13.0/24',
-                                          'vrf': 'CPE-VRF'},
-                     'GigabitEthernet2.13': {'description': 'Customer CPE interface',
-                                             'subnet': '10.12.14.0/24',
-                                             'vrf': 'CUST1'}}],
-                   [[{'age': '98',
-                      'description': 'Customer CPE interface',
-                      'interface': 'FastEthernet2.13',
-                      'ip': '10.12.13.2',
-                      'mac': '0950.5785.5cd1',
-                      'subnet': '10.12.13.0/24',
-                      'vrf': 'CPE-VRF'},
-                     {'age': '131',
-                      'description': 'Customer CPE interface',
-                      'interface': 'GigabitEthernet2.13',
-                      'ip': '10.12.14.3',
-                      'mac': '0150.7685.14d5',
-                      'subnet': '10.12.14.0/24',
-                      'vrf': 'CUST1'}]]]
-    
+    assert res == [
+        [
+            {
+                "FastEthernet2.13": {
+                    "description": "Customer CPE interface",
+                    "subnet": "10.12.13.0/24",
+                    "vrf": "CPE-VRF",
+                },
+                "GigabitEthernet2.13": {
+                    "description": "Customer CPE interface",
+                    "subnet": "10.12.14.0/24",
+                    "vrf": "CUST1",
+                },
+            }
+        ],
+        [
+            [
+                {
+                    "age": "98",
+                    "description": "Customer CPE interface",
+                    "interface": "FastEthernet2.13",
+                    "ip": "10.12.13.2",
+                    "mac": "0950.5785.5cd1",
+                    "subnet": "10.12.13.0/24",
+                    "vrf": "CPE-VRF",
+                },
+                {
+                    "age": "131",
+                    "description": "Customer CPE interface",
+                    "interface": "GigabitEthernet2.13",
+                    "ip": "10.12.14.3",
+                    "mac": "0150.7685.14d5",
+                    "subnet": "10.12.14.0/24",
+                    "vrf": "CUST1",
+                },
+            ]
+        ],
+    ]
+
+
 def test_group_lookup_in_template_results_per_template_action_add_field():
     template_1 = """
 <template name="interfaces" results="per_template">
@@ -326,23 +422,43 @@ Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [{'FastEthernet2.13': {'description': 'Customer CPE interface',
-                                         'subnet': '10.12.13.0/24',
-                                         'vrf': 'CPE-VRF'},
-                    'GigabitEthernet2.13': {'description': 'Customer CPE interface',
-                                            'subnet': '10.12.14.0/24',
-                                            'vrf': 'CUST1'}},
-                   [[{'age': '98',
-                      'interface': 'FastEthernet2.13',
-                      'intf_info': {'description': 'Customer CPE interface',
-                                    'subnet': '10.12.13.0/24',
-                                    'vrf': 'CPE-VRF'},
-                      'ip': '10.12.13.2',
-                      'mac': '0950.5785.5cd1'},
-                     {'age': '131',
-                      'interface': 'GigabitEthernet2.13',
-                      'intf_info': {'description': 'Customer CPE interface',
-                                    'subnet': '10.12.14.0/24',
-                                    'vrf': 'CUST1'},
-                      'ip': '10.12.14.3',
-                      'mac': '0150.7685.14d5'}]]]
+    assert res == [
+        {
+            "FastEthernet2.13": {
+                "description": "Customer CPE interface",
+                "subnet": "10.12.13.0/24",
+                "vrf": "CPE-VRF",
+            },
+            "GigabitEthernet2.13": {
+                "description": "Customer CPE interface",
+                "subnet": "10.12.14.0/24",
+                "vrf": "CUST1",
+            },
+        },
+        [
+            [
+                {
+                    "age": "98",
+                    "interface": "FastEthernet2.13",
+                    "intf_info": {
+                        "description": "Customer CPE interface",
+                        "subnet": "10.12.13.0/24",
+                        "vrf": "CPE-VRF",
+                    },
+                    "ip": "10.12.13.2",
+                    "mac": "0950.5785.5cd1",
+                },
+                {
+                    "age": "131",
+                    "interface": "GigabitEthernet2.13",
+                    "intf_info": {
+                        "description": "Customer CPE interface",
+                        "subnet": "10.12.14.0/24",
+                        "vrf": "CUST1",
+                    },
+                    "ip": "10.12.14.3",
+                    "mac": "0150.7685.14d5",
+                },
+            ]
+        ],
+    ]

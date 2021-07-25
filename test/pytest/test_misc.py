@@ -1,11 +1,14 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
 from ttp import ttp
+
 
 def test_match_vars_with_hyphen():
     template = """
@@ -26,15 +29,23 @@ interface {{ interface-name }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'description-bla': 'Storage', 'interface-name': 'Port-Channel11'},
-                     {'description-bla': 'RID', 'interface-name': 'Loopback0'},
-                     {'description-bla': 'Management', 'interface-name': 'Port-Channel12'},
-                     {'description-bla': 'Management', 'interface-name': 'Vlan777'}]]]
-    
+    assert res == [
+        [
+            [
+                {"description-bla": "Storage", "interface-name": "Port-Channel11"},
+                {"description-bla": "RID", "interface-name": "Loopback0"},
+                {"description-bla": "Management", "interface-name": "Port-Channel12"},
+                {"description-bla": "Management", "interface-name": "Vlan777"},
+            ]
+        ]
+    ]
+
+
 # test_match_vars_with_hyphen()
+
 
 def test_match_vars_with_dot():
     template = """
@@ -55,14 +66,21 @@ interface {{ interface.name }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'description.bla': 'Storage', 'interface.name': 'Port-Channel11'},
-                     {'description.bla': 'RID', 'interface.name': 'Loopback0'},
-                     {'description.bla': 'Management', 'interface.name': 'Port-Channel12'},
-                     {'description.bla': 'Management', 'interface.name': 'Vlan777'}]]]
-                     
+    assert res == [
+        [
+            [
+                {"description.bla": "Storage", "interface.name": "Port-Channel11"},
+                {"description.bla": "RID", "interface.name": "Loopback0"},
+                {"description.bla": "Management", "interface.name": "Port-Channel12"},
+                {"description.bla": "Management", "interface.name": "Vlan777"},
+            ]
+        ]
+    ]
+
+
 def test_match_vars_starts_with_digit():
     template = """
 <input load="text">
@@ -82,14 +100,24 @@ interface {{ 77interface.name }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'77description.bla': 'Storage', '77interface.name': 'Port-Channel11'},
-                     {'77description.bla': 'RID', '77interface.name': 'Loopback0'},
-                     {'77description.bla': 'Management', '77interface.name': 'Port-Channel12'},
-                     {'77description.bla': 'Management', '77interface.name': 'Vlan777'}]]]
-                     
+    assert res == [
+        [
+            [
+                {"77description.bla": "Storage", "77interface.name": "Port-Channel11"},
+                {"77description.bla": "RID", "77interface.name": "Loopback0"},
+                {
+                    "77description.bla": "Management",
+                    "77interface.name": "Port-Channel12",
+                },
+                {"77description.bla": "Management", "77interface.name": "Vlan777"},
+            ]
+        ]
+    ]
+
+
 def test_match_vars_multiple_non_alpha_chars():
     template = """
 <input load="text">
@@ -109,14 +137,30 @@ interface {{ 77interface.#$%name }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'77description.*(-bla': 'Storage', '77interface.#$%name': 'Port-Channel11'},
-                     {'77description.*(-bla': 'RID', '77interface.#$%name': 'Loopback0'},
-                     {'77description.*(-bla': 'Management', '77interface.#$%name': 'Port-Channel12'},
-                     {'77description.*(-bla': 'Management', '77interface.#$%name': 'Vlan777'}]]]
-                     
+    assert res == [
+        [
+            [
+                {
+                    "77description.*(-bla": "Storage",
+                    "77interface.#$%name": "Port-Channel11",
+                },
+                {"77description.*(-bla": "RID", "77interface.#$%name": "Loopback0"},
+                {
+                    "77description.*(-bla": "Management",
+                    "77interface.#$%name": "Port-Channel12",
+                },
+                {
+                    "77description.*(-bla": "Management",
+                    "77interface.#$%name": "Vlan777",
+                },
+            ]
+        ]
+    ]
+
+
 def test_match_vars_set_with_hyphen():
     template = """
 <input load="text">
@@ -141,16 +185,46 @@ interface {{ interface-name }}
 </group>
     """
     parser = ttp(template=template, log_level="ERROR")
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'description-bla': 'Storage', 'interface-name': 'Port-Channel11', 'is-shutdown': False},
-                     {'description-bla': 'RID', 'interface-name': 'Loopback0', 'is-shutdown': False},
-                     {'description-bla': 'Management', 'interface-name': 'Port-Channel12', 'is-shutdown': False, 'no-switchport': True},
-                     {'description-bla': 'Management', 'interface-name': 'Vlan777', 'is-shutdown': False},
-                     {'description-bla': 'Undefined', 'interface-name': 'Port-Channel27', 'is-shutdown': False, 'no-switchport': True}]]]
-   
+    assert res == [
+        [
+            [
+                {
+                    "description-bla": "Storage",
+                    "interface-name": "Port-Channel11",
+                    "is-shutdown": False,
+                },
+                {
+                    "description-bla": "RID",
+                    "interface-name": "Loopback0",
+                    "is-shutdown": False,
+                },
+                {
+                    "description-bla": "Management",
+                    "interface-name": "Port-Channel12",
+                    "is-shutdown": False,
+                    "no-switchport": True,
+                },
+                {
+                    "description-bla": "Management",
+                    "interface-name": "Vlan777",
+                    "is-shutdown": False,
+                },
+                {
+                    "description-bla": "Undefined",
+                    "interface-name": "Port-Channel27",
+                    "is-shutdown": False,
+                    "no-switchport": True,
+                },
+            ]
+        ]
+    ]
+
+
 # test_match_vars_set_with_hyphen()
+
 
 def test_per_template_mode():
     data_1 = """
@@ -180,21 +254,30 @@ interface {{ interface }}
     parser = ttp(template=template, log_level="error")
     parser.add_input(data_1, template_name="top_key_name")
     parser.add_input(data_2, template_name="top_key_name")
-    parser.parse()    
+    parser.parse()
     res = parser.result(structure="dictionary")
-    # pprint.pprint(res, width=150)    
-    assert res == {'top_key_name': {'interfaces': [{'interface': 'Port-Chanel11'},
-                                   {'description': 'RID', 'interface': 'Loopback0'},
-                                   {'description': 'Management', 'interface': 'Vlan777'},
-                                   {'interface': 'Port-Chane10'},
-                                   {'description': 'RID', 'interface': 'Loopback77'},
-                                   {'description': 'Management', 'interface': 'Vlan321'}]}}
-                                 
+    # pprint.pprint(res, width=150)
+    assert res == {
+        "top_key_name": {
+            "interfaces": [
+                {"interface": "Port-Chanel11"},
+                {"description": "RID", "interface": "Loopback0"},
+                {"description": "Management", "interface": "Vlan777"},
+                {"interface": "Port-Chane10"},
+                {"description": "RID", "interface": "Loopback77"},
+                {"description": "Management", "interface": "Vlan321"},
+            ]
+        }
+    }
+
+
 # test_per_template_mode()
 
 
 def test_newline_with_carriage_return():
-    data = b"\ninterface Port-Chanel11\r\n\r\n\r\n  description Storage_Management\r\ninterface Loopback0\n  description RID\ninterface Vlan777\n  description Management\r\n".decode("utf-8")
+    data = b"\ninterface Port-Chanel11\r\n\r\n\r\n  description Storage_Management\r\ninterface Loopback0\n  description RID\ninterface Vlan777\n  description Management\r\n".decode(
+        "utf-8"
+    )
     template = """
 <group name="interfaces*">
 interface {{ interface }}
@@ -202,13 +285,22 @@ interface {{ interface }}
 </group>
     """
     parser = ttp(data, template, log_level="ERROR")
-    parser.parse()    
+    parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=150)    
-    assert res == [[{'interfaces': [{'description': 'Storage_Management', 'interface': 'Port-Chanel11'},
-                                     {'description': 'RID', 'interface': 'Loopback0'},
-                                     {'description': 'Management', 'interface': 'Vlan777'}]}]]
-                                     
+    # pprint.pprint(res, width=150)
+    assert res == [
+        [
+            {
+                "interfaces": [
+                    {"description": "Storage_Management", "interface": "Port-Chanel11"},
+                    {"description": "RID", "interface": "Loopback0"},
+                    {"description": "Management", "interface": "Vlan777"},
+                ]
+            }
+        ]
+    ]
+
+
 # test_newline_with_carriage_return()
 
 
@@ -269,24 +361,46 @@ snmp acl {{ acl }}
 <output name="out-1"/>
     """
     parser = ttp(template=template, log_level="ERROR")
-    parser.parse()    
+    parser.parse()
     res = parser.result()
-    # pprint.pprint(res)  
-    assert res == [[[{'domain': {'fqdn': 'Uncknown'},
-                      'ntp-1': {'another_child_grp_with_default': {'deeper_child_with_defaults': {'val4': 'something',
-                                                                                                  'val5': 'something'},
-                                                                   'val2': 'None'},
-                                'server': 'Unconfigured',
-                                'source': 'undefined'},
-                      'snmp-1': {'acl': 'Uncknown', 'community': 'Uncknown'},
-                      'uptime-1': {'child_with_default': {'var1': 'val1'},
-                                   'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 '
-                                             'seconds'}},
-                     {'snmp-2-with-group-output': {'acl': 'Uncknown',
-                                                   'community': 'Uncknown',
-                                                   'snmp_child_with_defaults': {'ip': 'None'}}}]]]
+    # pprint.pprint(res)
+    assert res == [
+        [
+            [
+                {
+                    "domain": {"fqdn": "Uncknown"},
+                    "ntp-1": {
+                        "another_child_grp_with_default": {
+                            "deeper_child_with_defaults": {
+                                "val4": "something",
+                                "val5": "something",
+                            },
+                            "val2": "None",
+                        },
+                        "server": "Unconfigured",
+                        "source": "undefined",
+                    },
+                    "snmp-1": {"acl": "Uncknown", "community": "Uncknown"},
+                    "uptime-1": {
+                        "child_with_default": {"var1": "val1"},
+                        "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 "
+                        "seconds",
+                    },
+                },
+                {
+                    "snmp-2-with-group-output": {
+                        "acl": "Uncknown",
+                        "community": "Uncknown",
+                        "snmp_child_with_defaults": {"ip": "None"},
+                    }
+                },
+            ]
+        ]
+    ]
+
 
 # test_groups_with_defaults_only_and_with_children_with_defaults_only()
+
 
 def test_hierarch_template():
     template = """
@@ -384,48 +498,144 @@ router bgp 65000
         route-map C3-FW-BGP-EXPORT-V4 out    
     """
     parser = ttp(data=data, template=template, log_level="ERROR")
-    parser.parse()    
+    parser.parse()
     res = parser.result()
-    # pprint.pprint(res)  
-    assert res == [[{'sw1': {'bgp_config': {'AS_65000': {'bgp_as': '65000',
-                                       'rid': '10.1.2.2',
-                                       'vrfs': [{'cust1': {'afi': {'Unicast': {'ipv4': {'network': '1.1.1.10/26',
-                                                                                        'redistr_direct_rpl': 'VRF-DIRECT->BGP-V4'}}},
-                                                           'local_as': '65000',
-                                                           'peers': {'1.1.1.1': {'afi': {'ipv4': {'Unicast': {'allow_as_in': 'True',
-                                                                                                              'rpl_in': '65001-BGP-IMPORT-V4',
-                                                                                                              'rpl_out': '65001-BGP-EXPORT-V4'}}},
-                                                                                 'description': 'FIREWALLs',
-                                                                                 'remote_as': '65001'},
-                                                                     '2.2.2.2': {'afi': {'ipv4': {'Unicast': {'allow_as_in': 'True',
-                                                                                                              'rpl_in': 'SLB-BGP-IMPORT-V4',
-                                                                                                              'rpl_out': 'SLB-BGP-EXPORT-V4'}}},
-                                                                                 'remote_as': '65002'},
-                                                                     '3.3.3.3': {'afi': {'ipv4': {'Unicast': {'rpl_in': 'INTERNET-IMPORT-V4',
-                                                                                                              'rpl_out': 'INTERNET-EXPORT-V4'}}},
-                                                                                 'remote_as': '1234'}}},
-                                                 'cust2': {'afi': {'Unicast': {'ipv4': {'redistr_direct_rpl': 'VRF-DIRECT->BGP-V4'}}},
-                                                           'local_as': '65000',
-                                                           'peers': {'4.4.4.4': {'afi': {'ipv4': {'Unicast': {'allow_as_in': 'True',
-                                                                                                              'rpl_in': 'SLBB-BGP-IMPORT-V4',
-                                                                                                              'rpl_out': 'SLBB-BGP-EXPORT-V4'}}},
-                                                                                 'remote_as': '4567'}}},
-                                                 'cust3': {'afi': {'Unicast': {'ipv4': {'redistr_direct_rpl': 'C3-DIRECT->BGP-V4'}}},
-                                                           'local_as': '65000',
-                                                           'peers': {'5.5.5.5': {'afi': {'ipv4': {'Unicast': {'rpl_in': 'C3-BGP-IMPORT-V4',
-                                                                                                              'rpl_out': 'C3-BGP-EXPORT-V4'}}},
-                                                                                 'remote_as': '65100'},
-                                                                     '6.6.6.6': {'afi': {'ipv4': {'Unicast': {'rpl_in': 'C3-FW-BGP-IMPORT-V4',
-                                                                                                              'rpl_out': 'C3-FW-BGP-EXPORT-V4'}}},
-                                                                                 'remote_as': '65200'}}}}]}}}}]]
-                                                                                 
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "sw1": {
+                    "bgp_config": {
+                        "AS_65000": {
+                            "bgp_as": "65000",
+                            "rid": "10.1.2.2",
+                            "vrfs": [
+                                {
+                                    "cust1": {
+                                        "afi": {
+                                            "Unicast": {
+                                                "ipv4": {
+                                                    "network": "1.1.1.10/26",
+                                                    "redistr_direct_rpl": "VRF-DIRECT->BGP-V4",
+                                                }
+                                            }
+                                        },
+                                        "local_as": "65000",
+                                        "peers": {
+                                            "1.1.1.1": {
+                                                "afi": {
+                                                    "ipv4": {
+                                                        "Unicast": {
+                                                            "allow_as_in": "True",
+                                                            "rpl_in": "65001-BGP-IMPORT-V4",
+                                                            "rpl_out": "65001-BGP-EXPORT-V4",
+                                                        }
+                                                    }
+                                                },
+                                                "description": "FIREWALLs",
+                                                "remote_as": "65001",
+                                            },
+                                            "2.2.2.2": {
+                                                "afi": {
+                                                    "ipv4": {
+                                                        "Unicast": {
+                                                            "allow_as_in": "True",
+                                                            "rpl_in": "SLB-BGP-IMPORT-V4",
+                                                            "rpl_out": "SLB-BGP-EXPORT-V4",
+                                                        }
+                                                    }
+                                                },
+                                                "remote_as": "65002",
+                                            },
+                                            "3.3.3.3": {
+                                                "afi": {
+                                                    "ipv4": {
+                                                        "Unicast": {
+                                                            "rpl_in": "INTERNET-IMPORT-V4",
+                                                            "rpl_out": "INTERNET-EXPORT-V4",
+                                                        }
+                                                    }
+                                                },
+                                                "remote_as": "1234",
+                                            },
+                                        },
+                                    },
+                                    "cust2": {
+                                        "afi": {
+                                            "Unicast": {
+                                                "ipv4": {
+                                                    "redistr_direct_rpl": "VRF-DIRECT->BGP-V4"
+                                                }
+                                            }
+                                        },
+                                        "local_as": "65000",
+                                        "peers": {
+                                            "4.4.4.4": {
+                                                "afi": {
+                                                    "ipv4": {
+                                                        "Unicast": {
+                                                            "allow_as_in": "True",
+                                                            "rpl_in": "SLBB-BGP-IMPORT-V4",
+                                                            "rpl_out": "SLBB-BGP-EXPORT-V4",
+                                                        }
+                                                    }
+                                                },
+                                                "remote_as": "4567",
+                                            }
+                                        },
+                                    },
+                                    "cust3": {
+                                        "afi": {
+                                            "Unicast": {
+                                                "ipv4": {
+                                                    "redistr_direct_rpl": "C3-DIRECT->BGP-V4"
+                                                }
+                                            }
+                                        },
+                                        "local_as": "65000",
+                                        "peers": {
+                                            "5.5.5.5": {
+                                                "afi": {
+                                                    "ipv4": {
+                                                        "Unicast": {
+                                                            "rpl_in": "C3-BGP-IMPORT-V4",
+                                                            "rpl_out": "C3-BGP-EXPORT-V4",
+                                                        }
+                                                    }
+                                                },
+                                                "remote_as": "65100",
+                                            },
+                                            "6.6.6.6": {
+                                                "afi": {
+                                                    "ipv4": {
+                                                        "Unicast": {
+                                                            "rpl_in": "C3-FW-BGP-IMPORT-V4",
+                                                            "rpl_out": "C3-FW-BGP-EXPORT-V4",
+                                                        }
+                                                    }
+                                                },
+                                                "remote_as": "65200",
+                                            },
+                                        },
+                                    },
+                                }
+                            ],
+                        }
+                    }
+                }
+            }
+        ]
+    ]
+
+
 # test_hierarch_template()
+
 
 def test_comments_with_indentation():
     """
     Need to manually run this test to see if log message generated:
     WARNING:ttp.ttp:group.get_regexes: variable not found in line: '    ## some comment line'
-    
+
     it should not, if all working properly
     """
     template = """
@@ -433,5 +643,6 @@ def test_comments_with_indentation():
 some string {{ var_1 }}
     """
     parser = ttp(template=template, log_level="warning")
+
 
 # test_comments_with_indentation()

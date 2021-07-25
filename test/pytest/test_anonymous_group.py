@@ -1,8 +1,10 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 from ttp import ttp
+
 
 def test_simple_anonymous_template():
     template_1 = """interface {{ interface }}
@@ -16,14 +18,20 @@ interface Loopback0
 """
     parser = ttp(template=template_1, data=data_1)
     # check that data added:
-    datums_added = {"{}:{}".format(template.name, input_name): input_obj.data for template in parser._templates for input_name, input_obj in template.inputs.items()}
+    datums_added = {
+        "{}:{}".format(template.name, input_name): input_obj.data
+        for template in parser._templates
+        for input_name, input_obj in template.inputs.items()
+    }
     # pprint.pprint(datums_added)
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
     # assert res == [[[{'description': 'Storage Management', 'interface': 'Port-Chanel11'}, {'description': 'RID', 'interface': 'Loopback0'}]]]
-    
+
+
 # test_simple_anonymous_template()
+
 
 def test_anonymous_group_with_vars():
     template = """
@@ -48,11 +56,19 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'description': 'Storage Management', 'interface': 'Port-Chanel11'},
-   {'description': 'RID', 'interface': 'Loopback0'},
-   {'my': {'var': {'s': {'a': 1, 'b': 2}}}}]]]
-   
+    assert res == [
+        [
+            [
+                {"description": "Storage Management", "interface": "Port-Chanel11"},
+                {"description": "RID", "interface": "Loopback0"},
+                {"my": {"var": {"s": {"a": 1, "b": 2}}}},
+            ]
+        ]
+    ]
+
+
 # test_anonymous_group_with_vars()
+
 
 def test_anonymous_group_with_child_group_empty_absolute_path():
     template = """
@@ -87,11 +103,17 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'ip': '10.123.89.55', 'mask': '255.255.255.0'},
-                    {'ip': '10.123.89.56', 'mask': '255.255.255.0'},
-                    {'ip': '10.123.89.55', 'mask': '255.255.255.0'}]]
-                 
+    assert res == [
+        [
+            {"ip": "10.123.89.55", "mask": "255.255.255.0"},
+            {"ip": "10.123.89.56", "mask": "255.255.255.0"},
+            {"ip": "10.123.89.55", "mask": "255.255.255.0"},
+        ]
+    ]
+
+
 # test_anonymous_group_with_child_group_empty_absolute_path()
+
 
 def test_anonymous_group_with_per_template_mode():
     template = """
@@ -131,18 +153,29 @@ interface GigabitEthernet2
     parser_a.parse()
     res = parser_a.result()
     # pprint.pprint(res)
-    assert res == [[{'hostname': 'r2',
-                     'interface': 'GigabitEthernet1',
-                     'ip': '10.123.89.55',
-                     'mask': '255.255.255.0'},
-                    {'description': 'some info',
-                     'hostname': 'r1',
-                     'interface': 'GigabitEthernet1',
-                     'ip': '10.123.89.56',
-                     'mask': '255.255.255.0'},
-                    {'hostname': 'r1',
-                     'interface': 'GigabitEthernet2',
-                     'ip': '10.123.89.55',
-                     'mask': '255.255.255.0'}]]
-    
+    assert res == [
+        [
+            {
+                "hostname": "r2",
+                "interface": "GigabitEthernet1",
+                "ip": "10.123.89.55",
+                "mask": "255.255.255.0",
+            },
+            {
+                "description": "some info",
+                "hostname": "r1",
+                "interface": "GigabitEthernet1",
+                "ip": "10.123.89.56",
+                "mask": "255.255.255.0",
+            },
+            {
+                "hostname": "r1",
+                "interface": "GigabitEthernet2",
+                "ip": "10.123.89.55",
+                "mask": "255.255.255.0",
+            },
+        ]
+    ]
+
+
 # test_anonymous_group_with_per_template_mode()

@@ -1,11 +1,14 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 import logging
+
 logging.basicConfig(level="INFO")
 
 from ttp import ttp
+
 
 def test_pipe_separated_regexes():
     template = """
@@ -29,20 +32,36 @@ Internet  {{ ip | re("IP")}}  {{ age | re(r"\\d+") }}   {{ mac }}  ARPA   {{ int
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'arp_test': [{'age': '98',
-                      'interface': 'FastEthernet2.13',
-                      'ip': '10.12.13.1',
-                      'mac': '0950.5785.5cd1'},
-                     {'age': '131',
-                      'interface': 'GigabitEthernet2.13',
-                      'ip': '10.12.13.3',
-                      'mac': '0150.7685.14d5'},
-                     {'age': '198',
-                      'interface': 'GigabitEthernet2.17',
-                      'ip': '10.12.13.4',
-                      'mac': '0950.5C8A.5c41'}]}]]
-    
+    assert res == [
+        [
+            {
+                "arp_test": [
+                    {
+                        "age": "98",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.1",
+                        "mac": "0950.5785.5cd1",
+                    },
+                    {
+                        "age": "131",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.13.3",
+                        "mac": "0150.7685.14d5",
+                    },
+                    {
+                        "age": "198",
+                        "interface": "GigabitEthernet2.17",
+                        "ip": "10.12.13.4",
+                        "mac": "0950.5C8A.5c41",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_pipe_separated_regexes()
+
 
 def test_multiple_inline_regexes():
     template = """
@@ -66,17 +85,32 @@ Internet  {{ ip }}  {{ age }}   {{ mac }}  ARPA   {{ interface | re(r"GigabitEth
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'arp_test': [{'age': '98',
-                 'interface': 'FastEthernet2.13',
-                 'ip': '10.12.13.1',
-                 'mac': '0950.5785.5cd1'},
-                {'age': '131',
-                 'interface': 'GigabitEthernet2.13',
-                 'ip': '10.12.13.3',
-                 'mac': '0150.7685.14d5'},
-                {'age': '198',
-                 'interface': 'GigabitEthernet2.17',
-                 'ip': '10.12.13.4',
-                 'mac': '0950.5C8A.5c41'}]}]]
-    
+    assert res == [
+        [
+            {
+                "arp_test": [
+                    {
+                        "age": "98",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.1",
+                        "mac": "0950.5785.5cd1",
+                    },
+                    {
+                        "age": "131",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.13.3",
+                        "mac": "0150.7685.14d5",
+                    },
+                    {
+                        "age": "198",
+                        "interface": "GigabitEthernet2.17",
+                        "ip": "10.12.13.4",
+                        "mac": "0950.5C8A.5c41",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_multiple_inline_regexes()

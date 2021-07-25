@@ -1,0 +1,6 @@
+<template>
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name }}
+</group>
+</template>

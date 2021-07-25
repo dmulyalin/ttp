@@ -1,9 +1,12 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 from ttp import ttp
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
+
 
 def test_group_validate_function():
     template_123 = """
@@ -40,30 +43,48 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'err_details': {'description': ['required field']},
-                      'hostname': 'device-1',
-                      'info': 'Lo0 has description',
-                      'interface': 'Lo0',
-                      'validation_result': False},
-                     {'description': 'this interface has description',
-                      'err_details': {},
-                      'hostname': 'device-1',
-                      'info': 'Lo1 has description',
-                      'interface': 'Lo1',
-                      'validation_result': True}],
-                    [{'err_details': {'description': ['required field']},
-                      'hostname': 'device-2',
-                      'info': 'Lo10 has description',
-                      'interface': 'Lo10',
-                      'validation_result': False},
-                     {'description': 'another interface with description',
-                      'err_details': {},
-                      'hostname': 'device-2',
-                      'info': 'Lo11 has description',
-                      'interface': 'Lo11',
-                      'validation_result': True}]]]
-    
+    assert res == [
+        [
+            [
+                {
+                    "err_details": {"description": ["required field"]},
+                    "hostname": "device-1",
+                    "info": "Lo0 has description",
+                    "interface": "Lo0",
+                    "validation_result": False,
+                },
+                {
+                    "description": "this interface has description",
+                    "err_details": {},
+                    "hostname": "device-1",
+                    "info": "Lo1 has description",
+                    "interface": "Lo1",
+                    "validation_result": True,
+                },
+            ],
+            [
+                {
+                    "err_details": {"description": ["required field"]},
+                    "hostname": "device-2",
+                    "info": "Lo10 has description",
+                    "interface": "Lo10",
+                    "validation_result": False,
+                },
+                {
+                    "description": "another interface with description",
+                    "err_details": {},
+                    "hostname": "device-2",
+                    "info": "Lo11 has description",
+                    "interface": "Lo11",
+                    "validation_result": True,
+                },
+            ],
+        ]
+    ]
+
+
 # test_group_validate_function()
+
 
 def test_group_default_referencing_variable_parent_group_no_re_two_inputs():
     template_123 = """
@@ -89,10 +110,13 @@ Hello {{ audience }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'demo': {'audiences': []}},
-                    {'demo': {'audiences': [{'audience': 'World'}]}}]]
-  
-#test_group_default_referencing_variable_parent_group_no_re_two_inputs()
+    assert res == [
+        [{"demo": {"audiences": []}}, {"demo": {"audiences": [{"audience": "World"}]}}]
+    ]
+
+
+# test_group_default_referencing_variable_parent_group_no_re_two_inputs()
+
 
 def test_group_default_referencing_variable_parent_group_no_re_one_input():
     template_123 = """
@@ -114,8 +138,8 @@ Hello {{ audience }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'demo': {'audiences': []}}]]
-    
+    assert res == [[{"demo": {"audiences": []}}]]
+
 
 def test_top_group_default_referencing_variable_dictionary():
     template_123 = """
@@ -152,24 +176,46 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interfaces': [{'description': 'Undefined',
-                                      'interface': 'Lo0',
-                                      'is_l3': True,
-                                      'switchport': False},
-                                     {'description': 'this interface has description',
-                                      'interface': 'Lo1',
-                                      'is_l3': True,
-                                      'switchport': False}]},
-                     {'interfaces': [{'description': 'Undefined',
-                                      'interface': 'Lo10',
-                                      'is_l3': True,
-                                      'switchport': False},
-                                     {'description': 'another interface with description',
-                                      'interface': 'Lo11',
-                                      'is_l3': True,
-                                      'switchport': False}]}]]
-                   
+    assert res == [
+        [
+            {
+                "interfaces": [
+                    {
+                        "description": "Undefined",
+                        "interface": "Lo0",
+                        "is_l3": True,
+                        "switchport": False,
+                    },
+                    {
+                        "description": "this interface has description",
+                        "interface": "Lo1",
+                        "is_l3": True,
+                        "switchport": False,
+                    },
+                ]
+            },
+            {
+                "interfaces": [
+                    {
+                        "description": "Undefined",
+                        "interface": "Lo10",
+                        "is_l3": True,
+                        "switchport": False,
+                    },
+                    {
+                        "description": "another interface with description",
+                        "interface": "Lo11",
+                        "is_l3": True,
+                        "switchport": False,
+                    },
+                ]
+            },
+        ]
+    ]
+
+
 # test_top_group_default_referencing_variable_dictionary()
+
 
 def test_group_default():
     template = """
@@ -192,11 +238,21 @@ Default domain is {{ fqdn }}
     parser.parse()
     res = parser.result()
     pprint.pprint(res)
-    assert res == [[{'domain': {'fqdn': 'Uncknown'},
-                     'uptime': {'software': {'version': 'uncknown'},
-                                'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds'}}]]
-    
+    assert res == [
+        [
+            {
+                "domain": {"fqdn": "Uncknown"},
+                "uptime": {
+                    "software": {"version": "uncknown"},
+                    "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds",
+                },
+            }
+        ]
+    ]
+
+
 # test_group_default()
+
 
 def test_child_group_default_referencing_variable():
     template_123 = """
@@ -236,26 +292,54 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interfaces': [{'IPv4_addresses': {'IP': '1.1.1.1',
-                                                        'L3': True,
-                                                        'MASK': '255.255.255.255',
-                                                        'has_ip': True},
-                                     'interface': 'Lo0'},
-                                    {'description': 'this interface has description',
-                                     'interface': 'Lo1'}]},
-                    {'interfaces': [{'IPv4_addresses': {'IP': '1.1.1.2',
-                                                        'L3': True,
-                                                        'MASK': '255.255.255.255',
-                                                        'has_ip': True},
-                                     'interface': 'Lo10'},
-                                    {'IPv4_addresses': {'IP': '1.1.1.3',
-                                                        'L3': True,
-                                                        'MASK': '255.255.255.255',
-                                                        'has_ip': True},
-                                     'description': 'another interface with description',
-                                     'interface': 'Lo11'}]}]]
-    
+    assert res == [
+        [
+            {
+                "interfaces": [
+                    {
+                        "IPv4_addresses": {
+                            "IP": "1.1.1.1",
+                            "L3": True,
+                            "MASK": "255.255.255.255",
+                            "has_ip": True,
+                        },
+                        "interface": "Lo0",
+                    },
+                    {
+                        "description": "this interface has description",
+                        "interface": "Lo1",
+                    },
+                ]
+            },
+            {
+                "interfaces": [
+                    {
+                        "IPv4_addresses": {
+                            "IP": "1.1.1.2",
+                            "L3": True,
+                            "MASK": "255.255.255.255",
+                            "has_ip": True,
+                        },
+                        "interface": "Lo10",
+                    },
+                    {
+                        "IPv4_addresses": {
+                            "IP": "1.1.1.3",
+                            "L3": True,
+                            "MASK": "255.255.255.255",
+                            "has_ip": True,
+                        },
+                        "description": "another interface with description",
+                        "interface": "Lo11",
+                    },
+                ]
+            },
+        ]
+    ]
+
+
 # test_child_group_default_referencing_variable()
+
 
 def test_group_set_function_source_from_global_vars():
     template_123 = """
@@ -284,14 +368,27 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'hostname': 'router_1'}],
-                     {'interfaces': [{'IP': '1.1.1.1',
-                                      'MASK': '255.255.255.255',
-                                      'hostname': 'router_1',
-                                      'interface': 'Lo0'},
-                                     {'IP': '1.1.1.2',
-                                      'MASK': '255.255.255.255',
-                                      'hostname': 'router_1',
-                                      'interface': 'Lo0'}]}]]
-    
+    assert res == [
+        [
+            [{"hostname": "router_1"}],
+            {
+                "interfaces": [
+                    {
+                        "IP": "1.1.1.1",
+                        "MASK": "255.255.255.255",
+                        "hostname": "router_1",
+                        "interface": "Lo0",
+                    },
+                    {
+                        "IP": "1.1.1.2",
+                        "MASK": "255.255.255.255",
+                        "hostname": "router_1",
+                        "interface": "Lo0",
+                    },
+                ]
+            },
+        ]
+    ]
+
+
 # test_group_set_function_source_from_global_vars()

@@ -127,7 +127,7 @@ def lazy_import_functions():
                 and f not in exclude_modules
             ):
                 continue
-            try: 
+            try:
                 module_file = open("{}/{}".format(root, f), mode="r", encoding="utf-8")
             except:
                 # in some versions of python open() does not support encoding
@@ -891,6 +891,18 @@ class _template_class:
         self.filters = filters  # list that contains names of child templates to extract
         self.__doc__ = ""  # string to contain template doc/description
 
+        # dictionary to store template's top tags ET elements
+        self.tags = {
+            "vars": [],
+            "groups": [],
+            "inputs": [],
+            "outputs": [],
+            "lookups": [],
+            "macro": [],
+            "template": [],
+            "extend": [],
+        }
+
         # load template from string:
         self.load_template_xml(template_text)
 
@@ -1063,169 +1075,190 @@ class _template_class:
             "pathchar": extract_pathchar,
         }
 
-        [
-            opt_funcs[name](options)
-            for name, options in element.attrib.items()
-            if name in opt_funcs
-        ]
+        for name, options in element.attrib.items():
+            if name in opt_funcs:
+                opt_funcs[name](options)
 
-    def load_template_xml(self, template_text):
-        def parse_vars(element):
-            # method to parse vars data
-            vars = _ttp_["utils"]["load_struct"](element.text, **element.attrib)
-            if vars:
-                self.vars.update(vars)
-            # check if var has name attribute:
-            if "name" in element.attrib:
-                path = element.attrib["name"]
-                [
-                    self.vars["_vars_to_results_"].setdefault(path, []).append(key)
-                    for key in vars.keys()
-                ]
+    def collect_tags(self, element):
+        """
+        Function to iterate over element tags and fill in self.tags
+        dictionary.
 
-        def parse_output(element):
-            self.outputs.append(_outputter_class(element, template_obj=self))
+        :param element: (obj) ET.XML object
+        """
+        # functions to append tag elements to tags dictionary:
+        tags_funcs = {  # C - template child ET elements
+            "v": lambda C: self.tags["vars"].append(C),
+            "vars": lambda C: self.tags["vars"].append(C),
+            "variables": lambda C: self.tags["vars"].append(C),
+            "g": lambda C: self.tags["groups"].append(C),
+            "grp": lambda C: self.tags["groups"].append(C),
+            "group": lambda C: self.tags["groups"].append(C),
+            "o": lambda C: self.tags["outputs"].append(C),
+            "out": lambda C: self.tags["outputs"].append(C),
+            "output": lambda C: self.tags["outputs"].append(C),
+            "i": lambda C: self.tags["inputs"].append(C),
+            "in": lambda C: self.tags["inputs"].append(C),
+            "input": lambda C: self.tags["inputs"].append(C),
+            "lookup": lambda C: self.tags["lookups"].append(C),
+            "template": lambda C: self.tags["template"].append(C),
+            "macro": self.parse_macro,
+            "doc": self.parse_doc,
+            "extend": self.parse_extend,
+        }
+        # fill in self.tags dictionary:
+        for child in list(element):
+            tags_funcs.get(child.tag.lower(), self.invalid)(child)
 
-        def parse_group(element, grp_index):
-            self.groups.append(
-                _group_class(
-                    element,
-                    top=True,
-                    pathchar=self.PATHCHAR,
-                    vars=self.vars,
-                    grp_index=grp_index,
+    def invalid(self, C):
+        log.warning("template.parse: invalid tag '{}'".format(C.tag))
+
+    def parse_macro(self, element):
+        funcs = {}
+        # extract macro with all the __builtins__ provided
+        try:
+            funcs = _ttp_["utils"]["load_python_exec"](
+                element.text, builtins=__builtins__
+            )
+            self.macro.update(funcs)
+            # save macro text to be able to restore macro functions within another process
+            self.macro_text.append(element.text)
+        except SyntaxError as e:
+            log.error(
+                "template.parse_macro: syntax error, failed to load macro: \n{},\nError: {}".format(
+                    element.text, e
                 )
             )
 
-        def parse_lookup(element):
-            try:
-                name = element.attrib["name"]
-            except KeyError:
-                log.warning(
-                    "Lookup 'name' attribute not found but required, skipping it"
-                )
-                return
-            lookup_data = _ttp_["utils"]["load_struct"](element.text, **element.attrib)
-            if lookup_data is None:
-                return
-            if element.attrib.get("database", "").lower() == "geoip2":
-                lookup_data = _ttp_["lookup"]["geoip2_db_loader"](lookup_data)
-            self.lookups[name] = lookup_data
+    def parse_doc(self, element):
+        self.__doc__ += element.text + "\n"
 
-        def parse_template(element, template_index):
-            # skip child templates that are not in requested children list
-            if self.filters:
-                if not element.attrib.get("name", None) in self.filters:
-                    return
-            self.templates.append(
-                _template_class(
-                    template_text=ET.tostring(element, encoding="UTF-8"),
-                    base_path=self.base_path,
-                    ttp_vars=self.ttp_vars,
-                    name=str(template_index),
+    def parse_extend(self, element):
+        """
+        This function loads template content at path provided, loads it and
+        collects all the tags to parse them later.
+        """
+        path_to_template = element.attrib.get("template", "")
+        content = _ttp_["utils"]["load_files"](path_to_template, read=True)
+        if content[0][1] == path_to_template:
+            log.warning(
+                "template.extend: failed load extend tag content at path: {}".format(
+                    path_to_template
                 )
             )
-
-        def parse_macro(element):
-            funcs = {}
-            # extract macro with all the __builtins__ provided
-            try:
-                funcs = _ttp_["utils"]["load_python_exec"](
-                    element.text, builtins=__builtins__
-                )
-                self.macro.update(funcs)
-                # save macro text to be able to restore macro functions within another process
-                self.macro_text.append(element.text)
-            except SyntaxError as e:
-                log.error(
-                    "template.parse_macro: syntax error, failed to load macro: \n{},\nError: {}".format(
-                        element.text, e
+            return
+        try:
+            extend_ET = ET.XML(content[0][1])
+            # make top tag to be a template
+            if extend_ET.tag.lower() != "template":
+                tmplt = ET.XML("<template />")
+                tmplt.insert(0, extend_ET)
+                extend_ET = tmplt
+        except ET.ParseError as e:
+            # try to reconstruct XML document
+            extend_ET = ET.XML("<template>\n{}\n</template>".format(content[0][1]))
+            # check if template has children, if not, make it an _anonymous_  group
+            if not list(extend_ET):
+                extend_ET = ET.XML(
+                    '<template><group name="_anonymous_">\n{}\n</group></template>'.format(
+                        content[0][1]
                     )
                 )
+        self.collect_tags(extend_ET)
 
-        def parse__anonymous_(element):
-            elem = ET.XML('<g name="_anonymous_">\n{}\n</g>'.format(element.text))
-            parse_group(elem, grp_index=0)
+    def parse_template(self, element, template_index):
+        # skip child templates that are not in requested children list
+        if self.filters:
+            if not element.attrib.get("name", None) in self.filters:
+                return
+        self.templates.append(
+            _template_class(
+                template_text=ET.tostring(element, encoding="UTF-8"),
+                base_path=self.base_path,
+                ttp_vars=self.ttp_vars,
+                name=str(template_index),
+            )
+        )
 
-        def parse_doc(element):
-            self.__doc__ += element.text + "\n"
+    def parse_vars(self, element):
+        # method to parse vars data
+        vars = _ttp_["utils"]["load_struct"](element.text, **element.attrib)
+        if vars:
+            self.vars.update(vars)
+        # check if var has name attribute:
+        if "name" in element.attrib:
+            path = element.attrib["name"]
+            for key in vars.keys():
+                self.vars["_vars_to_results_"].setdefault(path, []).append(key)
 
-        def invalid(C):
-            log.warning("template.parse: invalid tag '{}'".format(C.tag))
+    def parse_lookup(self, element):
+        if "name" not in element.attrib:
+            log.warning("Lookup 'name' attribute not provided, skipping")
+            return
+        lookup_data = _ttp_["utils"]["load_struct"](element.text, **element.attrib)
+        if lookup_data is None:
+            return
+        if element.attrib.get("database", "").lower() == "geoip2":
+            lookup_data = _ttp_["lookup"]["geoip2_db_loader"](lookup_data)
+        self.lookups[element.attrib["name"]] = lookup_data
 
-        def parse_hierarch_tmplt(element):
-            # dict to store all top tags sorted parsing as need to
-            # parse variablse fist after that all the rest
-            tags = {
-                "vars": [],
-                "groups": [],
-                "inputs": [],
-                "outputs": [],
-                "lookups": [],
-                "macro": [],
-                "template": [],
-            }
+    def parse_group(self, element, grp_index):
+        self.groups.append(
+            _group_class(
+                element,
+                top=True,
+                pathchar=self.PATHCHAR,
+                vars=self.vars,
+                grp_index=grp_index,
+            )
+        )
 
-            # functions to append tag elements to tags dictionary:
-            tags_funcs = {  # C - child
-                "v": lambda C: tags["vars"].append(C),
-                "vars": lambda C: tags["vars"].append(C),
-                "variables": lambda C: tags["vars"].append(C),
-                "g": lambda C: tags["groups"].append(C),
-                "grp": lambda C: tags["groups"].append(C),
-                "group": lambda C: tags["groups"].append(C),
-                "o": lambda C: tags["outputs"].append(C),
-                "out": lambda C: tags["outputs"].append(C),
-                "output": lambda C: tags["outputs"].append(C),
-                "i": lambda C: tags["inputs"].append(C),
-                "in": lambda C: tags["inputs"].append(C),
-                "input": lambda C: tags["inputs"].append(C),
-                "lookup": lambda C: tags["lookups"].append(C),
-                "template": lambda C: tags["template"].append(C),
-                "macro": parse_macro,
-                "doc": parse_doc,
-            }
+    def parse_hierarch_tmplt(self, element):
+        # collect and sort all the top level tags
+        self.collect_tags(element)
 
-            # fill in tags dictionary:
-            for child in list(element):
-                tags_funcs.get(child.tag.lower(), invalid)(child)
+        # perform tags parsing/extraction
+        for t_index, t in enumerate(self.tags["template"]):
+            self.parse_template(t, t_index)
+        for v in self.tags["vars"]:
+            self.parse_vars(v)
+        for o in self.tags["outputs"]:
+            self.outputs.append(_outputter_class(o, template_obj=self))
+        for L in self.tags["lookups"]:
+            self.parse_lookup(L)
+        for grp_index, g in enumerate(self.tags["groups"]):
+            self.parse_group(g, grp_index)
+        # need to parse inputs after groups to form group inputs correctly
+        for i in self.tags["inputs"]:
+            self.update_input(element=i)
 
-            # perform tags parsing:
-            [parse_template(t, t_index) for t_index, t in enumerate(tags["template"])]
-            [parse_vars(v) for v in tags["vars"]]
-            [parse_output(o) for o in tags["outputs"]]
-            [parse_lookup(L) for L in tags["lookups"]]
-            [parse_group(g, grp_index) for grp_index, g in enumerate(tags["groups"])]
-            # need to parse inputs after groups to form group inputs correctly
-            [self.update_input(element=i) for i in tags["inputs"]]
-
-        def parse_template_XML(template_text):
-            # load template from text reconstructing it if required:
-            try:
-                template_ET = ET.XML(template_text)
-                # check if top tag is not template:
-                if template_ET.tag.lower() != "template":
-                    tmplt = ET.XML("<template />")
-                    tmplt.insert(0, template_ET)
-                    template_ET = tmplt
-                else:
-                    self.get_template_attributes(template_ET)
-            except ET.ParseError as e:
-                template_ET = ET.XML(
-                    "<template>\n{}\n</template>".format(template_text)
-                )
-            # filter templates based on names filter provided - do not load template groups
-            # if template name not listed in filter
-            if self.filters:
-                if not self.name in self.filters:
-                    return
-            # check if template has children:
-            if not list(template_ET):
-                parse__anonymous_(template_ET)
+    def load_template_xml(self, template_text):
+        """
+        Main function to load template from text reconstructing it if required
+        """
+        try:
+            template_ET = ET.XML(template_text)
+            # check if top tag is not template:
+            if template_ET.tag.lower() != "template":
+                tmplt = ET.XML("<template />")
+                tmplt.insert(0, template_ET)
+                template_ET = tmplt
             else:
-                parse_hierarch_tmplt(template_ET)
-
-        parse_template_XML(template_text)
+                self.get_template_attributes(template_ET)
+        except ET.ParseError as e:
+            template_ET = ET.XML("<template>\n{}\n</template>".format(template_text))
+        # filter templates based on names filter provided - do not load template groups
+        # if template name not listed in filter
+        if self.filters and self.name not in self.filters:
+            return
+        # check if template has children, if not, make it an _anonymous_  group
+        if not list(template_ET):
+            elem = ET.XML(
+                '<group name="_anonymous_">\n{}\n</group>'.format(template_ET.text)
+            )
+            self.parse_group(elem, grp_index=0)
+        else:
+            self.parse_hierarch_tmplt(template_ET)
 
 
 """
@@ -1463,7 +1496,7 @@ class _group_class:
         pathchar=".",
         vars={},
         impot_list=[],
-        parent_group_id=None
+        parent_group_id=None,
     ):
         """Init method
         Attributes:
@@ -1512,11 +1545,14 @@ class _group_class:
         self.get_children(list(element))
 
     def set_anonymous_path(self):
-        """Method to set anonymous path and name for groups with no name attribute."""     
+        """Method to set anonymous path and name for groups with no name attribute."""
         if self.name == "":
             self.path = ["_anonymous_*"] if self.top else self.path
             self.name = ".".join(self.path)
-            self.group_id = (self.name, self.grp_index,)
+            self.group_id = (
+                self.name,
+                self.grp_index,
+            )
 
     def get_attributes(self, data):
         def extract_default(O):
@@ -1547,7 +1583,10 @@ class _group_class:
             else:
                 self.path = self.path + O.split(self.pathchar)
             self.name = ".".join(self.path)
-            self.group_id = (self.name, self.grp_index,)
+            self.group_id = (
+                self.name,
+                self.grp_index,
+            )
 
         def extract_chain(var_name):
             """add items from chain to group functions"""
@@ -1713,7 +1752,7 @@ class _group_class:
                     pathchar=self.pathchar,
                     vars=self.vars,
                     grp_index=g_index,
-                    parent_group_id=self.group_id
+                    parent_group_id=self.group_id,
                 )
             )
             # get regexes from tail
@@ -2345,8 +2384,13 @@ class _parser_class:
                     while key in results:
                         key += 1
                     else:
-                        results[key] = [(start_re, {},)]
-                            
+                        results[key] = [
+                            (
+                                start_re,
+                                {},
+                            )
+                        ]
+
                 # run recursion to fill in results for children
                 for child_group in group.children:
                     run_re(child_group, results, start, end)
@@ -2467,7 +2511,9 @@ class _results_class:
 
     def __init__(self):
         self.results = {}
-        self.started_groups = []  # keeps track of started groups to not add false matches
+        self.started_groups = (
+            []
+        )  # keeps track of started groups to not add false matches
         self.GRPLOCK = {
             "LOCK": False,
             "GROUP": (),
@@ -2530,10 +2576,9 @@ class _results_class:
                             elif re_["GROUP"].group_id == self.record["GRP_ID"]:
                                 break
                             # prefer children of current record group
-                            elif (
-                                self.record["GRP_ID"]
-                                and re_["GROUP"].group_id[0].startswith(self.record["GRP_ID"][0])
-                            ):
+                            elif self.record["GRP_ID"] and re_["GROUP"].group_id[
+                                0
+                            ].startswith(self.record["GRP_ID"][0]):
                                 break
                     # normal REs preferred next
                     elif normal_re:
@@ -2541,9 +2586,7 @@ class _results_class:
                             re_ = result[index][0]
                             result_data = result[index][1]
                             # prefer result with same path as current record
-                            if (
-                                re_["GROUP"].group_id == self.record["GRP_ID"]
-                            ):
+                            if re_["GROUP"].group_id == self.record["GRP_ID"]:
                                 break
                     # line REs have least preference
                     elif line_re:
@@ -2551,9 +2594,7 @@ class _results_class:
                             re_ = result[index][0]
                             result_data = result[index][1]
                             # prefer result with same path as current record
-                            if (
-                                re_["GROUP"].group_id == self.record["GRP_ID"]
-                            ):
+                            if re_["GROUP"].group_id == self.record["GRP_ID"]:
                                 break
                 group = re_["GROUP"]
 
@@ -2774,7 +2815,7 @@ class _results_class:
             _ = self.started_groups.pop()
         else:
             self.started_groups.append(REDICT["GROUP"].group_id)
-         
+
         if self.processgrp() != False:
             self.save_curelements(
                 result_data=self.record["result"], result_path=self.record["PATH"]
@@ -3032,7 +3073,7 @@ class _outputter_class:
             "format_attributes": extract_format_attributes,
             "path": extract_path,
             "headers": extract_headers,
-            "condition": extract_condition                                          
+            "condition": extract_condition,
         }
         functions = {"functions": extract_functions}
         for attr_name, attributes in data.items():

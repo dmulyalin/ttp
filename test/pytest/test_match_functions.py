@@ -1,11 +1,14 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 import logging
 import json
+
 logging.basicConfig(level=logging.DEBUG)
 
 from ttp import ttp
+
 
 def test_sformat_inline():
     template = """
@@ -26,14 +29,23 @@ interface {{ interface | sformat("BSQ {}") }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'description': 'Storage', 'interface': 'BSQ Port-Channel11'},
-                     {'description': 'RID', 'interface': 'BSQ Loopback0'},
-                     {'description': 'Management', 'interface': 'BSQ Port-Channel12'},
-                     {'description': 'Management', 'interface': 'BSQ Vlan777'}]]]
+    assert res == [
+        [
+            [
+                {"description": "Storage", "interface": "BSQ Port-Channel11"},
+                {"description": "RID", "interface": "BSQ Loopback0"},
+                {"description": "Management", "interface": "BSQ Port-Channel12"},
+                {"description": "Management", "interface": "BSQ Vlan777"},
+            ]
+        ]
+    ]
+
+
 # test_sformat_inline()
+
 
 def test_sformat_from_vars():
     template = """
@@ -58,14 +70,21 @@ interface {{ interface | sformat(var_1) }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'description': 'Storage', 'interface': 'BSQ Port-Channel11'},
-                     {'description': 'RID', 'interface': 'BSQ Loopback0'},
-                     {'description': 'Management', 'interface': 'BSQ Port-Channel12'},
-                     {'description': 'Management', 'interface': 'BSQ Vlan777'}]]]
-                     
+    assert res == [
+        [
+            [
+                {"description": "Storage", "interface": "BSQ Port-Channel11"},
+                {"description": "RID", "interface": "BSQ Loopback0"},
+                {"description": "Management", "interface": "BSQ Port-Channel12"},
+                {"description": "Management", "interface": "BSQ Vlan777"},
+            ]
+        ]
+    ]
+
+
 def test_to_list_with_joinmatches():
     template = """
 <input load="text">
@@ -80,12 +99,23 @@ interface {{ interface }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'interface': 'GigabitEthernet3/3', 'trunk_vlans': ['138,166,173', '400,401,410']}]]]
-    
+    assert res == [
+        [
+            [
+                {
+                    "interface": "GigabitEthernet3/3",
+                    "trunk_vlans": ["138,166,173", "400,401,410"],
+                }
+            ]
+        ]
+    ]
+
+
 # test_to_list_with_joinmatches()
+
 
 def test_multiple_joinmatches():
     data = """
@@ -143,18 +173,32 @@ Status and Counters - VLAN Information - for ports {{ Port_Number }}
     parser.parse()
     res = parser.result()
     pprint.pprint(res)
-    assert res == [[{'vlans': [{'Hostname': 'SWITCH',
-                     'Port_Number': '2/11',
-                     'Tagged_VLAN': '60, 70, 105, 116, 117',
-                     'Untagged_VLAN': '101',
-                     'name': 'ABC, DEF, GHIJ, KLMNO, PQRS, TVU'},
-                    {'Hostname': 'SWITCH',
-                     'Port_Number': '2/12',
-                     'Tagged_VLAN': '61, 71',
-                     'Untagged_VLAN': '103',
-                     'name': 'ABC, DEF, GHI'}]}]]
-    
+    assert res == [
+        [
+            {
+                "vlans": [
+                    {
+                        "Hostname": "SWITCH",
+                        "Port_Number": "2/11",
+                        "Tagged_VLAN": "60, 70, 105, 116, 117",
+                        "Untagged_VLAN": "101",
+                        "name": "ABC, DEF, GHIJ, KLMNO, PQRS, TVU",
+                    },
+                    {
+                        "Hostname": "SWITCH",
+                        "Port_Number": "2/12",
+                        "Tagged_VLAN": "61, 71",
+                        "Untagged_VLAN": "103",
+                        "name": "ABC, DEF, GHI",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_multiple_joinmatches()
+
 
 def test_joinmatches_with_ignore():
     data = """
@@ -212,15 +256,28 @@ Status and Counters - VLAN Information - for ports {{ Port_Number }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'vlans': [{'Hostname': 'SWITCH',
-                     'Port_Number': '2/11',
-                     'Tagged_VLAN': '60 70 105 116 117',
-                     'Untagged_VLAN': '101'},
-                    {'Hostname': 'SWITCH',
-                     'Port_Number': '2/12',
-                     'Tagged_VLAN': '61 71',
-                     'Untagged_VLAN': '103'}]}]]
-					 
+    assert res == [
+        [
+            {
+                "vlans": [
+                    {
+                        "Hostname": "SWITCH",
+                        "Port_Number": "2/11",
+                        "Tagged_VLAN": "60 70 105 116 117",
+                        "Untagged_VLAN": "101",
+                    },
+                    {
+                        "Hostname": "SWITCH",
+                        "Port_Number": "2/12",
+                        "Tagged_VLAN": "61 71",
+                        "Untagged_VLAN": "103",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 def test_match_variable_default_set_to_list():
     template = """
 <input load="text">
@@ -235,12 +292,21 @@ interface {{ interface }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'interface': 'Port-Channel11', 'ip': '1.1.1.1/24'}, {'interface': 'Loopback0', 'ip': []}]]]
+    assert res == [
+        [
+            [
+                {"interface": "Port-Channel11", "ip": "1.1.1.1/24"},
+                {"interface": "Loopback0", "ip": []},
+            ]
+        ]
+    ]
 
-#test_match_variable_default_set_to_list()    
+
+# test_match_variable_default_set_to_list()
+
 
 def test_match_variable_default_set_to_string():
     template = """
@@ -256,12 +322,21 @@ interface {{ interface }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'interface': 'Port-Channel11', 'ip': '1.1.1.1/24'}, {'interface': 'Loopback0', 'ip': 'Undefined'}]]]
+    assert res == [
+        [
+            [
+                {"interface": "Port-Channel11", "ip": "1.1.1.1/24"},
+                {"interface": "Loopback0", "ip": "Undefined"},
+            ]
+        ]
+    ]
 
-#test_match_variable_default_set_to_string()  
+
+# test_match_variable_default_set_to_string()
+
 
 def test_match_variable_default_for_start_regex():
     template = """
@@ -276,13 +351,15 @@ ntp server {{ server | default('Unconfigured') }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
     # print(json.dumps(res, sort_keys=True, indent=4, separators=(",", ": ")))
-    assert res == [[{'ntp-1': {'server': 'Unconfigured', 'source': 'undefined'}}]]
+    assert res == [[{"ntp-1": {"server": "Unconfigured", "source": "undefined"}}]]
 
-# test_match_variable_default_for_start_regex()  
+
+# test_match_variable_default_for_start_regex()
+
 
 def test_match_variable_default_set_to_dictionary():
     template = """
@@ -298,12 +375,21 @@ interface {{ interface }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'interface': 'Port-Channel11', 'ip': '1.1.1.1/24'}, {'interface': 'Loopback0', 'ip': {'defined': False}}]]]
+    assert res == [
+        [
+            [
+                {"interface": "Port-Channel11", "ip": "1.1.1.1/24"},
+                {"interface": "Loopback0", "ip": {"defined": False}},
+            ]
+        ]
+    ]
 
-# test_match_variable_default_set_to_dictionary()  
+
+# test_match_variable_default_set_to_dictionary()
+
 
 def test_match_variable_set_and_let_for_same_variable_with_special_chars():
     template = """
@@ -324,13 +410,32 @@ interface {{ interface }}
 </group>
     """
     parser = ttp(template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'admin-status': 'up', 'interface': 'Port-Channel11', 'ip': '1.1.1.1/24', 'link-up-down-trap-enable': 'enabled'},
-                      {'admin-status': 'down', 'enabled': False, 'interface': 'Loopback0', 'ip': '1.1.2.1/24', 'link-up-down-trap-enable': 'enabled'}]]]
-                      
+    assert res == [
+        [
+            [
+                {
+                    "admin-status": "up",
+                    "interface": "Port-Channel11",
+                    "ip": "1.1.1.1/24",
+                    "link-up-down-trap-enable": "enabled",
+                },
+                {
+                    "admin-status": "down",
+                    "enabled": False,
+                    "interface": "Loopback0",
+                    "ip": "1.1.2.1/24",
+                    "link-up-down-trap-enable": "enabled",
+                },
+            ]
+        ]
+    ]
+
+
 # test_match_variable_set_and_let_for_same_variable_with_special_chars()
+
 
 def test_let_and_set():
     data = """
@@ -350,12 +455,30 @@ interface {{ name }}
  {{ admin-status | set(up) }}
     """
     parser = ttp(data=data, template=template)
-    parser.parse()    
+    parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=150)
-    assert res == [[[{'admin-status': 'down', 'description': 'bla bla bla', 'enabled': False, 'link-up-down-trap-enable': 'enabled', 'name': 'Port-Channel11'},
-                     {'admin-status': 'up', 'description': 'bla bla2 bla2', 'link-up-down-trap-enable': 'enabled', 'name': 'Port-Channel22'}]]]
-    
+    assert res == [
+        [
+            [
+                {
+                    "admin-status": "down",
+                    "description": "bla bla bla",
+                    "enabled": False,
+                    "link-up-down-trap-enable": "enabled",
+                    "name": "Port-Channel11",
+                },
+                {
+                    "admin-status": "up",
+                    "description": "bla bla2 bla2",
+                    "link-up-down-trap-enable": "enabled",
+                    "name": "Port-Channel22",
+                },
+            ]
+        ]
+    ]
+
+
 # test_let_and_set()
 
 
@@ -388,11 +511,18 @@ Time remaining: {{ ignore }} seconds {{ _end_ }}
     """
     parser = ttp(data, template, log_level="error")
     parser.parse()
-    
+
     res = parser.result()
     # pprint.pprint(res, width=100)
-    assert res == [[{'system-description': 'Cisco Nexus Operating System (NX-OS) Software 21.324(3)N2(3.12b) TAC '
-                                           'support: http://www.cisco.com/tac Copyright (c) 2002-2099, Cisco '
-                                           'Systems, Inc. All rights reserved.'}]]
-    
+    assert res == [
+        [
+            {
+                "system-description": "Cisco Nexus Operating System (NX-OS) Software 21.324(3)N2(3.12b) TAC "
+                "support: http://www.cisco.com/tac Copyright (c) 2002-2099, Cisco "
+                "Systems, Inc. All rights reserved."
+            }
+        ]
+    ]
+
+
 # test_line_with_joinmatches()

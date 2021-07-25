@@ -1,11 +1,14 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
 from ttp import ttp
+
 
 def test_group_same_null_path_for_several_groups():
     data = """
@@ -41,9 +44,18 @@ vrf {{name}}
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    pprint.pprint(res) 
-    assert res == [[{'vrfs': {'export': ['65000:5453', '65000:5535'],
-                     'import': ['65000:3507', '65000:3511', '65000:5453', '65000:5535'],
-                     'name': 'xyz'}}]]
+    pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "vrfs": {
+                    "export": ["65000:5453", "65000:5535"],
+                    "import": ["65000:3507", "65000:3511", "65000:5453", "65000:5535"],
+                    "name": "xyz",
+                }
+            }
+        ]
+    ]
+
 
 # test_group_same_null_path_for_several_groups()

@@ -1,8 +1,10 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 from ttp import ttp
+
 
 def test_syslog_returner():
     template = """
@@ -38,6 +40,7 @@ facility=77
 """
     parser = ttp(template=template)
     parser.parse()
-	
+
+
 # uncomment to test, need some syslog server running to test, for instance all-in-one graylog VM
 # test_syslog_returner()

@@ -1,15 +1,17 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
 from ttp import ttp
 
+
 def test_answer_1():
-    """https://stackoverflow.com/questions/63522291/parsing-blocks-of-text-within-a-file-into-objects
-    """
+    """https://stackoverflow.com/questions/63522291/parsing-blocks-of-text-within-a-file-into-objects"""
     data = """
 #*Approximate Distance Oracles with Improved Query Time.
 #@Christian Wulff-Nilsen
@@ -34,22 +36,29 @@ def test_answer_1():
     parser.parse()
     res = parser.result(structure="flat_list")
     pprint.pprint(res)
-    assert res == [{'author': 'Christian Wulff-Nilsen',
-                    'index': '555036b37cea80f954149ffc',
-                    'info': 'Approximate Distance Oracles with Improved Query Time.',
-                    'title': 'Encyclopedia of Algorithms',
-                    'year': '2015'},
-                   {'author': 'Julián Mestre',
-                    'index': '555036b37cea80f954149ffd',
-                    'info': 'Subset Sum Algorithm for Bin Packing.',
-                    'title': 'Encyclopedia of Algorithms',
-                    'year': '2015'}]
-    
+    assert res == [
+        {
+            "author": "Christian Wulff-Nilsen",
+            "index": "555036b37cea80f954149ffc",
+            "info": "Approximate Distance Oracles with Improved Query Time.",
+            "title": "Encyclopedia of Algorithms",
+            "year": "2015",
+        },
+        {
+            "author": "Julián Mestre",
+            "index": "555036b37cea80f954149ffd",
+            "info": "Subset Sum Algorithm for Bin Packing.",
+            "title": "Encyclopedia of Algorithms",
+            "year": "2015",
+        },
+    ]
+
+
 # test_answer_1()
 
+
 def test_answer_2():
-    """https://stackoverflow.com/questions/63499479/extract-value-from-text-string-using-format-string-in-python
-    """
+    """https://stackoverflow.com/questions/63499479/extract-value-from-text-string-using-format-string-in-python"""
     data = """
 name=username1, age=1001
 name=username2, age=1002
@@ -60,14 +69,18 @@ name=username3, age=1003
     parser.parse()
     res = parser.result(structure="flat_list")
     # pprint.pprint(res)
-    assert res == [{'age': '1001', 'name': 'username1'},
-                   {'age': '1002', 'name': 'username2'},
-                   {'age': '1003', 'name': 'username3'}]
- 
+    assert res == [
+        {"age": "1001", "name": "username1"},
+        {"age": "1002", "name": "username2"},
+        {"age": "1003", "name": "username3"},
+    ]
+
+
 # test_answer_2()
 
+
 def test_issue_20_answer():
-    data_to_parse="""
+    data_to_parse = """
 (*, 239.100.100.100)    
     LISP0.4200, (192.2.101.65, 232.0.3.1), Forward/Sparse, 1d18h/stopped
     LISP0.4201, (192.2.101.70, 232.0.3.1), Forward/Sparse, 2d05h/stopped
@@ -79,7 +92,7 @@ def test_issue_20_answer():
 
 """
 
-    show_mcast1="""
+    show_mcast1 = """
 <template name="mcast" results="per_template">
 <group name="mcast_entries.{{ overlay_src }}">
 ({{ overlay_src | _start_ | replace("*", "'*'")}}, {{ overlay_grp | IP }})
@@ -96,34 +109,57 @@ def test_issue_20_answer():
     parser.parse()
     res = parser.result(structure="dictionary")
     # pprint.pprint(res, width=100)
-    assert res == {'mcast': {'mcast_entries': {"'*'": {'oil_entries': [{'oil_state_or_timer': 'stopped',
-                                                                       'oil_uptime': '1d18h',
-                                                                       'outgoing_intf': 'LISP0.4200',
-                                                                       'underlay_grp': '232.0.3.1',
-                                                                       'underlay_src': '192.2.101.65'},
-                                                                      {'oil_state_or_timer': 'stopped',
-                                                                       'oil_uptime': '2d05h',
-                                                                       'outgoing_intf': 'LISP0.4201',
-                                                                       'underlay_grp': '232.0.3.1',
-                                                                       'underlay_src': '192.2.101.70'}],
-                                                      'overlay_grp': '239.100.100.100'},
-                                              '192.2.31.3': {'entry_flags': 'FT',
-                                                             'entry_state_or_timer': '00:02:23',
-                                                             'entry_uptime': '6d20h',
-                                                             'incoming_intf': 'Vlan1029',
-                                                             'oil_entries': [{'oil_state_or_timer': 'stopped',
-                                                                              'oil_uptime': '1d18h',
-                                                                              'outgoing_intf': 'LISP0.4100',
-                                                                              'underlay_grp': '232.0.3.1',
-                                                                              'underlay_src': '192.2.101.70'}],
-                                                             'overlay_grp': '239.100.100.100',
-                                                             'rpf_neighbor': '0.0.0.0'}}}}
+    assert res == {
+        "mcast": {
+            "mcast_entries": {
+                "'*'": {
+                    "oil_entries": [
+                        {
+                            "oil_state_or_timer": "stopped",
+                            "oil_uptime": "1d18h",
+                            "outgoing_intf": "LISP0.4200",
+                            "underlay_grp": "232.0.3.1",
+                            "underlay_src": "192.2.101.65",
+                        },
+                        {
+                            "oil_state_or_timer": "stopped",
+                            "oil_uptime": "2d05h",
+                            "outgoing_intf": "LISP0.4201",
+                            "underlay_grp": "232.0.3.1",
+                            "underlay_src": "192.2.101.70",
+                        },
+                    ],
+                    "overlay_grp": "239.100.100.100",
+                },
+                "192.2.31.3": {
+                    "entry_flags": "FT",
+                    "entry_state_or_timer": "00:02:23",
+                    "entry_uptime": "6d20h",
+                    "incoming_intf": "Vlan1029",
+                    "oil_entries": [
+                        {
+                            "oil_state_or_timer": "stopped",
+                            "oil_uptime": "1d18h",
+                            "outgoing_intf": "LISP0.4100",
+                            "underlay_grp": "232.0.3.1",
+                            "underlay_src": "192.2.101.70",
+                        }
+                    ],
+                    "overlay_grp": "239.100.100.100",
+                    "rpf_neighbor": "0.0.0.0",
+                },
+            }
+        }
+    }
+
+
 # test_issue_20_answer()
+
 
 def test_answer_3():
     """
-    Fixed bug with results forming - when have two _start_ matches, but 
-    one of them is False, TTP was selecting first match without checking 
+    Fixed bug with results forming - when have two _start_ matches, but
+    one of them is False, TTP was selecting first match without checking
     if its False, updated decision logic to do that check.
     """
     data = """
@@ -159,7 +195,7 @@ def test_answer_3():
     rtsrcmac ena
     vname "my name2"
     """
-    template="""
+    template = """
 <template name="VIP_cfg" results="per_template">
 <group name="{{ vip }}">
 /c/slb/virt {{ virt_seq | DIGIT }}
@@ -192,34 +228,55 @@ def test_answer_3():
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result(structure="dictionary")
-    # pprint.pprint(res, width=50)    
-    assert res == {'VIP_cfg': {'1.1.1.1': {'config_state': 'dis',
-                                           'ipver': 'v4',
-                                           'rtsrcmac': 'ena',
-                                           'services': {'443': {'https': {'dbind': 'forceproxy',
-                                                                          'group_seq': '15',
-                                                                          'pbind': 'clientip',
-                                                                          'real_port': '443'},
-                                                                'https/http': {'httpmod': 'hsts_insert',
-                                                                               'xforward': 'ena'}},
-                                                        '80': {'http': {'dbind': 'forceproxy',
-                                                                        'group_seq': '15',
-                                                                        'pbind': 'clientip',
-                                                                        'real_port': '80'},
-                                                               'http/http': {'xforward': 'ena'}}},
-                                           'ssl_profile': {'ssl': 'https/ssl',
-                                                           'ssl_profile': 'ssl-Policy',
-                                                           'ssl_server_cert': 'certname',
-                                                           'virt_seq': '12'},
-                                           'vip_name': 'my name',
-                                           'virt_seq': '12'},
-                               '1.1.4.4': {'config_state': 'dis',
-                                           'ipver': 'v4',
-                                           'rtsrcmac': 'ena',
-                                           'vip_name': 'my name2',
-                                           'virt_seq': '14'}}}
-                                           
-# test_answer_3() 
+    # pprint.pprint(res, width=50)
+    assert res == {
+        "VIP_cfg": {
+            "1.1.1.1": {
+                "config_state": "dis",
+                "ipver": "v4",
+                "rtsrcmac": "ena",
+                "services": {
+                    "443": {
+                        "https": {
+                            "dbind": "forceproxy",
+                            "group_seq": "15",
+                            "pbind": "clientip",
+                            "real_port": "443",
+                        },
+                        "https/http": {"httpmod": "hsts_insert", "xforward": "ena"},
+                    },
+                    "80": {
+                        "http": {
+                            "dbind": "forceproxy",
+                            "group_seq": "15",
+                            "pbind": "clientip",
+                            "real_port": "80",
+                        },
+                        "http/http": {"xforward": "ena"},
+                    },
+                },
+                "ssl_profile": {
+                    "ssl": "https/ssl",
+                    "ssl_profile": "ssl-Policy",
+                    "ssl_server_cert": "certname",
+                    "virt_seq": "12",
+                },
+                "vip_name": "my name",
+                "virt_seq": "12",
+            },
+            "1.1.4.4": {
+                "config_state": "dis",
+                "ipver": "v4",
+                "rtsrcmac": "ena",
+                "vip_name": "my name2",
+                "virt_seq": "14",
+            },
+        }
+    }
+
+
+# test_answer_3()
+
 
 def test_answer_4():
     data = """
@@ -255,7 +312,7 @@ def test_answer_4():
     rtsrcmac ena
     vname "my name2"
     """
-    template="""
+    template = """
 <template name="VIP_cfg" results="per_template">
 <group name="{{ vip }}">
 /c/slb/virt {{ virt_seq | DIGIT }}
@@ -288,36 +345,54 @@ def test_answer_4():
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result(structure="dictionary")
-    # pprint.pprint(res, width=50)    
-    assert res == {'VIP_cfg': {'1.1.1.1': {'config_state': 'dis',
-                                           'ipver': 'v4',
-                                           'rtsrcmac': 'ena',
-                                           'services': {'443': {'dbind': 'forceproxy',
-                                                                'group_seq': '15',
-                                                                'pbind': 'clientip',
-                                                                'proto': 'https',
-                                                                'real_port': '443'},
-                                                        '80': {'dbind': 'forceproxy',
-                                                               'group_seq': '15',
-                                                               'pbind': 'clientip',
-                                                               'proto': 'http',
-                                                               'real_port': '80'}},
-                                           'ssl_profile': {'ssl': 'https/ssl',
-                                                           'ssl_profile': 'ssl-Policy',
-                                                           'ssl_server_cert': 'certname',
-                                                           'virt_seq': '12'},
-                                           'vip_name': 'my name',
-                                           'virt_seq': '12'},
-                               '1.1.4.4': {'config_state': 'dis',
-                                           'ipver': 'v4',
-                                           'rtsrcmac': 'ena',
-                                           'vip_name': 'my name2',
-                                           'virt_seq': '14'}}}
-    
+    # pprint.pprint(res, width=50)
+    assert res == {
+        "VIP_cfg": {
+            "1.1.1.1": {
+                "config_state": "dis",
+                "ipver": "v4",
+                "rtsrcmac": "ena",
+                "services": {
+                    "443": {
+                        "dbind": "forceproxy",
+                        "group_seq": "15",
+                        "pbind": "clientip",
+                        "proto": "https",
+                        "real_port": "443",
+                    },
+                    "80": {
+                        "dbind": "forceproxy",
+                        "group_seq": "15",
+                        "pbind": "clientip",
+                        "proto": "http",
+                        "real_port": "80",
+                    },
+                },
+                "ssl_profile": {
+                    "ssl": "https/ssl",
+                    "ssl_profile": "ssl-Policy",
+                    "ssl_server_cert": "certname",
+                    "virt_seq": "12",
+                },
+                "vip_name": "my name",
+                "virt_seq": "12",
+            },
+            "1.1.4.4": {
+                "config_state": "dis",
+                "ipver": "v4",
+                "rtsrcmac": "ena",
+                "vip_name": "my name2",
+                "virt_seq": "14",
+            },
+        }
+    }
+
+
 # test_answer_4()
 
+
 def test_issue_20_answer_2():
-    data_to_parse="""
+    data_to_parse = """
 (*, 239.100.100.101)    
     LISP0.4200, (192.2.101.65, 232.0.3.1), Forward/Sparse, 1d18h/stopped
     LISP0.4201, (192.2.101.70, 232.0.3.1), Forward/Sparse, 2d05h/stopped
@@ -334,7 +409,7 @@ def test_issue_20_answer_2():
     Vlan3014, Forward/Sparse, 1d18h/00:03:28
     LISP0.4100, (192.2.101.65, 232.0.3.1), Forward/Sparse, 1d18h/stopped
 """
-    show_mcast1="""
+    show_mcast1 = """
 <template name="mcast" results="per_template">
 <group name="mcast_entries.{{ overlay_src }}">
 ({{ overlay_src | _start_ | replace("*", "'*'") }}, {{ overlay_grp | IP }})
@@ -353,26 +428,45 @@ def test_issue_20_answer_2():
     parser.parse()
     res = parser.result(structure="dictionary")
     # pprint.pprint(res, width=100)
-    assert res  == {'mcast': {'mcast_entries': {"'*'": [{'overlay_grp': '239.100.100.101'},
-                                                        {'entry_flags': 'S',
-                                                         'entry_state_or_timer': '00:03:28',
-                                                         'entry_uptime': '6d20h',
-                                                         'incoming_intf': 'Null',
-                                                         'oil_entries': [{'oil_state_or_timer': '00:03:28',
-                                                                          'oil_uptime': '1d18h',
-                                                                          'outgoing_intf': 'Vlan3014',
-                                                                          'underlay_grp': '232.0.3.1',
-                                                                          'underlay_src': '192.2.101.65'}],
-                                                         'overlay_grp': '239.100.100.100',
-                                                         'rp': '192.2.199.1',
-                                                         'rpf_neighbor': '0.0.0.0'}],
-                                                '192.2.31.3': {'entry_flags': 'FT',
-                                                               'entry_state_or_timer': '00:01:19',
-                                                               'entry_uptime': '2d05h',
-                                                               'incoming_intf': 'Vlan1029',
-                                                               'overlay_grp': '239.100.100.100',
-                                                               'rpf_neighbor': '0.0.0.0'}}}}
+    assert res == {
+        "mcast": {
+            "mcast_entries": {
+                "'*'": [
+                    {"overlay_grp": "239.100.100.101"},
+                    {
+                        "entry_flags": "S",
+                        "entry_state_or_timer": "00:03:28",
+                        "entry_uptime": "6d20h",
+                        "incoming_intf": "Null",
+                        "oil_entries": [
+                            {
+                                "oil_state_or_timer": "00:03:28",
+                                "oil_uptime": "1d18h",
+                                "outgoing_intf": "Vlan3014",
+                                "underlay_grp": "232.0.3.1",
+                                "underlay_src": "192.2.101.65",
+                            }
+                        ],
+                        "overlay_grp": "239.100.100.100",
+                        "rp": "192.2.199.1",
+                        "rpf_neighbor": "0.0.0.0",
+                    },
+                ],
+                "192.2.31.3": {
+                    "entry_flags": "FT",
+                    "entry_state_or_timer": "00:01:19",
+                    "entry_uptime": "2d05h",
+                    "incoming_intf": "Vlan1029",
+                    "overlay_grp": "239.100.100.100",
+                    "rpf_neighbor": "0.0.0.0",
+                },
+            }
+        }
+    }
+
+
 # test_issue_20_answer_2()
+
 
 def test_docs_ttp_dictionary_usage_example():
     template = """
@@ -401,15 +495,25 @@ def add_last_host(data):
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'interface': 'Lo0',
-                      'ip': '124.171.238.50/29',
-                      'last_host': '124.171.238.54'},
-                     {'interface': 'Lo1', 'ip': '1.1.1.1/30', 'last_host': '1.1.1.2'}]]]
-    
+    assert res == [
+        [
+            [
+                {
+                    "interface": "Lo0",
+                    "ip": "124.171.238.50/29",
+                    "last_host": "124.171.238.54",
+                },
+                {"interface": "Lo1", "ip": "1.1.1.1/30", "last_host": "1.1.1.2"},
+            ]
+        ]
+    ]
+
+
 # test_docs_ttp_dictionary_usage_example()
 
+
 def test_github_issue_21_answer():
-    data_to_parse="""
+    data_to_parse = """
 R1#sh ip nbar protocol-discovery protocol 
 
  GigabitEthernet1 
@@ -489,72 +593,96 @@ def map_to_keys(data):
     parser.parse()
     res = parser.result(structure="dictionary")
     pprint.pprint(res, width=100)
-    assert res == {'nbar': {'GigabitEthernet1 ': {'Total': {'IN 5min Bit Rate (bps)': 2000,
-                                          'IN 5min Max Bit Rate (bps)': 8000,
-                                          'IN Byte Count': 122943,
-                                          'IN Packet Count': 874,
-                                          'OUT 5min Bit Rate (bps)': 1000,
-                                          'OUT 5min Max Bit Rate (bps)': 2000,
-                                          'OUT Byte Count': 130764,
-                                          'OUT Packet Count': 1781},
-                                'dns': {'IN 5min Bit Rate (bps)': 0,
-                                        'IN 5min Max Bit Rate (bps)': 2000,
-                                        'IN Byte Count': 21149,
-                                        'IN Packet Count': 107,
-                                        'OUT 5min Bit Rate (bps)': 0,
-                                        'OUT 5min Max Bit Rate (bps)': 0,
-                                        'OUT Byte Count': 0,
-                                        'OUT Packet Count': 0},
-                                'ldp': {'IN 5min Bit Rate (bps)': 0,
-                                        'IN 5min Max Bit Rate (bps)': 0,
-                                        'IN Byte Count': 13224,
-                                        'IN Packet Count': 174,
-                                        'OUT 5min Bit Rate (bps)': 0,
-                                        'OUT 5min Max Bit Rate (bps)': 0,
-                                        'OUT Byte Count': 13300,
-                                        'OUT Packet Count': 175},
-                                'ospf': {'IN 5min Bit Rate (bps)': 0,
-                                         'IN 5min Max Bit Rate (bps)': 0,
-                                         'IN Byte Count': 9460,
-                                         'IN Packet Count': 86,
-                                         'OUT 5min Bit Rate (bps)': 0,
-                                         'OUT 5min Max Bit Rate (bps)': 0,
-                                         'OUT Byte Count': 9570,
-                                         'OUT Packet Count': 87},
-                                'ping': {'IN 5min Bit Rate (bps)': 0,
-                                         'IN 5min Max Bit Rate (bps)': 1000,
-                                         'IN Byte Count': 14592,
-                                         'IN Packet Count': 144,
-                                         'OUT 5min Bit Rate (bps)': 0,
-                                         'OUT 5min Max Bit Rate (bps)': 1000,
-                                         'OUT Byte Count': 14592,
-                                         'OUT Packet Count': 144},
-                                'ssh': {'IN 5min Bit Rate (bps)': 2000,
-                                        'IN 5min Max Bit Rate (bps)': 1999,
-                                        'IN Byte Count': 24805,
-                                        'IN Packet Count': 191,
-                                        'OUT 5min Bit Rate (bps)': 1000,
-                                        'OUT 5min Max Bit Rate (bps)': 1001,
-                                        'OUT Byte Count': 22072,
-                                        'OUT Packet Count': 134},
-                                'unknown': {'IN 5min Bit Rate (bps)': 0,
-                                            'IN 5min Max Bit Rate (bps)': 3000,
-                                            'IN Byte Count': 39713,
-                                            'IN Packet Count': 172,
-                                            'OUT 5min Bit Rate (bps)': 0,
-                                            'OUT 5min Max Bit Rate (bps)': 0,
-                                            'OUT Byte Count': 31378,
-                                            'OUT Packet Count': 503},
-                                'vrrp': {'IN 5min Bit Rate (bps)': 0,
-                                         'IN 5min Max Bit Rate (bps)': 0,
-                                         'IN Byte Count': 0,
-                                         'IN Packet Count': 0,
-                                         'OUT 5min Bit Rate (bps)': 0,
-                                         'OUT 5min Max Bit Rate (bps)': 0,
-                                         'OUT Byte Count': 39852,
-                                         'OUT Packet Count': 738}}}}
-                                         
+    assert res == {
+        "nbar": {
+            "GigabitEthernet1 ": {
+                "Total": {
+                    "IN 5min Bit Rate (bps)": 2000,
+                    "IN 5min Max Bit Rate (bps)": 8000,
+                    "IN Byte Count": 122943,
+                    "IN Packet Count": 874,
+                    "OUT 5min Bit Rate (bps)": 1000,
+                    "OUT 5min Max Bit Rate (bps)": 2000,
+                    "OUT Byte Count": 130764,
+                    "OUT Packet Count": 1781,
+                },
+                "dns": {
+                    "IN 5min Bit Rate (bps)": 0,
+                    "IN 5min Max Bit Rate (bps)": 2000,
+                    "IN Byte Count": 21149,
+                    "IN Packet Count": 107,
+                    "OUT 5min Bit Rate (bps)": 0,
+                    "OUT 5min Max Bit Rate (bps)": 0,
+                    "OUT Byte Count": 0,
+                    "OUT Packet Count": 0,
+                },
+                "ldp": {
+                    "IN 5min Bit Rate (bps)": 0,
+                    "IN 5min Max Bit Rate (bps)": 0,
+                    "IN Byte Count": 13224,
+                    "IN Packet Count": 174,
+                    "OUT 5min Bit Rate (bps)": 0,
+                    "OUT 5min Max Bit Rate (bps)": 0,
+                    "OUT Byte Count": 13300,
+                    "OUT Packet Count": 175,
+                },
+                "ospf": {
+                    "IN 5min Bit Rate (bps)": 0,
+                    "IN 5min Max Bit Rate (bps)": 0,
+                    "IN Byte Count": 9460,
+                    "IN Packet Count": 86,
+                    "OUT 5min Bit Rate (bps)": 0,
+                    "OUT 5min Max Bit Rate (bps)": 0,
+                    "OUT Byte Count": 9570,
+                    "OUT Packet Count": 87,
+                },
+                "ping": {
+                    "IN 5min Bit Rate (bps)": 0,
+                    "IN 5min Max Bit Rate (bps)": 1000,
+                    "IN Byte Count": 14592,
+                    "IN Packet Count": 144,
+                    "OUT 5min Bit Rate (bps)": 0,
+                    "OUT 5min Max Bit Rate (bps)": 1000,
+                    "OUT Byte Count": 14592,
+                    "OUT Packet Count": 144,
+                },
+                "ssh": {
+                    "IN 5min Bit Rate (bps)": 2000,
+                    "IN 5min Max Bit Rate (bps)": 1999,
+                    "IN Byte Count": 24805,
+                    "IN Packet Count": 191,
+                    "OUT 5min Bit Rate (bps)": 1000,
+                    "OUT 5min Max Bit Rate (bps)": 1001,
+                    "OUT Byte Count": 22072,
+                    "OUT Packet Count": 134,
+                },
+                "unknown": {
+                    "IN 5min Bit Rate (bps)": 0,
+                    "IN 5min Max Bit Rate (bps)": 3000,
+                    "IN Byte Count": 39713,
+                    "IN Packet Count": 172,
+                    "OUT 5min Bit Rate (bps)": 0,
+                    "OUT 5min Max Bit Rate (bps)": 0,
+                    "OUT Byte Count": 31378,
+                    "OUT Packet Count": 503,
+                },
+                "vrrp": {
+                    "IN 5min Bit Rate (bps)": 0,
+                    "IN 5min Max Bit Rate (bps)": 0,
+                    "IN Byte Count": 0,
+                    "IN Packet Count": 0,
+                    "OUT 5min Bit Rate (bps)": 0,
+                    "OUT 5min Max Bit Rate (bps)": 0,
+                    "OUT Byte Count": 39852,
+                    "OUT Packet Count": 738,
+                },
+            }
+        }
+    }
+
+
 # test_github_issue_21_answer()
+
 
 def test_github_issue_22():
     data = """
@@ -577,10 +705,12 @@ end
     parser = ttp(data, template)
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=100) 
-    assert res == [[[{'ip_address': '192.2.101.70'}, {'ip_address': '192.2.101.71'}]]]
-    
+    # pprint.pprint(res, width=100)
+    assert res == [[[{"ip_address": "192.2.101.70"}, {"ip_address": "192.2.101.71"}]]]
+
+
 # test_github_issue_22()
+
 
 def test_github_issue_24():
     data = """
@@ -616,31 +746,57 @@ def test_github_issue_24():
     parser = ttp(data, template)
     parser.parse()
     res = parser.result(structure="dictionary")
-    # pprint.pprint(res, width=100) 
-    assert res == {'VIP_cfg': {'19': {'services': [{'pool': [{'node_id': '22',
-                                                              'node_ip': '10.10.10.10',
-                                                              'reason': 'N/A'},
-                                                             {'node_id': '23',
-                                                              'node_ip': '10.11.11.11',
-                                                              'reason': 'N/A'}],
-                                                    'rport': 'http',
-                                                    'vs_service': 'http'},
-                                                   {'pool': [{'node_id': '22',
-                                                              'node_ip': '10.10.10.10',
-                                                              'reason': 'N/A'},
-                                                             {'node_id': '23',
-                                                              'node_ip': '10.11.11.11',
-                                                              'reason': 'N/A'}],
-                                                    'rport': 'https',
-                                                    'vs_service': 'https'}],
-                                      'vs_ip': '1.1.1.1'}}}
-    
+    # pprint.pprint(res, width=100)
+    assert res == {
+        "VIP_cfg": {
+            "19": {
+                "services": [
+                    {
+                        "pool": [
+                            {
+                                "node_id": "22",
+                                "node_ip": "10.10.10.10",
+                                "reason": "N/A",
+                            },
+                            {
+                                "node_id": "23",
+                                "node_ip": "10.11.11.11",
+                                "reason": "N/A",
+                            },
+                        ],
+                        "rport": "http",
+                        "vs_service": "http",
+                    },
+                    {
+                        "pool": [
+                            {
+                                "node_id": "22",
+                                "node_ip": "10.10.10.10",
+                                "reason": "N/A",
+                            },
+                            {
+                                "node_id": "23",
+                                "node_ip": "10.11.11.11",
+                                "reason": "N/A",
+                            },
+                        ],
+                        "rport": "https",
+                        "vs_service": "https",
+                    },
+                ],
+                "vs_ip": "1.1.1.1",
+            }
+        }
+    }
+
+
 # test_github_issue_24()
+
 
 def test_reddit_answer_1():
     """
     https://www.reddit.com/r/networking/comments/j106ot/export_custom_lists_from_the_config_aruba_switch/
-    
+
     Hit a bug while was doing this template - join action overridden by ignore indicator add action
     """
     data = """
@@ -704,9 +860,13 @@ headers = "Hostname, Port_Number, Untagged_VLAN, Tagged_VLAN"
     parser.parse()
     res = parser.result()
     # print(res)
-    assert res == ['"Hostname","Port_Number","Untagged_VLAN","Tagged_VLAN"\n"SWITCH","2/11","101","60 70 105 116 117"\n"SWITCH","2/12","103","61 71"']
-    
+    assert res == [
+        '"Hostname","Port_Number","Untagged_VLAN","Tagged_VLAN"\n"SWITCH","2/11","101","60 70 105 116 117"\n"SWITCH","2/12","103","61 71"'
+    ]
+
+
 # test_reddit_answer_1()
+
 
 def test_reddit_answer_2():
     data = """
@@ -950,45 +1110,63 @@ end {{ _end_ }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'ospf': {'areas': [{'area': '0.0.0.1',
-                       'area_type': 'nssa',
-                       'nssa_default_metric': '10',
-                       'nssa_default_metric_type': '2',
-                       'nssa_redis': 'enable',
-                       'stub_type': 'summary'}],
-            'default_originate_metric': '10',
-            'default_originate_metric_type': '2',
-            'default_rt_metric': '10',
-            'dist_list_in': 'OSPF_IMPORT_PREFIX',
-            'interfaces': [{'interface': 'Vlan1',
-                            'name': 'vlan1-int',
-                            'network': 'point-to-point',
-                            'priority': '1',
-                            'status': 'enable'},
-                           {'interface': 'vlan2',
-                            'name': 'vlan2-int',
-                            'network': 'point-to-point',
-                            'priority': '1',
-                            'status': 'enable'}],
-            'networks': [{'area': '0.0.0.1',
-                          'id': '1',
-                          'prefix': '10.1.1.1/30'},
-                         {'area': '0.0.0.1',
-                          'id': '2',
-                          'prefix': '10.1.1.3/30'}],
-            'redistribute': [{'metric-type': '2',
-                              'protocol': 'connected',
-                              'status': 'enable'},
-                             {'metric-type': '2',
-                              'protocol': 'static',
-                              'status': 'enable'},
-                             {'metric-type': '2',
-                              'protocol': 'bgp',
-                              'status': 'enable'}],
-            'ref_bw': '1000',
-            'router_id': '10.1.1.1'}}]]
+    assert res == [
+        [
+            {
+                "ospf": {
+                    "areas": [
+                        {
+                            "area": "0.0.0.1",
+                            "area_type": "nssa",
+                            "nssa_default_metric": "10",
+                            "nssa_default_metric_type": "2",
+                            "nssa_redis": "enable",
+                            "stub_type": "summary",
+                        }
+                    ],
+                    "default_originate_metric": "10",
+                    "default_originate_metric_type": "2",
+                    "default_rt_metric": "10",
+                    "dist_list_in": "OSPF_IMPORT_PREFIX",
+                    "interfaces": [
+                        {
+                            "interface": "Vlan1",
+                            "name": "vlan1-int",
+                            "network": "point-to-point",
+                            "priority": "1",
+                            "status": "enable",
+                        },
+                        {
+                            "interface": "vlan2",
+                            "name": "vlan2-int",
+                            "network": "point-to-point",
+                            "priority": "1",
+                            "status": "enable",
+                        },
+                    ],
+                    "networks": [
+                        {"area": "0.0.0.1", "id": "1", "prefix": "10.1.1.1/30"},
+                        {"area": "0.0.0.1", "id": "2", "prefix": "10.1.1.3/30"},
+                    ],
+                    "redistribute": [
+                        {
+                            "metric-type": "2",
+                            "protocol": "connected",
+                            "status": "enable",
+                        },
+                        {"metric-type": "2", "protocol": "static", "status": "enable"},
+                        {"metric-type": "2", "protocol": "bgp", "status": "enable"},
+                    ],
+                    "ref_bw": "1000",
+                    "router_id": "10.1.1.1",
+                }
+            }
+        ]
+    ]
+
 
 # test_reddit_answer_2()
+
 
 def test_github_issue_32():
     data = """
@@ -1005,21 +1183,29 @@ def test_github_issue_32():
     parser.parse()
     res = parser.result(structure="flat_list")
     # pprint.pprint(res)
-    assert res == [{'export-route-targets': '65001:48;65001:0',
-                    'id': '*c',
-                    'import-route-targets': '65001:48',
-                    'interfaces': 'lo-ext;vlan56',
-                    'route-distinguisher': '65001:48',
-                    'routing-mark': 'VRF_EXT'},
-                   {'comment': '=',
-                    'export-route-targets': '65001:80',
-                    'id': '*10',
-                    'import-route-targets': '65001:80;65001:0',
-                    'interfaces': 'lo-private',
-                    'route-distinguisher': '65001:80',
-                    'routing-mark': 'VRF_PRIVATE'}]
+    assert res == [
+        {
+            "export-route-targets": "65001:48;65001:0",
+            "id": "*c",
+            "import-route-targets": "65001:48",
+            "interfaces": "lo-ext;vlan56",
+            "route-distinguisher": "65001:48",
+            "routing-mark": "VRF_EXT",
+        },
+        {
+            "comment": "=",
+            "export-route-targets": "65001:80",
+            "id": "*10",
+            "import-route-targets": "65001:80;65001:0",
+            "interfaces": "lo-private",
+            "route-distinguisher": "65001:80",
+            "routing-mark": "VRF_PRIVATE",
+        },
+    ]
+
 
 # test_github_issue_32()
+
 
 def test_slack_answer_1():
     data = """
@@ -1046,10 +1232,18 @@ Firmware {{ _start_ }}
     parser.parse()
     res = parser.result(structure="flat_list")
     # pprint.pprint(res)
-    assert res == [{'versions': [{'type': 'firmware', 'version': '02.1.1 Build 002'},
-                                 {'type': 'hardware', 'version': 'V2R4'}]}]
-               
+    assert res == [
+        {
+            "versions": [
+                {"type": "firmware", "version": "02.1.1 Build 002"},
+                {"type": "hardware", "version": "V2R4"},
+            ]
+        }
+    ]
+
+
 # test_slack_answer_1()
+
 
 def test_group_default_docs():
     template = """
@@ -1071,12 +1265,22 @@ Default domain is {{ fqdn }}
     parser = ttp(template=template)
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)  
-    assert res == [[{'domain': {'fqdn': 'Uncknown'},
-                     'uptime': {'software': {'version': 'uncknown'},
-                                'uptime': '27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds'}}]]
-              
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "domain": {"fqdn": "Uncknown"},
+                "uptime": {
+                    "software": {"version": "uncknown"},
+                    "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds",
+                },
+            }
+        ]
+    ]
+
+
 # test_group_default_docs()
+
 
 def test_github_issue_34_answer():
     template = """
@@ -1093,10 +1297,12 @@ Hello {{ audience | default([]) }}
     parser = ttp(template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'demo': {'audiences': [{'audience': []}]}}]]
-    
+    # pprint.pprint(res)
+    assert res == [[{"demo": {"audiences": [{"audience": []}]}}]]
+
+
 # test_github_issue_34_answer()
+
 
 def test_github_issue_33_answer_1():
     template = """
@@ -1115,12 +1321,22 @@ server {{ server | re(r"\\S+ \\S+ \\S+") | let("servers_number", 3) }}
     parser = ttp(template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'servers': [{'server': '1.1.1.1', 'servers_number': 1},
-                                 {'server': '2.2.2.2 3.3.3.3', 'servers_number': 2},
-                                 {'server': '4.4.4.4 5.5.5.5 6.6.6.6', 'servers_number': 3}]}]]
-                    
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "servers": [
+                    {"server": "1.1.1.1", "servers_number": 1},
+                    {"server": "2.2.2.2 3.3.3.3", "servers_number": 2},
+                    {"server": "4.4.4.4 5.5.5.5 6.6.6.6", "servers_number": 3},
+                ]
+            }
+        ]
+    ]
+
+
 # test_github_issue_33_answer_1()
+
 
 def test_issue_36():
     template = """
@@ -1166,63 +1382,110 @@ ip access-list {{ acl_type }} {{ acl_name }}
     parser = ttp(template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    pprint.pprint(res) 
-    assert res == [[{'ip': {'extended': {'199': {'10': [{'action': 'remark',
-                                                         'remark_name': 'COLLECTOR - SNMP'},
-                                                        {'action': 'permit',
-                                                         'dest_any': 'any',
-                                                         'protocol': 'ip',
-                                                         'src_ntw': '70.70.70.0',
-                                                         'src_wildcard': '0.0.0.255'}],
-                                                 '20': [{'action': 'remark',
-                                                         'remark_name': 'RETURN - Back'},
-                                                        {'action': 'permit',
-                                                         'dest_any': 'any',
-                                                         'protocol': 'ip',
-                                                         'src_ntw': '80.80.80.0',
-                                                         'src_wildcard': '0.0.0.127'}],
-                                                 '30': [{'action': 'remark',
-                                                         'remark_name': 'VISUALIZE'},
-                                                        {'action': 'permit',
-                                                         'dest_any': 'any',
-                                                         'protocol': 'ip',
-                                                         'src_host': '90.90.90.138'}]}},
-                            'standard': {'42': {'10': [{'action': 'remark',
-                                                        'remark_name': 'machine_A'},
-                                                       {'action': 'permit',
-                                                        'src_host': '192.168.200.162'}],
-                                                '20': [{'action': 'remark',
-                                                        'remark_name': 'machine_B'},
-                                                       {'action': 'permit',
-                                                        'src_host': '192.168.200.149'}],
-                                                '30': [{'action': 'deny',
-                                                        'log': 'log',
-                                                        'src_host': 'any'}]},
-                                         '98': {'10': [{'action': 'permit',
-                                                        'src_host': '10.10.10.1'}],
-                                                '20': [{'action': 'remark',
-                                                        'remark_name': 'toto'},
-                                                       {'action': 'permit',
-                                                        'src_host': '30.30.30.1'}],
-                                                '30': [{'action': 'permit',
-                                                        'src_ntw': '30.30.30.0',
-                                                        'src_wildcard': '0.0.0.255'}]},
-                                         '99': {'10': [{'action': 'permit',
-                                                        'log': 'log',
-                                                        'src_host': '10.20.30.40'}],
-                                                '20': [{'action': 'permit',
-                                                        'log': 'log',
-                                                        'src_host': '20.30.40.1'}],
-                                                '30': [{'action': 'remark',
-                                                        'remark_name': 'DEVICE - SNMP RW'},
-                                                       {'action': 'permit',
-                                                        'src_ntw': '50.50.50.128',
-                                                        'src_wildcard': '0.0.0.127'}],
-                                                '40': [{'action': 'permit',
-                                                        'src_ntw': '60.60.60.64',
-                                                        'src_wildcard': '0.0.0.63'}]}}}}]]
-    
+    pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "ip": {
+                    "extended": {
+                        "199": {
+                            "10": [
+                                {"action": "remark", "remark_name": "COLLECTOR - SNMP"},
+                                {
+                                    "action": "permit",
+                                    "dest_any": "any",
+                                    "protocol": "ip",
+                                    "src_ntw": "70.70.70.0",
+                                    "src_wildcard": "0.0.0.255",
+                                },
+                            ],
+                            "20": [
+                                {"action": "remark", "remark_name": "RETURN - Back"},
+                                {
+                                    "action": "permit",
+                                    "dest_any": "any",
+                                    "protocol": "ip",
+                                    "src_ntw": "80.80.80.0",
+                                    "src_wildcard": "0.0.0.127",
+                                },
+                            ],
+                            "30": [
+                                {"action": "remark", "remark_name": "VISUALIZE"},
+                                {
+                                    "action": "permit",
+                                    "dest_any": "any",
+                                    "protocol": "ip",
+                                    "src_host": "90.90.90.138",
+                                },
+                            ],
+                        }
+                    },
+                    "standard": {
+                        "42": {
+                            "10": [
+                                {"action": "remark", "remark_name": "machine_A"},
+                                {"action": "permit", "src_host": "192.168.200.162"},
+                            ],
+                            "20": [
+                                {"action": "remark", "remark_name": "machine_B"},
+                                {"action": "permit", "src_host": "192.168.200.149"},
+                            ],
+                            "30": [{"action": "deny", "log": "log", "src_host": "any"}],
+                        },
+                        "98": {
+                            "10": [{"action": "permit", "src_host": "10.10.10.1"}],
+                            "20": [
+                                {"action": "remark", "remark_name": "toto"},
+                                {"action": "permit", "src_host": "30.30.30.1"},
+                            ],
+                            "30": [
+                                {
+                                    "action": "permit",
+                                    "src_ntw": "30.30.30.0",
+                                    "src_wildcard": "0.0.0.255",
+                                }
+                            ],
+                        },
+                        "99": {
+                            "10": [
+                                {
+                                    "action": "permit",
+                                    "log": "log",
+                                    "src_host": "10.20.30.40",
+                                }
+                            ],
+                            "20": [
+                                {
+                                    "action": "permit",
+                                    "log": "log",
+                                    "src_host": "20.30.40.1",
+                                }
+                            ],
+                            "30": [
+                                {"action": "remark", "remark_name": "DEVICE - SNMP RW"},
+                                {
+                                    "action": "permit",
+                                    "src_ntw": "50.50.50.128",
+                                    "src_wildcard": "0.0.0.127",
+                                },
+                            ],
+                            "40": [
+                                {
+                                    "action": "permit",
+                                    "src_ntw": "60.60.60.64",
+                                    "src_wildcard": "0.0.0.63",
+                                }
+                            ],
+                        },
+                    },
+                }
+            }
+        ]
+    ]
+
+
 # test_issue_36()
+
 
 def test_github_issue_37_original_data_template():
     template = """
@@ -1480,119 +1743,193 @@ def qinq(data):
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:',
-                                    'regular_sdp': {'8051': {'state': 'enabled',
-                                                             'vc_id': '103076'}},
-                                    'sap': {'1/2/12:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:',
-                                                               'egress': {'sap_egress': '1)',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '1',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN10',
-                                                               'state': 'enabled'}},
-                                    'service_mtu': '1588',
-                                    'service_name': 'EPIPE service-103076 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103206': {'customer_id': '1904',
-                                    'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                                   'UK PLC Stepney Green E1 '
-                                                   "3DG'",
-                                    'regular_sdp': {'8035': {'state': 'enabled',
-                                                             'vc_id': '103206'}},
-                                    'sap': {'2/2/3:401.100': {'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                                                             'UK '
-                                                                             'PLC '
-                                                                             'Stepney '
-                                                                             'Green '
-                                                                             'E1 '
-                                                                             "3DG'",
-                                                              'egress': {'sap_egress': '11010',
-                                                                         'scheduler_policy': 'none'},
-                                                              'ingress': {'sap_ingress': '11010',
-                                                                          'scheduler_policy': 'none'},
-                                                              'mss_name': 'SKANSKA_E13DG_A825_LAN1',
-                                                              'state': 'disabled'}},
-                                    'service_mtu': '1988',
-                                    'service_name': 'EPIPE service-103206 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103256': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:',
-                                    'regular_sdp': {'8139': {'state': 'enabled',
-                                                             'vc_id': '103256'}},
-                                    'sap': {'1/2/12:15.qinq': {'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:',
-                                                               'egress': {'sap_egress': '11000',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '11000',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN5',
-                                                               'state': 'disabled'}},
-                                    'service_mtu': '1988',
-                                    'service_name': 'EPIPE service-103256 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103742': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:',
-                                    'regular_sdp': {'8061': {'state': 'enabled',
-                                                             'vc_id': '103742'}},
-                                    'sap': {'5/2/50:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:',
-                                                               'egress': {'sap_egress': '11000',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '11000',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_STRAT_LON_A206_LANA',
-                                                               'state': 'disabled'}},
-                                    'service_mtu': '1588',
-                                    'service_name': 'EPIPE service-103742 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '55517673': {'customer_id': '4',
-                                      'description': 'vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA '
-                                                     'EPIPE#BAACTQ#VLAN 901',
-                                      'endpoint': {'endpoint': '"SDP"',
-                                                   'revert_time': 'infinite'},
-                                      'pwr_sdp': {'8243': {'endpoint': '"SDP"',
-                                                           'precedence': '1',
-                                                           'state': 'enabled',
-                                                           'vc_id': '55517673'},
-                                                  '8245': {'endpoint': '"SDP"',
-                                                           'precedence': 'primary',
-                                                           'state': 'enabled',
-                                                           'vc_id': '55517673'}},
-                                      'sap': {'2/2/3:901.qinq': {'description': '2_2_3,H0505824A,Bulldog,VLAN '
-                                                                                '901',
-                                                                 'egress': {'sap_egress': '20010',
-                                                                            'scheduler_policy': '"NGA-LLU-300M"'},
-                                                                 'ingress': {'sap_ingress': '20010',
-                                                                             'scheduler_policy': '"NGA-LLU-300M"'},
-                                                                 'mss_name': 'none',
-                                                                 'state': 'disabled'}},
-                                      'service_mtu': '1526',
-                                      'service_name': 'epipe service-64585 '
-                                                      'DKTN08a-D0105 '
-                                                      '(63.130.108.41)',
-                                      'state': 'enabled'}}}}]]
-    
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "service": {
+                    "epipe": {
+                        "103076": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:",
+                            "regular_sdp": {
+                                "8051": {"state": "enabled", "vc_id": "103076"}
+                            },
+                            "sap": {
+                                "1/2/12:20.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:",
+                                    "egress": {
+                                        "sap_egress": "1)",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "1",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN10",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1588",
+                            "service_name": "EPIPE service-103076 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103206": {
+                            "customer_id": "1904",
+                            "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                            "UK PLC Stepney Green E1 "
+                            "3DG'",
+                            "regular_sdp": {
+                                "8035": {"state": "enabled", "vc_id": "103206"}
+                            },
+                            "sap": {
+                                "2/2/3:401.100": {
+                                    "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                    "UK "
+                                    "PLC "
+                                    "Stepney "
+                                    "Green "
+                                    "E1 "
+                                    "3DG'",
+                                    "egress": {
+                                        "sap_egress": "11010",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11010",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "SKANSKA_E13DG_A825_LAN1",
+                                    "state": "disabled",
+                                }
+                            },
+                            "service_mtu": "1988",
+                            "service_name": "EPIPE service-103206 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103256": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:",
+                            "regular_sdp": {
+                                "8139": {"state": "enabled", "vc_id": "103256"}
+                            },
+                            "sap": {
+                                "1/2/12:15.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:",
+                                    "egress": {
+                                        "sap_egress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN5",
+                                    "state": "disabled",
+                                }
+                            },
+                            "service_mtu": "1988",
+                            "service_name": "EPIPE service-103256 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103742": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:",
+                            "regular_sdp": {
+                                "8061": {"state": "enabled", "vc_id": "103742"}
+                            },
+                            "sap": {
+                                "5/2/50:20.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:",
+                                    "egress": {
+                                        "sap_egress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_STRAT_LON_A206_LANA",
+                                    "state": "disabled",
+                                }
+                            },
+                            "service_mtu": "1588",
+                            "service_name": "EPIPE service-103742 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "55517673": {
+                            "customer_id": "4",
+                            "description": "vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA "
+                            "EPIPE#BAACTQ#VLAN 901",
+                            "endpoint": {
+                                "endpoint": '"SDP"',
+                                "revert_time": "infinite",
+                            },
+                            "pwr_sdp": {
+                                "8243": {
+                                    "endpoint": '"SDP"',
+                                    "precedence": "1",
+                                    "state": "enabled",
+                                    "vc_id": "55517673",
+                                },
+                                "8245": {
+                                    "endpoint": '"SDP"',
+                                    "precedence": "primary",
+                                    "state": "enabled",
+                                    "vc_id": "55517673",
+                                },
+                            },
+                            "sap": {
+                                "2/2/3:901.qinq": {
+                                    "description": "2_2_3,H0505824A,Bulldog,VLAN "
+                                    "901",
+                                    "egress": {
+                                        "sap_egress": "20010",
+                                        "scheduler_policy": '"NGA-LLU-300M"',
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "20010",
+                                        "scheduler_policy": '"NGA-LLU-300M"',
+                                    },
+                                    "mss_name": "none",
+                                    "state": "disabled",
+                                }
+                            },
+                            "service_mtu": "1526",
+                            "service_name": "epipe service-64585 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                    }
+                }
+            }
+        ]
+    ]
+
+
 # test_github_issue_37_original_data_template()
+
 
 def test_github_issue_37_cleaned_up_data():
     """
     Problem with below template without bug fix, was that
-    'no shutdown' statement for sap group was matched by 
+    'no shutdown' statement for sap group was matched by
     spoke-sdp group as well and added to results causing
     false match. To fix it, added tracking of previously
     started groups in results object, so that before add
     match results to overall results if PATH differ need
-    to check that this particular item groups has been 
+    to check that this particular item groups has been
     started before, previous logic was not checking for that.
-    
+
     Have not noticed any issues with other 200+ tests or
     any performance degradation for single/multi-process
     parsing.
@@ -1694,15 +2031,33 @@ def test_github_issue_37_cleaned_up_data():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
-                                    'regular_sdp': {'8051': {'state': 'enabled',
-                                                             'vc_id': '103076'}}},
-                         '103206': {'customer_id': '1904',
-                                    'regular_sdp': {'8035': {'state': 'enabled',
-                                                             'vc_id': '103206'}}}}}}]]
-    
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "service": {
+                    "epipe": {
+                        "103076": {
+                            "customer_id": "160",
+                            "regular_sdp": {
+                                "8051": {"state": "enabled", "vc_id": "103076"}
+                            },
+                        },
+                        "103206": {
+                            "customer_id": "1904",
+                            "regular_sdp": {
+                                "8035": {"state": "enabled", "vc_id": "103206"}
+                            },
+                        },
+                    }
+                }
+            }
+        ]
+    ]
+
+
 # test_github_issue_37_cleaned_up_data()
+
 
 def test_github_issue_37_cleaned_data_template():
     template = """
@@ -1953,107 +2308,181 @@ def test_github_issue_37_cleaned_data_template():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:',
-                                    'regular_sdp': {'8051': {'state': 'enabled',
-                                                             'vc_id': '103076'}},
-                                    'sap': {'1/2/12:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:',
-                                                               'egress': {'sap_egress': '1)',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '1',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN10',
-                                                               'state': 'enabled'}},
-                                    'service_mtu': '1588',
-                                    'service_name': 'EPIPE service-103076 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103206': {'customer_id': '1904',
-                                    'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                                   'UK PLC Stepney Green E1 '
-                                                   "3DG'",
-                                    'regular_sdp': {'8035': {'state': 'enabled',
-                                                             'vc_id': '103206'}},
-                                    'sap': {'2/2/3:401.100': {'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                                                             'UK '
-                                                                             'PLC '
-                                                                             'Stepney '
-                                                                             'Green '
-                                                                             'E1 '
-                                                                             "3DG'",
-                                                              'egress': {'sap_egress': '11010',
-                                                                         'scheduler_policy': 'none'},
-                                                              'ingress': {'sap_ingress': '11010',
-                                                                          'scheduler_policy': 'none'},
-                                                              'mss_name': 'SKANSKA_E13DG_A825_LAN1',
-                                                              'state': 'disabled'}},
-                                    'service_mtu': '1988',
-                                    'service_name': 'EPIPE service-103206 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103256': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:',
-                                    'regular_sdp': {'8139': {'state': 'enabled',
-                                                             'vc_id': '103256'}},
-                                    'sap': {'1/2/12:15.qinq': {'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:',
-                                                               'egress': {'sap_egress': '11000',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '11000',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN5',
-                                                               'state': 'disabled'}},
-                                    'service_mtu': '1988',
-                                    'service_name': 'EPIPE service-103256 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103742': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:',
-                                    'regular_sdp': {'8061': {'state': 'enabled',
-                                                             'vc_id': '103742'}},
-                                    'sap': {'5/2/50:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:',
-                                                               'egress': {'sap_egress': '11000',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '11000',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_STRAT_LON_A206_LANA',
-                                                               'state': 'disabled'}},
-                                    'service_mtu': '1588',
-                                    'service_name': 'EPIPE service-103742 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '55517673': {'customer_id': '4',
-                                      'description': 'vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA '
-                                                     'EPIPE#BAACTQ#VLAN 901',
-                                      'endpoint': {'endpoint': '"SDP"',
-                                                   'revert_time': 'infinite'},
-                                      'pwr_sdp': {'8243': {'endpoint': '"SDP"',
-                                                           'precedence': '1',
-                                                           'state': 'enabled',
-                                                           'vc_id': '55517673'},
-                                                  '8245': {'endpoint': '"SDP"',
-                                                           'precedence': 'primary',
-                                                           'state': 'enabled',
-                                                           'vc_id': '55517673'}},
-                                      'sap': {'2/2/3:901.qinq': {'description': '2_2_3,H0505824A,Bulldog,VLAN '
-                                                                                '901',
-                                                                 'egress': {'sap_egress': '20010',
-                                                                            'scheduler_policy': '"NGA-LLU-300M"'},
-                                                                 'ingress': {'sap_ingress': '20010',
-                                                                             'scheduler_policy': '"NGA-LLU-300M"'},
-                                                                 'mss_name': 'none',
-                                                                 'state': 'disabled'}},
-                                      'service_mtu': '1526',
-                                      'service_name': 'epipe service-64585 '
-                                                      'DKTN08a-D0105 '
-                                                      '(63.130.108.41)',
-                                      'state': 'enabled'}}}}]]
-    
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "service": {
+                    "epipe": {
+                        "103076": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:",
+                            "regular_sdp": {
+                                "8051": {"state": "enabled", "vc_id": "103076"}
+                            },
+                            "sap": {
+                                "1/2/12:20.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:",
+                                    "egress": {
+                                        "sap_egress": "1)",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "1",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN10",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1588",
+                            "service_name": "EPIPE service-103076 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103206": {
+                            "customer_id": "1904",
+                            "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                            "UK PLC Stepney Green E1 "
+                            "3DG'",
+                            "regular_sdp": {
+                                "8035": {"state": "enabled", "vc_id": "103206"}
+                            },
+                            "sap": {
+                                "2/2/3:401.100": {
+                                    "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                    "UK "
+                                    "PLC "
+                                    "Stepney "
+                                    "Green "
+                                    "E1 "
+                                    "3DG'",
+                                    "egress": {
+                                        "sap_egress": "11010",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11010",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "SKANSKA_E13DG_A825_LAN1",
+                                    "state": "disabled",
+                                }
+                            },
+                            "service_mtu": "1988",
+                            "service_name": "EPIPE service-103206 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103256": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:",
+                            "regular_sdp": {
+                                "8139": {"state": "enabled", "vc_id": "103256"}
+                            },
+                            "sap": {
+                                "1/2/12:15.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:",
+                                    "egress": {
+                                        "sap_egress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN5",
+                                    "state": "disabled",
+                                }
+                            },
+                            "service_mtu": "1988",
+                            "service_name": "EPIPE service-103256 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103742": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:",
+                            "regular_sdp": {
+                                "8061": {"state": "enabled", "vc_id": "103742"}
+                            },
+                            "sap": {
+                                "5/2/50:20.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:",
+                                    "egress": {
+                                        "sap_egress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_STRAT_LON_A206_LANA",
+                                    "state": "disabled",
+                                }
+                            },
+                            "service_mtu": "1588",
+                            "service_name": "EPIPE service-103742 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "55517673": {
+                            "customer_id": "4",
+                            "description": "vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA "
+                            "EPIPE#BAACTQ#VLAN 901",
+                            "endpoint": {
+                                "endpoint": '"SDP"',
+                                "revert_time": "infinite",
+                            },
+                            "pwr_sdp": {
+                                "8243": {
+                                    "endpoint": '"SDP"',
+                                    "precedence": "1",
+                                    "state": "enabled",
+                                    "vc_id": "55517673",
+                                },
+                                "8245": {
+                                    "endpoint": '"SDP"',
+                                    "precedence": "primary",
+                                    "state": "enabled",
+                                    "vc_id": "55517673",
+                                },
+                            },
+                            "sap": {
+                                "2/2/3:901.qinq": {
+                                    "description": "2_2_3,H0505824A,Bulldog,VLAN "
+                                    "901",
+                                    "egress": {
+                                        "sap_egress": "20010",
+                                        "scheduler_policy": '"NGA-LLU-300M"',
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "20010",
+                                        "scheduler_policy": '"NGA-LLU-300M"',
+                                    },
+                                    "mss_name": "none",
+                                    "state": "disabled",
+                                }
+                            },
+                            "service_mtu": "1526",
+                            "service_name": "epipe service-64585 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                    }
+                }
+            }
+        ]
+    ]
+
+
 # test_github_issue_37_cleaned_data_template()
+
 
 def test_github_issue_42():
     data = """
@@ -2089,15 +2518,31 @@ vrf {{name}}
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'vrfs': {'name': 'xyz',
-                     'route-targets': [{'import': ['65000:3507',
-                                                   '65000:3511',
-                                                   '65000:5453',
-                                                   '65000:5535']},
-                                       {'export': ['65000:5453', '65000:5535']}]}}]]
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "vrfs": {
+                    "name": "xyz",
+                    "route-targets": [
+                        {
+                            "import": [
+                                "65000:3507",
+                                "65000:3511",
+                                "65000:5453",
+                                "65000:5535",
+                            ]
+                        },
+                        {"export": ["65000:5453", "65000:5535"]},
+                    ],
+                }
+            }
+        ]
+    ]
+
 
 # test_github_issue_42()
+
 
 def test_github_issue_42_answer():
     data = """
@@ -2133,15 +2578,28 @@ vrf {{name}}
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'vrfs': {'export_rts': [{'export_rt': '65000:5453'},
-                                 {'export_rt': '65000:5535'}],
-                     'import_rts': [{'import_rt': '65000:3507'},
-                                 {'import_rt': '65000:3511'},
-                                 {'import_rt': '65000:5453'},
-                                 {'import_rt': '65000:5535'}],
-                     'name': 'xyz'}}]]
-    
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "vrfs": {
+                    "export_rts": [
+                        {"export_rt": "65000:5453"},
+                        {"export_rt": "65000:5535"},
+                    ],
+                    "import_rts": [
+                        {"import_rt": "65000:3507"},
+                        {"import_rt": "65000:3511"},
+                        {"import_rt": "65000:5453"},
+                        {"import_rt": "65000:5535"},
+                    ],
+                    "name": "xyz",
+                }
+            }
+        ]
+    ]
+
+
 # test_github_issue_42_answer()
 
 
@@ -2210,20 +2668,54 @@ def test_issue_45():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'vrfs': [{'forwarding_options': {'dhcp_relay': {'groups': [{'group_name': 'group2',
-                                                                                 'server_group_name2': 'IN_MEDIA_SIGNALING'},
-                                                                                {'group_name': 'NGN-SIG',
-                                                                                 'server_group_name2': 'DHCP-NGN-SIG'}],
-                                                                     'server_group': {'dhcp': [{'helper_addresses': [{'helper_address': '10.154.6.147'}],
-                                                                                                'server_group_name1': 'IN_MEDIA_SIGNALING'},
-                                                                                               {'helper_addresses': [{'helper_address': '10.154.6.147'}],
-                                                                                                'server_group_name1': 'DHCP-NGN-SIG'},
-                                                                                               {'server_group_name1': 'overrides'},
-                                                                                               {'server_group_name1': 'overrides'}]}}},
-                               'name': 'vrf2'}]}]]
-             
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "vrfs": [
+                    {
+                        "forwarding_options": {
+                            "dhcp_relay": {
+                                "groups": [
+                                    {
+                                        "group_name": "group2",
+                                        "server_group_name2": "IN_MEDIA_SIGNALING",
+                                    },
+                                    {
+                                        "group_name": "NGN-SIG",
+                                        "server_group_name2": "DHCP-NGN-SIG",
+                                    },
+                                ],
+                                "server_group": {
+                                    "dhcp": [
+                                        {
+                                            "helper_addresses": [
+                                                {"helper_address": "10.154.6.147"}
+                                            ],
+                                            "server_group_name1": "IN_MEDIA_SIGNALING",
+                                        },
+                                        {
+                                            "helper_addresses": [
+                                                {"helper_address": "10.154.6.147"}
+                                            ],
+                                            "server_group_name1": "DHCP-NGN-SIG",
+                                        },
+                                        {"server_group_name1": "overrides"},
+                                        {"server_group_name1": "overrides"},
+                                    ]
+                                },
+                            }
+                        },
+                        "name": "vrf2",
+                    }
+                ]
+            }
+        ]
+    ]
+
+
 # test_issue_45()
+
 
 def test_issue_45_1():
     data = """
@@ -2270,13 +2762,33 @@ def test_issue_45_1():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'vrfs': [{'forwarding_options': {'dhcp_relay': {'groups': [{'group_name': 'NGN-SIG'}],
-                                                                     'server_group': {'dhcp': [{'server_group_name': 'IN_MEDIA_SIGNALING'},
-                                                                                               {'server_group_name': 'overrides'}]}}},
-                               'name': 'vrf2'}]}]]
-             
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "vrfs": [
+                    {
+                        "forwarding_options": {
+                            "dhcp_relay": {
+                                "groups": [{"group_name": "NGN-SIG"}],
+                                "server_group": {
+                                    "dhcp": [
+                                        {"server_group_name": "IN_MEDIA_SIGNALING"},
+                                        {"server_group_name": "overrides"},
+                                    ]
+                                },
+                            }
+                        },
+                        "name": "vrf2",
+                    }
+                ]
+            }
+        ]
+    ]
+
+
 # test_issue_45_1()
+
 
 def test_issue_45_filtering_fix():
     data = """
@@ -2343,18 +2855,52 @@ def test_issue_45_filtering_fix():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'vrfs': [{'forwarding_options': {'dhcp_relay': {'groups': [{'group_name': 'group2',
-                                                                                 'server_group_name2': 'IN_MEDIA_SIGNALING'},
-                                                                                {'group_name': 'NGN-SIG',
-                                                                                 'server_group_name2': 'DHCP-NGN-SIG'}],
-                                                                     'server_group': {'dhcp': [{'helper_addresses': [{'helper_address': '10.154.6.147'}],
-                                                                                                'server_group_name1': 'IN_MEDIA_SIGNALING'},
-                                                                                               {'helper_addresses': [{'helper_address': '10.154.6.147'}],
-                                                                                                'server_group_name1': 'DHCP-NGN-SIG'}]}}},
-                               'name': 'vrf2'}]}]]
-             
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "vrfs": [
+                    {
+                        "forwarding_options": {
+                            "dhcp_relay": {
+                                "groups": [
+                                    {
+                                        "group_name": "group2",
+                                        "server_group_name2": "IN_MEDIA_SIGNALING",
+                                    },
+                                    {
+                                        "group_name": "NGN-SIG",
+                                        "server_group_name2": "DHCP-NGN-SIG",
+                                    },
+                                ],
+                                "server_group": {
+                                    "dhcp": [
+                                        {
+                                            "helper_addresses": [
+                                                {"helper_address": "10.154.6.147"}
+                                            ],
+                                            "server_group_name1": "IN_MEDIA_SIGNALING",
+                                        },
+                                        {
+                                            "helper_addresses": [
+                                                {"helper_address": "10.154.6.147"}
+                                            ],
+                                            "server_group_name1": "DHCP-NGN-SIG",
+                                        },
+                                    ]
+                                },
+                            }
+                        },
+                        "name": "vrf2",
+                    }
+                ]
+            }
+        ]
+    ]
+
+
 # test_issue_45_filtering_fix()
+
 
 def test_issue_47_answer():
     data = """
@@ -2393,11 +2939,33 @@ interface {{ interface }}
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=150) 
-    assert res == [[[{'description': 'Router-id-loopback', 'interface': 'Loopback0', 'ip': '192.168.0.113', 'mask': '24'},
-                     {'description': 'Router-id-loopback 2', 'interface': 'Loopback2', 'ip': '192.168.0.114', 'mask': '24'},
-                     {'description': 'Router-id-loopback 3', 'interface': 'Loopback3', 'ip': '192.168.0.115', 'mask': '24'}]]]
-   
+    # pprint.pprint(res, width=150)
+    assert res == [
+        [
+            [
+                {
+                    "description": "Router-id-loopback",
+                    "interface": "Loopback0",
+                    "ip": "192.168.0.113",
+                    "mask": "24",
+                },
+                {
+                    "description": "Router-id-loopback 2",
+                    "interface": "Loopback2",
+                    "ip": "192.168.0.114",
+                    "mask": "24",
+                },
+                {
+                    "description": "Router-id-loopback 3",
+                    "interface": "Loopback3",
+                    "ip": "192.168.0.115",
+                    "mask": "24",
+                },
+            ]
+        ]
+    ]
+
+
 # test_issue_47_answer()
 
 
@@ -2441,35 +3009,47 @@ Department(s): {{ department | ORPHRASE }}
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=150)     
-    assert res == [[[{'code': '3400',
-                      'course': 'ECON',
-                      'department': 'Department of Economics and Finance',
-                      'description': 'In this course, we examine the economics of personnel management in organizations.\n'
-                                     'Using mainstream microeconomic and behavioural economic theory, we will consider\n'
-                                     'such issues as recruitment, promotion, financial and non-financial incentives,\n'
-                                     'compensation, job performance, performance evaluation, and investment in personnel.\n'
-                                     'The interplay between theoretical models and empirical evidence will be emphasized in\n'
-                                     'considering different approaches to the management of personnel.',
-                      'lecture_lab_time': '3-0',
-                      'name': 'The Economics of Personnel Management',
-                      'prereqs': 'ECON*2310 or ECON*2200',
-                      'semester': 'U',
-                      'weight': '0.50'},
-                     {'code': '4400',
-                      'course': 'ECON',
-                      'department': 'Department of Economics',
-                      'description': 'In this course, we examine the economics of personnel management in organizations.\n'
-                                     'Using mainstream microeconomic and behavioural economic theory, we will consider\n'
-                                     'such issues as recruitment, promotion, financial and non-financial incentives,\n'
-                                     'compensation, job performance, performance evaluation, and investment in personnel.',
-                      'lecture_lab_time': '7-1',
-                      'name': 'The Economics of Personnel Management',
-                      'prereqs': 'ECON*2310',
-                      'semester': 'U',
-                      'weight': '0.90'}]]]
-    
+    # pprint.pprint(res, width=150)
+    assert res == [
+        [
+            [
+                {
+                    "code": "3400",
+                    "course": "ECON",
+                    "department": "Department of Economics and Finance",
+                    "description": "In this course, we examine the economics of personnel management in organizations.\n"
+                    "Using mainstream microeconomic and behavioural economic theory, we will consider\n"
+                    "such issues as recruitment, promotion, financial and non-financial incentives,\n"
+                    "compensation, job performance, performance evaluation, and investment in personnel.\n"
+                    "The interplay between theoretical models and empirical evidence will be emphasized in\n"
+                    "considering different approaches to the management of personnel.",
+                    "lecture_lab_time": "3-0",
+                    "name": "The Economics of Personnel Management",
+                    "prereqs": "ECON*2310 or ECON*2200",
+                    "semester": "U",
+                    "weight": "0.50",
+                },
+                {
+                    "code": "4400",
+                    "course": "ECON",
+                    "department": "Department of Economics",
+                    "description": "In this course, we examine the economics of personnel management in organizations.\n"
+                    "Using mainstream microeconomic and behavioural economic theory, we will consider\n"
+                    "such issues as recruitment, promotion, financial and non-financial incentives,\n"
+                    "compensation, job performance, performance evaluation, and investment in personnel.",
+                    "lecture_lab_time": "7-1",
+                    "name": "The Economics of Personnel Management",
+                    "prereqs": "ECON*2310",
+                    "semester": "U",
+                    "weight": "0.90",
+                },
+            ]
+        ]
+    ]
+
+
 # test_issue_48_answer()
+
 
 def test_issue_48_answer_more():
     data = """
@@ -2530,46 +3110,58 @@ Restriction(s): {{ restrictions | PHRASE | joinmatches }}
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=150)    
-    assert res == [[[{'code': '4521',
-                      'course': 'IBIO',
-                      'department': 'Department of Integrative Biology',
-                      'description': 'This course is the first part of the two-semester course IBIO*4521/2. This course is\n'
-                                     'a two-semester (F,W) undergraduate project in which students conduct a comprehensive,\n'
-                                     'independent research project in organismal biology under the supervision of a faculty\n'
-                                     'member in the Department of Integrative Biology. Projects involve a thorough literature\n'
-                                     'review, a research proposal, original research communicated in oral and poster\n'
-                                     'presentations, and in a written, publication quality document. This two-semester course\n'
-                                     'offers students the opportunity to pursue research questions and experimental designs\n'
-                                     'that cannot be completed in the single semester research courses. Students must make\n'
-                                     'arrangements with both a faculty supervisor and the course coordinator at least one\n'
-                                     'semester in advance. A departmental registration form must be obtained from the course\n'
-                                     'coordinator and submitted no later than the second class day of the fall semester. This is\n'
-                                     'a twosemester course offered over consecutive semesters F-W. When you select this\n'
-                                     'course, you must select IBIO*4521 in the Fall semester and IBIO*4522 in the Winter\n'
-                                     'semester.A grade will not be assigned to IBIO*4521 until IBIO*4522 has been completed.',
-                      'lecture_lab_time': '0-12',
-                      'name': 'Thesis in Integrative Biology',
-                      'prereqs': '12.00 credits',
-                      'restrictions': 'Normally a minimum cumulative average of 70%. Permission of course\ncoordinator.',
-                      'semester': 'F',
-                      'weight': '1.00'},
-                     {'code': '4533',
-                      'course': 'IBIO',
-                      'department': 'Department of Integrative Biology',
-                      'description': 'This course is the first part of the two-semester course IBIO*4521/2. This course is\n'
-                                     'a two-semester (F,W) undergraduate project in which students conduct a comprehensive,\n'
-                                     'independent research project in organismal biology under the supervision of a faculty\n'
-                                     'member in the Department of Integrative Biology.',
-                      'lecture_lab_time': '0-14',
-                      'name': 'Thesis in Integrative Biology',
-                      'restrictions': 'Normally a minimum cumulative average of 80%. Permission of course\n'
-                                      'coordinator. Normally a minimum cumulative average of 90%. Permission of course\n'
-                                      'coordinator.',
-                      'semester': 'F',
-                      'weight': '2.00'}]]]
-    
+    # pprint.pprint(res, width=150)
+    assert res == [
+        [
+            [
+                {
+                    "code": "4521",
+                    "course": "IBIO",
+                    "department": "Department of Integrative Biology",
+                    "description": "This course is the first part of the two-semester course IBIO*4521/2. This course is\n"
+                    "a two-semester (F,W) undergraduate project in which students conduct a comprehensive,\n"
+                    "independent research project in organismal biology under the supervision of a faculty\n"
+                    "member in the Department of Integrative Biology. Projects involve a thorough literature\n"
+                    "review, a research proposal, original research communicated in oral and poster\n"
+                    "presentations, and in a written, publication quality document. This two-semester course\n"
+                    "offers students the opportunity to pursue research questions and experimental designs\n"
+                    "that cannot be completed in the single semester research courses. Students must make\n"
+                    "arrangements with both a faculty supervisor and the course coordinator at least one\n"
+                    "semester in advance. A departmental registration form must be obtained from the course\n"
+                    "coordinator and submitted no later than the second class day of the fall semester. This is\n"
+                    "a twosemester course offered over consecutive semesters F-W. When you select this\n"
+                    "course, you must select IBIO*4521 in the Fall semester and IBIO*4522 in the Winter\n"
+                    "semester.A grade will not be assigned to IBIO*4521 until IBIO*4522 has been completed.",
+                    "lecture_lab_time": "0-12",
+                    "name": "Thesis in Integrative Biology",
+                    "prereqs": "12.00 credits",
+                    "restrictions": "Normally a minimum cumulative average of 70%. Permission of course\ncoordinator.",
+                    "semester": "F",
+                    "weight": "1.00",
+                },
+                {
+                    "code": "4533",
+                    "course": "IBIO",
+                    "department": "Department of Integrative Biology",
+                    "description": "This course is the first part of the two-semester course IBIO*4521/2. This course is\n"
+                    "a two-semester (F,W) undergraduate project in which students conduct a comprehensive,\n"
+                    "independent research project in organismal biology under the supervision of a faculty\n"
+                    "member in the Department of Integrative Biology.",
+                    "lecture_lab_time": "0-14",
+                    "name": "Thesis in Integrative Biology",
+                    "restrictions": "Normally a minimum cumulative average of 80%. Permission of course\n"
+                    "coordinator. Normally a minimum cumulative average of 90%. Permission of course\n"
+                    "coordinator.",
+                    "semester": "F",
+                    "weight": "2.00",
+                },
+            ]
+        ]
+    ]
+
+
 # test_issue_48_answer_more()
+
 
 def test_slack_channel_answer_for_Noif():
     data = """
@@ -2616,20 +3208,99 @@ default_values = {
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result(structure="flat_list")
-    # pprint.pprint(res, width=200)  
-    assert res == [{'comment': '', 'disabled': False, 'interface': 'lo0', 'ip': '10.4.1.245', 'network': '10.4.1.245'},
-                   {'comment': '', 'disabled': False, 'interface': 'lo1', 'ip': '10.4.1.246', 'network': '10.4.1.246'},
-                   {'comment': 'SITEMON', 'disabled': False, 'interface': 'ether2', 'ip': '10.9.48.241', 'mask': '29', 'network': '10.9.48.240'},
-                   {'comment': 'Camera', 'disabled': False, 'interface': 'vlan205@bond1', 'ip': '10.9.48.233', 'mask': '29', 'network': '10.9.48.232'},
-                   {'comment': 'SM-Management', 'disabled': False, 'interface': 'vlan200@bond1', 'ip': '10.9.49.1', 'mask': '24', 'network': '10.9.49.0'},
-                   {'comment': 'to core01', 'disabled': False, 'interface': 'vlan996@bond4', 'ip': '10.4.1.130', 'mask': '30', 'network': '10.4.1.128'},
-                   {'comment': 'BH 01', 'disabled': False, 'interface': 'vlan210@bond1', 'ip': '10.4.250.28', 'mask': '29', 'network': '10.4.250.24'},
-                   {'comment': 'Cust: site01-PE', 'disabled': False, 'interface': 'vlan11@bond1', 'ip': '10.9.50.13', 'mask': '30', 'network': '10.9.50.12'},
-                   {'comment': '', 'disabled': 'yes', 'interface': 'bridge:customer99', 'ip': '10.0.0.2', 'mask': '30', 'network': '10.0.0.0'},
-                   {'comment': 'Cambium', 'disabled': 'yes', 'interface': 'vlan200@bond1', 'ip': '169.254.1.100', 'mask': '24', 'network': '169.254.1.0'},
-                   {'comment': 'Backhaul to AGR (Test Segment)', 'disabled': 'yes', 'interface': 'vlan209@bond1', 'ip': '10.4.248.20', 'mask': '29', 'network': '10.4.248.16'}]
+    # pprint.pprint(res, width=200)
+    assert res == [
+        {
+            "comment": "",
+            "disabled": False,
+            "interface": "lo0",
+            "ip": "10.4.1.245",
+            "network": "10.4.1.245",
+        },
+        {
+            "comment": "",
+            "disabled": False,
+            "interface": "lo1",
+            "ip": "10.4.1.246",
+            "network": "10.4.1.246",
+        },
+        {
+            "comment": "SITEMON",
+            "disabled": False,
+            "interface": "ether2",
+            "ip": "10.9.48.241",
+            "mask": "29",
+            "network": "10.9.48.240",
+        },
+        {
+            "comment": "Camera",
+            "disabled": False,
+            "interface": "vlan205@bond1",
+            "ip": "10.9.48.233",
+            "mask": "29",
+            "network": "10.9.48.232",
+        },
+        {
+            "comment": "SM-Management",
+            "disabled": False,
+            "interface": "vlan200@bond1",
+            "ip": "10.9.49.1",
+            "mask": "24",
+            "network": "10.9.49.0",
+        },
+        {
+            "comment": "to core01",
+            "disabled": False,
+            "interface": "vlan996@bond4",
+            "ip": "10.4.1.130",
+            "mask": "30",
+            "network": "10.4.1.128",
+        },
+        {
+            "comment": "BH 01",
+            "disabled": False,
+            "interface": "vlan210@bond1",
+            "ip": "10.4.250.28",
+            "mask": "29",
+            "network": "10.4.250.24",
+        },
+        {
+            "comment": "Cust: site01-PE",
+            "disabled": False,
+            "interface": "vlan11@bond1",
+            "ip": "10.9.50.13",
+            "mask": "30",
+            "network": "10.9.50.12",
+        },
+        {
+            "comment": "",
+            "disabled": "yes",
+            "interface": "bridge:customer99",
+            "ip": "10.0.0.2",
+            "mask": "30",
+            "network": "10.0.0.0",
+        },
+        {
+            "comment": "Cambium",
+            "disabled": "yes",
+            "interface": "vlan200@bond1",
+            "ip": "169.254.1.100",
+            "mask": "24",
+            "network": "169.254.1.0",
+        },
+        {
+            "comment": "Backhaul to AGR (Test Segment)",
+            "disabled": "yes",
+            "interface": "vlan209@bond1",
+            "ip": "10.4.248.20",
+            "mask": "29",
+            "network": "10.4.248.16",
+        },
+    ]
+
 
 # test_slack_channel_answer_for_Noif()
+
 
 def test_slack_answer_2():
     data_to_parse = """
@@ -2777,69 +3448,119 @@ def test_slack_answer_2():
     parser = ttp(data=data_to_parse, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    pprint.pprint(res, width=150) 
-    assert res == [[{'system': {'ports': [{'admin_enabled': True,
-                                           'description': 'port 1 description',
-                                           'ethernet': {'encap_type': 'dot1q',
-                                                        'lldp_enabled': True,
-                                                        'mode': 'hybrid',
-                                                        'network': {'accounting_policy': '12',
-                                                                    'collect_stats': True,
-                                                                    'egress': {'queuegroups': [{'agg_rate': '50000', 'name': 'qos-policy-for-router1'}]},
-                                                                    'queue_policy': 'ncq-only'}},
-                                           'id': '1/1/1'},
-                                          {'admin_enabled': True,
-                                           'description': 'another port to a another router',
-                                           'ethernet': {'egress_sched_policy': 'qos-port-scheduler', 'encap_type': 'dot1q', 'mode': 'hybrid'},
-                                           'id': '1/1/2'},
-                                          {'admin_enabled': True,
-                                           'description': 'port 3 to some third router',
-                                           'ethernet': {'egress_sched_policy': 'strict-scheduler',
-                                                        'encap_type': 'dot1q',
-                                                        'mode': 'access',
-                                                        'mtu': '2000',
-                                                        'network': {'accounting_policy': '12',
-                                                                    'collect_stats': True,
-                                                                    'egress': {'queuegroups': [{'agg_rate': '50000', 'name': 'some-shaping-policy'},
-                                                                                               {'agg_rate': '50000', 'name': 'another-shaping-policy'},
-                                                                                               {'agg_rate': '1000000', 'name': 'this-shaper-is-cool'}]},
-                                                                    'queue_policy': 'ncq-only'}},
-                                           'id': '1/1/3'}]}}]]
-    
+    pprint.pprint(res, width=150)
+    assert res == [
+        [
+            {
+                "system": {
+                    "ports": [
+                        {
+                            "admin_enabled": True,
+                            "description": "port 1 description",
+                            "ethernet": {
+                                "encap_type": "dot1q",
+                                "lldp_enabled": True,
+                                "mode": "hybrid",
+                                "network": {
+                                    "accounting_policy": "12",
+                                    "collect_stats": True,
+                                    "egress": {
+                                        "queuegroups": [
+                                            {
+                                                "agg_rate": "50000",
+                                                "name": "qos-policy-for-router1",
+                                            }
+                                        ]
+                                    },
+                                    "queue_policy": "ncq-only",
+                                },
+                            },
+                            "id": "1/1/1",
+                        },
+                        {
+                            "admin_enabled": True,
+                            "description": "another port to a another router",
+                            "ethernet": {
+                                "egress_sched_policy": "qos-port-scheduler",
+                                "encap_type": "dot1q",
+                                "mode": "hybrid",
+                            },
+                            "id": "1/1/2",
+                        },
+                        {
+                            "admin_enabled": True,
+                            "description": "port 3 to some third router",
+                            "ethernet": {
+                                "egress_sched_policy": "strict-scheduler",
+                                "encap_type": "dot1q",
+                                "mode": "access",
+                                "mtu": "2000",
+                                "network": {
+                                    "accounting_policy": "12",
+                                    "collect_stats": True,
+                                    "egress": {
+                                        "queuegroups": [
+                                            {
+                                                "agg_rate": "50000",
+                                                "name": "some-shaping-policy",
+                                            },
+                                            {
+                                                "agg_rate": "50000",
+                                                "name": "another-shaping-policy",
+                                            },
+                                            {
+                                                "agg_rate": "1000000",
+                                                "name": "this-shaper-is-cool",
+                                            },
+                                        ]
+                                    },
+                                    "queue_policy": "ncq-only",
+                                },
+                            },
+                            "id": "1/1/3",
+                        },
+                    ]
+                }
+            }
+        ]
+    ]
+
+
 # test_slack_answer_2()
+
 
 def test_slack_answer_3():
     """
     Problem was that interfaces were matched by regexes from both ospf and ospfv3
     groups, decision logic was not able to properly work out to which group result
-    should belong, changed behavior to check if match is a child of current record 
-    group and use it if so. Also had to change how group id encoded from string to 
+    should belong, changed behavior to check if match is a child of current record
+    group and use it if so. Also had to change how group id encoded from string to
     tuple of two elements ("group path", "group index",)
-    
+
     Here is some debug output until problem was fixed:
     self.record["GRP_ID"]:  service.vprns*.{{id}}**.ospf3**::1
     re_["GROUP"].group_id:  service.vprns*.{{id}}**.ospf**.interfaces*::0
     re_idex: 0
-    
+
     self.record["GRP_ID"]:  service.vprns*.{{id}}**.ospf3**::1
     re_["GROUP"].group_id:  service.vprns*.{{id}}**.ospf3**.interfaces*::0
     re_idex: 1
-    
+
     # problem was happening because logic was not able to decide that need to use this match
     self.record["GRP_ID"]:  service.vprns*.{{id}}**.ospf**::0
     re_["GROUP"].group_id:  service.vprns*.{{id}}**.ospf**.interfaces*::0
     re_idex: 0
-    
+
     # problem was happening because logic was picking up this match
     self.record["GRP_ID"]:  service.vprns*.{{id}}**.ospf**::0
     re_["GROUP"].group_id:  service.vprns*.{{id}}**.ospf3**.interfaces*::0
     re_idex: 1
-    
+
     Wrong results:
     [[{'service': {'vprns': [{'4': {'name': 'ospf_version3_vprn',
                                     'ospf': {'area': '0.0.0.0', 'interfaces': [{'name': 'interface-one'}]},
                                     'ospf3': {'area': '0.0.0.0', 'interfaces': [{'name': 'interface-two'}]}},
-                              '5': {'name': 'vprn5', 'ospf': {'area': '0.0.0.0'}, 
+                              '5': {'name': 'vprn5', 'ospf': {'area': '0.0.0.0'},
                                                      'ospf3': {'interfaces': [{'name': 'interface-three'}]}}}]}}]]
     """
     data = """
@@ -2856,7 +3577,7 @@ def test_slack_answer_3():
                 area 0.0.0.0
                     interface "interface-three"
     """
-    template="""
+    template = """
         <group name="service.vprns*.{{id}}**">
         vprn {{ id }} name {{ name | ORPHRASE | strip('"') }} customer {{ ignore }} create
             <group name="ospf**">
@@ -2878,17 +3599,41 @@ def test_slack_answer_3():
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=100) 
-    assert res == [[{'service': {'vprns': [{'4': {'name': 'ospf_version3_vprn',
-                                                  'ospf': {'area': '0.0.0.0',
-                                                           'interfaces': [{'name': 'interface-one'}]},
-                                                  'ospf3': {'area': '0.0.0.0',
-                                                            'interfaces': [{'name': 'interface-two'}]}},
-                                            '5': {'name': 'vprn5',
-                                                  'ospf': {'area': '0.0.0.0',
-                                                           'interfaces': [{'name': 'interface-three'}]}}}]}}]]
-    
+    # pprint.pprint(res, width=100)
+    assert res == [
+        [
+            {
+                "service": {
+                    "vprns": [
+                        {
+                            "4": {
+                                "name": "ospf_version3_vprn",
+                                "ospf": {
+                                    "area": "0.0.0.0",
+                                    "interfaces": [{"name": "interface-one"}],
+                                },
+                                "ospf3": {
+                                    "area": "0.0.0.0",
+                                    "interfaces": [{"name": "interface-two"}],
+                                },
+                            },
+                            "5": {
+                                "name": "vprn5",
+                                "ospf": {
+                                    "area": "0.0.0.0",
+                                    "interfaces": [{"name": "interface-three"}],
+                                },
+                            },
+                        }
+                    ]
+                }
+            }
+        ]
+    ]
+
+
 # test_slack_answer_3()
+
 
 def test_slack_answer_3_full():
     data = """
@@ -3218,92 +3963,180 @@ echo "Service Configuration" {{ ignore }}
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=100) 
-    assert res == [[{'service': {'vprns': [{'1': {'admin_enabled': 'True',
-                                'interfaces': [{'bgp-interface': {'address': '10.10.10.200',
-                                                                  'mask': '31',
-                                                                  'sap': {'port': 'lag-4',
-                                                                          'vlan': '100'}},
-                                                'interface-one': {'address': '10.10.10.10',
-                                                                  'mask': '30',
-                                                                  'sap': {'port': '1/1/1',
-                                                                          'vlan': '10'}},
-                                                'interface-two': {'address': '10.10.10.100',
-                                                                  'mask': '31',
-                                                                  'sap': {'port': 'lag-5',
-                                                                          'vlan': '80'}},
-                                                'loopback': {'address': '10.10.10.1',
-                                                             'mask': '32'}}],
-                                'name': 'vprn1',
-                                'ospf': {'admin_enabled': 'True',
-                                         'area': '0.0.0.0',
-                                         'interfaces': [{'name': 'interface-two',
-                                                         'passive': 'True'}]}},
-                          '2': {'admin_enabled': 'True',
-                                'interfaces': [{'bgp-interface': {},
-                                                'interface-two': {'address': '10.11.11.10',
-                                                                  'mask': '31',
-                                                                  'sap': {'port': 'lag-1',
-                                                                          'vlan': '50'}},
-                                                'loopback': {}}],
-                                'name': 'vprn2',
-                                'ospf': {'admin_enabled': 'True',
-                                         'area': '0.0.0.0',
-                                         'interfaces': [{'name': 'interface-two',
-                                                         'passive': 'True'}]}},
-                          '3': {'admin_enabled': 'True',
-                                'interfaces': [{'interface-two': {'address': '10.12.12.100',
-                                                                  'mask': '31',
-                                                                  'sap': {'port': 'lag-5',
-                                                                          'vlan': '33'}},
-                                                'loopback': {'address': '10.12.12.12',
-                                                             'mask': '32'}}],
-                                'name': 'vprn3',
-                                'ospf': {'admin_enabled': 'True',
-                                         'area': '0.0.0.0',
-                                         'interfaces': [{'name': 'interface-two',
-                                                         'passive': 'True'}]}},
-                          '4': {'admin_enabled': 'True',
-                                'interfaces': [{'interface-two': {'address': '10.40.40.100',
-                                                                  'ipv6': {'address': '1500:1000:460e::2222:1111',
-                                                                           'mask': '64'},
-                                                                  'mask': '31',
-                                                                  'sap': {'port': 'lag-5',
-                                                                          'vlan': '800'}},
-                                                'loopback': {'address': '10.40.40.10',
-                                                             'ipv6': {'address': '1500:1000:460e::a03:ae46',
-                                                                      'mask': '128'},
-                                                             'mask': '32'}}],
-                                'name': 'ospf_version3_vprn',
-                                'ospf': {'admin_enabled': 'True',
-                                         'area': '0.0.0.0',
-                                         'interfaces': [{'name': 'interface-two',
-                                                         'passive': 'True'}]},
-                                'ospf3': {'admin_enabled': 'True',
-                                          'area': '0.0.0.0',
-                                          'interfaces': [{'name': 'interface-two',
-                                                          'passive': 'True'}]}},
-                          '5': {'admin_enabled': 'True',
-                                'bgp': {'admin_enabled': 'True',
-                                        'peergroups': [{'name': 'eBGP',
-                                                        'neighbors': [{'address': '10.50.50.201'}],
-                                                        'remote_as': '4444'}]},
-                                'interfaces': [{'bgp-interface': {'address': '10.50.50.200',
-                                                                  'mask': '31',
-                                                                  'sap': {'port': 'lag-1',
-                                                                          'vlan': '602'}},
-                                                'interface-two': {'address': '10.50.50.100',
-                                                                  'mask': '31',
-                                                                  'sap': {'port': 'lag-5',
-                                                                          'vlan': '5'}},
-                                                'loopback': {'address': '10.50.50.50',
-                                                             'mask': '32'}}],
-                                'name': 'vprn5',
-                                'ospf': {'area': '0.0.0.0',
-                                         'interfaces': [{'name': 'interface-two',
-                                                         'passive': 'True'}]}}}]}}]]
-    
+    # pprint.pprint(res, width=100)
+    assert res == [
+        [
+            {
+                "service": {
+                    "vprns": [
+                        {
+                            "1": {
+                                "admin_enabled": "True",
+                                "interfaces": [
+                                    {
+                                        "bgp-interface": {
+                                            "address": "10.10.10.200",
+                                            "mask": "31",
+                                            "sap": {"port": "lag-4", "vlan": "100"},
+                                        },
+                                        "interface-one": {
+                                            "address": "10.10.10.10",
+                                            "mask": "30",
+                                            "sap": {"port": "1/1/1", "vlan": "10"},
+                                        },
+                                        "interface-two": {
+                                            "address": "10.10.10.100",
+                                            "mask": "31",
+                                            "sap": {"port": "lag-5", "vlan": "80"},
+                                        },
+                                        "loopback": {
+                                            "address": "10.10.10.1",
+                                            "mask": "32",
+                                        },
+                                    }
+                                ],
+                                "name": "vprn1",
+                                "ospf": {
+                                    "admin_enabled": "True",
+                                    "area": "0.0.0.0",
+                                    "interfaces": [
+                                        {"name": "interface-two", "passive": "True"}
+                                    ],
+                                },
+                            },
+                            "2": {
+                                "admin_enabled": "True",
+                                "interfaces": [
+                                    {
+                                        "bgp-interface": {},
+                                        "interface-two": {
+                                            "address": "10.11.11.10",
+                                            "mask": "31",
+                                            "sap": {"port": "lag-1", "vlan": "50"},
+                                        },
+                                        "loopback": {},
+                                    }
+                                ],
+                                "name": "vprn2",
+                                "ospf": {
+                                    "admin_enabled": "True",
+                                    "area": "0.0.0.0",
+                                    "interfaces": [
+                                        {"name": "interface-two", "passive": "True"}
+                                    ],
+                                },
+                            },
+                            "3": {
+                                "admin_enabled": "True",
+                                "interfaces": [
+                                    {
+                                        "interface-two": {
+                                            "address": "10.12.12.100",
+                                            "mask": "31",
+                                            "sap": {"port": "lag-5", "vlan": "33"},
+                                        },
+                                        "loopback": {
+                                            "address": "10.12.12.12",
+                                            "mask": "32",
+                                        },
+                                    }
+                                ],
+                                "name": "vprn3",
+                                "ospf": {
+                                    "admin_enabled": "True",
+                                    "area": "0.0.0.0",
+                                    "interfaces": [
+                                        {"name": "interface-two", "passive": "True"}
+                                    ],
+                                },
+                            },
+                            "4": {
+                                "admin_enabled": "True",
+                                "interfaces": [
+                                    {
+                                        "interface-two": {
+                                            "address": "10.40.40.100",
+                                            "ipv6": {
+                                                "address": "1500:1000:460e::2222:1111",
+                                                "mask": "64",
+                                            },
+                                            "mask": "31",
+                                            "sap": {"port": "lag-5", "vlan": "800"},
+                                        },
+                                        "loopback": {
+                                            "address": "10.40.40.10",
+                                            "ipv6": {
+                                                "address": "1500:1000:460e::a03:ae46",
+                                                "mask": "128",
+                                            },
+                                            "mask": "32",
+                                        },
+                                    }
+                                ],
+                                "name": "ospf_version3_vprn",
+                                "ospf": {
+                                    "admin_enabled": "True",
+                                    "area": "0.0.0.0",
+                                    "interfaces": [
+                                        {"name": "interface-two", "passive": "True"}
+                                    ],
+                                },
+                                "ospf3": {
+                                    "admin_enabled": "True",
+                                    "area": "0.0.0.0",
+                                    "interfaces": [
+                                        {"name": "interface-two", "passive": "True"}
+                                    ],
+                                },
+                            },
+                            "5": {
+                                "admin_enabled": "True",
+                                "bgp": {
+                                    "admin_enabled": "True",
+                                    "peergroups": [
+                                        {
+                                            "name": "eBGP",
+                                            "neighbors": [{"address": "10.50.50.201"}],
+                                            "remote_as": "4444",
+                                        }
+                                    ],
+                                },
+                                "interfaces": [
+                                    {
+                                        "bgp-interface": {
+                                            "address": "10.50.50.200",
+                                            "mask": "31",
+                                            "sap": {"port": "lag-1", "vlan": "602"},
+                                        },
+                                        "interface-two": {
+                                            "address": "10.50.50.100",
+                                            "mask": "31",
+                                            "sap": {"port": "lag-5", "vlan": "5"},
+                                        },
+                                        "loopback": {
+                                            "address": "10.50.50.50",
+                                            "mask": "32",
+                                        },
+                                    }
+                                ],
+                                "name": "vprn5",
+                                "ospf": {
+                                    "area": "0.0.0.0",
+                                    "interfaces": [
+                                        {"name": "interface-two", "passive": "True"}
+                                    ],
+                                },
+                            },
+                        }
+                    ]
+                }
+            }
+        ]
+    ]
+
+
 # test_slack_answer_3_full()
+
 
 def test_issue_45_for_junos_cfg():
     data = """
@@ -3437,32 +4270,58 @@ system { {{ _start_ }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=100)
-    assert res == [[{'system_level': {'HOSTNAME': 'LAB-MX-1',
-                                      'TZ': 'some/time',
-                                      'default_address_selection': True,
-                                      'no_ping_record_route': True,
-                                      'no_ping_time_stamp': True,
-                                      'no_redirects': True,
-                                      'services': {'netconf': {'ssh': {'connection-limit': '10', 'rate-limit': '4'}},
-                                                   'ssh': {'client-alive-count-max': '3',
-                                                           'client-alive-interval': '10',
-                                                           'connection-limit': '10',
-                                                           'max-sessions': '32',
-                                                           'no-tcp-fwding': True,
-                                                           'rate-limit': '5',
-                                                           'root-login': False,
-                                                           'ssh-proto': 'v2'}},
-                                      'tacacs': {'tacacs-servers': {'1.1.1.1': {'tac_port': '49',
-                                                                                'tac_secret': '<SECRET_HASH>',
-                                                                                'tac_source': '5.5.5.5'},
-                                                                    '2.2.2.2': {'tac_port': '49',
-                                                                                'tac_secret': '<SECRET_HASH>',
-                                                                                'tac_source': '5.5.5.5'},
-                                                                    '4.4.4.4': {'tac_port': '49',
-                                                                                'tac_secret': '<SECRET_HASH>',
-                                                                                'tac_source': '5.5.5.5'}}}}}]]
-    
+    assert res == [
+        [
+            {
+                "system_level": {
+                    "HOSTNAME": "LAB-MX-1",
+                    "TZ": "some/time",
+                    "default_address_selection": True,
+                    "no_ping_record_route": True,
+                    "no_ping_time_stamp": True,
+                    "no_redirects": True,
+                    "services": {
+                        "netconf": {
+                            "ssh": {"connection-limit": "10", "rate-limit": "4"}
+                        },
+                        "ssh": {
+                            "client-alive-count-max": "3",
+                            "client-alive-interval": "10",
+                            "connection-limit": "10",
+                            "max-sessions": "32",
+                            "no-tcp-fwding": True,
+                            "rate-limit": "5",
+                            "root-login": False,
+                            "ssh-proto": "v2",
+                        },
+                    },
+                    "tacacs": {
+                        "tacacs-servers": {
+                            "1.1.1.1": {
+                                "tac_port": "49",
+                                "tac_secret": "<SECRET_HASH>",
+                                "tac_source": "5.5.5.5",
+                            },
+                            "2.2.2.2": {
+                                "tac_port": "49",
+                                "tac_secret": "<SECRET_HASH>",
+                                "tac_source": "5.5.5.5",
+                            },
+                            "4.4.4.4": {
+                                "tac_port": "49",
+                                "tac_secret": "<SECRET_HASH>",
+                                "tac_source": "5.5.5.5",
+                            },
+                        }
+                    },
+                }
+            }
+        ]
+    ]
+
+
 # test_issue_45_for_junos_cfg()
+
 
 def test_faq_multiline_output_matching():
     data = """
@@ -3493,17 +4352,29 @@ Time remaining: {{ ignore }} seconds {{ _end_ }}
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=100)    
-    assert res == [[[{'local_intf': 'Te2/1/23',
-                      'peer_name': 'r1.lab.local',
-                      'peer_system_description': {'sys_description': 'Cisco IOS Software, Catalyst 1234 L3 Switch '
-                                                                     'Software (cat1234e-ENTSERVICESK9-M), Version '
-                                                                     '1534.1(1)SG, RELEASE SOFTWARE (fc3) Technical '
-                                                                     'Support: http://www.cisco.com/techsupport '
-                                                                     'Copyright (c) 1986-2012 by Cisco Systems, Inc. '
-                                                                     'Compiled Sun 15-Apr-12 02:35 by p'}}]]]
-                                                   
+    # pprint.pprint(res, width=100)
+    assert res == [
+        [
+            [
+                {
+                    "local_intf": "Te2/1/23",
+                    "peer_name": "r1.lab.local",
+                    "peer_system_description": {
+                        "sys_description": "Cisco IOS Software, Catalyst 1234 L3 Switch "
+                        "Software (cat1234e-ENTSERVICESK9-M), Version "
+                        "1534.1(1)SG, RELEASE SOFTWARE (fc3) Technical "
+                        "Support: http://www.cisco.com/techsupport "
+                        "Copyright (c) 1986-2012 by Cisco Systems, Inc. "
+                        "Compiled Sun 15-Apr-12 02:35 by p"
+                    },
+                }
+            ]
+        ]
+    ]
+
+
 # test_faq_multiline_output_matching()
+
 
 def test_issue_52_answer():
     data = """
@@ -3533,19 +4404,35 @@ def process(data):
 Origin: {{ _start_ }}
 {{ match | _line_ | joinmatches }}
 </group>
-    """ 
+    """
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=100) 
-    assert res == [[{'origin': [{'address': 'Example Address, example number, example city',
-                                 'name': 'Some random name'},
-                                {'address': 'Example Address, example number, example city 2',
-                                 'name': 'Some random name 2'},
-                                {'address': 'Example Address, example number, example city 3',
-                                 'name': 'Some random name 3'}]}]]
-   
+    # pprint.pprint(res, width=100)
+    assert res == [
+        [
+            {
+                "origin": [
+                    {
+                        "address": "Example Address, example number, example city",
+                        "name": "Some random name",
+                    },
+                    {
+                        "address": "Example Address, example number, example city 2",
+                        "name": "Some random name 2",
+                    },
+                    {
+                        "address": "Example Address, example number, example city 3",
+                        "name": "Some random name 3",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_issue_52_answer()
+
 
 def test_issue_51_answer():
     """ test workaround for removing <> chars from input data """
@@ -3567,14 +4454,18 @@ Name:{{ name }}&lt;br&gt;
     # this did not work. fails with xml parsing error
     # template = "Name:{{ name }}&lt;br&gt;"
     # data = data.replace("<", "&lt;").replace(">", "&gt;")
-    
+
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=100)    
-    assert res == [[{'people': [{'name': 'Jane'}, {'name': 'Michael'}, {'name': 'July'}]}]]
-    
+    # pprint.pprint(res, width=100)
+    assert res == [
+        [{"people": [{"name": "Jane"}, {"name": "Michael"}, {"name": "July"}]}]
+    ]
+
+
 # test_issue_51_answer()
+
 
 def test_issue_50():
     template = """
@@ -3690,23 +4581,41 @@ def test_issue_50():
     parser = ttp(template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)   
-    assert res == [[{'ifaces': {'BNG-RH201-CORE': {'description': 'BNG-RH201-CORE',
-                                                   'ipv4': '11.11.11.11/31',
-                                                   'ipv6': '1111:0:1111:1111::1/64'},
-                                'BNG-RH202-CORE': {'description': 'BNG-RH201-CORE',
-                                                   'ipv4': '22.22.22.22/31',
-                                                   'ipv6': '2222:0:2222:2222::2/64'},
-                                'OLT-MGT': {'ipv4': '55.55.55.55/25'},
-                                'OTDR-MGT': {'ipv4': '44.44.44.44/25'},
-                                's100': {'description': 'Subscriber interface for subscribers',
-                                         'iftype': 'subscriber',
-                                         'ipv4': '77.77.77.77/22; 88.88.88.88/20'},
-                                'shunt': {'iftype': 'redundant', 'ipv4': '66.66.66.66/31'},
-                                'system': {'ipv4': '33.33.33.33/32',
-                                           'ipv6': '3333:0:3333:3333::3/128'}}}]]
-                         
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "ifaces": {
+                    "BNG-RH201-CORE": {
+                        "description": "BNG-RH201-CORE",
+                        "ipv4": "11.11.11.11/31",
+                        "ipv6": "1111:0:1111:1111::1/64",
+                    },
+                    "BNG-RH202-CORE": {
+                        "description": "BNG-RH201-CORE",
+                        "ipv4": "22.22.22.22/31",
+                        "ipv6": "2222:0:2222:2222::2/64",
+                    },
+                    "OLT-MGT": {"ipv4": "55.55.55.55/25"},
+                    "OTDR-MGT": {"ipv4": "44.44.44.44/25"},
+                    "s100": {
+                        "description": "Subscriber interface for subscribers",
+                        "iftype": "subscriber",
+                        "ipv4": "77.77.77.77/22; 88.88.88.88/20",
+                    },
+                    "shunt": {"iftype": "redundant", "ipv4": "66.66.66.66/31"},
+                    "system": {
+                        "ipv4": "33.33.33.33/32",
+                        "ipv6": "3333:0:3333:3333::3/128",
+                    },
+                }
+            }
+        ]
+    ]
+
+
 # test_issue_50()
+
 
 def test_start_with_set():
     data = """
@@ -3720,8 +4629,9 @@ inactive: authentication { {{ inactive | set(True) | _start_ }}
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[[{'inactive': False}, {'inactive': True}]]]
+    # pprint.pprint(res)
+    assert res == [[[{"inactive": False}, {"inactive": True}]]]
+
 
 # test_start_with_set()
 
@@ -3768,18 +4678,33 @@ router bgp 65100
     parser = ttp(data, template, log_level="DEBUG")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res) 
-    assert res == [[{'bgp_peers': {'65100': {'1.1.1.1': {'description': 'Some Description here',
-                                                         'inherit_peer-session': 'session_1',
-                                                         'password': '12345678',
-                                                         'remote-as': '1234',
-                                                         'shutdown': 'yes',
-                                                         'update-source': ''},
-                                             '1.1.1.2': {'description': '',
-                                                         'inherit_peer-session': 'session_1',
-                                                         'password': '',
-                                                         'remote-as': '1234',
-                                                         'shutdown': 'no',
-                                                         'update-source': ''}}}}]]
-    
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "bgp_peers": {
+                    "65100": {
+                        "1.1.1.1": {
+                            "description": "Some Description here",
+                            "inherit_peer-session": "session_1",
+                            "password": "12345678",
+                            "remote-as": "1234",
+                            "shutdown": "yes",
+                            "update-source": "",
+                        },
+                        "1.1.1.2": {
+                            "description": "",
+                            "inherit_peer-session": "session_1",
+                            "password": "",
+                            "remote-as": "1234",
+                            "shutdown": "no",
+                            "update-source": "",
+                        },
+                    }
+                }
+            }
+        ]
+    ]
+
+
 # test_ios_bgp_pers_pars()

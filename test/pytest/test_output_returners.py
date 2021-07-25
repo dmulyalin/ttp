@@ -1,11 +1,14 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 import logging
+
 logging.basicConfig(level="ERROR")
 
 from ttp import ttp
+
 
 def test_file_returner_format_raw():
     template_1 = """
@@ -32,9 +35,14 @@ filename="out_test_file_returner.txt"
     # res=parser.result()
     # pprint.pprint(res)
     with open("./Output/out_test_file_returner.txt", "r") as f:
-        assert f.read() == "[[{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]]"
-        
+        assert (
+            f.read()
+            == "[[{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]]"
+        )
+
+
 # test_file_returner()
+
 
 def test_file_returner_format_raw_incomplete_url():
     template_1 = """
@@ -61,9 +69,14 @@ filename="out_test_file_returner_2.txt"
     # res=parser.result()
     # pprint.pprint(res)
     with open("./Output/out_test_file_returner_2.txt", "r") as f:
-        assert f.read() == "[[{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]]"
-        
+        assert (
+            f.read()
+            == "[[{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]]"
+        )
+
+
 # test_file_returner_format_raw_incomplete_url()
+
 
 def test_file_returner_format_raw_1():
     template_1 = """
@@ -90,8 +103,12 @@ filename="out_test_file_returner_1.txt"
     # res=parser.result()
     # pprint.pprint(res)
     with open("./Output/out_test_file_returner_1.txt", "r") as f:
-        assert f.read() == "[[{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]]"
-        
+        assert (
+            f.read()
+            == "[[{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]]"
+        )
+
+
 def test_file_returner_filename_format():
     template_1 = """
 <input load="text">
@@ -131,9 +148,14 @@ filename="out_test_file_returner_{host_name}.txt"
     # res=parser.result()
     # pprint.pprint(res)
     with open("./Output/out_test_file_returner_switch-sw2.txt", "r") as f:
-        assert f.read() == "[[{'vlan': 10, 'interface': 'Port-Chanel11', 'hostname': 'switch-sw1'}, {'vlan': 20, 'interface': 'Loopback0', 'hostname': 'switch-sw1'}], [{'vlan': 10, 'interface': 'Port-Chanel11', 'hostname': 'switch-sw2'}, {'vlan': 20, 'interface': 'Loopback0', 'hostname': 'switch-sw2'}]]"
-    
+        assert (
+            f.read()
+            == "[[{'vlan': 10, 'interface': 'Port-Chanel11', 'hostname': 'switch-sw1'}, {'vlan': 20, 'interface': 'Loopback0', 'hostname': 'switch-sw1'}], [{'vlan': 10, 'interface': 'Port-Chanel11', 'hostname': 'switch-sw2'}, {'vlan': 20, 'interface': 'Loopback0', 'hostname': 'switch-sw2'}]]"
+        )
+
+
 # test_file_returner_filename_format()
+
 
 def test_file_returner_filename_format_group_specific_output():
     template_1 = """
@@ -170,9 +192,20 @@ filename="out_test_file_returner_{host_name}_group_specific_outputter.txt"
 """
     parser = ttp(template=template_1)
     parser.parse()
-    with open("./Output/out_test_file_returner_switch-sw1_group_specific_outputter.txt", "r") as f:
-        assert f.read() == "{'_anonymous_': [{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]}"
-    with open("./Output/out_test_file_returner_switch-sw2_group_specific_outputter.txt", "r") as f:
-        assert f.read() == "{'_anonymous_': [{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]}"
-        
+    with open(
+        "./Output/out_test_file_returner_switch-sw1_group_specific_outputter.txt", "r"
+    ) as f:
+        assert (
+            f.read()
+            == "{'_anonymous_': [{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]}"
+        )
+    with open(
+        "./Output/out_test_file_returner_switch-sw2_group_specific_outputter.txt", "r"
+    ) as f:
+        assert (
+            f.read()
+            == "{'_anonymous_': [{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]}"
+        )
+
+
 # test_file_returner_filename_format_group_specific_output()

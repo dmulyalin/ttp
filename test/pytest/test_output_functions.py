@@ -1,11 +1,14 @@
 import sys
-sys.path.insert(0,'../..')
+
+sys.path.insert(0, "../..")
 import pprint
 
 from ttp import ttp
 
 import logging
+
 logging.basicConfig(level=logging.ERROR)
+
 
 def test_cerberus_validate_per_input():
     template = """
@@ -54,12 +57,20 @@ ntp peer {{ peer }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'errors': {}, 'info': 'csw1 NTP peers valid', 'valid': True},
-                   {'errors': {'ntp_peers': [{1: [{'peer': ['unallowed value 3.3.3.3']}]}]},
-                    'info': 'csw2 NTP peers valid',
-                    'valid': False}]]
-    
+    assert res == [
+        [
+            {"errors": {}, "info": "csw1 NTP peers valid", "valid": True},
+            {
+                "errors": {"ntp_peers": [{1: [{"peer": ["unallowed value 3.3.3.3"]}]}]},
+                "info": "csw2 NTP peers valid",
+                "valid": False,
+            },
+        ]
+    ]
+
+
 # test_cerberus_validate_per_input()
+
 
 def test_cerberus_validate_per_template():
     template = """
@@ -105,11 +116,17 @@ ntp peer {{ peer }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [{'errors': {'ntp_peers': [{3: [{'peer': ['unallowed value 3.3.3.3']}]}]},
-                    'info': 'csw1 NTP peers valid',
-                    'valid': False}]
-    
+    assert res == [
+        {
+            "errors": {"ntp_peers": [{3: [{"peer": ["unallowed value 3.3.3.3"]}]}]},
+            "info": "csw1 NTP peers valid",
+            "valid": False,
+        }
+    ]
+
+
 # test_cerberus_validate_per_template()
+
 
 def test_global_output_deepdiff_with_var_before():
     template = """
@@ -145,10 +162,20 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [{'values_changed': {"root[0][0]['mask']": {'new_value': '255.255.255.0',
-                                                              'old_value': '255.255.255.255'}}}]
-    
+    assert res == [
+        {
+            "values_changed": {
+                "root[0][0]['mask']": {
+                    "new_value": "255.255.255.0",
+                    "old_value": "255.255.255.255",
+                }
+            }
+        }
+    ]
+
+
 # test_global_output_deepdiff_with_var_before()
+
 
 def test_group_specific_output_deepdiff_with_var_before():
     template = """
@@ -190,17 +217,39 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'interfaces_2': [{'interface': 'GigabitEthernet1',
-                                        'ip': '10.123.89.56',
-                                        'mask': '255.255.255.0',
-                                        'vrf': 'MGMT'},
-                                       {'interface': 'GigabitEthernet2',
-                                        'ip': '10.123.89.55',
-                                        'mask': '255.255.255.0'}]},
-                    {'values_changed': {"root['interfaces'][0]['mask']": {'new_value': '255.255.255.0',
-                                                                          'old_value': '255.255.255.255'}}}]]]
-                                                              
+    assert res == [
+        [
+            [
+                {
+                    "interfaces_2": [
+                        {
+                            "interface": "GigabitEthernet1",
+                            "ip": "10.123.89.56",
+                            "mask": "255.255.255.0",
+                            "vrf": "MGMT",
+                        },
+                        {
+                            "interface": "GigabitEthernet2",
+                            "ip": "10.123.89.55",
+                            "mask": "255.255.255.0",
+                        },
+                    ]
+                },
+                {
+                    "values_changed": {
+                        "root['interfaces'][0]['mask']": {
+                            "new_value": "255.255.255.0",
+                            "old_value": "255.255.255.255",
+                        }
+                    }
+                },
+            ]
+        ]
+    ]
+
+
 # test_group_specific_output_deepdiff_with_var_before()
+
 
 def test_group_specific_output_deepdiff_with_var_before_with_add_field():
     template = """
@@ -242,24 +291,54 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'interfaces_2': [{'interface': 'GigabitEthernet1',
-                                        'ip': '10.123.89.56',
-                                        'mask': '255.255.255.0',
-                                        'vrf': 'MGMT'},
-                                       {'interface': 'GigabitEthernet2',
-                                        'ip': '10.123.89.55',
-                                        'mask': '255.255.255.0'}]},
-                     {'diff': {'values_changed': {"root['interfaces'][0]['mask']": {'new_value': '255.255.255.0',
-                                                                                    'old_value': '255.255.255.255'}}},
-                      'interfaces': [{'description': 'some info',
-                                      'interface': 'GigabitEthernet1',
-                                      'ip': '10.123.89.56',
-                                      'mask': '255.255.255.0'},
-                                     {'interface': 'GigabitEthernet2',
-                                      'ip': '10.123.89.55',
-                                      'mask': '255.255.255.0'}]}]]]
-    
-# test_group_specific_output_deepdiff_with_var_before_with_add_field()   
+    assert res == [
+        [
+            [
+                {
+                    "interfaces_2": [
+                        {
+                            "interface": "GigabitEthernet1",
+                            "ip": "10.123.89.56",
+                            "mask": "255.255.255.0",
+                            "vrf": "MGMT",
+                        },
+                        {
+                            "interface": "GigabitEthernet2",
+                            "ip": "10.123.89.55",
+                            "mask": "255.255.255.0",
+                        },
+                    ]
+                },
+                {
+                    "diff": {
+                        "values_changed": {
+                            "root['interfaces'][0]['mask']": {
+                                "new_value": "255.255.255.0",
+                                "old_value": "255.255.255.255",
+                            }
+                        }
+                    },
+                    "interfaces": [
+                        {
+                            "description": "some info",
+                            "interface": "GigabitEthernet1",
+                            "ip": "10.123.89.56",
+                            "mask": "255.255.255.0",
+                        },
+                        {
+                            "interface": "GigabitEthernet2",
+                            "ip": "10.123.89.55",
+                            "mask": "255.255.255.0",
+                        },
+                    ],
+                },
+            ]
+        ]
+    ]
+
+
+# test_group_specific_output_deepdiff_with_var_before_with_add_field()
+
 
 def test_yangson_validate():
     data = """
@@ -327,66 +406,110 @@ validate_yangson="'./yang_modules/'"
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [{'comment': '',
-  'exception': {},
-  'result': [{'ietf-interfaces:interfaces': {'interface': [{'admin-status': 'down',
-                                                            'description': 'Customer '
-                                                                           '#32148',
-                                                            'enabled': False,
-                                                            'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                          'netmask': '255.255.255.128',
-                                                                                          'origin': 'static'}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/3.251',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'vCPEs '
-                                                                           'access '
-                                                                           'control',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                          'netmask': '255.255.255.128',
-                                                                                          'origin': 'static'}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/4',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'Works '
-                                                                           'data',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv4': {'mtu': 9000},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/5',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'Works '
-                                                                           'data '
-                                                                           'v6',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv6': {'address': [{'ip': '2001::1',
-                                                                                          'origin': 'static',
-                                                                                          'prefix-length': 64},
-                                                                                         {'ip': '2001:1::1',
-                                                                                          'origin': 'static',
-                                                                                          'prefix-length': 64}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/7',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'}]}}],
-  'valid': {0: True}}]
-    
+    assert res == [
+        {
+            "comment": "",
+            "exception": {},
+            "result": [
+                {
+                    "ietf-interfaces:interfaces": {
+                        "interface": [
+                            {
+                                "admin-status": "down",
+                                "description": "Customer " "#32148",
+                                "enabled": False,
+                                "ietf-ip:ipv4": {
+                                    "address": [
+                                        {
+                                            "ip": "172.16.33.10",
+                                            "netmask": "255.255.255.128",
+                                            "origin": "static",
+                                        }
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/3.251",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "vCPEs " "access " "control",
+                                "enabled": True,
+                                "ietf-ip:ipv4": {
+                                    "address": [
+                                        {
+                                            "ip": "172.16.33.10",
+                                            "netmask": "255.255.255.128",
+                                            "origin": "static",
+                                        }
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/4",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "Works " "data",
+                                "enabled": True,
+                                "ietf-ip:ipv4": {"mtu": 9000},
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/5",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "Works " "data " "v6",
+                                "enabled": True,
+                                "ietf-ip:ipv6": {
+                                    "address": [
+                                        {
+                                            "ip": "2001::1",
+                                            "origin": "static",
+                                            "prefix-length": 64,
+                                        },
+                                        {
+                                            "ip": "2001:1::1",
+                                            "origin": "static",
+                                            "prefix-length": 64,
+                                        },
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/7",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                        ]
+                    }
+                }
+            ],
+            "valid": {0: True},
+        }
+    ]
+
+
 # test_yangson_validate()
+
 
 def test_yangson_validate_yang_lib_in_output_tag_data():
     data = """
@@ -499,66 +622,110 @@ interface {{ name | macro(add_iftype) }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [{'comment': '',
-  'exception': {},
-  'result': [{'ietf-interfaces:interfaces': {'interface': [{'admin-status': 'down',
-                                                            'description': 'Customer '
-                                                                           '#32148',
-                                                            'enabled': False,
-                                                            'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                          'netmask': '255.255.255.128',
-                                                                                          'origin': 'static'}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/3.251',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'vCPEs '
-                                                                           'access '
-                                                                           'control',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                          'netmask': '255.255.255.128',
-                                                                                          'origin': 'static'}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/4',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'Works '
-                                                                           'data',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv4': {'mtu': 9000},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/5',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'Works '
-                                                                           'data '
-                                                                           'v6',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv6': {'address': [{'ip': '2001::1',
-                                                                                          'origin': 'static',
-                                                                                          'prefix-length': 64},
-                                                                                         {'ip': '2001:1::1',
-                                                                                          'origin': 'static',
-                                                                                          'prefix-length': 64}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/7',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'}]}}],
-  'valid': {0: True}}]
-                    
+    assert res == [
+        {
+            "comment": "",
+            "exception": {},
+            "result": [
+                {
+                    "ietf-interfaces:interfaces": {
+                        "interface": [
+                            {
+                                "admin-status": "down",
+                                "description": "Customer " "#32148",
+                                "enabled": False,
+                                "ietf-ip:ipv4": {
+                                    "address": [
+                                        {
+                                            "ip": "172.16.33.10",
+                                            "netmask": "255.255.255.128",
+                                            "origin": "static",
+                                        }
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/3.251",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "vCPEs " "access " "control",
+                                "enabled": True,
+                                "ietf-ip:ipv4": {
+                                    "address": [
+                                        {
+                                            "ip": "172.16.33.10",
+                                            "netmask": "255.255.255.128",
+                                            "origin": "static",
+                                        }
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/4",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "Works " "data",
+                                "enabled": True,
+                                "ietf-ip:ipv4": {"mtu": 9000},
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/5",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "Works " "data " "v6",
+                                "enabled": True,
+                                "ietf-ip:ipv6": {
+                                    "address": [
+                                        {
+                                            "ip": "2001::1",
+                                            "origin": "static",
+                                            "prefix-length": 64,
+                                        },
+                                        {
+                                            "ip": "2001:1::1",
+                                            "origin": "static",
+                                            "prefix-length": 64,
+                                        },
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/7",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                        ]
+                    }
+                }
+            ],
+            "valid": {0: True},
+        }
+    ]
+
+
 # test_yangson_validate_yang_lib_in_output_tag_data()
+
 
 def test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file():
     data1 = """
@@ -636,78 +803,136 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [{'comment': '',
-  'exception': {},
-  'result': [{'ietf-interfaces:interfaces': {'interface': [{'admin-status': 'down',
-                                                            'description': 'Customer '
-                                                                           '#32148',
-                                                            'enabled': False,
-                                                            'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                          'netmask': '255.255.255.128',
-                                                                                          'origin': 'static'}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/3.251',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'vCPEs '
-                                                                           'access '
-                                                                           'control',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                          'netmask': '255.255.255.128',
-                                                                                          'origin': 'static'}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/4',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'Works '
-                                                                           'data',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv4': {'mtu': 9000},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/5',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'},
-                                                           {'admin-status': 'up',
-                                                            'description': 'Works '
-                                                                           'data '
-                                                                           'v6',
-                                                            'enabled': True,
-                                                            'ietf-ip:ipv6': {'address': [{'ip': '2001::1',
-                                                                                          'origin': 'static',
-                                                                                          'prefix-length': 64},
-                                                                                         {'ip': '2001:1::1',
-                                                                                          'origin': 'static',
-                                                                                          'prefix-length': 64}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/7',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'}]}},
-             {'ietf-interfaces:interfaces': {'interface': [{'admin-status': 'down',
-                                                            'description': 'Customer '
-                                                                           '#5618',
-                                                            'enabled': False,
-                                                            'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.11',
-                                                                                          'netmask': '255.255.255.128',
-                                                                                          'origin': 'static'}]},
-                                                            'if-index': 1,
-                                                            'link-up-down-trap-enable': 'enabled',
-                                                            'name': 'GigabitEthernet1/3.254',
-                                                            'oper-status': 'unknown',
-                                                            'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                            'type': 'iana-if-type:ethernetCsmacd'}]}}],
-  'valid': {0: True, 1: True}}]
-                    
+    assert res == [
+        {
+            "comment": "",
+            "exception": {},
+            "result": [
+                {
+                    "ietf-interfaces:interfaces": {
+                        "interface": [
+                            {
+                                "admin-status": "down",
+                                "description": "Customer " "#32148",
+                                "enabled": False,
+                                "ietf-ip:ipv4": {
+                                    "address": [
+                                        {
+                                            "ip": "172.16.33.10",
+                                            "netmask": "255.255.255.128",
+                                            "origin": "static",
+                                        }
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/3.251",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "vCPEs " "access " "control",
+                                "enabled": True,
+                                "ietf-ip:ipv4": {
+                                    "address": [
+                                        {
+                                            "ip": "172.16.33.10",
+                                            "netmask": "255.255.255.128",
+                                            "origin": "static",
+                                        }
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/4",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "Works " "data",
+                                "enabled": True,
+                                "ietf-ip:ipv4": {"mtu": 9000},
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/5",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                            {
+                                "admin-status": "up",
+                                "description": "Works " "data " "v6",
+                                "enabled": True,
+                                "ietf-ip:ipv6": {
+                                    "address": [
+                                        {
+                                            "ip": "2001::1",
+                                            "origin": "static",
+                                            "prefix-length": 64,
+                                        },
+                                        {
+                                            "ip": "2001:1::1",
+                                            "origin": "static",
+                                            "prefix-length": 64,
+                                        },
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/7",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            },
+                        ]
+                    }
+                },
+                {
+                    "ietf-interfaces:interfaces": {
+                        "interface": [
+                            {
+                                "admin-status": "down",
+                                "description": "Customer " "#5618",
+                                "enabled": False,
+                                "ietf-ip:ipv4": {
+                                    "address": [
+                                        {
+                                            "ip": "172.16.33.11",
+                                            "netmask": "255.255.255.128",
+                                            "origin": "static",
+                                        }
+                                    ]
+                                },
+                                "if-index": 1,
+                                "link-up-down-trap-enable": "enabled",
+                                "name": "GigabitEthernet1/3.254",
+                                "oper-status": "unknown",
+                                "statistics": {
+                                    "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                                },
+                                "type": "iana-if-type:ethernetCsmacd",
+                            }
+                        ]
+                    }
+                },
+            ],
+            "valid": {0: True, 1: True},
+        }
+    ]
+
+
 # test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file()
 
 
@@ -789,77 +1014,127 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     parser.parse()
     res = parser.result(structure="dictionary")
     # pprint.pprint(res)
-    assert res == {'ietf:interfaces': {'comment': '',
-                     'exception': {},
-                     'result': {'ietf-interfaces:interfaces': {'interface': [{'admin-status': 'down',
-                                                                              'description': 'Customer '
-                                                                                             '#32148',
-                                                                              'enabled': False,
-                                                                              'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                                            'netmask': '255.255.255.128',
-                                                                                                            'origin': 'static'}]},
-                                                                              'if-index': 1,
-                                                                              'link-up-down-trap-enable': 'enabled',
-                                                                              'name': 'GigabitEthernet1/3.251',
-                                                                              'oper-status': 'unknown',
-                                                                              'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                              'type': 'iana-if-type:ethernetCsmacd'},
-                                                                             {'admin-status': 'up',
-                                                                              'description': 'vCPEs '
-                                                                                             'access '
-                                                                                             'control',
-                                                                              'enabled': True,
-                                                                              'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                                            'netmask': '255.255.255.128',
-                                                                                                            'origin': 'static'}]},
-                                                                              'if-index': 1,
-                                                                              'link-up-down-trap-enable': 'enabled',
-                                                                              'name': 'GigabitEthernet1/4',
-                                                                              'oper-status': 'unknown',
-                                                                              'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                              'type': 'iana-if-type:ethernetCsmacd'},
-                                                                             {'admin-status': 'up',
-                                                                              'description': 'Works '
-                                                                                             'data',
-                                                                              'enabled': True,
-                                                                              'ietf-ip:ipv4': {'mtu': 9000},
-                                                                              'if-index': 1,
-                                                                              'link-up-down-trap-enable': 'enabled',
-                                                                              'name': 'GigabitEthernet1/5',
-                                                                              'oper-status': 'unknown',
-                                                                              'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                              'type': 'iana-if-type:ethernetCsmacd'},
-                                                                             {'admin-status': 'up',
-                                                                              'description': 'Works '
-                                                                                             'data '
-                                                                                             'v6',
-                                                                              'enabled': True,
-                                                                              'ietf-ip:ipv6': {'address': [{'ip': '2001::1',
-                                                                                                            'origin': 'static',
-                                                                                                            'prefix-length': 64},
-                                                                                                           {'ip': '2001:1::1',
-                                                                                                            'origin': 'static',
-                                                                                                            'prefix-length': 64}]},
-                                                                              'if-index': 1,
-                                                                              'link-up-down-trap-enable': 'enabled',
-                                                                              'name': 'GigabitEthernet1/7',
-                                                                              'oper-status': 'unknown',
-                                                                              'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                              'type': 'iana-if-type:ethernetCsmacd'},
-                                                                             {'admin-status': 'down',
-                                                                              'description': 'Customer '
-                                                                                             '#5618',
-                                                                              'enabled': False,
-                                                                              'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.11',
-                                                                                                            'netmask': '255.255.255.128',
-                                                                                                            'origin': 'static'}]},
-                                                                              'if-index': 1,
-                                                                              'link-up-down-trap-enable': 'enabled',
-                                                                              'name': 'GigabitEthernet1/3.254',
-                                                                              'oper-status': 'unknown',
-                                                                              'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                              'type': 'iana-if-type:ethernetCsmacd'}]}},
-                     'valid': True}}
+    assert res == {
+        "ietf:interfaces": {
+            "comment": "",
+            "exception": {},
+            "result": {
+                "ietf-interfaces:interfaces": {
+                    "interface": [
+                        {
+                            "admin-status": "down",
+                            "description": "Customer " "#32148",
+                            "enabled": False,
+                            "ietf-ip:ipv4": {
+                                "address": [
+                                    {
+                                        "ip": "172.16.33.10",
+                                        "netmask": "255.255.255.128",
+                                        "origin": "static",
+                                    }
+                                ]
+                            },
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/3.251",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                        {
+                            "admin-status": "up",
+                            "description": "vCPEs " "access " "control",
+                            "enabled": True,
+                            "ietf-ip:ipv4": {
+                                "address": [
+                                    {
+                                        "ip": "172.16.33.10",
+                                        "netmask": "255.255.255.128",
+                                        "origin": "static",
+                                    }
+                                ]
+                            },
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/4",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                        {
+                            "admin-status": "up",
+                            "description": "Works " "data",
+                            "enabled": True,
+                            "ietf-ip:ipv4": {"mtu": 9000},
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/5",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                        {
+                            "admin-status": "up",
+                            "description": "Works " "data " "v6",
+                            "enabled": True,
+                            "ietf-ip:ipv6": {
+                                "address": [
+                                    {
+                                        "ip": "2001::1",
+                                        "origin": "static",
+                                        "prefix-length": 64,
+                                    },
+                                    {
+                                        "ip": "2001:1::1",
+                                        "origin": "static",
+                                        "prefix-length": 64,
+                                    },
+                                ]
+                            },
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/7",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                        {
+                            "admin-status": "down",
+                            "description": "Customer " "#5618",
+                            "enabled": False,
+                            "ietf-ip:ipv4": {
+                                "address": [
+                                    {
+                                        "ip": "172.16.33.11",
+                                        "netmask": "255.255.255.128",
+                                        "origin": "static",
+                                    }
+                                ]
+                            },
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/3.254",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                    ]
+                }
+            },
+            "valid": True,
+        }
+    }
+
 
 # test_yangson_validate_multiple_inputs_mode_per_template()
 
@@ -940,31 +1215,38 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [{'comment': '',
-                    'exception': {},
-                    'result': ['<content-data '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                               '#32148</description><name>GigabitEthernet1/3.251</name><type '
-                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
-                               'access control</description><name>GigabitEthernet1/4</name><type '
-                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
-                               'data</description><name>GigabitEthernet1/5</name><type '
-                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
-                               'data v6</description><name>GigabitEthernet1/7</name><type '
-                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface></interfaces></content-data>',
-                               '<content-data '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                               '#5618</description><name>GigabitEthernet1/3.254</name><type '
-                               'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                               'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>'],
-                    'valid': {0: True, 1: True}}]
-  
+    assert res == [
+        {
+            "comment": "",
+            "exception": {},
+            "result": [
+                "<content-data "
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
+                "#32148</description><name>GigabitEthernet1/3.251</name><type "
+                'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
+                "access control</description><name>GigabitEthernet1/4</name><type "
+                'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
+                "data</description><name>GigabitEthernet1/5</name><type "
+                'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
+                "data v6</description><name>GigabitEthernet1/7</name><type "
+                'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface></interfaces></content-data>',
+                "<content-data "
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
+                "#5618</description><name>GigabitEthernet1/3.254</name><type "
+                'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+                'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>',
+            ],
+            "valid": {0: True, 1: True},
+        }
+    ]
+
+
 # test_yangson_validate_multiple_inputs_mode_per_input_with_yang_lib_in_file_to_xml()
 
 
@@ -1046,33 +1328,38 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     parser.parse()
     res = parser.result(structure="dictionary")
     # pprint.pprint(res)
-    assert res == {'ietf:interfaces': {'comment': '',
-                                       'exception': {},
-                                       'result': '<content-data '
-                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
-                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                                                 '#32148</description><name>GigabitEthernet1/3.251</name><type '
-                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
-                                                 'access '
-                                                 'control</description><name>GigabitEthernet1/4</name><type '
-                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
-                                                 'data</description><name>GigabitEthernet1/5</name><type '
-                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
-                                                 'data '
-                                                 'v6</description><name>GigabitEthernet1/7</name><type '
-                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
-                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface><interface><description>Customer '
-                                                 '#5618</description><name>GigabitEthernet1/3.254</name><type '
-                                                 'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                                                 'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>',
-                                       'valid': True}}
-    
+    assert res == {
+        "ietf:interfaces": {
+            "comment": "",
+            "exception": {},
+            "result": "<content-data "
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
+            "#32148</description><name>GigabitEthernet1/3.251</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
+            "access "
+            "control</description><name>GigabitEthernet1/4</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
+            "data</description><name>GigabitEthernet1/5</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
+            "data "
+            "v6</description><name>GigabitEthernet1/7</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface><interface><description>Customer '
+            "#5618</description><name>GigabitEthernet1/3.254</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>',
+            "valid": True,
+        }
+    }
+
+
 # test_yangson_validate_multiple_inputs_mode_per_template_to_xml()
 
-    
+
 def test_yangson_validate_invalid_data_in_first_input_item():
     data1 = """
 interface GigabitEthernet1/3.251
@@ -1150,8 +1437,10 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     res = parser.result()
     # pprint.pprint(res)
     assert res[0]["valid"][0] == False
-    
+
+
 # test_yangson_validate_invalid_data_in_first_input_item()
+
 
 def test_yangson_validate_metadata_false_validation_successful():
     data = """
@@ -1219,59 +1508,105 @@ validate_yangson="'./yang_modules/', metadata=False"
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'ietf-interfaces:interfaces': {'interface': [{'admin-status': 'down',
-                                                                   'description': 'Customer '
-                                                                                  '#32148',
-                                                                   'enabled': False,
-                                                                   'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                                 'netmask': '255.255.255.128',
-                                                                                                 'origin': 'static'}]},
-                                                                   'if-index': 1,
-                                                                   'link-up-down-trap-enable': 'enabled',
-                                                                   'name': 'GigabitEthernet1/3.251',
-                                                                   'oper-status': 'unknown',
-                                                                   'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                   'type': 'iana-if-type:ethernetCsmacd'},
-                                                                  {'admin-status': 'up',
-                                                                   'description': 'vCPEs access '
-                                                                                  'control',
-                                                                   'enabled': True,
-                                                                   'ietf-ip:ipv4': {'address': [{'ip': '172.16.33.10',
-                                                                                                 'netmask': '255.255.255.128',
-                                                                                                 'origin': 'static'}]},
-                                                                   'if-index': 1,
-                                                                   'link-up-down-trap-enable': 'enabled',
-                                                                   'name': 'GigabitEthernet1/4',
-                                                                   'oper-status': 'unknown',
-                                                                   'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                   'type': 'iana-if-type:ethernetCsmacd'},
-                                                                  {'admin-status': 'up',
-                                                                   'description': 'Works data',
-                                                                   'enabled': True,
-                                                                   'ietf-ip:ipv4': {'mtu': 9000},
-                                                                   'if-index': 1,
-                                                                   'link-up-down-trap-enable': 'enabled',
-                                                                   'name': 'GigabitEthernet1/5',
-                                                                   'oper-status': 'unknown',
-                                                                   'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                   'type': 'iana-if-type:ethernetCsmacd'},
-                                                                  {'admin-status': 'up',
-                                                                   'description': 'Works data v6',
-                                                                   'enabled': True,
-                                                                   'ietf-ip:ipv6': {'address': [{'ip': '2001::1',
-                                                                                                 'origin': 'static',
-                                                                                                 'prefix-length': 64},
-                                                                                                {'ip': '2001:1::1',
-                                                                                                 'origin': 'static',
-                                                                                                 'prefix-length': 64}]},
-                                                                   'if-index': 1,
-                                                                   'link-up-down-trap-enable': 'enabled',
-                                                                   'name': 'GigabitEthernet1/7',
-                                                                   'oper-status': 'unknown',
-                                                                   'statistics': {'discontinuity-time': '1970-01-01T00:00:00+00:00'},
-                                                                   'type': 'iana-if-type:ethernetCsmacd'}]}}]]
-                                                                   
+    assert res == [
+        [
+            {
+                "ietf-interfaces:interfaces": {
+                    "interface": [
+                        {
+                            "admin-status": "down",
+                            "description": "Customer " "#32148",
+                            "enabled": False,
+                            "ietf-ip:ipv4": {
+                                "address": [
+                                    {
+                                        "ip": "172.16.33.10",
+                                        "netmask": "255.255.255.128",
+                                        "origin": "static",
+                                    }
+                                ]
+                            },
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/3.251",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                        {
+                            "admin-status": "up",
+                            "description": "vCPEs access " "control",
+                            "enabled": True,
+                            "ietf-ip:ipv4": {
+                                "address": [
+                                    {
+                                        "ip": "172.16.33.10",
+                                        "netmask": "255.255.255.128",
+                                        "origin": "static",
+                                    }
+                                ]
+                            },
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/4",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                        {
+                            "admin-status": "up",
+                            "description": "Works data",
+                            "enabled": True,
+                            "ietf-ip:ipv4": {"mtu": 9000},
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/5",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                        {
+                            "admin-status": "up",
+                            "description": "Works data v6",
+                            "enabled": True,
+                            "ietf-ip:ipv6": {
+                                "address": [
+                                    {
+                                        "ip": "2001::1",
+                                        "origin": "static",
+                                        "prefix-length": 64,
+                                    },
+                                    {
+                                        "ip": "2001:1::1",
+                                        "origin": "static",
+                                        "prefix-length": 64,
+                                    },
+                                ]
+                            },
+                            "if-index": 1,
+                            "link-up-down-trap-enable": "enabled",
+                            "name": "GigabitEthernet1/7",
+                            "oper-status": "unknown",
+                            "statistics": {
+                                "discontinuity-time": "1970-01-01T00:00:00+00:00"
+                            },
+                            "type": "iana-if-type:ethernetCsmacd",
+                        },
+                    ]
+                }
+            }
+        ]
+    ]
+
+
 # test_yangson_validate_metadata_false_validation_successful()
+
 
 def test_yangson_validate_metadata_false_validation_unsuccessful():
     data = """
@@ -1341,7 +1676,9 @@ validate_yangson="'./yang_modules/', metadata=False"
     # pprint.pprint(res)
     assert res == [False]
 
+
 # test_yangson_validate_metadata_false_validation_unsuccessful()
+
 
 def test_yangson_validate_metadata_false_multiple_inputs_mode_per_input_to_xml():
     data1 = """
@@ -1419,28 +1756,33 @@ validate_yangson="yang_mod_dir='./yang_modules/', yang_mod_lib='./yang_modules/l
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [['<content-data '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                    '#32148</description><name>GigabitEthernet1/3.251</name><type '
-                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
-                    'access control</description><name>GigabitEthernet1/4</name><type '
-                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
-                    'data</description><name>GigabitEthernet1/5</name><type '
-                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
-                    'data v6</description><name>GigabitEthernet1/7</name><type '
-                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface></interfaces></content-data>',
-                    '<content-data '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
-                    '#5618</description><name>GigabitEthernet1/3.254</name><type '
-                    'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
-                    'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>']]
-    
+    assert res == [
+        [
+            "<content-data "
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
+            "#32148</description><name>GigabitEthernet1/3.251</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>vCPEs '
+            "access control</description><name>GigabitEthernet1/4</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.10</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface><interface><description>Works '
+            "data</description><name>GigabitEthernet1/5</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><mtu>9000</mtu></ipv4></interface><interface><description>Works '
+            "data v6</description><name>GigabitEthernet1/7</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>up</admin-status><enabled>true</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv6 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>2001::1</ip><prefix-length>64</prefix-length><origin>static</origin></address><address><ip>2001:1::1</ip><prefix-length>64</prefix-length><origin>static</origin></address></ipv6></interface></interfaces></content-data>',
+            "<content-data "
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-yang-instance-data"><interfaces '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"><interface><description>Customer '
+            "#5618</description><name>GigabitEthernet1/3.254</name><type "
+            'xmlns:iana-if-type="urn:ietf:params:xml:ns:yang:iana-if-type">iana-if-type:ethernetCsmacd</type><link-up-down-trap-enable>enabled</link-up-down-trap-enable><admin-status>down</admin-status><enabled>false</enabled><if-index>1</if-index><statistics><discontinuity-time>1970-01-01T00:00:00+00:00</discontinuity-time></statistics><oper-status>unknown</oper-status><ipv4 '
+            'xmlns="urn:ietf:params:xml:ns:yang:ietf-ip"><address><ip>172.16.33.11</ip><netmask>255.255.255.128</netmask><origin>static</origin></address></ipv4></interface></interfaces></content-data>',
+        ]
+    ]
+
+
 # test_yangson_validate_metadata_false_multiple_inputs_mode_per_input_to_xml()
 
 
@@ -1455,7 +1797,7 @@ interface GigabitEthernet1/3.251
 interface GigabitEthernet1/4
  description vCPEs access control
  ip address 172.16.33.10 255.255.255.128
-    """    
+    """
     template = """
 <group>
 interface {{ interface }}
@@ -1474,15 +1816,28 @@ interface {{ interface }}
     res2 = parser2.result()
     # pprint.pprint(res1)
     # pprint.pprint(res2)
-    assert res1 == [[[{'interface': 'GigabitEthernet1/3.251',
-                       'ip': '172.16.33.10',
-                       'mask': '255.255.255.128',
-                       'vlan': '251'},
-                      {'interface': 'GigabitEthernet1/4',
-                       'ip': '172.16.33.10',
-                       'mask': '255.255.255.128'}]]]
-    assert res2 == ['"interface","ip","mask","vlan"\n'
-                    '"GigabitEthernet1/3.251","172.16.33.10","255.255.255.128","251"\n'
-                    '"GigabitEthernet1/4","172.16.33.10","255.255.255.128",""']
-                   
+    assert res1 == [
+        [
+            [
+                {
+                    "interface": "GigabitEthernet1/3.251",
+                    "ip": "172.16.33.10",
+                    "mask": "255.255.255.128",
+                    "vlan": "251",
+                },
+                {
+                    "interface": "GigabitEthernet1/4",
+                    "ip": "172.16.33.10",
+                    "mask": "255.255.255.128",
+                },
+            ]
+        ]
+    ]
+    assert res2 == [
+        '"interface","ip","mask","vlan"\n'
+        '"GigabitEthernet1/3.251","172.16.33.10","255.255.255.128","251"\n'
+        '"GigabitEthernet1/4","172.16.33.10","255.255.255.128",""'
+    ]
+
+
 # test_output_condition_attribute()
