@@ -24,7 +24,7 @@ name
 ------------------------------------------------------------------------------
 ``name="path_string"``
 
-* path_string (mandatory) - this is the only attribute that *must* be set for each group as it used to form group path - path is a dot separated string that indicates group results placement in results structure.
+* path_string (optional) - dot separated string that indicates group results placement in results structure.
 
 More on name attribute: Group Name Attribute
 

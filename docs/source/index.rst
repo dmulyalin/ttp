@@ -18,6 +18,7 @@ Template Text Parser
    Lookup Tables/Lookup Tables
    Macro Tag/Macro Tag
    Doc Tag/Doc Tag
+   Extend Tag/Extend Tag
    Writing templates/index
    CLI tool
    TTP Templates Collection

@@ -144,9 +144,9 @@ vlan 910
 
 
 @skip_if_no_ttp_templates
-def test_extend_tag_from_ttp_template():
+def test_extend_tag_from_ttp_templates():
     """
-    Test loadng ttp_template template
+    Test loading ttp_templates template
     """
     template = """
 <extend template="ttp://platform/test_platform_show_run_pipe_sec_interface.txt"/>
@@ -201,7 +201,7 @@ vlan 910
     ]
 
 
-# test_extend_tag_from_ttp_template()
+# test_extend_tag_from_ttp_templates()
 
 
 def test_extend_tag_from_file_vars_and_lookup():
