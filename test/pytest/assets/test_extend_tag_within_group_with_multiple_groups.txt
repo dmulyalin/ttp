@@ -1,0 +1,7 @@
+<group name="config">
+ router-id {{ rid }}
+</group>
+
+<group name="vrf.{{ vrf }}">
+ address-family ipv4 vrf {{ vrf }}
+</group>

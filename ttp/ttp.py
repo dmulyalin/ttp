@@ -1516,6 +1516,8 @@ class _group_class:
             children (list): contains child group objects
             vars (dict): variables dictionary from template class
             grp_index (int): unique index of the group
+            name (str): dot separate path string representing group result location within results tree
+            group_id (tuple): unique ID of the group, tuple of (self.name, self.grp_index,)
         """
         self.pathchar = pathchar
         self.top = top
@@ -1739,25 +1741,60 @@ class _group_class:
                     self.has_start_re_default = True
                     break
 
-    def get_children(self, child_groups):
+    def get_children(self, child_groups, grp_index=0):
         """Method to create child groups objects
         by iterating over all children.
         """
-        for g_index, group in enumerate(child_groups):
-            self.children.append(
-                _group_class(
-                    element=group,
-                    top=False,
-                    path=self.path,
-                    pathchar=self.pathchar,
-                    vars=self.vars,
-                    grp_index=g_index,
-                    parent_group_id=self.group_id,
+        for element in child_groups:
+            if element.tag in ["g", "grp", "group"]:
+                self.children.append(
+                    _group_class(
+                        element=element,
+                        top=False,
+                        path=self.path,
+                        pathchar=self.pathchar,
+                        vars=self.vars,
+                        grp_index=grp_index,
+                        parent_group_id=self.group_id,
+                    )
                 )
-            )
-            # get regexes from tail
-            if group.tail.strip():
-                self.get_regexes(data=group.tail, tail=True)
+                # get regexes from tail
+                if element.tail and element.tail.strip():
+                    self.get_regexes(data=element.tail, tail=True)
+                grp_index += 1
+            elif element.tag == "extend":
+                path_to_template = element.attrib.get("template", "")
+                content = _ttp_["utils"]["load_files"](path_to_template, read=True)
+                if content[0][1] == path_to_template:
+                    log.warning(
+                        "group.extend: failed load extend tag content at path: {}".format(
+                            path_to_template
+                        )
+                    )
+                    continue
+                try:
+                    extend_ET = ET.XML(content[0][1])
+                    # make top tag to be a template
+                    if extend_ET.tag.lower() != "template":
+                        tmplt = ET.XML("<template />")
+                        tmplt.insert(0, extend_ET)
+                        extend_ET = tmplt
+                except ET.ParseError as e:
+                    # try to reconstruct XML document
+                    extend_ET = ET.XML(
+                        "<template>\n{}\n</template>".format(content[0][1])
+                    )
+                    # check if template has children, if not, make it an _anonymous_  group
+                    if not list(extend_ET):
+                        extend_ET = ET.XML(
+                            "<template><group>\n{}\n</group></template>".format(
+                                content[0][1]
+                            )
+                        )
+                grp_index = self.get_children(
+                    child_groups=list(extend_ET), grp_index=grp_index
+                )
+        return grp_index
 
     def set_runs(self):
         """runs - default variable values during group
@@ -2175,7 +2212,7 @@ TTP PARSER OBJECT
 
 
 class _parser_class:
-    """Parser Object to run parsing of data and constructong resulted dictionary/list"""
+    """Parser Object to run parsing of data and constructing resulted dictionary/list"""
 
     def __init__(self, lookups, vars, groups):
         self.lookups = lookups

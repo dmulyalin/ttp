@@ -3,6 +3,9 @@ import sys
 sys.path.insert(0, "../..")
 import pprint
 import pytest
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 try:
     from ttp_templates import get_template
@@ -242,7 +245,7 @@ router bgp {{ bgp_as | lookup("bgp_asn", add_field="as_details") }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    res == [
+    assert res == [
         [
             {
                 "bgp_config": {
@@ -261,3 +264,220 @@ router bgp {{ bgp_as | lookup("bgp_asn", add_field="as_details") }}
 
 
 # test_extend_tag_from_file_vars_and_lookup()
+
+
+def test_extend_tag_within_group():
+    template = """
+<input load="text">
+router bgp 65100
+ router-id 1.1.1.1
+ neighbor 2.2.2.2 remote-as 65000
+</input>
+
+<group name="bgp_config">
+router bgp {{ bgp_as }}
+
+<extend template="./assets/test_extend_tag_within_group.txt"/>
+
+<group name="peers">
+ neighbor {{ peer }} remote-as {{ asn }}
+</group>
+
+</group> 
+    """
+    parser = ttp(template=template, log_level="warning")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "bgp_config": {
+                    "bgp_as": "65100",
+                    "config": {"rid": "1.1.1.1"},
+                    "peers": {"asn": "65000", "peer": "2.2.2.2"},
+                }
+            }
+        ]
+    ]
+
+
+# test_extend_tag_within_group()
+
+
+def test_extend_tag_within_group_with_child_groups_above():
+    template = """
+<input load="text">
+router bgp 65100
+ router-id 1.1.1.1
+ neighbor 2.2.2.2 remote-as 65000
+</input>
+
+<group name="bgp_config">
+router bgp {{ bgp_as }}
+
+<group name="peers">
+ neighbor {{ peer }} remote-as {{ asn }}
+</group>
+
+<extend template="./assets/test_extend_tag_within_group.txt"/>
+
+</group> 
+    """
+    parser = ttp(template=template, log_level="warning")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "bgp_config": {
+                    "bgp_as": "65100",
+                    "config": {"rid": "1.1.1.1"},
+                    "peers": {"asn": "65000", "peer": "2.2.2.2"},
+                }
+            }
+        ]
+    ]
+
+
+# test_extend_tag_within_group_with_child_groups_above()
+
+
+def test_extend_tag_within_group_with_non_hierarch_template():
+    template = """
+<input load="text">
+router bgp 65100
+ router-id 1.1.1.1
+ neighbor 2.2.2.2 remote-as 65000
+</input>
+
+<group name="bgp_config">
+router bgp {{ bgp_as }}
+
+<group name="config">
+<extend template="./assets/test_extend_tag_within_group_with_non_hierarch_template.txt"/>
+</group>
+
+<group name="peers">
+ neighbor {{ peer }} remote-as {{ asn }}
+</group>
+
+</group> 
+    """
+    parser = ttp(template=template, log_level="warning")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "bgp_config": {
+                    "bgp_as": "65100",
+                    "config": {"rid": "1.1.1.1"},
+                    "peers": {"asn": "65000", "peer": "2.2.2.2"},
+                }
+            }
+        ]
+    ]
+
+
+# test_extend_tag_within_group_with_non_hierarch_template()
+
+
+def test_extend_tag_within_group_with_anonymous_group():
+    template = """
+<input load="text">
+router bgp 65100
+ router-id 1.1.1.1
+ neighbor 2.2.2.2 remote-as 65000
+</input>
+
+<group name="bgp_config">
+router bgp {{ bgp_as }}
+
+<group name="config">
+<extend template="./assets/test_extend_tag_within_group_with_anonymous_group.txt"/>
+</group>
+
+<group name="peers">
+ neighbor {{ peer }} remote-as {{ asn }}
+</group>
+
+</group> 
+    """
+    parser = ttp(template=template, log_level="warning")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "bgp_config": {
+                    "bgp_as": "65100",
+                    "config": {"rid": "1.1.1.1"},
+                    "peers": {"asn": "65000", "peer": "2.2.2.2"},
+                }
+            }
+        ]
+    ]
+
+
+# test_extend_tag_within_group_with_anonymous_group()
+
+
+def test_extend_tag_within_group_with_multiple_groups():
+    """
+        ./assets/test_extend_tag_within_group_with_multiple_groups.txt content:
+    <group name="config">
+     router-id {{ rid }}
+    </group>
+
+    <group name="vrf.{{ vrf }}">
+     address-family ipv4 vrf {{ vrf }}
+    </group>
+    """
+    template = """
+<input load="text">
+router bgp 65100
+ router-id 1.1.1.1
+ neighbor 2.2.2.2 remote-as 65000
+ neighbor 2.2.2.3 remote-as 65001
+ ! 
+ address-family ipv4 vrf TEST_1
+ address-family ipv4 vrf TEST_2
+</input>
+
+<group name="bgp_config">
+router bgp {{ bgp_as }}
+
+<extend template="./assets/test_extend_tag_within_group_with_multiple_groups.txt"/>
+
+<group name="peers">
+ neighbor {{ peer }} remote-as {{ asn }}
+</group>
+
+</group> 
+    """
+    parser = ttp(template=template, log_level="warning")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [
+        [
+            {
+                "bgp_config": {
+                    "bgp_as": "65100",
+                    "config": {"rid": "1.1.1.1"},
+                    "peers": [
+                        {"asn": "65000", "peer": "2.2.2.2"},
+                        {"asn": "65001", "peer": "2.2.2.3"},
+                    ],
+                    "vrf": {"TEST_1": {}, "TEST_2": {}},
+                }
+            }
+        ]
+    ]
+
+
+# test_extend_tag_within_group_with_multiple_groups()

@@ -5,6 +5,9 @@ Extend tag allows to extend template with content of other templates. Parent tem
 tags of extended template and process them as if they were inserted in place of the ``extend`` tag 
 definition.
 
+Extend tag can be nested within groups as well, but in that case only ``group`` and ``extend`` tags loaded from
+extended template, other tags (lookup, vars, input, output) are ignored.
+
 .. list-table:: extend tag attributes
    :widths: 10 90
    :header-rows: 1
@@ -147,3 +150,42 @@ Results::
             ]
         ]
     ]
+    
+**Example-3**
+
+This example demonstrates how to use ``extend`` tag withing groups. 
+
+Sample data::
+
+    router bgp 65100
+     !
+     router-id 1.1.1.1
+     !
+     neighbor 2.2.2.2 remote-as 65000
+     neighbor 2.2.2.3 remote-as 65001
+     
+Parent template is::
+
+    <group name="bgp_config">
+    router bgp {{ bgp_as }}
+    
+    <extend template="/template/bgp_params.txt"/>
+    
+    <group name="peers">
+     neighbor {{ peer }} remote-as {{ asn }}
+    </group>
+    
+    </group> 
+    
+Where ``/template/bgp_params.txt`` content is::
+
+    <group name="config">
+     router-id {{ rid }}
+    </group>
+
+After parsing these results produced::
+
+    [[{'bgp_config': {'bgp_as': '65100',
+                      'config': {'rid': '1.1.1.1'},
+                      'peers': [{'asn': '65000', 'peer': '2.2.2.2'},
+                                {'asn': '65001', 'peer': '2.2.2.3'}]}}]]

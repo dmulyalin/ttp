@@ -1,0 +1,3 @@
+<group name="config">
+ router-id {{ rid }}
+</group>
