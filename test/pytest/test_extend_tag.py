@@ -681,3 +681,107 @@ interface {{ interface }}
                                      'ip_primary': {'ip': '1.1.2.1', 'mask': '255.255.255.0'}}]}]]
     
 # test_extend_tag_from_file_nested_group_filter()
+
+
+@skip_if_no_ttp_templates
+def test_extend_tag_groups_recursive_extend_load():
+    template = """
+<extend template="./assets/extend_groups_recursive_extend_load.txt"/>
+
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name }}
+</group>
+    """
+    data = """
+logging host 1.1.1.1
+logging host 1.1.1.2
+!
+interface Gi1.100
+ description Some description 1
+ encapsulation dot1q 100
+ ip address 10.0.0.1 255.255.255.0
+ shutdown
+!
+interface Gi2
+ description Some description 2
+ ip address 10.1.0.1 255.255.255.0
+!
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'config': {'interfaces_config': [{'description': 'Some description 1',
+                                                       'disabled': True,
+                                                       'dot1q': '100',
+                                                       'interface': 'Gi1.100',
+                                                       'ip': '10.0.0.1',
+                                                       'mask': '255.255.255.0'},
+                                                      {'description': 'Some description 2',
+                                                       'interface': 'Gi2',
+                                                       'ip': '10.1.0.1',
+                                                       'mask': '255.255.255.0'}],
+                                'logging': [{'syslog': '1.1.1.1'}, {'syslog': '1.1.1.2'}]},
+                     'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}}]]
+
+
+# test_extend_tag_groups_recursive_extend_load()
+
+
+@skip_if_no_ttp_templates
+def test_extend_tag_groups_recursive_extend_load_several_top_groups():
+    template = """
+<extend template="./assets/extend_groups_recursive_extend_load_several_top_groups.txt"/>
+
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name }}
+</group>
+    """
+    data = """
+logging host 1.1.1.1
+logging host 1.1.1.2
+!
+interface Gi1.100
+ description Some description 1
+ encapsulation dot1q 100
+ ip address 10.0.0.1 255.255.255.0
+ shutdown
+!
+interface Gi2
+ description Some description 2
+ ip address 10.1.0.1 255.255.255.0
+!
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'interfaces_config': [{'description': 'Some description 1',
+                                            'disabled': True,
+                                            'dot1q': '100',
+                                            'interface': 'Gi1.100',
+                                            'ip': '10.0.0.1',
+                                            'mask': '255.255.255.0'},
+                                           {'description': 'Some description 2',
+                                            'interface': 'Gi2',
+                                            'ip': '10.1.0.1',
+                                            'mask': '255.255.255.0'}],
+                     'logging': [{'syslog': '1.1.1.1'}, {'syslog': '1.1.1.2'}],
+                     'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}}]]
+
+
+# test_extend_tag_groups_recursive_extend_load_several_top_groups()

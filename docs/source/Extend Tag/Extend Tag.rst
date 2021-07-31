@@ -6,7 +6,7 @@ tags of extended template and process them as if they were inserted in place of 
 definition.
 
 Extend tag can be nested within groups as well, but in that case only ``group`` and ``extend`` tags loaded from
-extended template, other tags (lookup, vars, input, output) are ignored.
+extended template, other tags (lookup, vars, input, output) are ignored. Nested extend only supports `groups`_ filter.
 
 .. list-table:: extend tag attributes
    :widths: 10 90
@@ -16,6 +16,16 @@ extended template, other tags (lookup, vars, input, output) are ignored.
      - Description
    * - `template`_   
      - OS path to template file or reference to template within TTP Templates repository
+   * - `inputs`_   
+     - filter, comma separated list of input tag names to load
+   * - `groups`_   
+     - filter, comma separated list of group tag names to load
+   * - `vars`_   
+     - filter, comma separated list of template variables tag names to load
+   * - `lookups`_   
+     - filter, comma separated list of lookup tag names to load
+   * - `outputs`_   
+     - filter, comma separated list of output tag names to load
      
 template
 --------
@@ -189,3 +199,33 @@ After parsing these results produced::
                       'config': {'rid': '1.1.1.1'},
                       'peers': [{'asn': '65000', 'peer': '2.2.2.2'},
                                 {'asn': '65001', 'peer': '2.2.2.3'}]}}]]
+
+inputs
+------
+``inputs="name1, name2, .. , nameN"``
+
+This filter allows to form a comma separated list of input tags to load from extended template, identified by input tag name attribute.
+
+groups
+------
+``groups="name1, name2, .. , nameN"`` or ``groups="1, 5, .. , N"``
+
+This filter allows to form a comma separated list of groups to load from extended template, identified by group tag name attribute or group index. Group indexes counted from top group starting from 0.
+
+vars
+----
+``vars="name1, name2, .. , nameN"``
+
+This filter allows to form a comma separated list of template variable tags to load from extended template, identified by variables tag name attribute.
+
+lookups
+-------
+``lookups="name1, name2, .. , nameN"``
+
+This filter allows to form a comma separated list of lookup tags to load from extended template, identified by lookup tag name attribute.
+
+outputs
+-------
+``outputs="name1, name2, .. , nameN"``
+
+This filter allows to form a comma separated list of output tags to load from extended template, identified by output tag name attribute.

@@ -1254,6 +1254,8 @@ class _template_class:
                         grp_index += 1
                     else:
                         ret.append(t)
+                elif t.tag == "extend":
+                    ret.append(t)
         return ret
 
     def handle_extend(self, template_text=None, template_ET=None, top=True):
@@ -1287,6 +1289,9 @@ class _template_class:
                     template_ET.remove(child)
                 # use extended template children to extend parent element
                 else:
+                    # run recursion for newly extended groups
+                    self.handle_extend(template_ET=extend_ET, top=False)
+                    # run filtering and extend parent element
                     template_ET[index : index + 1] = self.filter_extend(
                         extend_template=extend_ET, extend_tag=child, top=top
                     )

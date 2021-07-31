@@ -1,0 +1,7 @@
+<group name="logging">
+logging host {{ syslog }}
+</group>
+
+<group name="interfaces_config">
+<extend template="ttp://platform/test_platform_show_run_pipe_sec_interface.txt"/>
+</group>
