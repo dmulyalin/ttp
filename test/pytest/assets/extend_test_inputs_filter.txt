@@ -1,0 +1,40 @@
+<input name="vlan_1" load="text">
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+</input>
+
+
+<input name="vlan_2" load="text">
+vlan 4321
+ name vlan_name_4321
+!
+vlan 700
+ name another_vlan
+!
+</input>
+
+
+<input load="text">
+vlan 123
+ name vlan_name_123
+!
+vlan 800
+ name another_vlan_800
+!
+</input>
+
+
+<input name="vlan_3" load="text">
+vlan 777
+ name vlan_name_777
+</input>
+
+
+<vars name="some">
+a = 1
+b = 2
+</vars>

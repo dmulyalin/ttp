@@ -1,0 +1,9 @@
+<group name="vlans_2.{{ vlan }}">
+vlan {{ vlan_2 }}
+ name {{ name_2 }}
+</group>
+
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name }}
+</group>

@@ -1,0 +1,7 @@
+<group name="ip_primary">
+ ip address {{ ip }} {{ mask }}
+</group>
+
+<group name="ip_secondary">
+ ip address {{ ip }} {{ mask }} secondary
+</group>

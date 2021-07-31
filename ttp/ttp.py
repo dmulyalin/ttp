@@ -1202,6 +1202,60 @@ class _template_class:
         for i in self.tags["inputs"]:
             self.update_input(element=i)
 
+    def filter_extend(self, extend_template, extend_tag, top):
+        """
+        Method to filter tags of extended template using name attribute
+
+        :param extend_ET: (obj) ET.XML object of extended template
+        :param child: (obj) ET.XML object of extend data
+        :param top: (bool) indicator if extend tag is at the top or nested
+        :return: list of EX.XML objects that passed filtering
+        """
+        # check if no filters given at all - return straight away
+        if top and len(extend_tag.attrib) == 1:
+            return extend_template
+        ret = []
+        grp_index = 0
+        groups = [i.strip() for i in extend_tag.get("groups", "").split(",") if i.strip()]
+        # do filtering for top tag
+        if top:
+            inputs = [i.strip() for i in extend_tag.get("inputs", "").split(",") if i.strip()]
+            tvars = [i.strip() for i in extend_tag.get("vars", "").split(",") if i.strip()]
+            lookups = [i.strip() for i in extend_tag.get("lookups", "").split(",") if i.strip()]
+            outputs = [i.strip() for i in extend_tag.get("outputs", "").split(",") if i.strip()]
+            for t in extend_template:
+                tag_name = t.attrib.get("name")
+                if inputs and t.tag in ["i", "in", "input"]:
+                    if tag_name in inputs:
+                        ret.append(t)
+                elif tvars and t.tag in ["v", "vars", "variables"]:
+                    if tag_name in tvars:
+                        ret.append(t)
+                elif groups and t.tag in ["g", "grp", "group"]:
+                    if tag_name in groups or str(grp_index) in groups:
+                        ret.append(t)
+                    grp_index += 1
+                elif lookups and t.tag == "lookup":
+                    if tag_name in lookups:
+                        ret.append(t)
+                elif outputs and t.tag in ["o", "out", "output"]:
+                    if tag_name in outputs:
+                        ret.append(t)
+                else:
+                    ret.append(t)
+        # do filtering for nested tag allowing <group> tags only
+        else:
+            for t in extend_template:
+                tag_name = t.attrib.get("name")
+                if t.tag in ["g", "grp", "group"]:
+                    if groups:
+                        if tag_name in groups or str(grp_index) in groups:
+                            ret.append(t)
+                        grp_index += 1
+                    else:
+                        ret.append(t)
+        return ret
+
     def handle_extend(self, template_text=None, template_ET=None, top=True):
         """
         Function to handle all extend tags including nested within groups.
@@ -1233,7 +1287,9 @@ class _template_class:
                     template_ET.remove(child)
                 # use extended template children to extend parent element
                 else:
-                    template_ET[index : index + 1] = extend_ET
+                    template_ET[index : index + 1] = self.filter_extend(
+                        extend_template=extend_ET, extend_tag=child, top=top
+                    )
             # run recursion for child groups looking for extend tags
             elif child.tag == "group":
                 self.handle_extend(template_ET=child, top=False)

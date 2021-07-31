@@ -1,0 +1,42 @@
+<lookup name="bgp_asn_1" load="yaml">
+'65100':
+  as_description: Private ASN 1
+  as_name: Subs
+  prefix_num: '734'
+'65101':
+  as_description: Cust-1 ASN 1
+  as_name: Cust1
+  prefix_num: '156'
+</lookup>
+
+
+<lookup name="bgp_asn" load="yaml">
+'65100':
+  as_description: Private ASN
+  as_name: Subs
+  prefix_num: '734'
+'65101':
+  as_description: Cust-1 ASN
+  as_name: Cust1
+  prefix_num: '156'
+</lookup>
+
+
+<lookup name="bgp_asn_2" load="yaml">
+'65100':
+  as_description: Private ASN 2
+  as_name: Subs
+  prefix_num: '734'
+'65101':
+  as_description: Cust-1 ASN 2
+  as_name: Cust1
+  prefix_num: '156'
+</lookup>
+
+
+<vars load="yaml">
+var_1: value_1
+var_2: value_2
+var_2: [1,2,3,4,"a"]
+INTF_RE: "GigabitEthernet\\S+|Fast\\S+"
+</vars>

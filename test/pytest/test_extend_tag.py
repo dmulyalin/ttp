@@ -476,3 +476,208 @@ router bgp {{ bgp_as }}
 
 
 # test_extend_tag_within_group_with_multiple_groups()
+
+
+def test_extend_tag_from_file_group_name_filter():
+    """
+        template="./assets/extend_vlan.txt" content is:
+    <group name="vlans.{{ vlan }}">
+    vlan {{ vlan }}
+     name {{ name }}
+    </group>
+    """
+    template = """
+<extend template="./assets/extend_groups_filter_test.txt" groups="vlans.{{ vlan }}"/>
+    """
+    data = """
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [
+        [{"vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}}}]
+    ]
+
+# test_extend_tag_from_file_group_filter()
+
+
+def test_extend_tag_from_file_group_index_filter():
+    """
+        template="./assets/extend_vlan.txt" content is:
+    <group name="vlans.{{ vlan }}">
+    vlan {{ vlan }}
+     name {{ name }}
+    </group>
+    """
+    template = """
+<extend template="./assets/extend_groups_filter_test.txt" groups="1"/>
+    """
+    data = """
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [
+        [{"vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}}}]
+    ]
+
+# test_extend_tag_from_file_group_index_filter()
+
+
+def test_extend_tag_from_file_vars_filter():
+    template = """
+<vars name="some">
+a = 1
+b = 2
+</vars>
+
+<extend template="./assets/extend_test_vars_filter.txt" vars="common_vars, other_vars"/>
+
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name }}
+ {{ r_test | set(r) }}
+</group>
+    """
+    data = """
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'common_vars': {'c': 3, 'd': 4},
+                     'other_vars': {'e': 5, 'f': 6},
+                     'some': {'a': 1, 'b': 2},
+                     'vlans': {'1234': {'name': 'some_vlan', 'r_test': 'r'},
+                               '910': {'name': 'one_more', 'r_test': 'r'}}}]]
+             
+# test_extend_tag_from_file_vars_filter()
+
+
+def test_extend_tag_from_file_with_vars_inputs_filter():
+    template = """
+<extend template="./assets/extend_test_inputs_filter.txt" inputs="vlan_1, vlan_3"/>
+
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'some': {'a': 1, 'b': 2},
+                     'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}},
+                    {'some': {'a': 1, 'b': 2}, 'vlans': {'777': {'name': 'vlan_name_777'}}}]]
+             
+# test_extend_tag_from_file_with_vars_inputs_filter()
+
+
+def test_extend_tag_from_file_lookups_filter():
+    template = """
+<extend template="./assets/extend_test_lookups_filter.txt" lookups="bgp_asn"/>
+
+<input load="text">
+router bgp 65100
+</input>
+
+<group name="bgp_config">
+router bgp {{ bgp_as | lookup("bgp_asn", add_field="as_details") }}
+{{ var_1_value | set(var_1) }}
+{{ var_2_value | set(var_2) }}
+{{ var_3_value | set(var_3) }}
+</group> 
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'bgp_config': {'as_details': {'as_description': 'Private ASN',
+                                                   'as_name': 'Subs',
+                                                   'prefix_num': '734'},
+                                    'bgp_as': '65100',
+                                    'var_1_value': 'value_1',
+                                    'var_2_value': [1, 2, 3, 4, 'a'],
+                                    'var_3_value': 'var_3'}}]]
+                  
+# test_extend_tag_from_file_lookups_filter()
+
+
+def test_extend_tag_from_file_output_filter():
+    data = """
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    template = """
+<extend template="./assets/extend_test_output_filter.txt" outputs="to_csv"/>
+
+<group>
+vlan {{ vlan }}
+ name {{ name }}
+</group>
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    # print(res[0])
+    assert res == ['"name","vlan"\n"some_vlan","1234"\n"one_more","910"']
+                  
+# test_extend_tag_from_file_output_filter()
+
+
+def test_extend_tag_from_file_nested_group_filter():
+    data = """
+interface Gi1
+ description bla bla bla
+ ip address 1.1.1.1 255.255.255.0
+!
+interface Gi2
+ name bla bla
+ shutdown
+ ip address 1.1.2.1 255.255.255.0
+!
+    """
+    template = """
+<group name="interfaces">
+interface {{ interface }}
+ description {{ description }}
+ shutdown {{ disabled | set(True) }}
+ <extend template="./assets/extend_test_nested_group_filter.txt" groups="ip_primary"/>
+</group>
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'interfaces': [{'interface': 'Gi1',
+                                     'ip_primary': {'ip': '1.1.1.1', 'mask': '255.255.255.0'}},
+                                    {'disabled': True,
+                                     'interface': 'Gi2',
+                                     'ip_primary': {'ip': '1.1.2.1', 'mask': '255.255.255.0'}}]}]]
+    
+# test_extend_tag_from_file_nested_group_filter()
