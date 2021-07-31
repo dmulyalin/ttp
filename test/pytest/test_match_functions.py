@@ -513,7 +513,7 @@ Time remaining: {{ ignore }} seconds {{ _end_ }}
     parser.parse()
 
     res = parser.result()
-    # pprint.pprint(res, width=100)
+    pprint.pprint(res, width=100)
     assert res == [
         [
             {
@@ -525,4 +525,4 @@ Time remaining: {{ ignore }} seconds {{ _end_ }}
     ]
 
 
-# test_line_with_joinmatches()
+test_line_with_joinmatches()

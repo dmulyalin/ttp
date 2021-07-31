@@ -49,7 +49,6 @@ vlan 910
         [{"vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}}}]
     ]
 
-
 # test_extend_tag_from_file()
 
 
@@ -136,12 +135,8 @@ vlan 910
  name one_more
 !
     """
-    parser = ttp(data=data, template=template)
-    parser.parse()
-    res = parser.result()
-    # pprint.pprint(res)
-    assert res == [[{}]]
-
+    with pytest.raises(FileNotFoundError):
+        parser = ttp(data=data, template=template)
 
 # test_extend_tag_from_file_wrong_path()
 
@@ -368,7 +363,7 @@ router bgp {{ bgp_as }}
     parser = ttp(template=template, log_level="warning")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)
+    pprint.pprint(res)
     assert res == [
         [
             {

@@ -890,6 +890,7 @@ class _template_class:
         )  # list to contain macro functions text to transfer into other processes
         self.filters = filters  # list that contains names of child templates to extract
         self.__doc__ = ""  # string to contain template doc/description
+        self.template = template_text  # attribute to store template text
 
         # dictionary to store template's top tags ET elements
         self.tags = {
@@ -903,8 +904,11 @@ class _template_class:
             "extend": [],
         }
 
+        # pre-process template to handle extend tags
+        self.template = self.handle_extend(template_text)
+
         # load template from string:
-        self.load_template_xml(template_text)
+        self.load_template_xml(self.template)
 
         # update inputs with the groups it has to be run against:
         self.update_inputs_with_groups()
@@ -1104,7 +1108,6 @@ class _template_class:
             "template": lambda C: self.tags["template"].append(C),
             "macro": self.parse_macro,
             "doc": self.parse_doc,
-            "extend": self.parse_extend,
         }
         # fill in self.tags dictionary:
         for child in list(element):
@@ -1132,39 +1135,6 @@ class _template_class:
 
     def parse_doc(self, element):
         self.__doc__ += element.text + "\n"
-
-    def parse_extend(self, element):
-        """
-        This function loads template content at path provided, loads it and
-        collects all the tags to parse them later.
-        """
-        path_to_template = element.attrib.get("template", "")
-        content = _ttp_["utils"]["load_files"](path_to_template, read=True)
-        if content[0][1] == path_to_template:
-            log.warning(
-                "template.extend: failed load extend tag content at path: {}".format(
-                    path_to_template
-                )
-            )
-            return
-        try:
-            extend_ET = ET.XML(content[0][1])
-            # make top tag to be a template
-            if extend_ET.tag.lower() != "template":
-                tmplt = ET.XML("<template />")
-                tmplt.insert(0, extend_ET)
-                extend_ET = tmplt
-        except ET.ParseError as e:
-            # try to reconstruct XML document
-            extend_ET = ET.XML("<template>\n{}\n</template>".format(content[0][1]))
-            # check if template has children, if not, make it an _anonymous_  group
-            if not list(extend_ET):
-                extend_ET = ET.XML(
-                    '<template><group name="_anonymous_">\n{}\n</group></template>'.format(
-                        content[0][1]
-                    )
-                )
-        self.collect_tags(extend_ET)
 
     def parse_template(self, element, template_index):
         # skip child templates that are not in requested children list
@@ -1232,33 +1202,86 @@ class _template_class:
         for i in self.tags["inputs"]:
             self.update_input(element=i)
 
-    def load_template_xml(self, template_text):
+    def handle_extend(self, template_text=None, template_ET=None, top=True):
         """
-        Main function to load template from text reconstructing it if required
+        Function to handle all extend tags including nested within groups.
+
+        :param template_text: (str) template string
+        :return: (str) final template string after extending it
+        """
+        # load template string to XML etree object
+        if template_text:
+            template_ET = self.construct_etree(template_text)
+        # recursively iterate over etree handling extend tags
+        for index, child in enumerate(template_ET):
+            if child.tag == "extend":
+                path_to_template = child.attrib.get("template", "")
+                content = _ttp_["utils"]["load_files"](path_to_template, read=True)
+                if content[0][1] == path_to_template:
+                    raise FileNotFoundError(
+                        "template.extend: failed load extend tag content at path: {}".format(
+                            path_to_template
+                        )
+                    )
+                extend_ET = self.construct_etree(content[0][1])
+                # if extended template has _anonymous_ group as the only child, use only its text
+                if (
+                    len(extend_ET) == 1
+                    and extend_ET[0].attrib.get("name") == "_anonymous_"
+                ):
+                    template_ET.text += extend_ET[0].text
+                    template_ET.remove(child)
+                # use extended template children to extend parent element
+                else:
+                    template_ET[index : index + 1] = extend_ET
+            # run recursion for child groups looking for extend tags
+            elif child.tag == "group":
+                self.handle_extend(template_ET=child, top=False)
+
+        if top:
+            return ET.tostring(template_ET).decode()
+
+    def construct_etree(self, template_text):
+        """
+        Method to construct XML etree out of template text reconstructing
+        it if required
+
+        :param template_text: (str) TTp Template string
+        :return: ET.XML object with top tag set to <template>
         """
         try:
             template_ET = ET.XML(template_text)
             # check if top tag is not template:
             if template_ET.tag.lower() != "template":
-                tmplt = ET.XML("<template />")
-                tmplt.insert(0, template_ET)
-                template_ET = tmplt
-            else:
-                self.get_template_attributes(template_ET)
+                template_ET = ET.XML(
+                    "<template>\n{}\n</template>".format(template_text)
+                )
         except ET.ParseError as e:
             template_ET = ET.XML("<template>\n{}\n</template>".format(template_text))
-        # filter templates based on names filter provided - do not load template groups
-        # if template name not listed in filter
-        if self.filters and self.name not in self.filters:
-            return
         # check if template has children, if not, make it an _anonymous_  group
         if not list(template_ET):
-            elem = ET.XML(
-                '<group name="_anonymous_">\n{}\n</group>'.format(template_ET.text)
+            template_ET = ET.XML(
+                '<template><group name="_anonymous_">\n{}\n</group></template>'.format(
+                    template_text
+                )
             )
-            self.parse_group(elem, grp_index=0)
-        else:
-            self.parse_hierarch_tmplt(template_ET)
+        return template_ET
+
+    def load_template_xml(self, template_text):
+        """
+        Main function to load template from text reconstructing it if required
+
+        :param template_text: (str) TTP Template string
+        """
+        # load template and its attributes
+        template_ET = self.construct_etree(template_text)
+        self.get_template_attributes(template_ET)
+
+        # filter - do not load template groups if template name not in filter
+        if self.filters and self.name not in self.filters:
+            return
+
+        self.parse_hierarch_tmplt(template_ET)
 
 
 """
@@ -1741,60 +1764,25 @@ class _group_class:
                     self.has_start_re_default = True
                     break
 
-    def get_children(self, child_groups, grp_index=0):
+    def get_children(self, child_groups):
         """Method to create child groups objects
         by iterating over all children.
         """
-        for element in child_groups:
-            if element.tag in ["g", "grp", "group"]:
-                self.children.append(
-                    _group_class(
-                        element=element,
-                        top=False,
-                        path=self.path,
-                        pathchar=self.pathchar,
-                        vars=self.vars,
-                        grp_index=grp_index,
-                        parent_group_id=self.group_id,
-                    )
+        for g_index, group in enumerate(child_groups):
+            self.children.append(
+                _group_class(
+                    element=group,
+                    top=False,
+                    path=self.path,
+                    pathchar=self.pathchar,
+                    vars=self.vars,
+                    grp_index=g_index,
+                    parent_group_id=self.group_id,
                 )
-                # get regexes from tail
-                if element.tail and element.tail.strip():
-                    self.get_regexes(data=element.tail, tail=True)
-                grp_index += 1
-            elif element.tag == "extend":
-                path_to_template = element.attrib.get("template", "")
-                content = _ttp_["utils"]["load_files"](path_to_template, read=True)
-                if content[0][1] == path_to_template:
-                    log.warning(
-                        "group.extend: failed load extend tag content at path: {}".format(
-                            path_to_template
-                        )
-                    )
-                    continue
-                try:
-                    extend_ET = ET.XML(content[0][1])
-                    # make top tag to be a template
-                    if extend_ET.tag.lower() != "template":
-                        tmplt = ET.XML("<template />")
-                        tmplt.insert(0, extend_ET)
-                        extend_ET = tmplt
-                except ET.ParseError as e:
-                    # try to reconstruct XML document
-                    extend_ET = ET.XML(
-                        "<template>\n{}\n</template>".format(content[0][1])
-                    )
-                    # check if template has children, if not, make it an _anonymous_  group
-                    if not list(extend_ET):
-                        extend_ET = ET.XML(
-                            "<template><group>\n{}\n</group></template>".format(
-                                content[0][1]
-                            )
-                        )
-                grp_index = self.get_children(
-                    child_groups=list(extend_ET), grp_index=grp_index
-                )
-        return grp_index
+            )
+            # get regexes from tail
+            if group.tail.strip():
+                self.get_regexes(data=group.tail, tail=True)
 
     def set_runs(self):
         """runs - default variable values during group
