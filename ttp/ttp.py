@@ -1289,7 +1289,7 @@ class _template_class:
                     template_ET.remove(child)
                 # use extended template children to extend parent element
                 else:
-                    # run recursion for newly extended groups
+                    # run recursion for newly extended groups to handle nested extend tags
                     self.handle_extend(template_ET=extend_ET, top=False)
                     # run filtering and extend parent element
                     template_ET[index : index + 1] = self.filter_extend(
