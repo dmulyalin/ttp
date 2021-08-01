@@ -392,3 +392,169 @@ interface {{ interface }}
 
 
 # test_group_set_function_source_from_global_vars()
+
+
+def test_group_macro_returns_false():
+    template_123 = """
+<input load="text">
+interface Lo0
+!
+interface Lo1
+ description this interface has description
+</input>
+
+<macro>
+def check(data):
+    if not "description" in data:
+        return False
+</macro>
+
+<group macro="check">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+</group>
+"""
+    parser = ttp(template=template_123)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'description': 'this interface has description', 'interface': 'Lo1'}]]]
+    
+# test_group_macro_returns_false()
+
+
+def test_group_macro_returns_true():
+    template_123 = """
+<input load="text">
+interface Lo0
+!
+interface Lo1
+ description this interface has description
+</input>
+
+<macro>
+def check(data):
+    if "description" in data:
+        return True
+</macro>
+
+<group macro="check">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+</group>
+"""
+    parser = ttp(template=template_123)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0'},
+                     {'description': 'this interface has description', 'interface': 'Lo1'}]]]
+    
+# test_group_macro_returns_true()
+
+
+def test_group_macro_returns_none():
+    template_123 = """
+<input load="text">
+interface Lo0
+!
+interface Lo1
+ description this interface has description
+</input>
+
+<macro>
+def check(data):
+    return None
+</macro>
+
+<group macro="check">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+</group>
+"""
+    parser = ttp(template=template_123)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0'},
+                     {'description': 'this interface has description', 'interface': 'Lo1'}]]]
+    
+# test_group_macro_returns_none()
+
+
+def test_group_macro_chaining():
+    template_123 = """
+<input load="text">
+interface Lo0
+!
+interface Lo1
+ description this interface has description
+</input>
+
+<macro>
+def check_1(data):
+    if not "description" in data:
+        data["has_description"] = False
+    else:
+        data["has_description"] = True
+
+def check_2(data):
+    if "Lo" in data["interface"]:
+        data["is_loopback"] = True
+</macro>
+
+<group macro="check_1, check_2">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+</group>
+"""
+    parser = ttp(template=template_123)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'has_description': False, 'interface': 'Lo0', 'is_loopback': True},
+                     {'description': 'this interface has description',
+                      'has_description': True,
+                      'interface': 'Lo1',
+                      'is_loopback': True}]]]
+    
+# test_group_macro_chaining()
+
+
+def test_group_macro_chaining_returns_dictionary():
+    template_123 = """
+<input load="text">
+interface Lo0
+!
+interface Lo1
+ description this interface has description
+</input>
+
+<macro>
+def check_1(data):
+    if not "description" in data:
+        return {"completely_new_data": True}
+
+def check_2(data):
+    if "Lo" in data.get("interface", ""):
+        data["is_loopback"] = True
+    else:
+        data.update({"completely_new_data_2": True})
+        return data
+</macro>
+
+<group macro="check_1, check_2">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+</group>
+"""
+    parser = ttp(template=template_123)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[[{'completely_new_data': True, 'completely_new_data_2': True},
+                     {'description': 'this interface has description',
+                      'interface': 'Lo1',
+                      'is_loopback': True}]]]
+    
+# test_group_macro_chaining_returns_dictionary()
