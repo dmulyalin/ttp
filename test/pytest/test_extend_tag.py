@@ -49,6 +49,7 @@ vlan 910
         [{"vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}}}]
     ]
 
+
 # test_extend_tag_from_file()
 
 
@@ -137,6 +138,7 @@ vlan 910
     """
     with pytest.raises(FileNotFoundError):
         parser = ttp(data=data, template=template)
+
 
 # test_extend_tag_from_file_wrong_path()
 
@@ -505,6 +507,7 @@ vlan 910
         [{"vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}}}]
     ]
 
+
 # test_extend_tag_from_file_group_filter()
 
 
@@ -534,6 +537,7 @@ vlan 910
     assert res == [
         [{"vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}}}]
     ]
+
 
 # test_extend_tag_from_file_group_index_filter()
 
@@ -565,12 +569,21 @@ vlan 910
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'common_vars': {'c': 3, 'd': 4},
-                     'other_vars': {'e': 5, 'f': 6},
-                     'some': {'a': 1, 'b': 2},
-                     'vlans': {'1234': {'name': 'some_vlan', 'r_test': 'r'},
-                               '910': {'name': 'one_more', 'r_test': 'r'}}}]]
-             
+    assert res == [
+        [
+            {
+                "common_vars": {"c": 3, "d": 4},
+                "other_vars": {"e": 5, "f": 6},
+                "some": {"a": 1, "b": 2},
+                "vlans": {
+                    "1234": {"name": "some_vlan", "r_test": "r"},
+                    "910": {"name": "one_more", "r_test": "r"},
+                },
+            }
+        ]
+    ]
+
+
 # test_extend_tag_from_file_vars_filter()
 
 
@@ -587,10 +600,17 @@ vlan {{ vlan }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'some': {'a': 1, 'b': 2},
-                     'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}},
-                    {'some': {'a': 1, 'b': 2}, 'vlans': {'777': {'name': 'vlan_name_777'}}}]]
-             
+    assert res == [
+        [
+            {
+                "some": {"a": 1, "b": 2},
+                "vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}},
+            },
+            {"some": {"a": 1, "b": 2}, "vlans": {"777": {"name": "vlan_name_777"}}},
+        ]
+    ]
+
+
 # test_extend_tag_from_file_with_vars_inputs_filter()
 
 
@@ -613,14 +633,25 @@ router bgp {{ bgp_as | lookup("bgp_asn", add_field="as_details") }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'bgp_config': {'as_details': {'as_description': 'Private ASN',
-                                                   'as_name': 'Subs',
-                                                   'prefix_num': '734'},
-                                    'bgp_as': '65100',
-                                    'var_1_value': 'value_1',
-                                    'var_2_value': [1, 2, 3, 4, 'a'],
-                                    'var_3_value': 'var_3'}}]]
-                  
+    assert res == [
+        [
+            {
+                "bgp_config": {
+                    "as_details": {
+                        "as_description": "Private ASN",
+                        "as_name": "Subs",
+                        "prefix_num": "734",
+                    },
+                    "bgp_as": "65100",
+                    "var_1_value": "value_1",
+                    "var_2_value": [1, 2, 3, 4, "a"],
+                    "var_3_value": "var_3",
+                }
+            }
+        ]
+    ]
+
+
 # test_extend_tag_from_file_lookups_filter()
 
 
@@ -646,7 +677,8 @@ vlan {{ vlan }}
     res = parser.result()
     # print(res[0])
     assert res == ['"name","vlan"\n"some_vlan","1234"\n"one_more","910"']
-                  
+
+
 # test_extend_tag_from_file_output_filter()
 
 
@@ -674,12 +706,25 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interfaces': [{'interface': 'Gi1',
-                                     'ip_primary': {'ip': '1.1.1.1', 'mask': '255.255.255.0'}},
-                                    {'disabled': True,
-                                     'interface': 'Gi2',
-                                     'ip_primary': {'ip': '1.1.2.1', 'mask': '255.255.255.0'}}]}]]
-    
+    assert res == [
+        [
+            {
+                "interfaces": [
+                    {
+                        "interface": "Gi1",
+                        "ip_primary": {"ip": "1.1.1.1", "mask": "255.255.255.0"},
+                    },
+                    {
+                        "disabled": True,
+                        "interface": "Gi2",
+                        "ip_primary": {"ip": "1.1.2.1", "mask": "255.255.255.0"},
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_extend_tag_from_file_nested_group_filter()
 
 
@@ -718,18 +763,32 @@ vlan 910
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'config': {'interfaces_config': [{'description': 'Some description 1',
-                                                       'disabled': True,
-                                                       'dot1q': '100',
-                                                       'interface': 'Gi1.100',
-                                                       'ip': '10.0.0.1',
-                                                       'mask': '255.255.255.0'},
-                                                      {'description': 'Some description 2',
-                                                       'interface': 'Gi2',
-                                                       'ip': '10.1.0.1',
-                                                       'mask': '255.255.255.0'}],
-                                'logging': [{'syslog': '1.1.1.1'}, {'syslog': '1.1.1.2'}]},
-                     'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}}]]
+    assert res == [
+        [
+            {
+                "config": {
+                    "interfaces_config": [
+                        {
+                            "description": "Some description 1",
+                            "disabled": True,
+                            "dot1q": "100",
+                            "interface": "Gi1.100",
+                            "ip": "10.0.0.1",
+                            "mask": "255.255.255.0",
+                        },
+                        {
+                            "description": "Some description 2",
+                            "interface": "Gi2",
+                            "ip": "10.1.0.1",
+                            "mask": "255.255.255.0",
+                        },
+                    ],
+                    "logging": [{"syslog": "1.1.1.1"}, {"syslog": "1.1.1.2"}],
+                },
+                "vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}},
+            }
+        ]
+    ]
 
 
 # test_extend_tag_groups_recursive_extend_load()
@@ -770,18 +829,30 @@ vlan 910
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interfaces_config': [{'description': 'Some description 1',
-                                            'disabled': True,
-                                            'dot1q': '100',
-                                            'interface': 'Gi1.100',
-                                            'ip': '10.0.0.1',
-                                            'mask': '255.255.255.0'},
-                                           {'description': 'Some description 2',
-                                            'interface': 'Gi2',
-                                            'ip': '10.1.0.1',
-                                            'mask': '255.255.255.0'}],
-                     'logging': [{'syslog': '1.1.1.1'}, {'syslog': '1.1.1.2'}],
-                     'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}}]]
+    assert res == [
+        [
+            {
+                "interfaces_config": [
+                    {
+                        "description": "Some description 1",
+                        "disabled": True,
+                        "dot1q": "100",
+                        "interface": "Gi1.100",
+                        "ip": "10.0.0.1",
+                        "mask": "255.255.255.0",
+                    },
+                    {
+                        "description": "Some description 2",
+                        "interface": "Gi2",
+                        "ip": "10.1.0.1",
+                        "mask": "255.255.255.0",
+                    },
+                ],
+                "logging": [{"syslog": "1.1.1.1"}, {"syslog": "1.1.1.2"}],
+                "vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}},
+            }
+        ]
+    ]
 
 
 # test_extend_tag_groups_recursive_extend_load_several_top_groups()

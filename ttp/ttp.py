@@ -1216,13 +1216,23 @@ class _template_class:
             return extend_template
         ret = []
         grp_index = 0
-        groups = [i.strip() for i in extend_tag.get("groups", "").split(",") if i.strip()]
+        groups = [
+            i.strip() for i in extend_tag.get("groups", "").split(",") if i.strip()
+        ]
         # do filtering for top tag
         if top:
-            inputs = [i.strip() for i in extend_tag.get("inputs", "").split(",") if i.strip()]
-            tvars = [i.strip() for i in extend_tag.get("vars", "").split(",") if i.strip()]
-            lookups = [i.strip() for i in extend_tag.get("lookups", "").split(",") if i.strip()]
-            outputs = [i.strip() for i in extend_tag.get("outputs", "").split(",") if i.strip()]
+            inputs = [
+                i.strip() for i in extend_tag.get("inputs", "").split(",") if i.strip()
+            ]
+            tvars = [
+                i.strip() for i in extend_tag.get("vars", "").split(",") if i.strip()
+            ]
+            lookups = [
+                i.strip() for i in extend_tag.get("lookups", "").split(",") if i.strip()
+            ]
+            outputs = [
+                i.strip() for i in extend_tag.get("outputs", "").split(",") if i.strip()
+            ]
             for t in extend_template:
                 tag_name = t.attrib.get("name")
                 if inputs and t.tag in ["i", "in", "input"]:
@@ -1243,7 +1253,7 @@ class _template_class:
                         ret.append(t)
                 else:
                     ret.append(t)
-        # do filtering for nested tag allowing <group> tags only
+        # do filtering for nested tag allowing <group> and <extend> tags only
         else:
             for t in extend_template:
                 tag_name = t.attrib.get("name")
@@ -1287,14 +1297,16 @@ class _template_class:
                 ):
                     template_ET.text += extend_ET[0].text
                     template_ET.remove(child)
-                # use extended template children to extend parent element
+                # process extended template children to extend parent element
                 else:
-                    # run recursion for newly extended groups to handle nested extend tags
-                    self.handle_extend(template_ET=extend_ET, top=False)
-                    # run filtering and extend parent element
-                    template_ET[index : index + 1] = self.filter_extend(
+                    # run filtering for extended template tags
+                    filtered_ET = self.filter_extend(
                         extend_template=extend_ET, extend_tag=child, top=top
                     )
+                    # run recursion for newly extended groups to handle nested extend tags
+                    self.handle_extend(template_ET=filtered_ET, top=False)
+                    # save extended elements as parent children
+                    template_ET[index : index + 1] = filtered_ET
             # run recursion for child groups looking for extend tags
             elif child.tag == "group":
                 self.handle_extend(template_ET=child, top=False)
