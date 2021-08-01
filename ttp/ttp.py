@@ -82,11 +82,12 @@ def lazy_import_functions():
     global _ttp_
     log.info("ttp.lazy_import_functions: starting functions lazy import")
 
-    # try to load previously pickled/cached _ttp_ dictionary if it exists
+    # try to load previously pickled/cached _ttp_ dictionary
+    path_to_cache = os.getenv("TTP_CACHE_FOLDER", os.path.dirname(__file__))
+    cache_file = os.path.join(path_to_cache, "ttp_dict_cache.pickle")
     try:
-        path_to_cache = os.path.dirname(__file__) + "/ttp_dict_cache.pickle"
-        if os.path.isfile(path_to_cache):
-            with open(path_to_cache, "rb") as f:
+        if os.path.isfile(cache_file):
+            with open(cache_file, "rb") as f:
                 _ttp_ = pickle.load(f)
             # use unpickled _ttp_ dictionary if it of the same python version
             if _ttp_["python_major_version"] == version_info.major:
@@ -94,7 +95,7 @@ def lazy_import_functions():
                     "ttp.lazy_import_functions: loaded _ttp_ dictionary from ttp_dict_cache.pickle"
                 )
                 return
-            # rebuilt _ttp_ dictionary if version is different
+            # rebuilt _ttp_ dictionary if different Python version
             else:
                 _ttp_ = {
                     "macro": {},
@@ -104,16 +105,13 @@ def lazy_import_functions():
                     "vars": {},
                 }
     except Exception as e:
-        log.error(
+        log.warning(
             "ttp.lazy_import_functions: failed load ttp_dict_cache.pickle, loading functions directly, error '{}'".format(
                 e
             )
         )
     # load functions from files instead
-    if _ttp_["python_major_version"] == 2:
-        exclude = "_py3.py"
-    elif _ttp_["python_major_version"] == 3:
-        exclude = "_py2.py"
+    exclude = "_py3.py" if _ttp_["python_major_version"] == 2 else "_py2.py"
     exclude_modules = ["ttp.py"]
     # load and parse files
     log.info("ttp.lazy_import_functions: loading files for ast parsing")
@@ -162,12 +160,12 @@ def lazy_import_functions():
             module_file.close()
     # try to cache/pickle _ttp_ to a file for future use
     try:
-        with open(os.path.dirname(__file__) + "/ttp_dict_cache.pickle", "wb") as f:
+        with open(cache_file, "wb") as f:
             pickle.dump(_ttp_, f)
     except Exception as e:
         log.warning(
-            "ttp.lazy_import_functions: failed to save ttp_dict_cache.pickle '{}'".format(
-                e
+            "ttp.lazy_import_functions: failed to save cache at '{}', error '{}'".format(
+                cache_file, e
             )
         )
     log.info("ttp.lazy_import_functions: finished functions lazy import")

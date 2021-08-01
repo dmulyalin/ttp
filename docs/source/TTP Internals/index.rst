@@ -10,16 +10,22 @@ TTP uses lazy loading to load helper functions for all its components. That is t
 
 The way how lazy loader works is quite simple, work flow is:
 
+0. Starting with version 0.7.0, TTP first checks if ``ttp_dict_cache.pickle`` file exists and loads ``_ttp_`` dictionary from it, if no such file found, TTP proceeds with below steps.
 1. Scan all files in all folders of TTP module using ``ast`` built in library to extract all functions names and assignments.
 2. Save reference to function names and file where that function found in a lazy load class
 3. Use directory and function name as a keys and store lazy load class in ``_ttp_`` dictionary
 4. On first call to the function, lazy load class will perform import on the file where function in question located and will update references in ``_ttp_`` dictionary to all functions imported from that file
+5. Starting with version 0.7.0 added support for caching ``_ttp_`` dictionary using pickle module, as a result after steps 1-4 completed, ``_ttp_`` dictionary stored in ``ttp_dict_cache.pickle`` file under TTP module directory
 
 Implications of above process are:
 
 1. To add new function to TTP, ones need to create .py file and place it in appropriate directory
 2. The more files TTP need to scan the slower it will load, hence it make sense to combine functions of similar functionality in single file
 3. All functions in single file will be imported on first call to any of the functions
+4. Starting with version 0.7.0, usage of ``_ttp_`` dictionary cache improves TTP import performance by about 50ms
+5. Because of caching, TTP no longer scans sub folders, this means that to make TTP to see and use new function, ``ttp_dict_cache.pickle`` file **must** be deleted, forcing TTP to rescan and cache new function.
+
+To handle cases where ``ttp_dict_cache.pickle`` cannot be saved under TTP module path, for instance - read only file system or lack of privileges, but caching ``_ttp_`` dictionary still desirable, starting with version 0.8.0 lazy import system checks ``TTP_CACHE_FOLDER`` environment variable for file system path location to load/save ``ttp_dict_cache.pickle`` file.
 
 Sometimes it is good to have name of TTP function to reference python reserved names, for instance ``set`` or ``del``, but, it is against best practices to name your functions with python
 well reserved names. At the same time, TTP does not call function directly but rather reference to function stored in ``_ttp_`` dictionary and that reference got called upon request.

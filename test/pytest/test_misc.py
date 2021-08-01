@@ -1,5 +1,5 @@
 import sys
-
+import os
 sys.path.insert(0, "../..")
 import pprint
 
@@ -646,3 +646,17 @@ some string {{ var_1 }}
 
 
 # test_comments_with_indentation()
+
+
+def test_TTP_CACHE_FOLDER_env_variable_usage():
+    """
+    Check that TTP_CACHE_FOLDER properly handled when it is set
+    """
+    template = "some string {{ var_1 }}"
+    os.environ["TTP_CACHE_FOLDER"] = "./assets/"
+    parser = ttp(template=template)
+    assert "ttp_dict_cache.pickle" in os.listdir("./assets/")
+    os.remove("./assets/ttp_dict_cache.pickle")
+    os.environ.pop("TTP_CACHE_FOLDER", None)
+    
+# test_TTP_CACHE_FOLDER_env_variable_usage()
