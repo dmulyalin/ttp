@@ -45,6 +45,8 @@ Action functions act upon match result to transform into desired state.
      - prepend provided string at the beginning of match result
    * - `print`_
      - print match result to terminal
+   * - `raise`_
+     - raises RuntimeError with message provided
    * - `rdns`_
      - performs DNS reverse lookup
    * - `record`_
@@ -2345,6 +2347,15 @@ Result::
             }
         }
     ]
+
+raise
+------------------------------------------------------------------------------
+``{{ name | raise("message") }}``
+
+``message`` - optional error message to use with RuntimeError exception.
+
+This function raises ``RuntimeError`` exception with message string provided. Can be useful to stop execution if certain patterns encountered in input data, potentially
+allowing parent program to test various conditions.
 
 rdns
 ------------------------------------------------------------------------------

@@ -4,6 +4,7 @@ sys.path.insert(0, "../..")
 import pprint
 import logging
 import json
+import pytest 
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -525,4 +526,20 @@ Time remaining: {{ ignore }} seconds {{ _end_ }}
     ]
 
 
-test_line_with_joinmatches()
+# test_line_with_joinmatches()
+
+
+def test_raise():
+    data = """
+interface Port-Channel11
+ description bla
+    """
+    template = """
+interface {{ name }}
+ description {{ description |  raise("Error msg") }}
+    """
+    parser = ttp(data=data, template=template)
+    with pytest.raises(RuntimeError):
+        parser.parse()
+
+test_raise()
