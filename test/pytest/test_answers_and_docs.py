@@ -4708,3 +4708,53 @@ router bgp 65100
 
 
 # test_ios_bgp_pers_pars()
+
+
+def test_ip_address_parsing():
+    data = """
+interface Vlan99
+ description vlan99_interface
+ ip address 20.99.10.1 255.255.255.0 secondary
+ ip address 30.99.10.1 255.255.255.0 secondary
+ ip address 10.99.10.1 255.255.255.0
+ load-interval 60
+ bandwidth 10000000
+!
+interface Vlan100
+ description vlan100_interface
+ ip address 10.100.10.1 255.255.255.0
+ load-interval 60
+ bandwidth 10000000
+!
+    """
+    template = """
+<group name="interface">
+interface {{ interface }}
+ description {{ description }}
+ ip address {{ ipv4_addr | PHRASE | exclude("secondary") | to_ip | with_prefixlen  }}
+ load-interval {{ load-interval }}
+ bandwidth {{ bandwidth }}
+ <group name="ipv4_secondary*">
+ ip address {{ ipv4_addr | PHRASE | let("is_secondary", True) | to_ip | with_prefixlen }} secondary
+ </group>
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'interface': [{'bandwidth': '10000000',
+                                    'description': 'vlan99_interface',
+                                    'interface': 'Vlan99',
+                                    'ipv4_addr': '10.99.10.1/24',
+                                    'ipv4_secondary': [{'ipv4_addr': '20.99.10.1/24',
+                                                        'is_secondary': True},
+                                                       {'ipv4_addr': '30.99.10.1/24',
+                                                        'is_secondary': True}],
+                                    'load-interval': '60'},
+                                   {'bandwidth': '10000000',
+                                    'description': 'vlan100_interface',
+                                    'interface': 'Vlan100',
+                                    'ipv4_addr': '10.100.10.1/24',
+                                    'load-interval': '60'}]}]]
+# test_ip_address_parsing()
