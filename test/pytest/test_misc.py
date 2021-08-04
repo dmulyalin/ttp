@@ -363,7 +363,7 @@ snmp acl {{ acl }}
     parser = ttp(template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)
+    pprint.pprint(res)
     assert res == [
         [
             [
@@ -658,5 +658,131 @@ def test_TTP_CACHE_FOLDER_env_variable_usage():
     assert "ttp_dict_cache.pickle" in os.listdir("./assets/")
     os.remove("./assets/ttp_dict_cache.pickle")
     os.environ.pop("TTP_CACHE_FOLDER", None)
+# test_TTP_CACHE_FOLDER_env_variable_usage()    
     
-# test_TTP_CACHE_FOLDER_env_variable_usage()
+
+def test_child_group_do_not_start_if_no_parent_started():
+    """
+    This test tests that this wrong output is not produced:
+    [[{'ospf_processes': {'1': {'external_lsa': {'age': '1604'},
+                                'local_rid': '10.0.1.1',
+                                'router_lsa': [{'age': '406',
+                                                'area': 'area',
+                                                'originator_rid': '10.0.1.1',
+                                                'ptp_peers': [{'link_data': '0.0.0.12'},
+                                                            {'link_data': '0.0.0.10'},
+                                                            {'link_data': '0.0.0.52'},
+                                                            {'link_data': '0.0.0.53'}]}]}}}]]
+    Reason wrong output produced is because TTP parses "LS age: {{ age }}" for
+    "external_lsa" even though "Type-5 AS External Link States {{ _start_ }}" 
+    does not math anything in the output.
+    
+    Next, once "LS age: 406" like lines matched by two "LS age: {{ age }}"start 
+    regexes from "name="router_lsa*" and "name="external_lsa"" groups, selection
+    of match result happens in favour of "name="external_lsa"" group and it breaks
+    the logic of saving results for "name="ptp_peers*"" group, leading to all
+    ptp_ppers saved under same path, and "LS age: 1604" stored under "name="external_lsa""
+    wrong path.
+    
+    The fix is to make sure that group "name="external_lsa"" pattern "LS age: {{ age }}"
+    will not be parsed if no "Type-5 AS External Link States {{ _start_ }}" pattern 
+    matched in the data text.
+	"""
+    template = """
+<group name="ospf_processes.{{ pid }}**">
+            OSPF Router with ID ({{ local_rid }}) (Process ID {{ pid }})
+            
+<group name="router_lsa*" record="area" del="area" void="">
+                Router Link States (Area {{ area }})
+
+  <group set="area">
+  LS age: {{ age }}
+  Advertising Router: {{ originator_rid }}
+
+    <group name="ptp_peers*">
+    Link connected to: another Router (point-to-point) {{ _start_ }}
+     (Link Data) Router Interface address: {{ link_data }}
+    </group>
+  </group>
+</group>
+
+<group name="external_lsa">
+                Type-5 AS External Link States {{ _start_ }}
+
+  <group>
+  LS age: {{ age }}
+{{ _end_ }}
+  </group>
+</group>
+
+</group>
+    """
+    data = """
+RP/0/RP0/CPU0:router-1#show ospf database router 
+
+            OSPF Router with ID (10.0.1.1) (Process ID 1)
+
+                Router Link States (Area 0.0.0.0)
+
+  LS age: 406
+  Options: (No TOS-capability, DC)
+  LS Type: Router Links
+  Link State ID: 10.0.1.1
+  Advertising Router: 10.0.1.1
+  LS Seq Number: 8000010c
+  Checksum: 0x24dd
+  Length: 132
+   Number of Links: 9
+
+    Link connected to: another Router (point-to-point)
+     (Link ID) Neighboring Router ID: 10.0.1.4
+     (Link Data) Router Interface address: 0.0.0.12
+      Number of TOS metrics: 0
+       TOS 0 Metrics: 1100
+
+    Link connected to: another Router (point-to-point)
+     (Link ID) Neighboring Router ID: 10.0.1.2
+     (Link Data) Router Interface address: 0.0.0.10
+      Number of TOS metrics: 0
+       TOS 0 Metrics: 1100    
+	   
+  Routing Bit Set on this LSA
+  LS age: 1604
+  Options: (No TOS-capability, DC)
+  LS Type: Router Links
+  Link State ID: 10.0.1.2
+  Advertising Router: 10.0.1.2
+  LS Seq Number: 8000010b
+  Checksum: 0xdc96
+  Length: 132
+   Number of Links: 9
+
+    Link connected to: another Router (point-to-point)
+     (Link ID) Neighboring Router ID: 10.0.1.3
+     (Link Data) Router Interface address: 0.0.0.52
+      Number of TOS metrics: 0
+       TOS 0 Metrics: 1100
+
+    Link connected to: another Router (point-to-point)
+     (Link ID) Neighboring Router ID: 10.0.1.4
+     (Link Data) Router Interface address: 0.0.0.53
+      Number of TOS metrics: 0
+       TOS 0 Metrics: 1100
+    """
+    parser = ttp(data=data, template=template, log_level="warning")    
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'ospf_processes': {'1': {'local_rid': '10.0.1.1',
+                                              'router_lsa': [{'age': '406',
+                                                              'area': 'area',
+                                                              'originator_rid': '10.0.1.1',
+                                                              'ptp_peers': [{'link_data': '0.0.0.12'},
+                                                                            {'link_data': '0.0.0.10'}]},
+                                                             {'age': '1604',
+                                                              'area': 'area',
+                                                              'originator_rid': '10.0.1.2',
+                                                              'ptp_peers': [{'link_data': '0.0.0.52'},
+                                                                            {'link_data': '0.0.0.53'}]}]}}}]]
+    
+# test_child_group_do_not_start_if_no_parent_started()

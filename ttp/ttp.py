@@ -2488,8 +2488,10 @@ class _parser_class:
                         ]
 
                 # run recursion to fill in results for children
+                
                 for child_group in group.children:
-                    run_re(child_group, results, start, end)
+                    if group.start_re == [] or child_group.has_start_re_default:
+                        run_re(child_group, results, start, end)
                 return results
             # run end REs:
             for R in group.end_re:
