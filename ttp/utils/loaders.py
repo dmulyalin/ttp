@@ -84,7 +84,7 @@ def load_files(path, extensions=[], filters=[], read=False):
     elif os.path.isdir(path[0:5000]):
         from re import search as re_search
 
-        files = [f for f in os.listdir(path) if os.path.isfile(path + f)]
+        files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
         if extensions:
             files = [f for f in files if f.split(".")[-1] in extensions]
         for filter in filters:
@@ -93,7 +93,7 @@ def load_files(path, extensions=[], filters=[], read=False):
             ret = []
             for f in files:
                 if _ttp_["python_major_version"] == 2:
-                    with open((path + f), "r") as file_obj:
+                    with open((os.path.join(path, f)), "r") as file_obj:
                         ret.append(
                             (
                                 "text_data",
@@ -101,7 +101,7 @@ def load_files(path, extensions=[], filters=[], read=False):
                             )
                         )
                 elif _ttp_["python_major_version"] == 3:
-                    with open((path + f), "r", encoding="utf-8") as file_obj:
+                    with open((os.path.join(path, f)), "r", encoding="utf-8") as file_obj:
                         ret.append(
                             (
                                 "text_data",
@@ -113,7 +113,7 @@ def load_files(path, extensions=[], filters=[], read=False):
             return [
                 (
                     "file_name",
-                    path + f,
+                    os.path.join(path, f),
                 )
                 for f in files
             ]
