@@ -3963,7 +3963,7 @@ echo "Service Configuration" {{ ignore }}
     parser = ttp(data, template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=100)
+    pprint.pprint(res, width=100)
     assert res == [
         [
             {
@@ -4758,3 +4758,65 @@ interface {{ interface }}
                                     'ipv4_addr': '10.100.10.1/24',
                                     'load-interval': '60'}]}]]
 # test_ip_address_parsing()
+
+def test_vlans_parsing():
+    template = """
+            <group name="ports_summary*">
+            {{ port }}  {{ mode }}  {{ encap }}  {{ satus }}  {{ native_vlan | DIGIT }}
+            </group>
+
+            <group name="vlans_allowed">
+            Port      Vlans allowed on trunk {{ _start_ }}
+            <group name="interfaces*">
+            {{ port }}    {{ vlans | unrange('-', ',') | split(",") }}
+            </group>
+{{ _end_ }}
+            </group>
+
+            <group name="vlans_active">
+            Port      Vlans allowed and active in management domain {{ _start_ }}
+            <group name="interfaces*">
+            {{ port }}    {{ vlans | unrange('-', ',') | split(",") }}
+            </group>
+{{ _end_ }}
+            </group>
+
+            <group name="vlans_forwarding">
+            Port      Vlans in spanning tree forwarding state and not pruned {{ _start_ }}
+            <group name="interfaces*">
+            {{ port }}    {{ vlans | unrange('-', ',') | split(",") }}
+            </group>
+{{ _end_ }}
+            </group>
+    """
+    data = """
+            Port      Mode         Encapsulation  Status        Native vlan
+            Gi0       on           802.1q         trunking      1
+            Gi7       on           802.1q         trunking      1
+
+            Port      Vlans allowed on trunk
+            Gi0       1,8,999,1002-1005
+            Gi7       1,100,120,1000,1002-1005
+
+            Port      Vlans allowed and active in management domain
+            Gi0       1,8,999
+            Gi7       1,100,120,1000
+
+            Port      Vlans in spanning tree forwarding state and not pruned
+            Gi0       1,8,999
+            Gi7       1,100,120,1000
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=120)
+    assert res == [[{'ports_summary': [{'encap': '802.1q', 'mode': 'on', 'native_vlan': '1', 'port': 'Gi0', 'satus': 'trunking'},
+                                       {'encap': '802.1q', 'mode': 'on', 'native_vlan': '1', 'port': 'Gi7', 'satus': 'trunking'}],
+                     'vlans_active': {'interfaces': [{'port': 'Gi0', 'vlans': ['1', '8', '999']},
+                                                     {'port': 'Gi7', 'vlans': ['1', '100', '120', '1000']}]},
+                     'vlans_allowed': {'interfaces': [{'port': 'Gi0', 'vlans': ['1', '8', '999', '1002', '1003', '1004', '1005']},
+                                                      {'port': 'Gi7',
+                                                       'vlans': ['1', '100', '120', '1000', '1002', '1003', '1004', '1005']}]},
+                     'vlans_forwarding': {'interfaces': [{'port': 'Gi0', 'vlans': ['1', '8', '999']},
+                                                         {'port': 'Gi7', 'vlans': ['1', '100', '120', '1000']}]}}]]
+test_vlans_parsing()

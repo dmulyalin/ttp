@@ -687,7 +687,7 @@ def test_child_group_do_not_start_if_no_parent_started():
     The fix is to make sure that group "name="external_lsa"" pattern "LS age: {{ age }}"
     will not be parsed if no "Type-5 AS External Link States {{ _start_ }}" pattern 
     matched in the data text.
-	"""
+    """
     template = """
 <group name="ospf_processes.{{ pid }}**">
             OSPF Router with ID ({{ local_rid }}) (Process ID {{ pid }})
@@ -745,7 +745,7 @@ RP/0/RP0/CPU0:router-1#show ospf database router
      (Link Data) Router Interface address: 0.0.0.10
       Number of TOS metrics: 0
        TOS 0 Metrics: 1100    
-	   
+       
   Routing Bit Set on this LSA
   LS age: 1604
   Options: (No TOS-capability, DC)
@@ -786,3 +786,95 @@ RP/0/RP0/CPU0:router-1#show ospf database router
                                                                             {'link_data': '0.0.0.53'}]}]}}}]]
     
 # test_child_group_do_not_start_if_no_parent_started()
+
+
+def test_group_end_indicator_when_last_start_is_bigger_than_last_end():
+    """
+    Testcase when we have last end span is smaller than last start span, meaning we have
+    start matches beyond last end match.
+    
+    Without fix TTP returns this data:
+    [[{'ospf_processes': {'1': {'local_rid': '10.0.0.4',
+                                'router_lsa': [{'area': '100',
+                                                'asbr': False,
+                                                'originator_rid': '10.0.0.4',
+                                                'ptp_peers': [{'link_data': '10.1.45.2',
+                                                               'link_id': '10.0.5.101',
+                                                               'metric': '10'}]},
+                                               {'area': '100',
+                                                'asbr': True,
+                                                'originator_rid': '10.0.5.101',
+                                                'ptp_peers': [{}]}]}}}]]
+                                                
+    ptp_peers did not match any group match regexes, this is due to data does have
+    {{ _end_ }} matched before last start
+    """
+    data = """
+IOL4#show ip ospf database router
+
+            OSPF Router with ID (10.0.0.4) (Process ID 1)
+            
+                Router Link States (Area 100)
+
+  LS Type: Router Links
+  Link State ID: 10.0.0.4
+  Advertising Router: 10.0.0.4
+
+    Link connected to: another Router (point-to-point)
+     (Link ID) Neighboring Router ID: 10.0.5.101
+     (Link Data) Router Interface address: 10.1.45.2
+      Number of MTID metrics: 0
+       TOS 0 Metrics: 10
+
+  LS Type: Router Links
+  Link State ID: 10.0.5.101
+  Advertising Router: 10.0.5.101
+
+    Link connected to: another Router (point-to-point)
+     (Link ID) Neighboring Router ID: 10.0.0.4
+     (Link Data) Router Interface address: 10.1.45.3
+      Number of MTID metrics: 0
+       TOS 0 Metrics: 10"""
+    template = """
+<group name="ospf_processes.{{ pid }}**">
+            OSPF Router with ID ({{ local_rid }}) (Process ID {{ pid }})
+            
+<group name="router_lsa*" functions="record('area') | del('area') | void">
+                Router Link States (Area {{ area }}) 
+                
+  <group set="area">
+  LS Type: Router Links {{ _start_ }}
+  Advertising Router: {{ originator_rid }}
+  AS Boundary Router {{ asbr | set(True) | default(False) }}
+  
+    <group name="ptp_peers*">
+    Link connected to: another Router (point-to-point) {{ _start_ }}
+     (Link ID) Neighboring Router ID: {{ link_id }}
+     (Link Data) Router Interface address: {{ link_data }}
+       TOS 0 Metrics: {{ metric }}
+{{ _end_ }}
+    </group>
+
+  </group>
+</group>
+</group>
+    """
+    parser = ttp(data=data, template=template, log_level="warning")    
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'ospf_processes': {'1': {'local_rid': '10.0.0.4',
+                                              'router_lsa': [{'area': '100',
+                                                              'asbr': False,
+                                                              'originator_rid': '10.0.0.4',
+                                                              'ptp_peers': [{'link_data': '10.1.45.2',
+                                                                             'link_id': '10.0.5.101',
+                                                                             'metric': '10'}]},
+                                                             {'area': '100',
+                                                              'asbr': False,
+                                                              'originator_rid': '10.0.5.101',
+                                                              'ptp_peers': [{'link_data': '10.1.45.3',
+                                                                             'link_id': '10.0.0.4',
+                                                                             'metric': '10'}]}]}}}]]
+    
+# test_group_end_indicator_when_last_start_is_bigger_than_last_end()

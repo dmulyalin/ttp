@@ -2450,20 +2450,25 @@ class _parser_class:
         def run_re(group, results, start=0, end=-1):
             """Recursive function to run REs"""
             # results - dict of {span_start: [(re1, match1), (re2, match2)]}
-            s = 0  # int to get the lowest start re span value
-            e = -1  # int to get the biggest end re span value
+            s = 0  # int to store the lowest start re span value
+            se = 0  # int to store the highest/last start re span value - start end
+            e = -1  # int to store the biggest end re span value
             group_start_found = False
 
             # run start REs:
             for R in group.start_re:
-                matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
-                if not matches:
+                start_matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
+                if not start_matches:
                     continue
-                check_matches(R, matches, results, start)
+                check_matches(R, start_matches, results, start)
                 # if s is bigger, make it smaller:
-                if s > matches[0].span()[0] or group_start_found is False:
+                if s > start_matches[0].span()[0] or group_start_found is False:
                     group_start_found = True
-                    s = matches[0].span()[0]
+                    s = start_matches[0].span()[0]
+                # if se is smaller make it bigger except for when start re is _line_,
+                # if start re is _line_ end matches have bigger priority
+                if se < start_matches[-1].span()[0] and not R["IS_LINE"]:
+                    se = start_matches[-1].span()[1] + start
             start = start + s
             # if no matches found for any start REs of this group - skip the rest of REs
             if not group_start_found:
@@ -2488,20 +2493,20 @@ class _parser_class:
                         ]
 
                 # run recursion to fill in results for children
-                
                 for child_group in group.children:
                     if group.start_re == [] or child_group.has_start_re_default:
                         run_re(child_group, results, start, end)
                 return results
             # run end REs:
             for R in group.end_re:
-                matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
-                if not matches:
+                end_matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
+                if not end_matches:
                     continue
-                check_matches(R, matches, results, start)
-                # if e is smaller, make it bigger
-                if e < matches[-1].span()[1]:
-                    e = matches[-1].span()[1]
+                check_matches(R, end_matches, results, start)
+                # make e bigger if e is smaller than last end match
+                # and last end match is bigger than last start match
+                if e < end_matches[-1].span()[1] and end_matches[-1].span()[1] > se:
+                    e = end_matches[-1].span()[1]
             if e != -1:
                 end = start + e
                 # clean up results beyond last _end_ match
