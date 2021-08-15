@@ -83,7 +83,7 @@ def lazy_import_functions():
     log.info("ttp.lazy_import_functions: starting functions lazy import")
 
     # try to load previously pickled/cached _ttp_ dictionary
-    path_to_cache = os.getenv("TTP_CACHE_FOLDER", os.path.dirname(__file__))
+    path_to_cache = os.getenv("TTPCACHEFOLDER", os.path.dirname(__file__))
     cache_file = os.path.join(path_to_cache, "ttp_dict_cache.pickle")
     try:
         if os.path.isfile(cache_file):
