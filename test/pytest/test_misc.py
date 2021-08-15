@@ -653,11 +653,11 @@ def test_TTP_CACHE_FOLDER_env_variable_usage():
     Check that TTP_CACHE_FOLDER properly handled when it is set
     """
     template = "some string {{ var_1 }}"
-    os.environ["TTP_CACHE_FOLDER"] = "./assets/"
+    os.environ["TTPCACHEFOLDER"] = "./assets/"
     parser = ttp(template=template)
     assert "ttp_dict_cache.pickle" in os.listdir("./assets/")
     os.remove("./assets/ttp_dict_cache.pickle")
-    os.environ.pop("TTP_CACHE_FOLDER", None)
+    os.environ.pop("TTPCACHEFOLDER", None)
 # test_TTP_CACHE_FOLDER_env_variable_usage()    
     
 
@@ -878,3 +878,31 @@ IOL4#show ip ospf database router
                                                                              'metric': '10'}]}]}}}]]
     
 # test_group_end_indicator_when_last_start_is_bigger_than_last_end()
+
+
+def test_tabs_and_spaces_mixed_within_line():
+    data = """
+	 Form Factor 		: QSFP28
+	 Name 			: FS
+    """
+    template_as_is = """
+	 Form Factor 		: {{ form_factor }}
+	 Name 			: {{ vendor }}
+    """
+    template_not_as_is = """
+	 Form Factor 		 : {{ form_factor }}
+	 Name                : {{ vendor }}
+    """
+    parser1 = ttp(data=data, template=template_as_is, log_level="warning")    
+    parser1.parse()
+    res1 = parser1.result()
+    pprint.pprint(res1)
+    parser2 = ttp(data=data, template=template_not_as_is, log_level="debug")    
+    parser2.parse()
+    res2 = parser2.result()
+    pprint.pprint(res2)
+    
+    assert res1 == [[{'form_factor': 'QSFP28', 'vendor': 'FS'}]]
+    assert res2 == [[{'form_factor': 'QSFP28', 'vendor': 'FS'}]]
+
+# test_tabs_and_spaces_mixed_within_line()

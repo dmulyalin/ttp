@@ -2130,7 +2130,9 @@ class _variable_class:
             if string_before_var:
                 string_before_var = re.escape(string_before_var)
                 if not "_exact_space_" in self.LINE:
-                    string_before_var = re.sub(r"(\\ )+", r"\\ +", string_before_var)
+                    string_before_var = re.sub(r"(\\ |\\\t)+", r"[ \\t]+", string_before_var)
+                    # prior to 0.8.0 variant that only accounts for spaces
+                    # string_before_var = re.sub(r"(\\ )+", r"\\ +", string_before_var)
                 if not "_exact_" in self.LINE:
                     string_before_var = re.sub(r"\d+", r"\\d+", string_before_var)
                 line_chunks.append(string_before_var)
@@ -2179,8 +2181,10 @@ class _variable_class:
                 index = self.regex.find(esc_var)
                 # slice regex string before esc_var start:
                 result = self.regex[:index]
-                # delete "\ +" from end of line and add " *(?=\\n)":
-                result = re.sub(r"(\\ \+)$", "", result) + r"[\t ]*(?=\n|\r\n)"
+                # delete "[ \\t]+$" from end of line and add "[\t ]*(?=\n|\r\n)"
+                result = re.sub(r"(\[ \\t\]\+)$", "", result) + r"[\t ]*(?=\n|\r\n)"
+                # prior to 0.8.0 variant that only accounts for spaces
+                # result = re.sub(r"(\\ \+)$", "", result) + r"[\t ]*(?=\n|\r\n)"
             if result:
                 self.regex = result
 

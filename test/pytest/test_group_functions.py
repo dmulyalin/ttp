@@ -558,3 +558,139 @@ interface {{ interface }}
                       'is_loopback': True}]]]
     
 # test_group_macro_chaining_returns_dictionary()
+
+def test_itemize():
+    template = """
+<input load="text">
+interface Vlan778
+ description some description 1
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+ description some description 2
+!
+interface Vlan780
+ switchport port-security mac 4
+ ip address 192.168.1.1/124
+!
+interface Vlan790
+ description some description 790
+ switchport port-security mac 4
+ ip address 192.168.190.1/124
+!
+</input>
+
+<group name="interfaces_list**" functions="contains('ip') | itemize(key='interface')">
+interface {{ interface | upper | append("a") }}
+ ip address {{ ip }}
+</group>
+
+<group name="ips_list" functions="contains('description') | itemize(key='ip')">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }}
+ !{{ _end_ }}
+</group>
+
+<group name="bla" functions="contains('ip') | itemize(key='interface', path='interfaces.l3')">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }}
+ !{{ _end_ }}
+</group>
+"""
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'bla': [{'description': 'some description 1',
+                              'interface': 'Vlan778',
+                              'ip': '2002:fd37::91/124'},
+                             {'interface': 'Vlan780', 'ip': '192.168.1.1/124'},
+                             {'description': 'some description 790',
+                              'interface': 'Vlan790',
+                              'ip': '192.168.190.1/124'}],
+                     'interfaces': {'l3': ['Vlan778', 'Vlan780', 'Vlan790']},
+                     'interfaces_list': ['VLAN778a', 'VLAN780a', 'VLAN790a'],
+                     'ips_list': ['2002:fd37::91/124', '192.168.190.1/124']}]]
+   
+# test_itemize()
+
+
+def test_itemize_dynamic_path():
+    template = """
+<input load="text">
+interface Loopback0
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+!
+interface Loopback1
+ switchport port-security mac 4
+ ip address 192.168.1.1/124
+!
+interface Vlan790
+ switchport port-security mac 4
+ ip address 192.168.190.1/124
+!
+</input>
+
+<group name="l3_interfaces_list.{{ intf_type }}" itemize="interface">
+interface {{ interface | contains("Vlan") | let("intf_type", "vlans") }}
+ ip address {{ ip }}
+</group>
+
+<group name="l3_interfaces_list.{{ intf_type }}" itemize="interface">
+interface {{ interface | contains("Loop") | let("intf_type", "loopbacks") }}
+ ip address {{ ip }}
+</group>
+"""
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'l3_interfaces_list': {'loopbacks': ['Loopback0', 'Loopback1'],
+                                            'vlans': ['Vlan779', 'Vlan790']}}]]     
+
+# test_itemize_dynamic_path()
+
+def test_itemize_dynamic_path_attribute():
+    template = """
+<input load="text">
+interface Loopback0
+ ip address 2002:fd37::91/124
+!
+interface Vlan779
+!
+interface Loopback1
+ switchport port-security mac 4
+ ip address 192.168.1.1/124
+!
+interface Vlan790
+ switchport port-security mac 4
+ ip address 192.168.190.1/124
+!
+</input>
+
+<group name="interfaces" itemize="interface, 'l3_interfaces_list.{{ intf_type }}'">
+interface {{ interface | contains("Vlan") | let("intf_type", "vlans") }}
+ ip address {{ ip }}
+</group>
+
+<group name="interfaces" itemize="interface, 'l3_interfaces_list.{{ intf_type }}'">
+interface {{ interface | contains("Loop") | let("intf_type", "loopbacks") }}
+ ip address {{ ip }}
+</group>
+"""
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'interfaces': [{'interface': 'Vlan779'},
+                                    {'interface': 'Vlan790', 'ip': '192.168.190.1/124'},
+                                    {'interface': 'Loopback0', 'ip': '2002:fd37::91/124'},
+                                    {'interface': 'Loopback1', 'ip': '192.168.1.1/124'}],
+                     'l3_interfaces_list': {'loopbacks': ['Loopback0', 'Loopback1'],
+                                            'vlans': ['Vlan779', 'Vlan790']}}]] 
+
+# test_itemize_dynamic_path_attribute()

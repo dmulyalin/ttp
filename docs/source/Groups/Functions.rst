@@ -665,9 +665,13 @@ itemize
 ``itemize="key='name', path='path.to.result'"`` or ``functions="itemize(key='name', path='path.to.result')"``
 
 * key - mandatory, name of the key to use create a list of items from
-* path - optional, by default path taken from group name attribute, dot separated string of there to save a list of items within results tree
+* path - optional, by default path taken from group name attribute, dot separated string of there to save a list of itemized items within results tree
 
-This function allows to take single item result from group match results and place it into the list at path provided. Motivation behind this function is to be able to provide create a list of items out of match results produced by group. For instance produce a list of all IPs configured on device or VRFs or OSPF processes etc. without the need to iterate over parsing results to extract items in question.
+This function allows to take single result item from group match results and place it into the list at specified path. 
+
+Motivation behind this function is to be able to create a list of items out of group match results. For instance produce a list of all IP addresses configured on device or VRFs or OSPF processes without the need to iterate over parsing results to extract items in question.
+
+.. warning:: Prior to TTP 0.8.0 itemize does not support dynamic path as group name attribute or as itemize path attribute.
 
 **Example**
 

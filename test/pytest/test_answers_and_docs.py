@@ -4806,7 +4806,7 @@ def test_vlans_parsing():
             Gi0       1,8,999
             Gi7       1,100,120,1000
     """
-    parser = ttp(data, template)
+    parser = ttp(data, template, log_level="DEBUG")
     parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=120)
@@ -4819,4 +4819,231 @@ def test_vlans_parsing():
                                                        'vlans': ['1', '100', '120', '1000', '1002', '1003', '1004', '1005']}]},
                      'vlans_forwarding': {'interfaces': [{'port': 'Gi0', 'vlans': ['1', '8', '999']},
                                                          {'port': 'Gi7', 'vlans': ['1', '100', '120', '1000']}]}}]]
-test_vlans_parsing()
+# test_vlans_parsing()
+
+def test_asa_acls_issue_55_uses_itemize_with_dynamic_path():
+    data = """
+object-group service gokuhead
+ service-object tcp-udp destination eq gokurpc 
+ service-object tcp destination eq 902 
+ service-object tcp destination eq https 
+ service-object tcp destination eq nfs 
+ service-object tcp destination eq 10025 
+object-group network gohan
+ network-object object gohan-01
+ network-object object gohan-02
+ network-object object vlan_944
+ network-object object gohan-03
+ network-object object gohan-05
+ network-object object gohan-06
+object-group service sql tcp
+ port-object eq 1433
+object-group network vegeta
+ group-object trunks
+ network-object object vegeta-01
+object-group network Space-Users
+ network-object object ab
+ network-object object ac
+ network-object object ad
+ network-object object ae
+ network-object object af
+ network-object object ag
+ network-object object ah
+ network-object object ai
+ network-object object aj
+object-group network dalmatians
+ network-object object dog-01
+ group-object trunks
+ network-object object vlan_950
+ group-object Space-Users
+ network-object object Darts-Summary            
+    """
+    template = """
+<vars>
+SVC_PORTS = "tcp-udp|tcp|udp"
+</vars>
+
+<group name="object-{{ object_type }}-groups**.{{ object_name }}**">
+object-group {{ object_type }} {{ object_name | _start_ }}
+object-group {{ object_type }} {{ object_name | _start_ }} {{ protocol | re("SVC_PORTS")}}
+ description {{ description | re(".*") }}
+
+ <group name="{{ type }}-objects" itemize="obj_name" method="table">
+ network-object object   {{ obj_name | let("type", "network") }}
+ network-object host     {{ obj_name | IP | let("type", "network") }}
+ group-object            {{ obj_name | let("type", "group") }}
+ service-object object   {{ obj_name | let("type", "service") }}
+ service-object          {{ obj_name | let("type", "service") }}
+ </group>
+
+ <group name="service-object-ports*">
+ service-object {{ protocol | re("SVC_PORTS") }} destination eq {{port}}
+ </group>
+ 
+ <group name="service-object-port-ranges*">
+ service-object {{ protocol | re("SVC_PORTS") }} destination range {{port_begin}} {{port_end}}
+ </group>
+
+ <group name="service-port-objects" itemize="port_obj">
+ port-object eq {{ port_obj }}
+ </group>
+ 
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=80)
+    assert res == [[{'object-network-groups': {'Space-Users': {'network-objects': ['ab',
+                                                                                   'ac',
+                                                                                   'ad',
+                                                                                   'ae',
+                                                                                   'af',
+                                                                                   'ag',
+                                                                                   'ah',
+                                                                                   'ai',
+                                                                                   'aj']},
+                                               'dalmatians': {'group-objects': ['trunks',
+                                                                                'Space-Users'],
+                                                              'network-objects': ['dog-01',
+                                                                                  'vlan_950',
+                                                                                  'Darts-Summary']},
+                                               'gohan': {'network-objects': ['gohan-01',
+                                                                             'gohan-02',
+                                                                             'vlan_944',
+                                                                             'gohan-03',
+                                                                             'gohan-05',
+                                                                             'gohan-06']},
+                                               'vegeta': {'group-objects': ['trunks'],
+                                                          'network-objects': ['vegeta-01']}},
+                     'object-service-groups': {'gokuhead': {'service-object-ports': [{'port': 'gokurpc',
+                                                                                      'protocol': 'tcp-udp'},
+                                                                                     {'port': '902',
+                                                                                      'protocol': 'tcp'},
+                                                                                     {'port': 'https',
+                                                                                      'protocol': 'tcp'},
+                                                                                     {'port': 'nfs',
+                                                                                      'protocol': 'tcp'},
+                                                                                     {'port': '10025',
+                                                                                      'protocol': 'tcp'}]},
+                                               'sql': {'protocol': 'tcp',
+                                                       'service-port-objects': ['1433']}}}]]
+                                                       
+# test_asa_acls_issue_55()
+
+
+def test_asa_acls_issue_55():
+    data = """
+object-group service gokuhead
+ service-object tcp-udp destination eq gokurpc 
+ service-object tcp destination eq 902 
+ service-object tcp destination eq https 
+ service-object tcp destination eq nfs 
+ service-object tcp destination eq 10025 
+object-group network gohan
+ network-object object gohan-01
+ network-object object gohan-02
+ network-object object vlan_944
+ network-object object gohan-03
+ network-object object gohan-05
+ network-object object gohan-06
+object-group service sql tcp
+ port-object eq 1433
+object-group network vegeta
+ group-object trunks
+ network-object object vegeta-01
+object-group network Space-Users
+ network-object object ab
+ network-object object ac
+ network-object object ad
+ network-object object ae
+ network-object object af
+ network-object object ag
+ network-object object ah
+ network-object object ai
+ network-object object aj
+object-group network dalmatians
+ network-object object dog-01
+ group-object trunks
+ network-object object vlan_950
+ group-object Space-Users
+ network-object object Darts-Summary            
+    """
+    template = """
+<vars>
+SVC_PORTS = "tcp-udp|tcp|udp"
+</vars>
+
+<group name="object-{{ object_type }}-groups**.{{ object_name }}**">
+object-group {{ object_type }} {{ object_name | _start_ }}
+object-group {{ object_type }} {{ object_name | _start_ }} {{ protocol | re("SVC_PORTS")}}
+ description {{ description | re(".*") }}
+
+ <group name="network-objects" itemize="obj_name" method="table">
+ network-object object   {{ obj_name | }}
+ network-object host     {{ obj_name | IP }}
+ </group> 
+
+ <group name="group-objects" itemize="obj_name" method="table">
+ group-object            {{ obj_name }}
+ </group>
+ 
+ <group name="group-objects" itemize="obj_name" method="table">
+ service-object object   {{ obj_name }}
+ service-object          {{ obj_name }}
+ </group>
+
+ <group name="service-object-ports*">
+ service-object {{ protocol | re("SVC_PORTS") }} destination eq {{port}}
+ </group>
+ 
+ <group name="service-object-port-ranges*">
+ service-object {{ protocol | re("SVC_PORTS") }} destination range {{port_begin}} {{port_end}}
+ </group>
+
+ <group name="service-port-objects" itemize="port_obj">
+ port-object eq {{ port_obj }}
+ </group>
+ 
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=80)
+    assert res == [[{'object-network-groups': {'Space-Users': {'network-objects': ['ab',
+                                                                                   'ac',
+                                                                                   'ad',
+                                                                                   'ae',
+                                                                                   'af',
+                                                                                   'ag',
+                                                                                   'ah',
+                                                                                   'ai',
+                                                                                   'aj']},
+                                               'dalmatians': {'group-objects': ['trunks',
+                                                                                'Space-Users'],
+                                                              'network-objects': ['dog-01',
+                                                                                  'vlan_950',
+                                                                                  'Darts-Summary']},
+                                               'gohan': {'network-objects': ['gohan-01',
+                                                                             'gohan-02',
+                                                                             'vlan_944',
+                                                                             'gohan-03',
+                                                                             'gohan-05',
+                                                                             'gohan-06']},
+                                               'vegeta': {'group-objects': ['trunks'],
+                                                          'network-objects': ['vegeta-01']}},
+                     'object-service-groups': {'gokuhead': {'service-object-ports': [{'port': 'gokurpc',
+                                                                                      'protocol': 'tcp-udp'},
+                                                                                     {'port': '902',
+                                                                                      'protocol': 'tcp'},
+                                                                                     {'port': 'https',
+                                                                                      'protocol': 'tcp'},
+                                                                                     {'port': 'nfs',
+                                                                                      'protocol': 'tcp'},
+                                                                                     {'port': '10025',
+                                                                                      'protocol': 'tcp'}]},
+                                               'sql': {'protocol': 'tcp',
+                                                       'service-port-objects': ['1433']}}}]]
+                                     
+# test_asa_acls_issue_55()
