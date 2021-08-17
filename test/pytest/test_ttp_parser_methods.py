@@ -1677,3 +1677,85 @@ interface Lo1
 
 
 # test_loading_template_from_ttp_templates()
+
+def test_quick_parse_function():
+    from ttp import quick_parse
+    template = """
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    data = """
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+    """
+    res = quick_parse(data, template)
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+                     {'description': 'this interface has description',
+                      'interface': 'Lo1',
+                      'ip': '1.1.1.1',
+                      'mask': '32'}]]]
+                      
+# test_quick_parse_function()
+
+def test_quick_parse_function_with_kwargs():
+    from ttp import quick_parse
+    template = """
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    data = """
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+    """
+    res = quick_parse(data, template, ttp_kwargs={"vars": {"a": 1}}, parse_kwargs={"one": True}, result_kwargs={"structure": "flat_list"})
+    # pprint.pprint(res)
+    assert res == [{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+                   {'description': 'this interface has description',
+                    'interface': 'Lo1',
+                    'ip': '1.1.1.1',
+                    'mask': '32'}]
+  
+# test_quick_parse_function_with_kwargs()
+
+def test_quick_parse_function_template_only():
+    from ttp import quick_parse
+    template = """
+<input load="text">
+interface Lo0
+ ip address 124.171.238.50 32
+!
+interface Lo1
+ description this interface has description
+ ip address 1.1.1.1 32
+</input>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+"""
+    res = quick_parse(template=template)
+    # pprint.pprint(res)
+    assert res == [[[{'interface': 'Lo0', 'ip': '124.171.238.50', 'mask': '32'},
+                     {'description': 'this interface has description',
+                      'interface': 'Lo1',
+                      'ip': '1.1.1.1',
+                      'mask': '32'}]]]
+                    
+# test_quick_parse_function_template_only()
