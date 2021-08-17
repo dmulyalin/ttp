@@ -55,6 +55,8 @@ Condition functions help to evaluate group results and return *False* or *True*,
      - add Cerberus validation information to results without filtering them
    * - `lookup`_   
      - lookup match value in lookup table, other group or template results     
+   * - `items2dict`_   
+     - combine values of key_name and value_name keys in a key-value pair 
      
 containsall
 ------------------------------------------------------------------------------
@@ -1810,3 +1812,41 @@ Results::
         'mac': '0150.7685.14d5',
         'subnet': '10.12.14.0/24',
         'vrf': 'CUST1'}]]]
+        
+items2dict
+------------------------------------------------------------------------------
+``items2dict="key_name, value_name"``
+
+Function to combine values of key_name and value_name keys in a key-value pair.  
+
+**Example**
+
+This example parses Vlan configuration and combine vlan and name values in a key-value pair using ``items2dict`` function.
+
+Template::
+
+    <input load="text">
+    vlan 123
+     name SERVERS
+    !
+    vlan 456
+     name WORKSTATIONS
+    </input>
+    
+    <group name="vlans*" items2dict="vlan, name">
+    vlan {{ vlan }}
+     name {{ name }}
+    </group>
+    
+Result::
+
+    [
+        [
+            {
+                'vlans': [
+                    {'123': 'SERVERS'}, 
+                    {'456': 'WORKSTATIONS'}
+                ]
+            }
+        ]
+    ]

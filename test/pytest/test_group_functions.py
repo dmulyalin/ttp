@@ -694,3 +694,26 @@ interface {{ interface | contains("Loop") | let("intf_type", "loopbacks") }}
                                             'vlans': ['Vlan779', 'Vlan790']}}]] 
 
 # test_itemize_dynamic_path_attribute()
+
+def test_items2dict_function():
+    template = """
+<input load="text">
+vlan 123
+ name SERVERS
+!
+vlan 456
+ name WORKSTATIONS
+</input>
+
+<group name="vlans*" items2dict="vlan, name">
+vlan {{ vlan }}
+ name {{ name }}
+</group>
+"""
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'vlans': [{'123': 'SERVERS'}, {'456': 'WORKSTATIONS'}]}]]
+    
+# test_items2dict_function()
