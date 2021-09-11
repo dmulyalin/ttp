@@ -18,11 +18,11 @@ sys.path.insert(0, "../../ttp/")
 # -- Project information -----------------------------------------------------
 
 project = 'ttp'
-copyright = '2020, dmulyalin'
+copyright = '2021, dmulyalin'
 author = 'dmulyalin'
 
 # The full version, including alpha/beta/rc tags
-release = '0.7.2'
+release = '0.8.0'
 
 
 # -- General configuration ---------------------------------------------------
