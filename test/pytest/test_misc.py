@@ -906,3 +906,97 @@ def test_tabs_and_spaces_mixed_within_line():
     assert res2 == [[{'form_factor': 'QSFP28', 'vendor': 'FS'}]]
 
 # test_tabs_and_spaces_mixed_within_line()
+
+
+def test_inner_group_strange_parsing_results():
+    """
+    Turned out need to specify ! {{ _end_ }} for the interface group
+    """
+    template = """
+<template name="Cisco_IOSXR" results="per_template">
+
+<macro>
+def add_network(data):
+    if "netmask" in data:
+        ip_obj, _ = _ttp_["match"]["to_ip"]("{}/{}".format(data["ip"], data["netmask"]))
+    else:
+        ip_obj, _ = _ttp_["match"]["to_ip"](data["ip"])
+    data["network"] = str(ip_obj.network)
+    data["netmask"] = str(ip_obj.network.prefixlen)
+    return data
+</macro>
+
+<group record="local_hostname" void="">
+hostname {{ local_hostname }}
+</group>
+
+<group name="{{ local_hostname }}.interfaces.{{ interface }}">
+interface {{ interface }}
+ description {{ port_description | re(".+") }}
+ vrf {{ vrf }}
+ 
+ <group name="ip_addresses*" macro="add_network" method="table">
+ ipv4 address {{ ip | IP }} {{ netmask }}
+ </group>
+ 
+! {{ _end_ }}
+</group>
+
+</template>    
+    """
+    data = """
+hostname ROUTER1234
+
+interface GigabitEthernet0/0/0/23
+ description GigabitEthernet0/0/0/23 description
+ vrf IPRAN-MGMT
+ ipv4 address 10.1.1.253 255.255.255.252
+ load-interval 30
+!
+interface HundredGigE0/0/1/0
+ description Hu0/0/1/0 interface description
+ bundle id 2 mode active
+ ptp
+  profile any
+ !
+ load-interval 30
+ frequency synchronization
+  selection input
+  priority 20
+  wait-to-restore 0
+ !
+!
+interface HundredGigE0/0/2/0
+ description Hu0/0/2/0 interface description
+ bundle id 1 mode active
+ ptp
+  profile slave
+ !
+ load-interval 30
+ frequency synchronization
+  selection input
+  priority 10
+  wait-to-restore 0
+ !
+!
+interface preconfigure GigabitEthernet0/0/0/0/23
+ ipv4 address 10.1.1.253 255.255.255.252
+!
+    """
+    parser = ttp(data=data, template=template, log_level="warning")    
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [{'ROUTER1234': {'interfaces': {'GigabitEthernet0/0/0/23': {'ip_addresses': [{'ip': '10.1.1.253',
+                                                                                                'netmask': '30',
+                                                                                                'network': '10.1.1.252/30'}],
+                                                                              'port_description': 'GigabitEthernet0/0/0/23 '
+                                                                                                  'description',
+                                                                              'vrf': 'IPRAN-MGMT'},
+                                                  'HundredGigE0/0/1/0': {'port_description': 'Hu0/0/1/0 '
+                                                                                             'interface '
+                                                                                             'description'},
+                                                  'HundredGigE0/0/2/0': {'port_description': 'Hu0/0/2/0 '
+                                                                                             'interface '
+                                                                                             'description'}}}}]
+# test_inner_group_strange_parsing_results()

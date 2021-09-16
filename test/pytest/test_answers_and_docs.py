@@ -5047,3 +5047,40 @@ object-group {{ object_type }} {{ object_name | _start_ }} {{ protocol | re("SVC
                                                        'service-port-objects': ['1433']}}}]]
                                      
 # test_asa_acls_issue_55()
+
+def test_issue_57_headers_parsing():
+    data = """
+Brief information on interfaces in route mode:
+Interface            Link Protocol Primary IP      Description                
+Vlan401              UP   UP       10.251.147.36       HSSBC_to_inband_mgmt_r4
+
+Brief information on interfaces in bridge mode:
+Interface            Link Speed   Duplex Type PVID Description                    
+XGE1/0/1             UP   10G(a)  F(a)   T    1    KDC-R402-E1 Backup Chassis 
+
+    """
+    template = """
+<group name = "interfaces">
+<group name="routed">
+Brief information on interfaces in route mode: {{ _start_ }}
+<group name = "{{Interface}}">
+Interface            Link Protocol Primary_IP      Description {{ _headers_ }}
+{{ _end_ }}
+</group>
+</group>
+
+<group name="bridged">
+Brief information on interfaces in bridge mode: {{ _start_ }}
+<group name = "{{Interface}}">
+Interface            Link Speed   Duplex Type PVID Description {{ _headers_}}
+{{ _end_ }}
+</group>
+</group>
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=80)
+    
+test_issue_57_headers_parsing()
