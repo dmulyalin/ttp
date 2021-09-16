@@ -2668,51 +2668,61 @@ def test_issue_45():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)
-    assert res == [
-        [
-            {
-                "vrfs": [
-                    {
-                        "forwarding_options": {
-                            "dhcp_relay": {
-                                "groups": [
-                                    {
-                                        "group_name": "group2",
-                                        "server_group_name2": "IN_MEDIA_SIGNALING",
-                                    },
-                                    {
-                                        "group_name": "NGN-SIG",
-                                        "server_group_name2": "DHCP-NGN-SIG",
-                                    },
-                                ],
-                                "server_group": {
-                                    "dhcp": [
-                                        {
-                                            "helper_addresses": [
-                                                {"helper_address": "10.154.6.147"}
-                                            ],
-                                            "server_group_name1": "IN_MEDIA_SIGNALING",
-                                        },
-                                        {
-                                            "helper_addresses": [
-                                                {"helper_address": "10.154.6.147"}
-                                            ],
-                                            "server_group_name1": "DHCP-NGN-SIG",
-                                        },
-                                        {"server_group_name1": "overrides"},
-                                        {"server_group_name1": "overrides"},
-                                    ]
-                                },
-                            }
-                        },
-                        "name": "vrf2",
-                    }
-                ]
-            }
-        ]
-    ]
-
+    pprint.pprint(res)
+    # assert res == [
+    #     [
+    #         {
+    #             "vrfs": [
+    #                 {
+    #                     "forwarding_options": {
+    #                         "dhcp_relay": {
+    #                             "groups": [
+    #                                 {
+    #                                     "group_name": "group2",
+    #                                     "server_group_name2": "IN_MEDIA_SIGNALING",
+    #                                 },
+    #                                 {
+    #                                     "group_name": "NGN-SIG",
+    #                                     "server_group_name2": "DHCP-NGN-SIG",
+    #                                 },
+    #                             ],
+    #                             "server_group": {
+    #                                 "dhcp": [
+    #                                     {
+    #                                         "helper_addresses": [
+    #                                             {"helper_address": "10.154.6.147"}
+    #                                         ],
+    #                                         "server_group_name1": "IN_MEDIA_SIGNALING",
+    #                                     },
+    #                                     {
+    #                                         "helper_addresses": [
+    #                                             {"helper_address": "10.154.6.147"}
+    #                                         ],
+    #                                         "server_group_name1": "DHCP-NGN-SIG",
+    #                                     },
+    #                                     {"server_group_name1": "overrides"},
+    #                                     {"server_group_name1": "overrides"},
+    #                                 ]
+    #                             },
+    #                         }
+    #                     },
+    #                     "name": "vrf2",
+    #                 }
+    #             ]
+    #         }
+    #     ]
+    # ]
+    # was able to fix the issue by introducing ended_groups tracking in results
+    # processing while was trying to fix issue 57
+    assert res == [[{'vrfs': [{'forwarding_options': {'dhcp_relay': {'groups': [{'group_name': 'group2',
+                                                               'server_group_name2': 'IN_MEDIA_SIGNALING'},
+                                                              {'group_name': 'NGN-SIG',
+                                                               'server_group_name2': 'DHCP-NGN-SIG'}],
+                                                   'server_group': {'dhcp': [{'helper_addresses': [{'helper_address': '10.154.6.147'}],
+                                                                              'server_group_name1': 'IN_MEDIA_SIGNALING'},
+                                                                             {'helper_addresses': [{'helper_address': '10.154.6.147'}],
+                                                                              'server_group_name1': 'DHCP-NGN-SIG'}]}}},
+             'name': 'vrf2'}]}]]
 
 # test_issue_45()
 
@@ -5049,13 +5059,62 @@ object-group {{ object_type }} {{ object_name | _start_ }} {{ protocol | re("SVC
 # test_asa_acls_issue_55()
 
 def test_issue_57_headers_parsing():
+    """
+    Issue first was with startempty match not beeing selected in favour
+    of start match produced by headers :
+    Interface            Link Protocol Primary_IP      Description {{ _headers_ }}
+    
+    that was fixed by adding this code to the TTP selection logic for multiple 
+    matches:
+                    # startempty RE always more preferred
+                    if startempty_re:
+                        for index in startempty_re:
+                            re_ = result[index][0]
+                            result_data = result[index][1]
+                            # skip results that did not pass validation check
+                            if result_data == False:
+                                continue
+                            # prefer result with same path as current record
+                            elif re_["GROUP"].group_id == self.record["GRP_ID"]:
+                                break
+                            # prefer children of current record group
+                            elif self.record["GRP_ID"] and re_["GROUP"].group_id[
+                                0
+                            ].startswith(self.record["GRP_ID"][0]):
+                                break                    
+                    # start RE preferred next
+                    elif start_re:
+                        
+    Another problem was with 
+    Interface            Link Protocol Primary_IP      Description {{ _headers_ }}
+    
+    matching on "Duplex: (a)/A - auto; H - half; F - full" line, that was fixed 
+    by chaning _end_ logic by introducing self.ended_groups set to _results_class
+    and replacing self.GRPLOCL with logic to use self.ended_groups instead.
+    
+    All in all it resulted in better _end_ handling behavior and allowed to fix issue 
+    45 as well where before this one had to use filtering instead, but now _end_ also
+    helps.
+    """
     data = """
 Brief information on interfaces in route mode:
+Link: ADM - administratively down; Stby - standby
+Protocol: (s) - spoofing
 Interface            Link Protocol Primary IP      Description                
+InLoop0              UP   UP(s)    --                                         
+REG0                 UP   --       --                                         
 Vlan401              UP   UP       10.251.147.36       HSSBC_to_inband_mgmt_r4
 
 Brief information on interfaces in bridge mode:
-Interface            Link Speed   Duplex Type PVID Description                    
+Link: ADM - administratively down; Stby - standby
+Speed: (a) - auto
+Duplex: (a)/A - auto; H - half; F - full
+Type: A - access; T - trunk; H - hybrid
+Interface            Link Speed   Duplex Type PVID Description                
+BAGG1                UP   20G(a)  F(a)   T    1            to-KDC-R4.10-Core-1
+BAGG14               UP   10G(a)  F(a)   T    1    KDC-R429-E1 BackUp Chassis 
+BAGG22               UP   20G(a)  F(a)   T    1                    HSSBC-NS-01
+FGE1/0/49            DOWN auto    A      A    1                               
 XGE1/0/1             UP   10G(a)  F(a)   T    1    KDC-R402-E1 Backup Chassis 
 
     """
@@ -5065,22 +5124,76 @@ XGE1/0/1             UP   10G(a)  F(a)   T    1    KDC-R402-E1 Backup Chassis
 Brief information on interfaces in route mode: {{ _start_ }}
 <group name = "{{Interface}}">
 Interface            Link Protocol Primary_IP      Description {{ _headers_ }}
-{{ _end_ }}
 </group>
+{{ _end_ }}
 </group>
 
 <group name="bridged">
 Brief information on interfaces in bridge mode: {{ _start_ }}
 <group name = "{{Interface}}">
-Interface            Link Speed   Duplex Type PVID Description {{ _headers_}}
+Interface            Link Speed   Duplex Type PVID Description {{ _headers_ }}
+</group>
 {{ _end_ }}
 </group>
 </group>
-</group>
     """
-    parser = ttp(data, template)
+    parser = ttp(data, template, log_level="error")
     parser.parse()
     res = parser.result()
     pprint.pprint(res, width=80)
-    
-test_issue_57_headers_parsing()
+    assert res == [[{'interfaces': {'bridged': {'BAGG1': {'Description': 'to-KDC-R4.10-Core-1',
+                                        'Duplex': 'F(a)',
+                                        'Link': 'UP',
+                                        'PVID': '1',
+                                        'Speed': '20G(a)',
+                                        'Type': 'T'},
+                              'BAGG14': {'Description': 'KDC-R429-E1 BackUp '
+                                                        'Chassis',
+                                         'Duplex': 'F(a)',
+                                         'Link': 'UP',
+                                         'PVID': '1',
+                                         'Speed': '10G(a)',
+                                         'Type': 'T'},
+                              'BAGG22': {'Description': 'HSSBC-NS-01',
+                                         'Duplex': 'F(a)',
+                                         'Link': 'UP',
+                                         'PVID': '1',
+                                         'Speed': '20G(a)',
+                                         'Type': 'T'},
+                              'FGE1/0/49': {'Description': '',
+                                            'Duplex': 'A',
+                                            'Link': 'DOWN',
+                                            'PVID': '1',
+                                            'Speed': 'auto',
+                                            'Type': 'A'},
+                              'Link: ADM - administr': {'Description': '',
+                                                        'Duplex': 'Stby -',
+                                                        'Link': 'ative',
+                                                        'PVID': 'dby',
+                                                        'Speed': 'ly down;',
+                                                        'Type': 'stan'},
+                              'XGE1/0/1': {'Description': 'KDC-R402-E1 Backup '
+                                                          'Chassis',
+                                           'Duplex': 'F(a)',
+                                           'Link': 'UP',
+                                           'PVID': '1',
+                                           'Speed': '10G(a)',
+                                           'Type': 'T'}},
+                  'routed': {'InLoop0': {'Description': '',
+                                         'Link': 'UP',
+                                         'Primary_IP': '--',
+                                         'Protocol': 'UP(s)'},
+                             'Link: ADM - administr': {'Description': '',
+                                                       'Link': 'ative',
+                                                       'Primary_IP': 'Stby - '
+                                                                     'standby',
+                                                       'Protocol': 'ly down;'},
+                             'REG0': {'Description': '',
+                                      'Link': 'UP',
+                                      'Primary_IP': '--',
+                                      'Protocol': '--'},
+                             'Vlan401': {'Description': 'HSSBC_to_inband_mgmt_r4',
+                                         'Link': 'UP',
+                                         'Primary_IP': '10.251.147.36',
+                                         'Protocol': 'UP'}}}}]]
+# test_issue_57_headers_parsing()

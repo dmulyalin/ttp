@@ -2621,10 +2621,9 @@ class _results_class:
         self.started_groups = (
             []
         )  # keeps track of started groups to not add false matches
-        self.GRPLOCK = {
-            "LOCK": False,
-            "GROUP": (),
-        }  # GROUP - path tuple of locked group
+        self.ended_groups = (
+            set()
+        ) # keeps track of ended groups to not add false matches or filtered results
         self.record = {
             "result": {},
             "PATH": [],
@@ -2650,9 +2649,6 @@ class _results_class:
             self.save_vars(variables)
         # iterate over group results and form results structure:
         for group_results in raw_results:
-            # clear LOCK between groups as LOCK has intra group significance only:
-            self.GRPLOCK["LOCK"] = False
-            self.GRPLOCK["GROUP"] = ()
             # iterate over each match result for the group
             for result in group_results:
                 # if result been matched by one regex only
@@ -2662,17 +2658,35 @@ class _results_class:
                 # if same results captured by multiple regexes, need to do further decision checks
                 else:
                     re_ = None
-                    start_re, normal_re, line_re = [], [], []
-                    # sort matches across start, normal and line REs
+                    startempty_re, start_re, normal_re, line_re = [], [], [], []
+                    # sort matches across startempty (_start_), start, normal and line REs
                     for index, item in enumerate(result):
                         if item[0]["IS_LINE"] == True:
                             line_re.append(index)
-                        elif item[0]["ACTION"].startswith("start"):
+                        elif item[0]["ACTION"] == "start":
                             start_re.append(index)
+                        elif item[0]["ACTION"] == "startempty":
+                            startempty_re.append(index)
                         else:
                             normal_re.append(index)
-                    # start RE always more preferred
-                    if start_re:
+                    # startempty RE always more preferred
+                    if startempty_re:
+                        for index in startempty_re:
+                            re_ = result[index][0]
+                            result_data = result[index][1]
+                            # skip results that did not pass validation check
+                            if result_data == False:
+                                continue
+                            # prefer result with same path as current record
+                            elif re_["GROUP"].group_id == self.record["GRP_ID"]:
+                                break
+                            # prefer children of current record group
+                            elif self.record["GRP_ID"] and re_["GROUP"].group_id[
+                                0
+                            ].startswith(self.record["GRP_ID"][0]):
+                                break                    
+                    # start RE preferred next
+                    elif start_re:
                         for index in start_re:
                             re_ = result[index][0]
                             result_data = result[index][1]
@@ -2687,7 +2701,7 @@ class _results_class:
                                 0
                             ].startswith(self.record["GRP_ID"][0]):
                                 break
-                    # normal REs preferred next
+                    # normal and end REs preferred next
                     elif normal_re:
                         for index in normal_re:
                             re_ = result[index][0]
@@ -2702,34 +2716,24 @@ class _results_class:
                             result_data = result[index][1]
                             # prefer result with same path as current record
                             if re_["GROUP"].group_id == self.record["GRP_ID"]:
-                                break
+                                break     
+								
                 group = re_["GROUP"]
-
-                # check if result is false, lock the group if so:
+				
+                # check if result is false, add group to ended groups if so
                 if result_data == False:
-                    self.GRPLOCK["LOCK"] = True
-                    self.GRPLOCK["GROUP"] = group.path
+                    self.ended_groups.add(re_["GROUP"].group_id)
+                    continue
+                # if parent is ended skip this child group results
+                elif re_["GROUP"].parent_group_id in self.ended_groups:
                     continue
                 # evaluate results to check if need to unlock locked group:
-                elif self.GRPLOCK["LOCK"] is True:
-                    locked_group_path = self.GRPLOCK["GROUP"]
+                elif re_["GROUP"].group_id in self.ended_groups:
                     if re_["ACTION"].startswith("start"):
-                        # if same level _start_ unlock this group
-                        if group.path == locked_group_path:
-                            self.GRPLOCK["LOCK"] = False
-                            self.GRPLOCK["GROUP"] = ()
-                        # skip children even if they are _start_ re_
-                        elif ".".join(group.path).startswith(
-                            ".".join(locked_group_path)
-                        ):
-                            continue
-                        # meaning its upper level or different path group, unlock it:
-                        else:
-                            self.GRPLOCK["LOCK"] = False
-                            self.GRPLOCK["GROUP"] = ()
-                    # skip children
-                    elif ".".join(group.path).startswith(".".join(locked_group_path)):
+                        self.ended_groups.remove(re_["GROUP"].group_id)
+                    else:
                         continue
+
                 # Save results:
                 saveFuncs[re_["ACTION"]](
                     result=result_data,
@@ -3006,7 +3010,6 @@ class _results_class:
                 self.record["result"][k] = result[k]  # if first result
 
     def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
-        previous_path = ".".join(self.record["PATH"])
         # if path not the same and this is not child
         # results belong to different group, skip them
         if (
@@ -3016,9 +3019,8 @@ class _results_class:
             REDICT["GROUP"].group_id == self.started_groups[-1]
         ):
             return
-        # action to end current group by locking it
-        self.GRPLOCK["LOCK"] = True
-        self.GRPLOCK["GROUP"] = list(PATH)
+        # action to end current group by adding it to ended groups
+        self.ended_groups.add(REDICT["GROUP"].group_id)
 
     def form_path(self, path):
         """Method to form dynamic path"""
