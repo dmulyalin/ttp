@@ -2024,12 +2024,6 @@ class _variable_class:
                 else:
                     self.functions.append(i)
 
-        def extract__exact_(data):
-            pass
-
-        def extract__exact_space_(data):
-            pass
-
         def extract_re(data):
             try:
                 # if re('my_regex') was used
@@ -2063,14 +2057,18 @@ class _variable_class:
         def extract__headers_(data):
             self.SAVEACTION = "start"
 
+        def skip(data):
+            pass
+
         extract_funcs = {
             "ignore": extract_ignore,
             "_start_": extract__start_,
             "_end_": extract__end_,
             "_line_": extract__line_,
-            "_exact_": extract__exact_,
-            "_exact_space_": extract__exact_space_,
+            "_exact_": skip,
+            "_exact_space_": skip,
             "_headers_": extract__headers_,
+            "columns": skip,
             "chain": extract_chain,
             "set": extract_set,
             "default": extract_default,
@@ -2191,30 +2189,55 @@ class _variable_class:
                 self.regex = result
 
         def regex_headers(data):
-            # Goal is to create this regex:
-            #   \\n(?P<Port>.{10})(?P<Name>.{19})(?P<Status>.*)(?=\\n)
-            # based on this string:
-            #   Port      Name  Status  {{ _headers_ }}
-
+            """
+            Goal is to create this regex::            
+                \\n(?P<Port>.{10})(?P<Name>.{1,19})(?P<Status>.*)(?=\\n)
+                
+            Out of this string::
+              Port      Name  Status  {{ _headers_ }}
+              
+            :param data: (dict) variable dictionary, but not used here
+            """
             # remove {{ _headers_ }} variable from end of string
             index = self.LINE.find(esc_var)
             self.regex = self.LINE[:index].rstrip()
-            # create regex out of headers
+            # find all headers
             headers = re.findall(r"(\S+\s+|\S+)", self.regex)
+            # form columns count
+            columns = len(headers) - 2
+            for attribute in self.attributes:
+                if attribute["name"] == "columns":
+                    columns = max(1, int(attribute["args"][0]))
+                    columns = min(columns, len(headers))
             # reconstruct headers line indentation
             self.regex = re.sub(
                 r"\t", " " * 4, self.regex
             )  # replace tabs with 4 spaces
             headers[0] = " " * (len(self.regex) - len(self.regex.lstrip())) + headers[0]
-            # form regex
+            # form regex for mandatory columns of exact length
             row_re = [
                 "(?P<{}>.{{{}}})".format(header.strip(), len(header))
-                for header in headers[:-2]
+                for header in headers[: columns - 1]
             ]
+            # form regex for mandatory last column of variable length from 1 to header length
             row_re.append(
-                "(?P<{}>.{{1,{}}})".format(headers[-2].strip(), len(headers[-2]))
+                "(?P<{}>.{{1,{}}})".format(
+                    headers[columns - 1].strip(), len(headers[columns - 1])
+                )
             )
-            row_re.append("(?P<{}>.*)".format(headers[-1].strip()))
+            # form regexes for remaining optional columns
+            row_re.extend(
+                [
+                    "(?P<{}>.{{0,{}}})".format(header.strip(), len(header))
+                    for header in headers[columns:]
+                ]
+            )
+            # form regex for last column
+            if columns >= len(headers):
+                row_re[-1] = "(?P<{}>.{{1,}})".format(headers[-1].strip())
+            else:
+                row_re[-1] = "(?P<{}>.*)".format(headers[-1].strip())
+            # form final regex
             self.regex = r"\n" + "".join(row_re) + r"(?=\n|\r\n)"
             # form sub variables dictionary out of headers
             self.sub_variables = {

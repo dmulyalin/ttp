@@ -685,7 +685,7 @@ tmpfs                     1457328       0   1457328   0% /sys/fs/cgroup
     template = """
 Filesystem              K1_blocks Used    Available Use_ Mounted_on {{ _headers_ }}
 """
-    parser = ttp(template=template, log_level="DEBUG")
+    parser = ttp(template=template, log_level="ERROR")
     parser.add_input(data)
     parser.parse()
     res = parser.result()
@@ -784,3 +784,117 @@ Port      Name               Status       Vlan       Duplex  Speed Type   {{ _he
 
 
 # test_with_garbage()
+
+
+def test_headers_with_column():
+    template = """
+<input load="text">
+Port      Name               Status       Vlan       Duplex  Speed Type
+Gi0/1
+Gi0/2     PIT-VDU212
+Gi0/3     PIT-VDU212         notconnect
+Gi0/4     PIT-VDU212         notconnect   18
+Gi0/5     PIT-VDU212         notconnect   18         auto
+Gi0/6     PIT-VDU212         notconnect   18         auto    auto
+Gi0/7     PIT-VDU212         notconnect   18         auto    auto  10/100/1000BaseTX
+</input>
+
+<group name="columns_10">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(10) }}
+</group>  
+
+<group name="columns_7">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(7) }}
+</group>   
+
+<group name="columns_6">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(6) }}
+</group>   
+
+<group name="columns_5">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(5) }}
+</group>   
+
+<group name="columns_4">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(4) }}
+</group>   
+
+<group name="columns_3">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(3) }}
+</group> 
+
+<group name="columns_2">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(2) }}
+</group> 
+
+<group name="columns_1">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(1) }}
+</group> 
+
+<group name="columns_0">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(0) }}
+</group> 
+
+<group name="columns__1">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(-1) }}
+</group> 
+
+<group name="no_columns">
+Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ }}
+</group> 
+"""
+    parser = ttp(template=template, log_level="DEBUG")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=170)
+    # fmt: off
+    assert res == [[{'columns_0': [{'Duplex': '', 'Name': '', 'Port': 'Gi0/1', 'Speed': '', 'Status': '', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/2', 'Speed': '', 'Status': '', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/3', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/4', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+   'columns_1': [{'Duplex': '', 'Name': '', 'Port': 'Gi0/1', 'Speed': '', 'Status': '', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/2', 'Speed': '', 'Status': '', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/3', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/4', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+   'columns_10': {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'},
+   'columns_2': [{'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/2', 'Speed': '', 'Status': '', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/3', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/4', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+   'columns_3': [{'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/3', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': ''},
+                 {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/4', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+   'columns_4': [{'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/4', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+   'columns_5': [{'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+   'columns_6': [{'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                 {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+   'columns_7': {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'},
+   'columns__1': [{'Duplex': '', 'Name': '', 'Port': 'Gi0/1', 'Speed': '', 'Status': '', 'Type': '', 'Vlan': ''},
+                  {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/2', 'Speed': '', 'Status': '', 'Type': '', 'Vlan': ''},
+                  {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/3', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': ''},
+                  {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/4', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                  {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                  {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                  {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+   'no_columns': [{'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                  {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                  {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}]}]]
+    # fmt: on
+
+
+# test_headers_with_column()

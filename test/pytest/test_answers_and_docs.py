@@ -5364,6 +5364,131 @@ Interface            Link Speed   Duplex Type PVID Description {{ _headers_ }}
 # test_issue_57_headers_parsing()
 
 
+def test_issue_57_headers_parsing_using_columns():
+    """
+    Added columns for headers, now can adjust headers size as required
+    to filter unwanted results
+    """
+    data = """
+Brief information on interfaces in route mode:
+Link: ADM - administratively down; Stby - standby
+Protocol: (s) - spoofing
+Interface            Link Protocol Primary IP      Description                
+InLoop0              UP   UP(s)    --                                         
+REG0                 UP   --       --                                         
+Vlan401              UP   UP       10.251.147.36       HSSBC_to_inband_mgmt_r4
+
+Brief information on interfaces in bridge mode:
+Link: ADM - administratively down; Stby - standby
+Speed: (a) - auto
+Duplex: (a)/A - auto; H - half; F - full
+Type: A - access; T - trunk; H - hybrid
+Interface            Link Speed   Duplex Type PVID Description                
+BAGG1                UP   20G(a)  F(a)   T    1            to-KDC-R4.10-Core-1
+BAGG14               UP   10G(a)  F(a)   T    1    KDC-R429-E1 BackUp Chassis 
+BAGG22               UP   20G(a)  F(a)   T    1                    HSSBC-NS-01
+FGE1/0/49            DOWN auto    A      A    1                               
+XGE1/0/1             UP   10G(a)  F(a)   T    1    KDC-R402-E1 Backup Chassis 
+
+    """
+    template = """
+<group name = "interfaces">
+<group name="routed">
+Brief information on interfaces in route mode: {{ _start_ }}
+<group name = "{{Interface}}">
+Interface            Link Protocol Primary_IP      Description {{ _headers_ | columns(5)}}
+</group>
+{{ _end_ }}
+</group>
+
+<group name="bridged">
+Brief information on interfaces in bridge mode: {{ _start_ }}
+<group name = "{{Interface}}">
+Interface            Link Speed   Duplex Type PVID Description {{ _headers_ | columns(7) }}
+</group>
+{{ _end_ }}
+</group>
+</group>
+    """
+    parser = ttp(data, template, log_level="error")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=80)
+    assert res == [
+        [
+            {
+                "interfaces": {
+                    "bridged": {
+                        "BAGG1": {
+                            "Description": "to-KDC-R4.10-Core-1",
+                            "Duplex": "F(a)",
+                            "Link": "UP",
+                            "PVID": "1",
+                            "Speed": "20G(a)",
+                            "Type": "T",
+                        },
+                        "BAGG14": {
+                            "Description": "KDC-R429-E1 BackUp " "Chassis",
+                            "Duplex": "F(a)",
+                            "Link": "UP",
+                            "PVID": "1",
+                            "Speed": "10G(a)",
+                            "Type": "T",
+                        },
+                        "BAGG22": {
+                            "Description": "HSSBC-NS-01",
+                            "Duplex": "F(a)",
+                            "Link": "UP",
+                            "PVID": "1",
+                            "Speed": "20G(a)",
+                            "Type": "T",
+                        },
+                        "FGE1/0/49": {
+                            "Description": "",
+                            "Duplex": "A",
+                            "Link": "DOWN",
+                            "PVID": "1",
+                            "Speed": "auto",
+                            "Type": "A",
+                        },
+                        "XGE1/0/1": {
+                            "Description": "KDC-R402-E1 Backup " "Chassis",
+                            "Duplex": "F(a)",
+                            "Link": "UP",
+                            "PVID": "1",
+                            "Speed": "10G(a)",
+                            "Type": "T",
+                        },
+                    },
+                    "routed": {
+                        "InLoop0": {
+                            "Description": "",
+                            "Link": "UP",
+                            "Primary_IP": "--",
+                            "Protocol": "UP(s)",
+                        },
+                        "REG0": {
+                            "Description": "",
+                            "Link": "UP",
+                            "Primary_IP": "--",
+                            "Protocol": "--",
+                        },
+                        "Vlan401": {
+                            "Description": "HSSBC_to_inband_mgmt_r4",
+                            "Link": "UP",
+                            "Primary_IP": "10.251.147.36",
+                            "Protocol": "UP",
+                        },
+                    },
+                }
+            }
+        ]
+    ]
+
+
+# test_issue_57_headers_parsing_using_columns()
+
+
 def test_interface_template_not_collecting_all_data_solution():
     data = """
 interface Bundle-Ether10
