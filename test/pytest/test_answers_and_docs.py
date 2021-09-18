@@ -1744,176 +1744,104 @@ def qinq(data):
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [
-        [
-            {
-                "service": {
-                    "epipe": {
-                        "103076": {
-                            "customer_id": "160",
-                            "description": "vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:",
-                            "regular_sdp": {
-                                "8051": {"state": "enabled", "vc_id": "103076"}
-                            },
-                            "sap": {
-                                "1/2/12:20.qinq": {
-                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:",
-                                    "egress": {
-                                        "sap_egress": "1)",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "1",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN10",
-                                    "state": "enabled",
-                                }
-                            },
-                            "service_mtu": "1588",
-                            "service_name": "EPIPE service-103076 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                        "103206": {
-                            "customer_id": "1904",
-                            "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                            "UK PLC Stepney Green E1 "
-                            "3DG'",
-                            "regular_sdp": {
-                                "8035": {"state": "enabled", "vc_id": "103206"}
-                            },
-                            "sap": {
-                                "2/2/3:401.100": {
-                                    "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                    "UK "
-                                    "PLC "
-                                    "Stepney "
-                                    "Green "
-                                    "E1 "
-                                    "3DG'",
-                                    "egress": {
-                                        "sap_egress": "11010",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "11010",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "mss_name": "SKANSKA_E13DG_A825_LAN1",
-                                    "state": "disabled",
-                                }
-                            },
-                            "service_mtu": "1988",
-                            "service_name": "EPIPE service-103206 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                        "103256": {
-                            "customer_id": "160",
-                            "description": "vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:",
-                            "regular_sdp": {
-                                "8139": {"state": "enabled", "vc_id": "103256"}
-                            },
-                            "sap": {
-                                "1/2/12:15.qinq": {
-                                    "description": "vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:",
-                                    "egress": {
-                                        "sap_egress": "11000",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "11000",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN5",
-                                    "state": "disabled",
-                                }
-                            },
-                            "service_mtu": "1988",
-                            "service_name": "EPIPE service-103256 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                        "103742": {
-                            "customer_id": "160",
-                            "description": "vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:",
-                            "regular_sdp": {
-                                "8061": {"state": "enabled", "vc_id": "103742"}
-                            },
-                            "sap": {
-                                "5/2/50:20.qinq": {
-                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:",
-                                    "egress": {
-                                        "sap_egress": "11000",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "11000",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "mss_name": "TATA_STRAT_LON_A206_LANA",
-                                    "state": "disabled",
-                                }
-                            },
-                            "service_mtu": "1588",
-                            "service_name": "EPIPE service-103742 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                        "55517673": {
-                            "customer_id": "4",
-                            "description": "vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA "
-                            "EPIPE#BAACTQ#VLAN 901",
-                            "endpoint": {
-                                "endpoint": '"SDP"',
-                                "revert_time": "infinite",
-                            },
-                            "pwr_sdp": {
-                                "8243": {
-                                    "endpoint": '"SDP"',
-                                    "precedence": "1",
-                                    "state": "enabled",
-                                    "vc_id": "55517673",
-                                },
-                                "8245": {
-                                    "endpoint": '"SDP"',
-                                    "precedence": "primary",
-                                    "state": "enabled",
-                                    "vc_id": "55517673",
-                                },
-                            },
-                            "sap": {
-                                "2/2/3:901.qinq": {
-                                    "description": "2_2_3,H0505824A,Bulldog,VLAN "
-                                    "901",
-                                    "egress": {
-                                        "sap_egress": "20010",
-                                        "scheduler_policy": '"NGA-LLU-300M"',
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "20010",
-                                        "scheduler_policy": '"NGA-LLU-300M"',
-                                    },
-                                    "mss_name": "none",
-                                    "state": "disabled",
-                                }
-                            },
-                            "service_mtu": "1526",
-                            "service_name": "epipe service-64585 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                    }
-                }
-            }
-        ]
-    ]
+    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:',
+                                    'regular_sdp': {'8051': {'state': 'enabled',
+                                                             'vc_id': '103076'}},
+                                    'sap': {'1/2/12:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:',
+                                                               'egress': {'sap_egress': '1)',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '1',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN10',
+                                                               'state': 'enabled'}},
+                                    'service_mtu': '1588',
+                                    'service_name': 'EPIPE service-103076 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103206': {'customer_id': '1904',
+                                    'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                                   'UK PLC Stepney Green E1 '
+                                                   "3DG'",
+                                    'regular_sdp': {'8035': {'state': 'enabled',
+                                                             'vc_id': '103206'}},
+                                    'sap': {'2/2/3:401.100': {'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                                                             'UK '
+                                                                             'PLC '
+                                                                             'Stepney '
+                                                                             'Green '
+                                                                             'E1 '
+                                                                             "3DG'",
+                                                              'egress': {'sap_egress': '11010',
+                                                                         'scheduler_policy': 'none'},
+                                                              'ingress': {'sap_ingress': '11010',
+                                                                          'scheduler_policy': 'none'},
+                                                              'mss_name': 'SKANSKA_E13DG_A825_LAN1',
+                                                              'state': 'enabled'}},
+                                    'service_mtu': '1988',
+                                    'service_name': 'EPIPE service-103206 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103256': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:',
+                                    'regular_sdp': {'8139': {'state': 'enabled',
+                                                             'vc_id': '103256'}},
+                                    'sap': {'1/2/12:15.qinq': {'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:',
+                                                               'egress': {'sap_egress': '11000',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '11000',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN5',
+                                                               'state': 'enabled'}},
+                                    'service_mtu': '1988',
+                                    'service_name': 'EPIPE service-103256 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103742': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:',
+                                    'regular_sdp': {'8061': {'state': 'enabled',
+                                                             'vc_id': '103742'}},
+                                    'sap': {'5/2/50:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:',
+                                                               'egress': {'sap_egress': '11000',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '11000',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_STRAT_LON_A206_LANA',
+                                                               'state': 'enabled'}},
+                                    'service_mtu': '1588',
+                                    'service_name': 'EPIPE service-103742 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '55517673': {'customer_id': '4',
+                                      'description': 'vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA '
+                                                     'EPIPE#BAACTQ#VLAN 901',
+                                      'endpoint': {'endpoint': '"SDP"',
+                                                   'revert_time': 'infinite'},
+                                      'pwr_sdp': {'8243': {'endpoint': '"SDP"',
+                                                           'precedence': '1',
+                                                           'state': 'enabled',
+                                                           'vc_id': '55517673'},
+                                                  '8245': {'endpoint': '"SDP"',
+                                                           'precedence': 'primary',
+                                                           'state': 'enabled',
+                                                           'vc_id': '55517673'}},
+                                      'sap': {'2/2/3:901.qinq': {'description': '2_2_3,H0505824A,Bulldog,VLAN '
+                                                                                '901',
+                                                                 'egress': {'sap_egress': '20010',
+                                                                            'scheduler_policy': '"NGA-LLU-300M"'},
+                                                                 'ingress': {'sap_ingress': '20010',
+                                                                             'scheduler_policy': '"NGA-LLU-300M"'},
+                                                                 'mss_name': 'none',
+                                                                 'state': 'enabled'}},
+                                      'service_mtu': '1526',
+                                      'service_name': 'epipe service-64585 '
+                                                      'DKTN08a-D0105 '
+                                                      '(63.130.108.41)',
+                                      'state': 'enabled'}}}}]]
 
 
 # test_github_issue_37_original_data_template()
@@ -2031,7 +1959,7 @@ def test_github_issue_37_cleaned_up_data():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)
+    pprint.pprint(res)
     assert res == [
         [
             {
@@ -2309,176 +2237,104 @@ def test_github_issue_37_cleaned_data_template():
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [
-        [
-            {
-                "service": {
-                    "epipe": {
-                        "103076": {
-                            "customer_id": "160",
-                            "description": "vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:",
-                            "regular_sdp": {
-                                "8051": {"state": "enabled", "vc_id": "103076"}
-                            },
-                            "sap": {
-                                "1/2/12:20.qinq": {
-                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:",
-                                    "egress": {
-                                        "sap_egress": "1)",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "1",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN10",
-                                    "state": "enabled",
-                                }
-                            },
-                            "service_mtu": "1588",
-                            "service_name": "EPIPE service-103076 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                        "103206": {
-                            "customer_id": "1904",
-                            "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                            "UK PLC Stepney Green E1 "
-                            "3DG'",
-                            "regular_sdp": {
-                                "8035": {"state": "enabled", "vc_id": "103206"}
-                            },
-                            "sap": {
-                                "2/2/3:401.100": {
-                                    "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                    "UK "
-                                    "PLC "
-                                    "Stepney "
-                                    "Green "
-                                    "E1 "
-                                    "3DG'",
-                                    "egress": {
-                                        "sap_egress": "11010",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "11010",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "mss_name": "SKANSKA_E13DG_A825_LAN1",
-                                    "state": "disabled",
-                                }
-                            },
-                            "service_mtu": "1988",
-                            "service_name": "EPIPE service-103206 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                        "103256": {
-                            "customer_id": "160",
-                            "description": "vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:",
-                            "regular_sdp": {
-                                "8139": {"state": "enabled", "vc_id": "103256"}
-                            },
-                            "sap": {
-                                "1/2/12:15.qinq": {
-                                    "description": "vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:",
-                                    "egress": {
-                                        "sap_egress": "11000",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "11000",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN5",
-                                    "state": "disabled",
-                                }
-                            },
-                            "service_mtu": "1988",
-                            "service_name": "EPIPE service-103256 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                        "103742": {
-                            "customer_id": "160",
-                            "description": "vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:",
-                            "regular_sdp": {
-                                "8061": {"state": "enabled", "vc_id": "103742"}
-                            },
-                            "sap": {
-                                "5/2/50:20.qinq": {
-                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:",
-                                    "egress": {
-                                        "sap_egress": "11000",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "11000",
-                                        "scheduler_policy": "none",
-                                    },
-                                    "mss_name": "TATA_STRAT_LON_A206_LANA",
-                                    "state": "disabled",
-                                }
-                            },
-                            "service_mtu": "1588",
-                            "service_name": "EPIPE service-103742 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                        "55517673": {
-                            "customer_id": "4",
-                            "description": "vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA "
-                            "EPIPE#BAACTQ#VLAN 901",
-                            "endpoint": {
-                                "endpoint": '"SDP"',
-                                "revert_time": "infinite",
-                            },
-                            "pwr_sdp": {
-                                "8243": {
-                                    "endpoint": '"SDP"',
-                                    "precedence": "1",
-                                    "state": "enabled",
-                                    "vc_id": "55517673",
-                                },
-                                "8245": {
-                                    "endpoint": '"SDP"',
-                                    "precedence": "primary",
-                                    "state": "enabled",
-                                    "vc_id": "55517673",
-                                },
-                            },
-                            "sap": {
-                                "2/2/3:901.qinq": {
-                                    "description": "2_2_3,H0505824A,Bulldog,VLAN "
-                                    "901",
-                                    "egress": {
-                                        "sap_egress": "20010",
-                                        "scheduler_policy": '"NGA-LLU-300M"',
-                                    },
-                                    "ingress": {
-                                        "sap_ingress": "20010",
-                                        "scheduler_policy": '"NGA-LLU-300M"',
-                                    },
-                                    "mss_name": "none",
-                                    "state": "disabled",
-                                }
-                            },
-                            "service_mtu": "1526",
-                            "service_name": "epipe service-64585 "
-                            "DKTN08a-D0105 "
-                            "(63.130.108.41)",
-                            "state": "enabled",
-                        },
-                    }
-                }
-            }
-        ]
-    ]
+    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:',
+                                    'regular_sdp': {'8051': {'state': 'enabled',
+                                                             'vc_id': '103076'}},
+                                    'sap': {'1/2/12:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:',
+                                                               'egress': {'sap_egress': '1)',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '1',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN10',
+                                                               'state': 'enabled'}},
+                                    'service_mtu': '1588',
+                                    'service_name': 'EPIPE service-103076 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103206': {'customer_id': '1904',
+                                    'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                                   'UK PLC Stepney Green E1 '
+                                                   "3DG'",
+                                    'regular_sdp': {'8035': {'state': 'enabled',
+                                                             'vc_id': '103206'}},
+                                    'sap': {'2/2/3:401.100': {'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                                                             'UK '
+                                                                             'PLC '
+                                                                             'Stepney '
+                                                                             'Green '
+                                                                             'E1 '
+                                                                             "3DG'",
+                                                              'egress': {'sap_egress': '11010',
+                                                                         'scheduler_policy': 'none'},
+                                                              'ingress': {'sap_ingress': '11010',
+                                                                          'scheduler_policy': 'none'},
+                                                              'mss_name': 'SKANSKA_E13DG_A825_LAN1',
+                                                              'state': 'enabled'}},
+                                    'service_mtu': '1988',
+                                    'service_name': 'EPIPE service-103206 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103256': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:',
+                                    'regular_sdp': {'8139': {'state': 'enabled',
+                                                             'vc_id': '103256'}},
+                                    'sap': {'1/2/12:15.qinq': {'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:',
+                                                               'egress': {'sap_egress': '11000',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '11000',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN5',
+                                                               'state': 'enabled'}},
+                                    'service_mtu': '1988',
+                                    'service_name': 'EPIPE service-103256 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '103742': {'customer_id': '160',
+                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:',
+                                    'regular_sdp': {'8061': {'state': 'enabled',
+                                                             'vc_id': '103742'}},
+                                    'sap': {'5/2/50:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:',
+                                                               'egress': {'sap_egress': '11000',
+                                                                          'scheduler_policy': 'none'},
+                                                               'ingress': {'sap_ingress': '11000',
+                                                                           'scheduler_policy': 'none'},
+                                                               'mss_name': 'TATA_STRAT_LON_A206_LANA',
+                                                               'state': 'enabled'}},
+                                    'service_mtu': '1588',
+                                    'service_name': 'EPIPE service-103742 '
+                                                    'DKTN08a-D0105 '
+                                                    '(63.130.108.41)',
+                                    'state': 'enabled'},
+                         '55517673': {'customer_id': '4',
+                                      'description': 'vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA '
+                                                     'EPIPE#BAACTQ#VLAN 901',
+                                      'endpoint': {'endpoint': '"SDP"',
+                                                   'revert_time': 'infinite'},
+                                      'pwr_sdp': {'8243': {'endpoint': '"SDP"',
+                                                           'precedence': '1',
+                                                           'state': 'enabled',
+                                                           'vc_id': '55517673'},
+                                                  '8245': {'endpoint': '"SDP"',
+                                                           'precedence': 'primary',
+                                                           'state': 'enabled',
+                                                           'vc_id': '55517673'}},
+                                      'sap': {'2/2/3:901.qinq': {'description': '2_2_3,H0505824A,Bulldog,VLAN '
+                                                                                '901',
+                                                                 'egress': {'sap_egress': '20010',
+                                                                            'scheduler_policy': '"NGA-LLU-300M"'},
+                                                                 'ingress': {'sap_ingress': '20010',
+                                                                             'scheduler_policy': '"NGA-LLU-300M"'},
+                                                                 'mss_name': 'none',
+                                                                 'state': 'enabled'}},
+                                      'service_mtu': '1526',
+                                      'service_name': 'epipe service-64585 '
+                                                      'DKTN08a-D0105 '
+                                                      '(63.130.108.41)',
+                                      'state': 'enabled'}}}}]]
 
 
 # test_github_issue_37_cleaned_data_template()
@@ -3120,7 +2976,7 @@ Restriction(s): {{ restrictions | PHRASE | joinmatches }}
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res, width=150)
+    pprint.pprint(res, width=150)
     assert res == [
         [
             [
@@ -5197,3 +5053,590 @@ Interface            Link Speed   Duplex Type PVID Description {{ _headers_ }}
                                          'Primary_IP': '10.251.147.36',
                                          'Protocol': 'UP'}}}}]]
 # test_issue_57_headers_parsing()
+
+def test_interface_template_not_collecting_all_data_solution():
+    data = """
+interface Bundle-Ether10
+ description Bundle-Ether10
+ bfd mode ietf
+ bfd address-family ipv4 multiplier 3
+ bfd address-family ipv4 destination 192.168.1.7
+ bfd address-family ipv4 fast-detect
+ bfd address-family ipv4 minimum-interval 100
+ mtu 9114
+ ipv4 address 192.168.1.6 255.255.255.254
+ ipv6 address fc00::1:5/127
+ load-interval 30
+!
+interface Bundle-Ether51
+ description Bundle-Ether51
+ bfd mode ietf
+ bfd address-family ipv4 multiplier 3
+ bfd address-family ipv4 destination 192.168.1.2
+ bfd address-family ipv4 fast-detect
+ bfd address-family ipv4 minimum-interval 100
+ mtu 9114
+ ipv4 address 192.168.1.3 255.255.255.254
+ ipv6 address fc00::1:3/127
+ load-interval 30
+!
+interface Loopback0
+ description Loopback0
+ ipv4 address 10.1.1.1 255.255.255.255
+ ipv4 address 10.2.2.2 255.255.255.255 secondary
+ ipv6 address fc00::1/128
+ ipv6 address fc00::101/128
+!
+interface Loopback1
+ description Loopback1
+ ipv4 address 10.100.0.1 255.255.255.0
+ ipv4 address 10.100.1.1 255.255.255.0 secondary
+ ipv4 address 10.100.2.1 255.255.255.0 secondary
+ ipv6 address fc00:100::1/64
+ ipv6 address fc00:100::101/64
+ ipv6 address fc00:100::201/64
+!
+interface MgmtEth0/RP0/CPU0/0
+ description MgmtEth0/RP0/CPU0/0
+ cdp
+ vrf VRF-MGMT
+ ipv4 address 172.23.136.21 255.255.252.0
+!
+interface GigabitEthernet0/0/0/12
+ description GigabitEthernet0/0/0/12
+ mtu 9018
+ lldp
+  receive disable
+  transmit disable
+ !
+ negotiation auto
+ load-interval 30
+ l2transport
+ !
+!
+interface TenGigE0/0/0/4
+ description TenGigE0/0/0/4
+ bundle id 51 mode active
+ cdp
+ load-interval 30
+!
+interface TenGigE0/0/0/5
+ shutdown
+!
+interface TenGigE0/0/0/5.100 l2transport
+ description TenGigE0/0/0/5.100
+!
+interface TenGigE0/0/0/47
+ description TenGigE0/0/0/47
+ shutdown
+ mac-address 201.b19.1234
+!
+interface BVI101
+ cdp
+ description BVI101
+ ipv4 address 192.168.101.1 255.255.255.0
+ load-interval 30
+ mac-address 200.b19.4321
+!
+interface HundredGigE0/0/1/0
+ description HundredGigE0/0/1/0
+ bundle id 10 mode active
+ cdp
+ load-interval 30
+ mac-address 200.b19.5678
+!
+interface preconfigure GigabitEthernet0/0/0/11
+ description GigabitEthernet0/0/0/11
+ shutdown
+!
+interface preconfigure GigabitEthernet0/0/0/16
+ description GigabitEthernet0/0/0/16
+ shutdown
+!
+interface preconfigure GigabitEthernet0/0/0/17
+ description GigabitEthernet0/0/0/17
+ shutdown
+!    
+    """
+    template_original = """
+<doc>
+Template for capturing interface configuration data from IOS-XR devices
+
+Note: In order to different interface appearances, the interface block has been replicated.
+      Be sure to update all blocks accordingly when adding any new values to capture.
+</doc>
+
+<vars>
+intf_defaults = {
+    "description": None,
+    "speed": None,
+    "negotiation": None,
+    "disabled": False,
+    "mode": None,
+}
+</vars>
+
+<macro>
+## parses ipv4 addresses to determine which is primary and which are secondary
+## and converts dotted-quad subnet mask into cidr format
+def ipv4_macro(data):
+    data_list = list(data.split(" "))
+    addr = str(data_list[0])
+    mask = str(data_list[1])
+    mask = str(sum(bin(int(x)).count('1') for x in mask.split('.')))
+    ipv4 = addr+"/"+mask
+    if 'secondary' in data:
+        is_secondary = True
+    else:
+        is_secondary = False
+    result = { "ipv4" : ipv4, "is_secondary" : is_secondary }
+    return result
+</macro>
+
+<group name="interfaces" default="intf_defaults">
+interface {{ interface | _start_}}                                            
+interface {{ interface | let("mode", "l2transport") | _start_ }} l2transport      
+interface preconfigure {{ interface | let("mode", "preconfigure") | _start_ }}      
+ description {{ description | re(".+") }}
+ speed {{ speed }}
+ negotiation {{ negotiation }}
+ shutdown {{ disabled | set(True) }}
+ mac-address {{ mac_address }}
+ <group name="ipv4*" method="table" containsall="ipv4">
+ ipv4 address {{ ipv4 | PHRASE | _exact_ | macro("ipv4_macro") }}
+ </group>
+ <group name="ipv6*" method="table" containsall="ipv6">
+ ipv6 address {{ ipv6 | ORPHRASE | _exact_ }}
+ </group>
+! {{ _end_ }}
+</group> 
+    """
+    parser = ttp(data, template_original, log_level="error")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=80)
+    assert res == [[{'interfaces': [{'description': 'Bundle-Ether10',
+                   'disabled': False,
+                   'interface': 'Bundle-Ether10',
+                   'ipv4': [{'ipv4': {'ipv4': '192.168.1.6/31',
+                                      'is_secondary': False}}],
+                   'ipv6': [{'ipv6': 'fc00::1:5/127'}],
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'Bundle-Ether51',
+                   'disabled': False,
+                   'interface': 'Bundle-Ether51',
+                   'ipv4': [{'ipv4': {'ipv4': '192.168.1.3/31',
+                                      'is_secondary': False}}],
+                   'ipv6': [{'ipv6': 'fc00::1:3/127'}],
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'Loopback0',
+                   'disabled': False,
+                   'interface': 'Loopback0',
+                   'ipv4': [{'ipv4': {'ipv4': '10.1.1.1/32',
+                                      'is_secondary': False}},
+                            {'ipv4': {'ipv4': '10.2.2.2/32',
+                                      'is_secondary': True}}],
+                   'ipv6': [{'ipv6': 'fc00::1/128'}, {'ipv6': 'fc00::101/128'}],
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'Loopback1',
+                   'disabled': False,
+                   'interface': 'Loopback1',
+                   'ipv4': [{'ipv4': {'ipv4': '10.100.0.1/24',
+                                      'is_secondary': False}},
+                            {'ipv4': {'ipv4': '10.100.1.1/24',
+                                      'is_secondary': True}},
+                            {'ipv4': {'ipv4': '10.100.2.1/24',
+                                      'is_secondary': True}}],
+                   'ipv6': [{'ipv6': 'fc00:100::1/64'},
+                            {'ipv6': 'fc00:100::101/64'},
+                            {'ipv6': 'fc00:100::201/64'}],
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'MgmtEth0/RP0/CPU0/0',
+                   'disabled': False,
+                   'interface': 'MgmtEth0/RP0/CPU0/0',
+                   'ipv4': [{'ipv4': {'ipv4': '172.23.136.21/22',
+                                      'is_secondary': False}}],
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'GigabitEthernet0/0/0/12',
+                   'disabled': False,
+                   'interface': 'GigabitEthernet0/0/0/12',
+                   'mode': None,
+                   'negotiation': 'auto',
+                   'speed': None},
+                  {'description': 'TenGigE0/0/0/4',
+                   'disabled': False,
+                   'interface': 'TenGigE0/0/0/4',
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': None,
+                   'disabled': True,
+                   'interface': 'TenGigE0/0/0/5',
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'TenGigE0/0/0/5.100',
+                   'disabled': False,
+                   'interface': 'TenGigE0/0/0/5.100',
+                   'mode': 'l2transport',
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'TenGigE0/0/0/47',
+                   'disabled': True,
+                   'interface': 'TenGigE0/0/0/47',
+                   'mac_address': '201.b19.1234',
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'BVI101',
+                   'disabled': False,
+                   'interface': 'BVI101',
+                   'ipv4': [{'ipv4': {'ipv4': '192.168.101.1/24',
+                                      'is_secondary': False}}],
+                   'mac_address': '200.b19.4321',
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'HundredGigE0/0/1/0',
+                   'disabled': False,
+                   'interface': 'HundredGigE0/0/1/0',
+                   'mac_address': '200.b19.5678',
+                   'mode': None,
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'GigabitEthernet0/0/0/11',
+                   'disabled': True,
+                   'interface': 'GigabitEthernet0/0/0/11',
+                   'mode': 'preconfigure',
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'GigabitEthernet0/0/0/16',
+                   'disabled': True,
+                   'interface': 'GigabitEthernet0/0/0/16',
+                   'mode': 'preconfigure',
+                   'negotiation': None,
+                   'speed': None},
+                  {'description': 'GigabitEthernet0/0/0/17',
+                   'disabled': True,
+                   'interface': 'GigabitEthernet0/0/0/17',
+                   'mode': 'preconfigure',
+                   'negotiation': None,
+                   'speed': None}]}]]
+                   
+# test_interface_template_not_collecting_all_data_solution()
+
+def test_interface_template_not_collecting_all_data():
+    data = """
+interface Bundle-Ether10
+ description Bundle-Ether10
+ bfd mode ietf
+ bfd address-family ipv4 multiplier 3
+ bfd address-family ipv4 destination 192.168.1.7
+ bfd address-family ipv4 fast-detect
+ bfd address-family ipv4 minimum-interval 100
+ mtu 9114
+ ipv4 address 192.168.1.6 255.255.255.254
+ ipv6 address fc00::1:5/127
+ load-interval 30
+!
+interface Bundle-Ether51
+ description Bundle-Ether51
+ bfd mode ietf
+ bfd address-family ipv4 multiplier 3
+ bfd address-family ipv4 destination 192.168.1.2
+ bfd address-family ipv4 fast-detect
+ bfd address-family ipv4 minimum-interval 100
+ mtu 9114
+ ipv4 address 192.168.1.3 255.255.255.254
+ ipv6 address fc00::1:3/127
+ load-interval 30
+!
+interface Loopback0
+ description Loopback0
+ ipv4 address 10.1.1.1 255.255.255.255
+ ipv4 address 10.2.2.2 255.255.255.255 secondary
+ ipv6 address fc00::1/128
+ ipv6 address fc00::101/128
+!
+interface Loopback1
+ description Loopback1
+ ipv4 address 10.100.0.1 255.255.255.0
+ ipv4 address 10.100.1.1 255.255.255.0 secondary
+ ipv4 address 10.100.2.1 255.255.255.0 secondary
+ ipv6 address fc00:100::1/64
+ ipv6 address fc00:100::101/64
+ ipv6 address fc00:100::201/64
+!
+interface MgmtEth0/RP0/CPU0/0
+ description MgmtEth0/RP0/CPU0/0
+ cdp
+ vrf VRF-MGMT
+ ipv4 address 172.23.136.21 255.255.252.0
+!
+interface GigabitEthernet0/0/0/12
+ description GigabitEthernet0/0/0/12
+ mtu 9018
+ lldp
+  receive disable
+  transmit disable
+ !
+ negotiation auto
+ load-interval 30
+ l2transport
+ !
+!
+interface TenGigE0/0/0/4
+ description TenGigE0/0/0/4
+ bundle id 51 mode active
+ cdp
+ load-interval 30
+!
+interface TenGigE0/0/0/5
+ shutdown
+!
+interface TenGigE0/0/0/5.100 l2transport
+ description TenGigE0/0/0/5.100
+!
+interface TenGigE0/0/0/47
+ description TenGigE0/0/0/47
+ shutdown
+ mac-address 201.b19.1234
+!
+interface BVI101
+ cdp
+ description BVI101
+ ipv4 address 192.168.101.1 255.255.255.0
+ load-interval 30
+ mac-address 200.b19.4321
+!
+interface HundredGigE0/0/1/0
+ description HundredGigE0/0/1/0
+ bundle id 10 mode active
+ cdp
+ load-interval 30
+ mac-address 200.b19.5678
+!
+interface preconfigure GigabitEthernet0/0/0/11
+ description GigabitEthernet0/0/0/11
+ shutdown
+!
+interface preconfigure GigabitEthernet0/0/0/16
+ description GigabitEthernet0/0/0/16
+ shutdown
+!
+interface preconfigure GigabitEthernet0/0/0/17
+ description GigabitEthernet0/0/0/17
+ shutdown
+!    
+    """
+    template_original = """
+<doc>
+Template for capturing interface configuration data from IOS-XR devices
+
+Note: In order to different interface appearances, the interface block has been replicated.
+      Be sure to update all blocks accordingly when adding any new values to capture.
+</doc>
+
+<macro>
+## parses ipv4 addresses to determine which is primary and which are secondary
+## and converts dotted-quad subnet mask into cidr format
+def ipv4_macro(data):
+    data_list = list(data.split(" "))
+    addr = str(data_list[0])
+    mask = str(data_list[1])
+    mask = str(sum(bin(int(x)).count('1') for x in mask.split('.')))
+    ipv4 = addr+"/"+mask
+    if 'secondary' in data:
+        is_secondary = True
+    else:
+        is_secondary = False
+    result = { "ipv4" : ipv4, "is_secondary" : is_secondary }
+    return result
+</macro>
+
+
+## parent group for all interface groups
+<group name="interfaces">
+
+## matches primary interfaces
+<group>
+{{ mode | set(None) }}
+{{ description | set(None) }}
+{{ speed | set(None) }}
+{{ negotiation | set(None) }}
+{{ disabled | set(False) }}
+interface {{ interface }}
+ description {{ description | re(".+") }}
+ <group name="ipv4*" method="table" containsall="ipv4">
+ ipv4 address {{ ipv4 | PHRASE | _exact_ | macro("ipv4_macro") }}
+ </group>
+ <group name="ipv6*" method="table" containsall="ipv6">
+ ipv6 address {{ ipv6 | PHRASE | _exact_ }}
+ </group>
+ speed {{ speed }}
+ negotiation {{ negotiation }}
+ shutdown {{ disabled | set(True) }}
+ mac-address {{ mac_address }}
+</group>
+
+## matches pre-configured interfaces
+<group>
+{{ mode | set('preconfigure') }}
+{{ description | set(None) }}
+{{ speed | set(None) }}
+{{ negotiation | set(None) }}
+{{ disabled | set(False) }}
+interface preconfigure {{ interface }}
+ description {{ description | re(".+") }}
+ <group name="ipv4*" method="table" containsall="ipv4">
+ ipv4 address {{ ipv4 | PHRASE | _exact_ | macro("ipv4_macro") }}
+ </group>
+ <group name="ipv6*" method="table" containsall="ipv6">
+ ipv6 address {{ ipv6 | PHRASE | _exact_ }}
+ </group>
+ speed {{ speed }}
+ negotiation {{ negotiation }}
+ shutdown {{ disabled | set(True) }}
+ mac-address {{ mac_address }}
+</group>
+
+## matches sub-interfaces
+<group>
+{{ mode | set('l2transport') }}
+{{ description | set(None) }}
+{{ speed | set(None) }}
+{{ negotiation | set(None) }}
+{{ disabled | set(False) }}
+interface {{ interface }} l2transport
+ description {{ description | re(".+") }}
+ <group name="ipv4*" method="table" containsall="ipv4">
+ ipv4 address {{ ipv4 | PHRASE | _exact_ | macro("ipv4_macro") }}
+ </group>
+ <group name="ipv6*" method="table" containsall="ipv6">
+ ipv6 address {{ ipv6 | PHRASE | _exact_ }}
+ </group>
+ speed {{ speed }}
+ negotiation {{ negotiation }}
+ shutdown {{ disabled | set(True) }}
+ mac-address {{ mac_address }}
+</group>
+
+</group>    
+    """
+    parser = ttp(data, template_original, log_level="error")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=80)
+
+# test_interface_template_not_collecting_all_data()
+
+def test_interface_template_not_collecting_all_data_reduced():
+    """
+    Below template and data were producing this result:
+    
+    [[{'interfaces': [{'interface': 'TenGigE0/0/0/5.100'},
+                      {'interface': 'BVI101',
+                       'ipv4': [{'ipv4': '192.168.101.1 255.255.255.0'}]}]}]]
+                   
+    TTP was not collecting mac-address for BVI 101
+    """
+    data = """
+interface TenGigE0/0/0/5.100 l2transport
+!
+interface BVI101
+ ipv4 address 192.168.101.1 255.255.255.0
+ mac-address 200.b19.4321
+!
+    """
+    template = """
+<group name="interfaces">
+
+## matches primary interfaces
+<group>
+interface {{ interface }}
+ <group name="ipv4*" method="table" containsall="ipv4">
+ ipv4 address {{ ipv4 | _line_ | _exact_ }}
+ </group>
+ mac-address {{ mac_address }}
+</group>
+
+## matches sub-interfaces
+<group>
+interface {{ interface }} l2transport
+ mac-address {{ mac_address }}
+</group>
+
+</group>      
+    """
+    parser = ttp(data, template, log_level="error")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=80)
+    assert res == [[{'interfaces': [{'interface': 'TenGigE0/0/0/5.100'},
+                  {'interface': 'BVI101',
+                   'ipv4': [{'ipv4': '192.168.101.1 255.255.255.0'}],
+                   'mac_address': '200.b19.4321'}]}]]
+                   
+# test_interface_template_not_collecting_all_data_reduced()
+
+
+def test_interface_template_not_collecting_all_data_reduced_2():
+    """
+    Below template and data were producing this result:
+    
+    [[{'interfaces': [{'interface': 'TenGigE0/0/0/5.100'},
+                      {'interface': 'BVI101',
+                       'ipv4': [{'ipv4': '192.168.101.1 255.255.255.0'}]}]}]]
+    
+    Interface BVI should not have IPv4 address matched, but
+    should have mac-address matched
+    """
+    data = """
+interface TenGigE0/0/0/5
+!
+interface TenGigE0/0/0/5.100 l2transport
+ mac-address 200.b19.1234
+!
+interface BVI101
+ ipv4 address 192.168.101.1 255.255.255.0
+ mac-address 200.b19.4321
+!
+interface HundredGigE0/0/1/0
+ mac-address 200.b19.5678
+!
+    """
+    template_original = """
+<group name="interfaces">
+
+## matches primary interfaces
+<group>
+interface {{ interface }}
+ mac-address {{ mac_address }}
+</group>
+
+## matches sub-interfaces
+<group>
+interface {{ interface }} l2transport
+ <group name="ipv4*" method="table" containsall="ipv4">
+ ipv4 address {{ ipv4 | _line_ | _exact_ }}
+ </group>
+</group>
+
+</group>    
+    """
+    parser = ttp(data, template_original, log_level="error")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=80)
+                  
+# test_interface_template_not_collecting_all_data_reduced_2()

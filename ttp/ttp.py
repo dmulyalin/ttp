@@ -2709,6 +2709,13 @@ class _results_class:
                             # prefer result with same path as current record
                             if re_["GROUP"].group_id == self.record["GRP_ID"]:
                                 break
+                        # iterate again and prefer results for group that already started
+                        else:
+                            for index in normal_re:
+                                re_ = result[index][0]
+                                result_data = result[index][1]
+                                if re_["GROUP"].group_id in self.started_groups:
+                                    break
                     # line REs have least preference
                     elif line_re:
                         for index in line_re:
@@ -2727,7 +2734,7 @@ class _results_class:
                 # if parent is ended skip this child group results
                 elif re_["GROUP"].parent_group_id in self.ended_groups:
                     continue
-                # evaluate results to check if need to unlock locked group:
+                # evaluate results to check if need to un-end ended group
                 elif re_["GROUP"].group_id in self.ended_groups:
                     if re_["ACTION"].startswith("start"):
                         self.ended_groups.remove(re_["GROUP"].group_id)
@@ -2924,9 +2931,11 @@ class _results_class:
                 self.started_groups.append(REDICT["GROUP"].group_id)
                 break
             _ = self.started_groups.pop()
+        # meaning top group started
         else:
             self.started_groups.append(REDICT["GROUP"].group_id)
-
+          
+        # process recorded group results and save them
         if self.processgrp() != False:
             self.save_curelements(
                 result_data=self.record["result"], result_path=self.record["PATH"]
@@ -2947,9 +2956,11 @@ class _results_class:
                 self.started_groups.append(REDICT["GROUP"].group_id)
                 break
             _ = self.started_groups.pop()
+        # meaning top group started
         else:
             self.started_groups.append(REDICT["GROUP"].group_id)
-
+            
+        # process recorded group results and save them
         if self.processgrp() != False:
             self.save_curelements(
                 result_data=self.record["result"], result_path=self.record["PATH"]
@@ -3010,8 +3021,8 @@ class _results_class:
                 self.record["result"][k] = result[k]  # if first result
 
     def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
-        # if path not the same and this is not child
-        # results belong to different group, skip them
+        # if path not the same and this is not child it means that
+        # results belong to different group - do not end current group
         if (
             self.record["PATH"] != PATH
             and
