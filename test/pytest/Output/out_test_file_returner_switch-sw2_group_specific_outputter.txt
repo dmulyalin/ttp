@@ -1,1 +1,0 @@
-{'_anonymous_': [{'vlan': 10, 'interface': 'Port-Chanel11'}, {'vlan': 20, 'interface': 'Loopback0'}]}

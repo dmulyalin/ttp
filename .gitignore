@@ -1,6 +1,4 @@
-
 *.pyc
-*.log
 Data/*
 Output/*
 ttp.egg-info/*
@@ -13,4 +11,5 @@ docs/make.bat
 docs/Makefile
 .pytest_cache/v/cache/nodeids
 test/pytest/Output/*
+test/pytest/nornir.log
 ttp/ttp_dict_cache.pickle

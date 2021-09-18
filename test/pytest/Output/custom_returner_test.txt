@@ -1,1 +1,0 @@
-[[{'ip': '124.171.238.50', 'mask': '32', 'interface': 'Lo0'}, {'ip': '1.1.1.1', 'mask': '32', 'description': 'this interface has description', 'interface': 'Lo1'}]]
