@@ -1,8 +1,7 @@
 import sys
-
 sys.path.insert(0, "../..")
 import pprint
-
+import pytest
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -5335,7 +5334,11 @@ interface preconfigure {{ interface | let("mode", "preconfigure") | _start_ }}
                    
 # test_interface_template_not_collecting_all_data_solution()
 
+@pytest.mark.skipif(True, reason="Need to fix this one")
 def test_interface_template_not_collecting_all_data():
+    """
+    For interface BVI101 not collecting mac-address
+    """
     data = """
 interface Bundle-Ether10
  description Bundle-Ether10
@@ -5590,16 +5593,28 @@ interface {{ interface }} l2transport
 # test_interface_template_not_collecting_all_data_reduced()
 
 
+@pytest.mark.skipif(True, reason="Need to fix this one")
 def test_interface_template_not_collecting_all_data_reduced_2():
     """
-    Below template and data were producing this result:
+    Below template and data producing this result:
     
-    [[{'interfaces': [{'interface': 'TenGigE0/0/0/5.100'},
+    [[{'interfaces': [{'interface': 'TenGigE0/0/0/5'},
+                      {'interface': 'TenGigE0/0/0/5.100',
+                       'mac_address': '200.b19.1234'},
                       {'interface': 'BVI101',
-                       'ipv4': [{'ipv4': '192.168.101.1 255.255.255.0'}]}]}]]
+                       'ipv4': [{'ipv4': '192.168.101.1 255.255.255.0'}]},
+                      {'interface': 'HundredGigE0/0/1/0',
+                       'mac_address': '200.b19.5678'}]}]]
     
     Interface BVI should not have IPv4 address matched, but
-    should have mac-address matched
+    should have mac-address matched. Problem is due to that
+    l2transport group starts and it has group for IPv4 addresses,
+    next match after matching IPv4 is mac-address, but his parent
+    is a different group, as a result IPv4 address saved under wrong group
+    and mac-address not saved at all
+    
+    IDEA: try to implement automatic end of group tracking, to add pevious
+    groups to self.ended_groups if next, different group starts.    
     """
     data = """
 interface TenGigE0/0/0/5

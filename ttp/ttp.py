@@ -2933,7 +2933,8 @@ class _results_class:
             _ = self.started_groups.pop()
         # meaning top group started
         else:
-            self.started_groups.append(REDICT["GROUP"].group_id)
+            if REDICT["GROUP"].group_id not in self.started_groups:
+                self.started_groups.append(REDICT["GROUP"].group_id)
           
         # process recorded group results and save them
         if self.processgrp() != False:
@@ -2958,7 +2959,8 @@ class _results_class:
             _ = self.started_groups.pop()
         # meaning top group started
         else:
-            self.started_groups.append(REDICT["GROUP"].group_id)
+            if REDICT["GROUP"].group_id not in self.started_groups:
+                self.started_groups.append(REDICT["GROUP"].group_id)
             
         # process recorded group results and save them
         if self.processgrp() != False:

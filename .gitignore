@@ -1,3 +1,4 @@
+
 *.pyc
 *.log
 Data/*
@@ -10,6 +11,6 @@ how to upload to pypi.txt
 docs/build/*
 docs/make.bat
 docs/Makefile
-test/pytest/Output/excel_out_test_excel_formatter.xlsx
 .pytest_cache/v/cache/nodeids
+test/pytest/Output/*
 ttp/ttp_dict_cache.pickle
