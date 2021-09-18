@@ -1,4 +1,4 @@
-def itemize(data, key, path=""):  
+def itemize(data, key, path=""):
     # if no path given use group path to save results
     if key in data and not path:
         res_path = _ttp_["results_object"].record["PATH"]

@@ -1,10 +1,7 @@
 def macro(data, *macro):
     result = data
     # extract macro names
-    macro_names_list = [
-        i.strip() for item in macro
-        for i in item.split(",")
-    ]
+    macro_names_list = [i.strip() for item in macro for i in item.split(",")]
     # run macro
     for macro_item in macro_names_list:
         if macro_item in _ttp_["macro"]:
@@ -16,4 +13,3 @@ def macro(data, *macro):
             else:
                 result = res
     return result, True
-    

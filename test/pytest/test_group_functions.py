@@ -418,8 +418,11 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'description': 'this interface has description', 'interface': 'Lo1'}]]]
-    
+    assert res == [
+        [[{"description": "this interface has description", "interface": "Lo1"}]]
+    ]
+
+
 # test_group_macro_returns_false()
 
 
@@ -447,9 +450,16 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'interface': 'Lo0'},
-                     {'description': 'this interface has description', 'interface': 'Lo1'}]]]
-    
+    assert res == [
+        [
+            [
+                {"interface": "Lo0"},
+                {"description": "this interface has description", "interface": "Lo1"},
+            ]
+        ]
+    ]
+
+
 # test_group_macro_returns_true()
 
 
@@ -476,9 +486,16 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'interface': 'Lo0'},
-                     {'description': 'this interface has description', 'interface': 'Lo1'}]]]
-    
+    assert res == [
+        [
+            [
+                {"interface": "Lo0"},
+                {"description": "this interface has description", "interface": "Lo1"},
+            ]
+        ]
+    ]
+
+
 # test_group_macro_returns_none()
 
 
@@ -512,12 +529,21 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'has_description': False, 'interface': 'Lo0', 'is_loopback': True},
-                     {'description': 'this interface has description',
-                      'has_description': True,
-                      'interface': 'Lo1',
-                      'is_loopback': True}]]]
-    
+    assert res == [
+        [
+            [
+                {"has_description": False, "interface": "Lo0", "is_loopback": True},
+                {
+                    "description": "this interface has description",
+                    "has_description": True,
+                    "interface": "Lo1",
+                    "is_loopback": True,
+                },
+            ]
+        ]
+    ]
+
+
 # test_group_macro_chaining()
 
 
@@ -552,12 +578,22 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[[{'completely_new_data': True, 'completely_new_data_2': True},
-                     {'description': 'this interface has description',
-                      'interface': 'Lo1',
-                      'is_loopback': True}]]]
-    
+    assert res == [
+        [
+            [
+                {"completely_new_data": True, "completely_new_data_2": True},
+                {
+                    "description": "this interface has description",
+                    "interface": "Lo1",
+                    "is_loopback": True,
+                },
+            ]
+        ]
+    ]
+
+
 # test_group_macro_chaining_returns_dictionary()
+
 
 def test_itemize():
     template = """
@@ -603,17 +639,30 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'bla': [{'description': 'some description 1',
-                              'interface': 'Vlan778',
-                              'ip': '2002:fd37::91/124'},
-                             {'interface': 'Vlan780', 'ip': '192.168.1.1/124'},
-                             {'description': 'some description 790',
-                              'interface': 'Vlan790',
-                              'ip': '192.168.190.1/124'}],
-                     'interfaces': {'l3': ['Vlan778', 'Vlan780', 'Vlan790']},
-                     'interfaces_list': ['VLAN778a', 'VLAN780a', 'VLAN790a'],
-                     'ips_list': ['2002:fd37::91/124', '192.168.190.1/124']}]]
-   
+    assert res == [
+        [
+            {
+                "bla": [
+                    {
+                        "description": "some description 1",
+                        "interface": "Vlan778",
+                        "ip": "2002:fd37::91/124",
+                    },
+                    {"interface": "Vlan780", "ip": "192.168.1.1/124"},
+                    {
+                        "description": "some description 790",
+                        "interface": "Vlan790",
+                        "ip": "192.168.190.1/124",
+                    },
+                ],
+                "interfaces": {"l3": ["Vlan778", "Vlan780", "Vlan790"]},
+                "interfaces_list": ["VLAN778a", "VLAN780a", "VLAN790a"],
+                "ips_list": ["2002:fd37::91/124", "192.168.190.1/124"],
+            }
+        ]
+    ]
+
+
 # test_itemize()
 
 
@@ -649,10 +698,20 @@ interface {{ interface | contains("Loop") | let("intf_type", "loopbacks") }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'l3_interfaces_list': {'loopbacks': ['Loopback0', 'Loopback1'],
-                                            'vlans': ['Vlan779', 'Vlan790']}}]]     
+    assert res == [
+        [
+            {
+                "l3_interfaces_list": {
+                    "loopbacks": ["Loopback0", "Loopback1"],
+                    "vlans": ["Vlan779", "Vlan790"],
+                }
+            }
+        ]
+    ]
+
 
 # test_itemize_dynamic_path()
+
 
 def test_itemize_dynamic_path_attribute():
     template = """
@@ -686,14 +745,26 @@ interface {{ interface | contains("Loop") | let("intf_type", "loopbacks") }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interfaces': [{'interface': 'Vlan779'},
-                                    {'interface': 'Vlan790', 'ip': '192.168.190.1/124'},
-                                    {'interface': 'Loopback0', 'ip': '2002:fd37::91/124'},
-                                    {'interface': 'Loopback1', 'ip': '192.168.1.1/124'}],
-                     'l3_interfaces_list': {'loopbacks': ['Loopback0', 'Loopback1'],
-                                            'vlans': ['Vlan779', 'Vlan790']}}]] 
+    assert res == [
+        [
+            {
+                "interfaces": [
+                    {"interface": "Vlan779"},
+                    {"interface": "Vlan790", "ip": "192.168.190.1/124"},
+                    {"interface": "Loopback0", "ip": "2002:fd37::91/124"},
+                    {"interface": "Loopback1", "ip": "192.168.1.1/124"},
+                ],
+                "l3_interfaces_list": {
+                    "loopbacks": ["Loopback0", "Loopback1"],
+                    "vlans": ["Vlan779", "Vlan790"],
+                },
+            }
+        ]
+    ]
+
 
 # test_itemize_dynamic_path_attribute()
+
 
 def test_items2dict_function():
     template = """
@@ -714,6 +785,7 @@ vlan {{ vlan }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'vlans': [{'123': 'SERVERS'}, {'456': 'WORKSTATIONS'}]}]]
-    
+    assert res == [[{"vlans": [{"123": "SERVERS"}, {"456": "WORKSTATIONS"}]}]]
+
+
 # test_items2dict_function()

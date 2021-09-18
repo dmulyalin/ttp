@@ -1,4 +1,5 @@
 import sys
+
 sys.path.insert(0, "../..")
 import pprint
 import pytest
@@ -1743,104 +1744,176 @@ def qinq(data):
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:',
-                                    'regular_sdp': {'8051': {'state': 'enabled',
-                                                             'vc_id': '103076'}},
-                                    'sap': {'1/2/12:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:',
-                                                               'egress': {'sap_egress': '1)',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '1',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN10',
-                                                               'state': 'enabled'}},
-                                    'service_mtu': '1588',
-                                    'service_name': 'EPIPE service-103076 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103206': {'customer_id': '1904',
-                                    'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                                   'UK PLC Stepney Green E1 '
-                                                   "3DG'",
-                                    'regular_sdp': {'8035': {'state': 'enabled',
-                                                             'vc_id': '103206'}},
-                                    'sap': {'2/2/3:401.100': {'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                                                             'UK '
-                                                                             'PLC '
-                                                                             'Stepney '
-                                                                             'Green '
-                                                                             'E1 '
-                                                                             "3DG'",
-                                                              'egress': {'sap_egress': '11010',
-                                                                         'scheduler_policy': 'none'},
-                                                              'ingress': {'sap_ingress': '11010',
-                                                                          'scheduler_policy': 'none'},
-                                                              'mss_name': 'SKANSKA_E13DG_A825_LAN1',
-                                                              'state': 'enabled'}},
-                                    'service_mtu': '1988',
-                                    'service_name': 'EPIPE service-103206 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103256': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:',
-                                    'regular_sdp': {'8139': {'state': 'enabled',
-                                                             'vc_id': '103256'}},
-                                    'sap': {'1/2/12:15.qinq': {'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:',
-                                                               'egress': {'sap_egress': '11000',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '11000',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN5',
-                                                               'state': 'enabled'}},
-                                    'service_mtu': '1988',
-                                    'service_name': 'EPIPE service-103256 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103742': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:',
-                                    'regular_sdp': {'8061': {'state': 'enabled',
-                                                             'vc_id': '103742'}},
-                                    'sap': {'5/2/50:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:',
-                                                               'egress': {'sap_egress': '11000',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '11000',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_STRAT_LON_A206_LANA',
-                                                               'state': 'enabled'}},
-                                    'service_mtu': '1588',
-                                    'service_name': 'EPIPE service-103742 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '55517673': {'customer_id': '4',
-                                      'description': 'vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA '
-                                                     'EPIPE#BAACTQ#VLAN 901',
-                                      'endpoint': {'endpoint': '"SDP"',
-                                                   'revert_time': 'infinite'},
-                                      'pwr_sdp': {'8243': {'endpoint': '"SDP"',
-                                                           'precedence': '1',
-                                                           'state': 'enabled',
-                                                           'vc_id': '55517673'},
-                                                  '8245': {'endpoint': '"SDP"',
-                                                           'precedence': 'primary',
-                                                           'state': 'enabled',
-                                                           'vc_id': '55517673'}},
-                                      'sap': {'2/2/3:901.qinq': {'description': '2_2_3,H0505824A,Bulldog,VLAN '
-                                                                                '901',
-                                                                 'egress': {'sap_egress': '20010',
-                                                                            'scheduler_policy': '"NGA-LLU-300M"'},
-                                                                 'ingress': {'sap_ingress': '20010',
-                                                                             'scheduler_policy': '"NGA-LLU-300M"'},
-                                                                 'mss_name': 'none',
-                                                                 'state': 'enabled'}},
-                                      'service_mtu': '1526',
-                                      'service_name': 'epipe service-64585 '
-                                                      'DKTN08a-D0105 '
-                                                      '(63.130.108.41)',
-                                      'state': 'enabled'}}}}]]
+    assert res == [
+        [
+            {
+                "service": {
+                    "epipe": {
+                        "103076": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:",
+                            "regular_sdp": {
+                                "8051": {"state": "enabled", "vc_id": "103076"}
+                            },
+                            "sap": {
+                                "1/2/12:20.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:",
+                                    "egress": {
+                                        "sap_egress": "1)",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "1",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN10",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1588",
+                            "service_name": "EPIPE service-103076 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103206": {
+                            "customer_id": "1904",
+                            "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                            "UK PLC Stepney Green E1 "
+                            "3DG'",
+                            "regular_sdp": {
+                                "8035": {"state": "enabled", "vc_id": "103206"}
+                            },
+                            "sap": {
+                                "2/2/3:401.100": {
+                                    "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                    "UK "
+                                    "PLC "
+                                    "Stepney "
+                                    "Green "
+                                    "E1 "
+                                    "3DG'",
+                                    "egress": {
+                                        "sap_egress": "11010",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11010",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "SKANSKA_E13DG_A825_LAN1",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1988",
+                            "service_name": "EPIPE service-103206 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103256": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:",
+                            "regular_sdp": {
+                                "8139": {"state": "enabled", "vc_id": "103256"}
+                            },
+                            "sap": {
+                                "1/2/12:15.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:",
+                                    "egress": {
+                                        "sap_egress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN5",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1988",
+                            "service_name": "EPIPE service-103256 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103742": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:",
+                            "regular_sdp": {
+                                "8061": {"state": "enabled", "vc_id": "103742"}
+                            },
+                            "sap": {
+                                "5/2/50:20.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:",
+                                    "egress": {
+                                        "sap_egress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_STRAT_LON_A206_LANA",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1588",
+                            "service_name": "EPIPE service-103742 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "55517673": {
+                            "customer_id": "4",
+                            "description": "vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA "
+                            "EPIPE#BAACTQ#VLAN 901",
+                            "endpoint": {
+                                "endpoint": '"SDP"',
+                                "revert_time": "infinite",
+                            },
+                            "pwr_sdp": {
+                                "8243": {
+                                    "endpoint": '"SDP"',
+                                    "precedence": "1",
+                                    "state": "enabled",
+                                    "vc_id": "55517673",
+                                },
+                                "8245": {
+                                    "endpoint": '"SDP"',
+                                    "precedence": "primary",
+                                    "state": "enabled",
+                                    "vc_id": "55517673",
+                                },
+                            },
+                            "sap": {
+                                "2/2/3:901.qinq": {
+                                    "description": "2_2_3,H0505824A,Bulldog,VLAN "
+                                    "901",
+                                    "egress": {
+                                        "sap_egress": "20010",
+                                        "scheduler_policy": '"NGA-LLU-300M"',
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "20010",
+                                        "scheduler_policy": '"NGA-LLU-300M"',
+                                    },
+                                    "mss_name": "none",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1526",
+                            "service_name": "epipe service-64585 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                    }
+                }
+            }
+        ]
+    ]
 
 
 # test_github_issue_37_original_data_template()
@@ -2236,104 +2309,176 @@ def test_github_issue_37_cleaned_data_template():
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'service': {'epipe': {'103076': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:',
-                                    'regular_sdp': {'8051': {'state': 'enabled',
-                                                             'vc_id': '103076'}},
-                                    'sap': {'1/2/12:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:',
-                                                               'egress': {'sap_egress': '1)',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '1',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN10',
-                                                               'state': 'enabled'}},
-                                    'service_mtu': '1588',
-                                    'service_name': 'EPIPE service-103076 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103206': {'customer_id': '1904',
-                                    'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                                   'UK PLC Stepney Green E1 '
-                                                   "3DG'",
-                                    'regular_sdp': {'8035': {'state': 'enabled',
-                                                             'vc_id': '103206'}},
-                                    'sap': {'2/2/3:401.100': {'description': "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
-                                                                             'UK '
-                                                                             'PLC '
-                                                                             'Stepney '
-                                                                             'Green '
-                                                                             'E1 '
-                                                                             "3DG'",
-                                                              'egress': {'sap_egress': '11010',
-                                                                         'scheduler_policy': 'none'},
-                                                              'ingress': {'sap_ingress': '11010',
-                                                                          'scheduler_policy': 'none'},
-                                                              'mss_name': 'SKANSKA_E13DG_A825_LAN1',
-                                                              'state': 'enabled'}},
-                                    'service_mtu': '1988',
-                                    'service_name': 'EPIPE service-103206 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103256': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:',
-                                    'regular_sdp': {'8139': {'state': 'enabled',
-                                                             'vc_id': '103256'}},
-                                    'sap': {'1/2/12:15.qinq': {'description': 'vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:',
-                                                               'egress': {'sap_egress': '11000',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '11000',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_VSNL_STRAT_A206_LAN5',
-                                                               'state': 'enabled'}},
-                                    'service_mtu': '1988',
-                                    'service_name': 'EPIPE service-103256 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '103742': {'customer_id': '160',
-                                    'description': 'vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:',
-                                    'regular_sdp': {'8061': {'state': 'enabled',
-                                                             'vc_id': '103742'}},
-                                    'sap': {'5/2/50:20.qinq': {'description': 'vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:',
-                                                               'egress': {'sap_egress': '11000',
-                                                                          'scheduler_policy': 'none'},
-                                                               'ingress': {'sap_ingress': '11000',
-                                                                           'scheduler_policy': 'none'},
-                                                               'mss_name': 'TATA_STRAT_LON_A206_LANA',
-                                                               'state': 'enabled'}},
-                                    'service_mtu': '1588',
-                                    'service_name': 'EPIPE service-103742 '
-                                                    'DKTN08a-D0105 '
-                                                    '(63.130.108.41)',
-                                    'state': 'enabled'},
-                         '55517673': {'customer_id': '4',
-                                      'description': 'vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA '
-                                                     'EPIPE#BAACTQ#VLAN 901',
-                                      'endpoint': {'endpoint': '"SDP"',
-                                                   'revert_time': 'infinite'},
-                                      'pwr_sdp': {'8243': {'endpoint': '"SDP"',
-                                                           'precedence': '1',
-                                                           'state': 'enabled',
-                                                           'vc_id': '55517673'},
-                                                  '8245': {'endpoint': '"SDP"',
-                                                           'precedence': 'primary',
-                                                           'state': 'enabled',
-                                                           'vc_id': '55517673'}},
-                                      'sap': {'2/2/3:901.qinq': {'description': '2_2_3,H0505824A,Bulldog,VLAN '
-                                                                                '901',
-                                                                 'egress': {'sap_egress': '20010',
-                                                                            'scheduler_policy': '"NGA-LLU-300M"'},
-                                                                 'ingress': {'sap_ingress': '20010',
-                                                                             'scheduler_policy': '"NGA-LLU-300M"'},
-                                                                 'mss_name': 'none',
-                                                                 'state': 'enabled'}},
-                                      'service_mtu': '1526',
-                                      'service_name': 'epipe service-64585 '
-                                                      'DKTN08a-D0105 '
-                                                      '(63.130.108.41)',
-                                      'state': 'enabled'}}}}]]
+    assert res == [
+        [
+            {
+                "service": {
+                    "epipe": {
+                        "103076": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COM:tl=2C02495918:st=act:",
+                            "regular_sdp": {
+                                "8051": {"state": "enabled", "vc_id": "103076"}
+                            },
+                            "sap": {
+                                "1/2/12:20.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02495890:st=act:",
+                                    "egress": {
+                                        "sap_egress": "1)",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "1",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN10",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1588",
+                            "service_name": "EPIPE service-103076 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103206": {
+                            "customer_id": "1904",
+                            "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                            "UK PLC Stepney Green E1 "
+                            "3DG'",
+                            "regular_sdp": {
+                                "8035": {"state": "enabled", "vc_id": "103206"}
+                            },
+                            "sap": {
+                                "2/2/3:401.100": {
+                                    "description": "vf=1273:cn=skanska:tl=3C02407455:st=act:no='SKANSKA "
+                                    "UK "
+                                    "PLC "
+                                    "Stepney "
+                                    "Green "
+                                    "E1 "
+                                    "3DG'",
+                                    "egress": {
+                                        "sap_egress": "11010",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11010",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "SKANSKA_E13DG_A825_LAN1",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1988",
+                            "service_name": "EPIPE service-103206 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103256": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COMM:tl=2C02490189:st=act:",
+                            "regular_sdp": {
+                                "8139": {"state": "enabled", "vc_id": "103256"}
+                            },
+                            "sap": {
+                                "1/2/12:15.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COMM:tl=2C02490171:st=act:",
+                                    "egress": {
+                                        "sap_egress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_VSNL_STRAT_A206_LAN5",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1988",
+                            "service_name": "EPIPE service-103256 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "103742": {
+                            "customer_id": "160",
+                            "description": "vf=EWL:cn=TATA_COM:tl=2C02410363:st=act:",
+                            "regular_sdp": {
+                                "8061": {"state": "enabled", "vc_id": "103742"}
+                            },
+                            "sap": {
+                                "5/2/50:20.qinq": {
+                                    "description": "vf=EWL:cn=TATA_COM:tl=2C02410338:st=act:",
+                                    "egress": {
+                                        "sap_egress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "11000",
+                                        "scheduler_policy": "none",
+                                    },
+                                    "mss_name": "TATA_STRAT_LON_A206_LANA",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1588",
+                            "service_name": "EPIPE service-103742 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                        "55517673": {
+                            "customer_id": "4",
+                            "description": "vf=EAGG:cn=Bulldog:tl=2C01291821:st=act:no=NGA "
+                            "EPIPE#BAACTQ#VLAN 901",
+                            "endpoint": {
+                                "endpoint": '"SDP"',
+                                "revert_time": "infinite",
+                            },
+                            "pwr_sdp": {
+                                "8243": {
+                                    "endpoint": '"SDP"',
+                                    "precedence": "1",
+                                    "state": "enabled",
+                                    "vc_id": "55517673",
+                                },
+                                "8245": {
+                                    "endpoint": '"SDP"',
+                                    "precedence": "primary",
+                                    "state": "enabled",
+                                    "vc_id": "55517673",
+                                },
+                            },
+                            "sap": {
+                                "2/2/3:901.qinq": {
+                                    "description": "2_2_3,H0505824A,Bulldog,VLAN "
+                                    "901",
+                                    "egress": {
+                                        "sap_egress": "20010",
+                                        "scheduler_policy": '"NGA-LLU-300M"',
+                                    },
+                                    "ingress": {
+                                        "sap_ingress": "20010",
+                                        "scheduler_policy": '"NGA-LLU-300M"',
+                                    },
+                                    "mss_name": "none",
+                                    "state": "enabled",
+                                }
+                            },
+                            "service_mtu": "1526",
+                            "service_name": "epipe service-64585 "
+                            "DKTN08a-D0105 "
+                            "(63.130.108.41)",
+                            "state": "enabled",
+                        },
+                    }
+                }
+            }
+        ]
+    ]
 
 
 # test_github_issue_37_cleaned_data_template()
@@ -2569,15 +2714,48 @@ def test_issue_45():
     # ]
     # was able to fix the issue by introducing ended_groups tracking in results
     # processing while was trying to fix issue 57
-    assert res == [[{'vrfs': [{'forwarding_options': {'dhcp_relay': {'groups': [{'group_name': 'group2',
-                                                               'server_group_name2': 'IN_MEDIA_SIGNALING'},
-                                                              {'group_name': 'NGN-SIG',
-                                                               'server_group_name2': 'DHCP-NGN-SIG'}],
-                                                   'server_group': {'dhcp': [{'helper_addresses': [{'helper_address': '10.154.6.147'}],
-                                                                              'server_group_name1': 'IN_MEDIA_SIGNALING'},
-                                                                             {'helper_addresses': [{'helper_address': '10.154.6.147'}],
-                                                                              'server_group_name1': 'DHCP-NGN-SIG'}]}}},
-             'name': 'vrf2'}]}]]
+    assert res == [
+        [
+            {
+                "vrfs": [
+                    {
+                        "forwarding_options": {
+                            "dhcp_relay": {
+                                "groups": [
+                                    {
+                                        "group_name": "group2",
+                                        "server_group_name2": "IN_MEDIA_SIGNALING",
+                                    },
+                                    {
+                                        "group_name": "NGN-SIG",
+                                        "server_group_name2": "DHCP-NGN-SIG",
+                                    },
+                                ],
+                                "server_group": {
+                                    "dhcp": [
+                                        {
+                                            "helper_addresses": [
+                                                {"helper_address": "10.154.6.147"}
+                                            ],
+                                            "server_group_name1": "IN_MEDIA_SIGNALING",
+                                        },
+                                        {
+                                            "helper_addresses": [
+                                                {"helper_address": "10.154.6.147"}
+                                            ],
+                                            "server_group_name1": "DHCP-NGN-SIG",
+                                        },
+                                    ]
+                                },
+                            }
+                        },
+                        "name": "vrf2",
+                    }
+                ]
+            }
+        ]
+    ]
+
 
 # test_issue_45()
 
@@ -4608,21 +4786,36 @@ interface {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'interface': [{'bandwidth': '10000000',
-                                    'description': 'vlan99_interface',
-                                    'interface': 'Vlan99',
-                                    'ipv4_addr': '10.99.10.1/24',
-                                    'ipv4_secondary': [{'ipv4_addr': '20.99.10.1/24',
-                                                        'is_secondary': True},
-                                                       {'ipv4_addr': '30.99.10.1/24',
-                                                        'is_secondary': True}],
-                                    'load-interval': '60'},
-                                   {'bandwidth': '10000000',
-                                    'description': 'vlan100_interface',
-                                    'interface': 'Vlan100',
-                                    'ipv4_addr': '10.100.10.1/24',
-                                    'load-interval': '60'}]}]]
+    assert res == [
+        [
+            {
+                "interface": [
+                    {
+                        "bandwidth": "10000000",
+                        "description": "vlan99_interface",
+                        "interface": "Vlan99",
+                        "ipv4_addr": "10.99.10.1/24",
+                        "ipv4_secondary": [
+                            {"ipv4_addr": "20.99.10.1/24", "is_secondary": True},
+                            {"ipv4_addr": "30.99.10.1/24", "is_secondary": True},
+                        ],
+                        "load-interval": "60",
+                    },
+                    {
+                        "bandwidth": "10000000",
+                        "description": "vlan100_interface",
+                        "interface": "Vlan100",
+                        "ipv4_addr": "10.100.10.1/24",
+                        "load-interval": "60",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_ip_address_parsing()
+
 
 def test_vlans_parsing():
     template = """
@@ -4675,16 +4868,65 @@ def test_vlans_parsing():
     parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=120)
-    assert res == [[{'ports_summary': [{'encap': '802.1q', 'mode': 'on', 'native_vlan': '1', 'port': 'Gi0', 'satus': 'trunking'},
-                                       {'encap': '802.1q', 'mode': 'on', 'native_vlan': '1', 'port': 'Gi7', 'satus': 'trunking'}],
-                     'vlans_active': {'interfaces': [{'port': 'Gi0', 'vlans': ['1', '8', '999']},
-                                                     {'port': 'Gi7', 'vlans': ['1', '100', '120', '1000']}]},
-                     'vlans_allowed': {'interfaces': [{'port': 'Gi0', 'vlans': ['1', '8', '999', '1002', '1003', '1004', '1005']},
-                                                      {'port': 'Gi7',
-                                                       'vlans': ['1', '100', '120', '1000', '1002', '1003', '1004', '1005']}]},
-                     'vlans_forwarding': {'interfaces': [{'port': 'Gi0', 'vlans': ['1', '8', '999']},
-                                                         {'port': 'Gi7', 'vlans': ['1', '100', '120', '1000']}]}}]]
+    assert res == [
+        [
+            {
+                "ports_summary": [
+                    {
+                        "encap": "802.1q",
+                        "mode": "on",
+                        "native_vlan": "1",
+                        "port": "Gi0",
+                        "satus": "trunking",
+                    },
+                    {
+                        "encap": "802.1q",
+                        "mode": "on",
+                        "native_vlan": "1",
+                        "port": "Gi7",
+                        "satus": "trunking",
+                    },
+                ],
+                "vlans_active": {
+                    "interfaces": [
+                        {"port": "Gi0", "vlans": ["1", "8", "999"]},
+                        {"port": "Gi7", "vlans": ["1", "100", "120", "1000"]},
+                    ]
+                },
+                "vlans_allowed": {
+                    "interfaces": [
+                        {
+                            "port": "Gi0",
+                            "vlans": ["1", "8", "999", "1002", "1003", "1004", "1005"],
+                        },
+                        {
+                            "port": "Gi7",
+                            "vlans": [
+                                "1",
+                                "100",
+                                "120",
+                                "1000",
+                                "1002",
+                                "1003",
+                                "1004",
+                                "1005",
+                            ],
+                        },
+                    ]
+                },
+                "vlans_forwarding": {
+                    "interfaces": [
+                        {"port": "Gi0", "vlans": ["1", "8", "999"]},
+                        {"port": "Gi7", "vlans": ["1", "100", "120", "1000"]},
+                    ]
+                },
+            }
+        ]
+    ]
+
+
 # test_vlans_parsing()
+
 
 def test_asa_acls_issue_55_uses_itemize_with_dynamic_path():
     data = """
@@ -4759,41 +5001,59 @@ object-group {{ object_type }} {{ object_name | _start_ }} {{ protocol | re("SVC
     parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=80)
-    assert res == [[{'object-network-groups': {'Space-Users': {'network-objects': ['ab',
-                                                                                   'ac',
-                                                                                   'ad',
-                                                                                   'ae',
-                                                                                   'af',
-                                                                                   'ag',
-                                                                                   'ah',
-                                                                                   'ai',
-                                                                                   'aj']},
-                                               'dalmatians': {'group-objects': ['trunks',
-                                                                                'Space-Users'],
-                                                              'network-objects': ['dog-01',
-                                                                                  'vlan_950',
-                                                                                  'Darts-Summary']},
-                                               'gohan': {'network-objects': ['gohan-01',
-                                                                             'gohan-02',
-                                                                             'vlan_944',
-                                                                             'gohan-03',
-                                                                             'gohan-05',
-                                                                             'gohan-06']},
-                                               'vegeta': {'group-objects': ['trunks'],
-                                                          'network-objects': ['vegeta-01']}},
-                     'object-service-groups': {'gokuhead': {'service-object-ports': [{'port': 'gokurpc',
-                                                                                      'protocol': 'tcp-udp'},
-                                                                                     {'port': '902',
-                                                                                      'protocol': 'tcp'},
-                                                                                     {'port': 'https',
-                                                                                      'protocol': 'tcp'},
-                                                                                     {'port': 'nfs',
-                                                                                      'protocol': 'tcp'},
-                                                                                     {'port': '10025',
-                                                                                      'protocol': 'tcp'}]},
-                                               'sql': {'protocol': 'tcp',
-                                                       'service-port-objects': ['1433']}}}]]
-                                                       
+    assert res == [
+        [
+            {
+                "object-network-groups": {
+                    "Space-Users": {
+                        "network-objects": [
+                            "ab",
+                            "ac",
+                            "ad",
+                            "ae",
+                            "af",
+                            "ag",
+                            "ah",
+                            "ai",
+                            "aj",
+                        ]
+                    },
+                    "dalmatians": {
+                        "group-objects": ["trunks", "Space-Users"],
+                        "network-objects": ["dog-01", "vlan_950", "Darts-Summary"],
+                    },
+                    "gohan": {
+                        "network-objects": [
+                            "gohan-01",
+                            "gohan-02",
+                            "vlan_944",
+                            "gohan-03",
+                            "gohan-05",
+                            "gohan-06",
+                        ]
+                    },
+                    "vegeta": {
+                        "group-objects": ["trunks"],
+                        "network-objects": ["vegeta-01"],
+                    },
+                },
+                "object-service-groups": {
+                    "gokuhead": {
+                        "service-object-ports": [
+                            {"port": "gokurpc", "protocol": "tcp-udp"},
+                            {"port": "902", "protocol": "tcp"},
+                            {"port": "https", "protocol": "tcp"},
+                            {"port": "nfs", "protocol": "tcp"},
+                            {"port": "10025", "protocol": "tcp"},
+                        ]
+                    },
+                    "sql": {"protocol": "tcp", "service-port-objects": ["1433"]},
+                },
+            }
+        ]
+    ]
+
+
 # test_asa_acls_issue_55()
 
 
@@ -4876,50 +5136,69 @@ object-group {{ object_type }} {{ object_name | _start_ }} {{ protocol | re("SVC
     parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=80)
-    assert res == [[{'object-network-groups': {'Space-Users': {'network-objects': ['ab',
-                                                                                   'ac',
-                                                                                   'ad',
-                                                                                   'ae',
-                                                                                   'af',
-                                                                                   'ag',
-                                                                                   'ah',
-                                                                                   'ai',
-                                                                                   'aj']},
-                                               'dalmatians': {'group-objects': ['trunks',
-                                                                                'Space-Users'],
-                                                              'network-objects': ['dog-01',
-                                                                                  'vlan_950',
-                                                                                  'Darts-Summary']},
-                                               'gohan': {'network-objects': ['gohan-01',
-                                                                             'gohan-02',
-                                                                             'vlan_944',
-                                                                             'gohan-03',
-                                                                             'gohan-05',
-                                                                             'gohan-06']},
-                                               'vegeta': {'group-objects': ['trunks'],
-                                                          'network-objects': ['vegeta-01']}},
-                     'object-service-groups': {'gokuhead': {'service-object-ports': [{'port': 'gokurpc',
-                                                                                      'protocol': 'tcp-udp'},
-                                                                                     {'port': '902',
-                                                                                      'protocol': 'tcp'},
-                                                                                     {'port': 'https',
-                                                                                      'protocol': 'tcp'},
-                                                                                     {'port': 'nfs',
-                                                                                      'protocol': 'tcp'},
-                                                                                     {'port': '10025',
-                                                                                      'protocol': 'tcp'}]},
-                                               'sql': {'protocol': 'tcp',
-                                                       'service-port-objects': ['1433']}}}]]
-                                     
+    assert res == [
+        [
+            {
+                "object-network-groups": {
+                    "Space-Users": {
+                        "network-objects": [
+                            "ab",
+                            "ac",
+                            "ad",
+                            "ae",
+                            "af",
+                            "ag",
+                            "ah",
+                            "ai",
+                            "aj",
+                        ]
+                    },
+                    "dalmatians": {
+                        "group-objects": ["trunks", "Space-Users"],
+                        "network-objects": ["dog-01", "vlan_950", "Darts-Summary"],
+                    },
+                    "gohan": {
+                        "network-objects": [
+                            "gohan-01",
+                            "gohan-02",
+                            "vlan_944",
+                            "gohan-03",
+                            "gohan-05",
+                            "gohan-06",
+                        ]
+                    },
+                    "vegeta": {
+                        "group-objects": ["trunks"],
+                        "network-objects": ["vegeta-01"],
+                    },
+                },
+                "object-service-groups": {
+                    "gokuhead": {
+                        "service-object-ports": [
+                            {"port": "gokurpc", "protocol": "tcp-udp"},
+                            {"port": "902", "protocol": "tcp"},
+                            {"port": "https", "protocol": "tcp"},
+                            {"port": "nfs", "protocol": "tcp"},
+                            {"port": "10025", "protocol": "tcp"},
+                        ]
+                    },
+                    "sql": {"protocol": "tcp", "service-port-objects": ["1433"]},
+                },
+            }
+        ]
+    ]
+
+
 # test_asa_acls_issue_55()
+
 
 def test_issue_57_headers_parsing():
     """
     Issue first was with startempty match not beeing selected in favour
     of start match produced by headers :
     Interface            Link Protocol Primary_IP      Description {{ _headers_ }}
-    
-    that was fixed by adding this code to the TTP selection logic for multiple 
+
+    that was fixed by adding this code to the TTP selection logic for multiple
     matches:
                     # startempty RE always more preferred
                     if startempty_re:
@@ -4936,18 +5215,18 @@ def test_issue_57_headers_parsing():
                             elif self.record["GRP_ID"] and re_["GROUP"].group_id[
                                 0
                             ].startswith(self.record["GRP_ID"][0]):
-                                break                    
+                                break
                     # start RE preferred next
                     elif start_re:
-                        
-    Another problem was with 
+
+    Another problem was with
     Interface            Link Protocol Primary_IP      Description {{ _headers_ }}
-    
-    matching on "Duplex: (a)/A - auto; H - half; F - full" line, that was fixed 
+
+    matching on "Duplex: (a)/A - auto; H - half; F - full" line, that was fixed
     by chaning _end_ logic by introducing self.ended_groups set to _results_class
     and replacing self.GRPLOCL with logic to use self.ended_groups instead.
-    
-    All in all it resulted in better _end_ handling behavior and allowed to fix issue 
+
+    All in all it resulted in better _end_ handling behavior and allowed to fix issue
     45 as well where before this one had to use filtering instead, but now _end_ also
     helps.
     """
@@ -4996,62 +5275,94 @@ Interface            Link Speed   Duplex Type PVID Description {{ _headers_ }}
     parser.parse()
     res = parser.result()
     pprint.pprint(res, width=80)
-    assert res == [[{'interfaces': {'bridged': {'BAGG1': {'Description': 'to-KDC-R4.10-Core-1',
-                                        'Duplex': 'F(a)',
-                                        'Link': 'UP',
-                                        'PVID': '1',
-                                        'Speed': '20G(a)',
-                                        'Type': 'T'},
-                              'BAGG14': {'Description': 'KDC-R429-E1 BackUp '
-                                                        'Chassis',
-                                         'Duplex': 'F(a)',
-                                         'Link': 'UP',
-                                         'PVID': '1',
-                                         'Speed': '10G(a)',
-                                         'Type': 'T'},
-                              'BAGG22': {'Description': 'HSSBC-NS-01',
-                                         'Duplex': 'F(a)',
-                                         'Link': 'UP',
-                                         'PVID': '1',
-                                         'Speed': '20G(a)',
-                                         'Type': 'T'},
-                              'FGE1/0/49': {'Description': '',
-                                            'Duplex': 'A',
-                                            'Link': 'DOWN',
-                                            'PVID': '1',
-                                            'Speed': 'auto',
-                                            'Type': 'A'},
-                              'Link: ADM - administr': {'Description': '',
-                                                        'Duplex': 'Stby -',
-                                                        'Link': 'ative',
-                                                        'PVID': 'dby',
-                                                        'Speed': 'ly down;',
-                                                        'Type': 'stan'},
-                              'XGE1/0/1': {'Description': 'KDC-R402-E1 Backup '
-                                                          'Chassis',
-                                           'Duplex': 'F(a)',
-                                           'Link': 'UP',
-                                           'PVID': '1',
-                                           'Speed': '10G(a)',
-                                           'Type': 'T'}},
-                  'routed': {'InLoop0': {'Description': '',
-                                         'Link': 'UP',
-                                         'Primary_IP': '--',
-                                         'Protocol': 'UP(s)'},
-                             'Link: ADM - administr': {'Description': '',
-                                                       'Link': 'ative',
-                                                       'Primary_IP': 'Stby - '
-                                                                     'standby',
-                                                       'Protocol': 'ly down;'},
-                             'REG0': {'Description': '',
-                                      'Link': 'UP',
-                                      'Primary_IP': '--',
-                                      'Protocol': '--'},
-                             'Vlan401': {'Description': 'HSSBC_to_inband_mgmt_r4',
-                                         'Link': 'UP',
-                                         'Primary_IP': '10.251.147.36',
-                                         'Protocol': 'UP'}}}}]]
+    assert res == [
+        [
+            {
+                "interfaces": {
+                    "bridged": {
+                        "BAGG1": {
+                            "Description": "to-KDC-R4.10-Core-1",
+                            "Duplex": "F(a)",
+                            "Link": "UP",
+                            "PVID": "1",
+                            "Speed": "20G(a)",
+                            "Type": "T",
+                        },
+                        "BAGG14": {
+                            "Description": "KDC-R429-E1 BackUp " "Chassis",
+                            "Duplex": "F(a)",
+                            "Link": "UP",
+                            "PVID": "1",
+                            "Speed": "10G(a)",
+                            "Type": "T",
+                        },
+                        "BAGG22": {
+                            "Description": "HSSBC-NS-01",
+                            "Duplex": "F(a)",
+                            "Link": "UP",
+                            "PVID": "1",
+                            "Speed": "20G(a)",
+                            "Type": "T",
+                        },
+                        "FGE1/0/49": {
+                            "Description": "",
+                            "Duplex": "A",
+                            "Link": "DOWN",
+                            "PVID": "1",
+                            "Speed": "auto",
+                            "Type": "A",
+                        },
+                        "Link: ADM - administr": {
+                            "Description": "",
+                            "Duplex": "Stby -",
+                            "Link": "ative",
+                            "PVID": "dby",
+                            "Speed": "ly down;",
+                            "Type": "stan",
+                        },
+                        "XGE1/0/1": {
+                            "Description": "KDC-R402-E1 Backup " "Chassis",
+                            "Duplex": "F(a)",
+                            "Link": "UP",
+                            "PVID": "1",
+                            "Speed": "10G(a)",
+                            "Type": "T",
+                        },
+                    },
+                    "routed": {
+                        "InLoop0": {
+                            "Description": "",
+                            "Link": "UP",
+                            "Primary_IP": "--",
+                            "Protocol": "UP(s)",
+                        },
+                        "Link: ADM - administr": {
+                            "Description": "",
+                            "Link": "ative",
+                            "Primary_IP": "Stby - " "standby",
+                            "Protocol": "ly down;",
+                        },
+                        "REG0": {
+                            "Description": "",
+                            "Link": "UP",
+                            "Primary_IP": "--",
+                            "Protocol": "--",
+                        },
+                        "Vlan401": {
+                            "Description": "HSSBC_to_inband_mgmt_r4",
+                            "Link": "UP",
+                            "Primary_IP": "10.251.147.36",
+                            "Protocol": "UP",
+                        },
+                    },
+                }
+            }
+        ]
+    ]
+
+
 # test_issue_57_headers_parsing()
+
 
 def test_interface_template_not_collecting_all_data_solution():
     data = """
@@ -5214,125 +5525,180 @@ interface preconfigure {{ interface | let("mode", "preconfigure") | _start_ }}
     parser.parse()
     res = parser.result()
     pprint.pprint(res, width=80)
-    assert res == [[{'interfaces': [{'description': 'Bundle-Ether10',
-                   'disabled': False,
-                   'interface': 'Bundle-Ether10',
-                   'ipv4': [{'ipv4': {'ipv4': '192.168.1.6/31',
-                                      'is_secondary': False}}],
-                   'ipv6': [{'ipv6': 'fc00::1:5/127'}],
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'Bundle-Ether51',
-                   'disabled': False,
-                   'interface': 'Bundle-Ether51',
-                   'ipv4': [{'ipv4': {'ipv4': '192.168.1.3/31',
-                                      'is_secondary': False}}],
-                   'ipv6': [{'ipv6': 'fc00::1:3/127'}],
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'Loopback0',
-                   'disabled': False,
-                   'interface': 'Loopback0',
-                   'ipv4': [{'ipv4': {'ipv4': '10.1.1.1/32',
-                                      'is_secondary': False}},
-                            {'ipv4': {'ipv4': '10.2.2.2/32',
-                                      'is_secondary': True}}],
-                   'ipv6': [{'ipv6': 'fc00::1/128'}, {'ipv6': 'fc00::101/128'}],
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'Loopback1',
-                   'disabled': False,
-                   'interface': 'Loopback1',
-                   'ipv4': [{'ipv4': {'ipv4': '10.100.0.1/24',
-                                      'is_secondary': False}},
-                            {'ipv4': {'ipv4': '10.100.1.1/24',
-                                      'is_secondary': True}},
-                            {'ipv4': {'ipv4': '10.100.2.1/24',
-                                      'is_secondary': True}}],
-                   'ipv6': [{'ipv6': 'fc00:100::1/64'},
-                            {'ipv6': 'fc00:100::101/64'},
-                            {'ipv6': 'fc00:100::201/64'}],
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'MgmtEth0/RP0/CPU0/0',
-                   'disabled': False,
-                   'interface': 'MgmtEth0/RP0/CPU0/0',
-                   'ipv4': [{'ipv4': {'ipv4': '172.23.136.21/22',
-                                      'is_secondary': False}}],
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'GigabitEthernet0/0/0/12',
-                   'disabled': False,
-                   'interface': 'GigabitEthernet0/0/0/12',
-                   'mode': None,
-                   'negotiation': 'auto',
-                   'speed': None},
-                  {'description': 'TenGigE0/0/0/4',
-                   'disabled': False,
-                   'interface': 'TenGigE0/0/0/4',
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': None,
-                   'disabled': True,
-                   'interface': 'TenGigE0/0/0/5',
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'TenGigE0/0/0/5.100',
-                   'disabled': False,
-                   'interface': 'TenGigE0/0/0/5.100',
-                   'mode': 'l2transport',
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'TenGigE0/0/0/47',
-                   'disabled': True,
-                   'interface': 'TenGigE0/0/0/47',
-                   'mac_address': '201.b19.1234',
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'BVI101',
-                   'disabled': False,
-                   'interface': 'BVI101',
-                   'ipv4': [{'ipv4': {'ipv4': '192.168.101.1/24',
-                                      'is_secondary': False}}],
-                   'mac_address': '200.b19.4321',
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'HundredGigE0/0/1/0',
-                   'disabled': False,
-                   'interface': 'HundredGigE0/0/1/0',
-                   'mac_address': '200.b19.5678',
-                   'mode': None,
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'GigabitEthernet0/0/0/11',
-                   'disabled': True,
-                   'interface': 'GigabitEthernet0/0/0/11',
-                   'mode': 'preconfigure',
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'GigabitEthernet0/0/0/16',
-                   'disabled': True,
-                   'interface': 'GigabitEthernet0/0/0/16',
-                   'mode': 'preconfigure',
-                   'negotiation': None,
-                   'speed': None},
-                  {'description': 'GigabitEthernet0/0/0/17',
-                   'disabled': True,
-                   'interface': 'GigabitEthernet0/0/0/17',
-                   'mode': 'preconfigure',
-                   'negotiation': None,
-                   'speed': None}]}]]
-                   
+    assert res == [
+        [
+            {
+                "interfaces": [
+                    {
+                        "description": "Bundle-Ether10",
+                        "disabled": False,
+                        "interface": "Bundle-Ether10",
+                        "ipv4": [
+                            {"ipv4": {"ipv4": "192.168.1.6/31", "is_secondary": False}}
+                        ],
+                        "ipv6": [{"ipv6": "fc00::1:5/127"}],
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "Bundle-Ether51",
+                        "disabled": False,
+                        "interface": "Bundle-Ether51",
+                        "ipv4": [
+                            {"ipv4": {"ipv4": "192.168.1.3/31", "is_secondary": False}}
+                        ],
+                        "ipv6": [{"ipv6": "fc00::1:3/127"}],
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "Loopback0",
+                        "disabled": False,
+                        "interface": "Loopback0",
+                        "ipv4": [
+                            {"ipv4": {"ipv4": "10.1.1.1/32", "is_secondary": False}},
+                            {"ipv4": {"ipv4": "10.2.2.2/32", "is_secondary": True}},
+                        ],
+                        "ipv6": [{"ipv6": "fc00::1/128"}, {"ipv6": "fc00::101/128"}],
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "Loopback1",
+                        "disabled": False,
+                        "interface": "Loopback1",
+                        "ipv4": [
+                            {"ipv4": {"ipv4": "10.100.0.1/24", "is_secondary": False}},
+                            {"ipv4": {"ipv4": "10.100.1.1/24", "is_secondary": True}},
+                            {"ipv4": {"ipv4": "10.100.2.1/24", "is_secondary": True}},
+                        ],
+                        "ipv6": [
+                            {"ipv6": "fc00:100::1/64"},
+                            {"ipv6": "fc00:100::101/64"},
+                            {"ipv6": "fc00:100::201/64"},
+                        ],
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "MgmtEth0/RP0/CPU0/0",
+                        "disabled": False,
+                        "interface": "MgmtEth0/RP0/CPU0/0",
+                        "ipv4": [
+                            {
+                                "ipv4": {
+                                    "ipv4": "172.23.136.21/22",
+                                    "is_secondary": False,
+                                }
+                            }
+                        ],
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "GigabitEthernet0/0/0/12",
+                        "disabled": False,
+                        "interface": "GigabitEthernet0/0/0/12",
+                        "mode": None,
+                        "negotiation": "auto",
+                        "speed": None,
+                    },
+                    {
+                        "description": "TenGigE0/0/0/4",
+                        "disabled": False,
+                        "interface": "TenGigE0/0/0/4",
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": None,
+                        "disabled": True,
+                        "interface": "TenGigE0/0/0/5",
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "TenGigE0/0/0/5.100",
+                        "disabled": False,
+                        "interface": "TenGigE0/0/0/5.100",
+                        "mode": "l2transport",
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "TenGigE0/0/0/47",
+                        "disabled": True,
+                        "interface": "TenGigE0/0/0/47",
+                        "mac_address": "201.b19.1234",
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "BVI101",
+                        "disabled": False,
+                        "interface": "BVI101",
+                        "ipv4": [
+                            {
+                                "ipv4": {
+                                    "ipv4": "192.168.101.1/24",
+                                    "is_secondary": False,
+                                }
+                            }
+                        ],
+                        "mac_address": "200.b19.4321",
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "HundredGigE0/0/1/0",
+                        "disabled": False,
+                        "interface": "HundredGigE0/0/1/0",
+                        "mac_address": "200.b19.5678",
+                        "mode": None,
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "GigabitEthernet0/0/0/11",
+                        "disabled": True,
+                        "interface": "GigabitEthernet0/0/0/11",
+                        "mode": "preconfigure",
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "GigabitEthernet0/0/0/16",
+                        "disabled": True,
+                        "interface": "GigabitEthernet0/0/0/16",
+                        "mode": "preconfigure",
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                    {
+                        "description": "GigabitEthernet0/0/0/17",
+                        "disabled": True,
+                        "interface": "GigabitEthernet0/0/0/17",
+                        "mode": "preconfigure",
+                        "negotiation": None,
+                        "speed": None,
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_interface_template_not_collecting_all_data_solution()
+
 
 @pytest.mark.skipif(True, reason="Need to fix this one")
 def test_interface_template_not_collecting_all_data():
@@ -5541,16 +5907,18 @@ interface {{ interface }} l2transport
     res = parser.result()
     pprint.pprint(res, width=80)
 
+
 # test_interface_template_not_collecting_all_data()
+
 
 def test_interface_template_not_collecting_all_data_reduced():
     """
     Below template and data were producing this result:
-    
+
     [[{'interfaces': [{'interface': 'TenGigE0/0/0/5.100'},
                       {'interface': 'BVI101',
                        'ipv4': [{'ipv4': '192.168.101.1 255.255.255.0'}]}]}]]
-                   
+
     TTP was not collecting mac-address for BVI 101
     """
     data = """
@@ -5585,11 +5953,22 @@ interface {{ interface }} l2transport
     parser.parse()
     res = parser.result()
     # pprint.pprint(res, width=80)
-    assert res == [[{'interfaces': [{'interface': 'TenGigE0/0/0/5.100'},
-                  {'interface': 'BVI101',
-                   'ipv4': [{'ipv4': '192.168.101.1 255.255.255.0'}],
-                   'mac_address': '200.b19.4321'}]}]]
-                   
+    assert res == [
+        [
+            {
+                "interfaces": [
+                    {"interface": "TenGigE0/0/0/5.100"},
+                    {
+                        "interface": "BVI101",
+                        "ipv4": [{"ipv4": "192.168.101.1 255.255.255.0"}],
+                        "mac_address": "200.b19.4321",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_interface_template_not_collecting_all_data_reduced()
 
 
@@ -5597,7 +5976,7 @@ interface {{ interface }} l2transport
 def test_interface_template_not_collecting_all_data_reduced_2():
     """
     Below template and data producing this result:
-    
+
     [[{'interfaces': [{'interface': 'TenGigE0/0/0/5'},
                       {'interface': 'TenGigE0/0/0/5.100',
                        'mac_address': '200.b19.1234'},
@@ -5605,16 +5984,16 @@ def test_interface_template_not_collecting_all_data_reduced_2():
                        'ipv4': [{'ipv4': '192.168.101.1 255.255.255.0'}]},
                       {'interface': 'HundredGigE0/0/1/0',
                        'mac_address': '200.b19.5678'}]}]]
-    
+
     Interface BVI should not have IPv4 address matched, but
     should have mac-address matched. Problem is due to that
     l2transport group starts and it has group for IPv4 addresses,
     next match after matching IPv4 is mac-address, but his parent
     is a different group, as a result IPv4 address saved under wrong group
     and mac-address not saved at all
-    
+
     IDEA: try to implement automatic end of group tracking, to add pevious
-    groups to self.ended_groups if next, different group starts.    
+    groups to self.ended_groups if next, different group starts.
     """
     data = """
 interface TenGigE0/0/0/5
@@ -5653,5 +6032,6 @@ interface {{ interface }} l2transport
     parser.parse()
     res = parser.result()
     pprint.pprint(res, width=80)
-                  
+
+
 # test_interface_template_not_collecting_all_data_reduced_2()

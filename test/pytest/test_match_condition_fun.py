@@ -639,7 +639,10 @@ interface {{ interface | equal("Port-Channel12") }}
     res = parser.result()
     pprint.pprint(res, width=150)
     assert res == [[[{"description": "Management", "interface": "Port-Channel12"}]]]
+
+
 # test_equal_inline()
+
 
 def test_equal_from_vars():
     template = """

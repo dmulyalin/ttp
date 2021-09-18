@@ -49,7 +49,8 @@ def load_files(path, extensions=[], filters=[], read=False):
     # check if path is a reference to template in ttp_templates collection
     if path.startswith("ttp://"):
         from ttp_templates import get_template
-        return [("text_data", get_template(path=path.replace("ttp://", "")))]            
+
+        return [("text_data", get_template(path=path.replace("ttp://", "")))]
     # check if path is a path to file:
     elif os.path.isfile(path[:5000]):
         if read:
@@ -101,7 +102,9 @@ def load_files(path, extensions=[], filters=[], read=False):
                             )
                         )
                 elif _ttp_["python_major_version"] == 3:
-                    with open((os.path.join(path, f)), "r", encoding="utf-8") as file_obj:
+                    with open(
+                        (os.path.join(path, f)), "r", encoding="utf-8"
+                    ) as file_obj:
                         ret.append(
                             (
                                 "text_data",

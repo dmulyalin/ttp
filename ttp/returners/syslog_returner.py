@@ -48,7 +48,6 @@ def syslog(data, **kwargs):
                 tb = traceback.format_exc()
                 log.error(
                     "TTP:syslog returner, failed traverse data, path: '{}', error:\n'{}\ndatum: {}..".format(
-
                         path, tb, str(datum)[:120]
                     )
                 )

@@ -2,7 +2,7 @@ def table(data, path=[], missing="", key="", strict=True, headers=[], **kwargs):
     """Method to form table there table is list of lists,
     first item - headers row. Method used by csv/tabulate/excel
     formatters.
-    
+
     :param path: (list) path items list to result within data
     :param strict: (bool) strict attribute to use with traverse function, if True
         will raise KeyError in case of path not within data

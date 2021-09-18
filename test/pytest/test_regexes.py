@@ -115,6 +115,7 @@ Internet  {{ ip }}  {{ age }}   {{ mac }}  ARPA   {{ interface | re(r"GigabitEth
 
 # test_multiple_inline_regexes()
 
+
 def test_MAC_regex_formatter():
     template = """
 <input load="text">
@@ -138,29 +139,50 @@ Internet  {{ ip }}  {{ age }}   {{ mac | MAC }}  ARPA   {{ interface }}
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'arp_test': [{'age': '98',
-                 'interface': 'Loopback0',
-                 'ip': '10.12.13.2',
-                 'mac': '0950:5785:5cd2'},
-                {'age': '131',
-                 'interface': 'GigabitEthernet2.13',
-                 'ip': '10.12.13.3',
-                 'mac': '0150.7685.14d5'},
-                {'age': '98',
-                 'interface': 'FastEthernet2.13',
-                 'ip': '10.12.13.1',
-                 'mac': '0950-5785-5cd1'},
-                {'age': '198',
-                 'interface': 'GigabitEthernet2.17',
-                 'ip': '10.12.13.4',
-                 'mac': '09:50:5C:8A:5c:41'},
-                {'age': '198',
-                 'interface': 'GigabitEthernet2.17',
-                 'ip': '10.12.13.5',
-                 'mac': '09.50.5C.8A.5c.41'},
-                {'age': '198',
-                 'interface': 'GigabitEthernet2.17',
-                 'ip': '10.12.13.6',
-                 'mac': '09-50-5C-8A-5c-41'}]}]]
-				 
+    assert res == [
+        [
+            {
+                "arp_test": [
+                    {
+                        "age": "98",
+                        "interface": "Loopback0",
+                        "ip": "10.12.13.2",
+                        "mac": "0950:5785:5cd2",
+                    },
+                    {
+                        "age": "131",
+                        "interface": "GigabitEthernet2.13",
+                        "ip": "10.12.13.3",
+                        "mac": "0150.7685.14d5",
+                    },
+                    {
+                        "age": "98",
+                        "interface": "FastEthernet2.13",
+                        "ip": "10.12.13.1",
+                        "mac": "0950-5785-5cd1",
+                    },
+                    {
+                        "age": "198",
+                        "interface": "GigabitEthernet2.17",
+                        "ip": "10.12.13.4",
+                        "mac": "09:50:5C:8A:5c:41",
+                    },
+                    {
+                        "age": "198",
+                        "interface": "GigabitEthernet2.17",
+                        "ip": "10.12.13.5",
+                        "mac": "09.50.5C.8A.5c.41",
+                    },
+                    {
+                        "age": "198",
+                        "interface": "GigabitEthernet2.17",
+                        "ip": "10.12.13.6",
+                        "mac": "09-50-5C-8A-5c-41",
+                    },
+                ]
+            }
+        ]
+    ]
+
+
 # test_MAC_regex_formatter()

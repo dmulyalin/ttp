@@ -101,7 +101,9 @@ def _make_library(ydir):
     for infile in os.listdir(ydir):
         if not infile.endswith(".yang"):
             continue
-        with open("{ydir}/{infile}".format(ydir=ydir, infile=infile), "r", encoding="utf-8") as yf:
+        with open(
+            "{ydir}/{infile}".format(ydir=ydir, infile=infile), "r", encoding="utf-8"
+        ) as yf:
             _module_entry(yf)
     marr = []
     for (yam, mrev) in modmap:
@@ -143,7 +145,7 @@ def validate_yangson(
     validation_scope="all",
     content_type="all",
     to_xml=False,
-    metadata=True
+    metadata=True,
 ):
     """
     Validate instance_data for compliance with YANG modules at
@@ -211,7 +213,7 @@ def validate_yangson(
             return False
         else:
             return ret
-            
+
     # decide on scopes and content
     if validation_scope == "all":
         scope = enumerations.ValidationScope.all
@@ -225,7 +227,7 @@ def validate_yangson(
         ctype = enumerations.ContentType.config
     elif content_type == "nonconfig":
         ctype = enumerations.ContentType.nonconfig
-        
+
     # run validation of data
     if isinstance(instance_data, list):
         for index, item in enumerate(instance_data):
@@ -252,7 +254,7 @@ def validate_yangson(
                 return False
             ret["exception"] = traceback.format_exc()
             ret["valid"] = False
-            
+
     # return results
     if not metadata:
         return ret["result"]

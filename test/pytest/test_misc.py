@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.insert(0, "../..")
 import pprint
 
@@ -658,8 +659,10 @@ def test_TTP_CACHE_FOLDER_env_variable_usage():
     assert "ttp_dict_cache.pickle" in os.listdir("./assets/")
     os.remove("./assets/ttp_dict_cache.pickle")
     os.environ.pop("TTPCACHEFOLDER", None)
-# test_TTP_CACHE_FOLDER_env_variable_usage()    
-    
+
+
+# test_TTP_CACHE_FOLDER_env_variable_usage()
+
 
 def test_child_group_do_not_start_if_no_parent_started():
     """
@@ -674,18 +677,18 @@ def test_child_group_do_not_start_if_no_parent_started():
                                                             {'link_data': '0.0.0.52'},
                                                             {'link_data': '0.0.0.53'}]}]}}}]]
     Reason wrong output produced is because TTP parses "LS age: {{ age }}" for
-    "external_lsa" even though "Type-5 AS External Link States {{ _start_ }}" 
+    "external_lsa" even though "Type-5 AS External Link States {{ _start_ }}"
     does not math anything in the output.
-    
-    Next, once "LS age: 406" like lines matched by two "LS age: {{ age }}"start 
+
+    Next, once "LS age: 406" like lines matched by two "LS age: {{ age }}"start
     regexes from "name="router_lsa*" and "name="external_lsa"" groups, selection
     of match result happens in favour of "name="external_lsa"" group and it breaks
     the logic of saving results for "name="ptp_peers*"" group, leading to all
     ptp_ppers saved under same path, and "LS age: 1604" stored under "name="external_lsa""
     wrong path.
-    
+
     The fix is to make sure that group "name="external_lsa"" pattern "LS age: {{ age }}"
-    will not be parsed if no "Type-5 AS External Link States {{ _start_ }}" pattern 
+    will not be parsed if no "Type-5 AS External Link States {{ _start_ }}" pattern
     matched in the data text.
     """
     template = """
@@ -769,22 +772,43 @@ RP/0/RP0/CPU0:router-1#show ospf database router
       Number of TOS metrics: 0
        TOS 0 Metrics: 1100
     """
-    parser = ttp(data=data, template=template, log_level="warning")    
+    parser = ttp(data=data, template=template, log_level="warning")
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'ospf_processes': {'1': {'local_rid': '10.0.1.1',
-                                              'router_lsa': [{'age': '406',
-                                                              'area': 'area',
-                                                              'originator_rid': '10.0.1.1',
-                                                              'ptp_peers': [{'link_data': '0.0.0.12'},
-                                                                            {'link_data': '0.0.0.10'}]},
-                                                             {'age': '1604',
-                                                              'area': 'area',
-                                                              'originator_rid': '10.0.1.2',
-                                                              'ptp_peers': [{'link_data': '0.0.0.52'},
-                                                                            {'link_data': '0.0.0.53'}]}]}}}]]
-    
+    assert res == [
+        [
+            {
+                "ospf_processes": {
+                    "1": {
+                        "local_rid": "10.0.1.1",
+                        "router_lsa": [
+                            {
+                                "age": "406",
+                                "area": "area",
+                                "originator_rid": "10.0.1.1",
+                                "ptp_peers": [
+                                    {"link_data": "0.0.0.12"},
+                                    {"link_data": "0.0.0.10"},
+                                ],
+                            },
+                            {
+                                "age": "1604",
+                                "area": "area",
+                                "originator_rid": "10.0.1.2",
+                                "ptp_peers": [
+                                    {"link_data": "0.0.0.52"},
+                                    {"link_data": "0.0.0.53"},
+                                ],
+                            },
+                        ],
+                    }
+                }
+            }
+        ]
+    ]
+
+
 # test_child_group_do_not_start_if_no_parent_started()
 
 
@@ -792,7 +816,7 @@ def test_group_end_indicator_when_last_start_is_bigger_than_last_end():
     """
     Testcase when we have last end span is smaller than last start span, meaning we have
     start matches beyond last end match.
-    
+
     Without fix TTP returns this data:
     [[{'ospf_processes': {'1': {'local_rid': '10.0.0.4',
                                 'router_lsa': [{'area': '100',
@@ -805,7 +829,7 @@ def test_group_end_indicator_when_last_start_is_bigger_than_last_end():
                                                 'asbr': True,
                                                 'originator_rid': '10.0.5.101',
                                                 'ptp_peers': [{}]}]}}}]]
-                                                
+
     ptp_peers did not match any group match regexes, this is due to data does have
     {{ _end_ }} matched before last start
     """
@@ -859,24 +883,49 @@ IOL4#show ip ospf database router
 </group>
 </group>
     """
-    parser = ttp(data=data, template=template, log_level="warning")    
+    parser = ttp(data=data, template=template, log_level="warning")
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [[{'ospf_processes': {'1': {'local_rid': '10.0.0.4',
-                                              'router_lsa': [{'area': '100',
-                                                              'asbr': False,
-                                                              'originator_rid': '10.0.0.4',
-                                                              'ptp_peers': [{'link_data': '10.1.45.2',
-                                                                             'link_id': '10.0.5.101',
-                                                                             'metric': '10'}]},
-                                                             {'area': '100',
-                                                              'asbr': False,
-                                                              'originator_rid': '10.0.5.101',
-                                                              'ptp_peers': [{'link_data': '10.1.45.3',
-                                                                             'link_id': '10.0.0.4',
-                                                                             'metric': '10'}]}]}}}]]
-    
+    assert res == [
+        [
+            {
+                "ospf_processes": {
+                    "1": {
+                        "local_rid": "10.0.0.4",
+                        "router_lsa": [
+                            {
+                                "area": "100",
+                                "asbr": False,
+                                "originator_rid": "10.0.0.4",
+                                "ptp_peers": [
+                                    {
+                                        "link_data": "10.1.45.2",
+                                        "link_id": "10.0.5.101",
+                                        "metric": "10",
+                                    }
+                                ],
+                            },
+                            {
+                                "area": "100",
+                                "asbr": False,
+                                "originator_rid": "10.0.5.101",
+                                "ptp_peers": [
+                                    {
+                                        "link_data": "10.1.45.3",
+                                        "link_id": "10.0.0.4",
+                                        "metric": "10",
+                                    }
+                                ],
+                            },
+                        ],
+                    }
+                }
+            }
+        ]
+    ]
+
+
 # test_group_end_indicator_when_last_start_is_bigger_than_last_end()
 
 
@@ -893,17 +942,18 @@ def test_tabs_and_spaces_mixed_within_line():
 	 Form Factor 		 : {{ form_factor }}
 	 Name                : {{ vendor }}
     """
-    parser1 = ttp(data=data, template=template_as_is, log_level="warning")    
+    parser1 = ttp(data=data, template=template_as_is, log_level="warning")
     parser1.parse()
     res1 = parser1.result()
     pprint.pprint(res1)
-    parser2 = ttp(data=data, template=template_not_as_is, log_level="debug")    
+    parser2 = ttp(data=data, template=template_not_as_is, log_level="debug")
     parser2.parse()
     res2 = parser2.result()
     pprint.pprint(res2)
-    
-    assert res1 == [[{'form_factor': 'QSFP28', 'vendor': 'FS'}]]
-    assert res2 == [[{'form_factor': 'QSFP28', 'vendor': 'FS'}]]
+
+    assert res1 == [[{"form_factor": "QSFP28", "vendor": "FS"}]]
+    assert res2 == [[{"form_factor": "QSFP28", "vendor": "FS"}]]
+
 
 # test_tabs_and_spaces_mixed_within_line()
 
@@ -983,20 +1033,35 @@ interface preconfigure GigabitEthernet0/0/0/0/23
  ipv4 address 10.1.1.253 255.255.255.252
 !
     """
-    parser = ttp(data=data, template=template, log_level="warning")    
+    parser = ttp(data=data, template=template, log_level="warning")
     parser.parse()
     res = parser.result()
     # pprint.pprint(res)
-    assert res == [{'ROUTER1234': {'interfaces': {'GigabitEthernet0/0/0/23': {'ip_addresses': [{'ip': '10.1.1.253',
-                                                                                                'netmask': '30',
-                                                                                                'network': '10.1.1.252/30'}],
-                                                                              'port_description': 'GigabitEthernet0/0/0/23 '
-                                                                                                  'description',
-                                                                              'vrf': 'IPRAN-MGMT'},
-                                                  'HundredGigE0/0/1/0': {'port_description': 'Hu0/0/1/0 '
-                                                                                             'interface '
-                                                                                             'description'},
-                                                  'HundredGigE0/0/2/0': {'port_description': 'Hu0/0/2/0 '
-                                                                                             'interface '
-                                                                                             'description'}}}}]
+    assert res == [
+        {
+            "ROUTER1234": {
+                "interfaces": {
+                    "GigabitEthernet0/0/0/23": {
+                        "ip_addresses": [
+                            {
+                                "ip": "10.1.1.253",
+                                "netmask": "30",
+                                "network": "10.1.1.252/30",
+                            }
+                        ],
+                        "port_description": "GigabitEthernet0/0/0/23 " "description",
+                        "vrf": "IPRAN-MGMT",
+                    },
+                    "HundredGigE0/0/1/0": {
+                        "port_description": "Hu0/0/1/0 " "interface " "description"
+                    },
+                    "HundredGigE0/0/2/0": {
+                        "port_description": "Hu0/0/2/0 " "interface " "description"
+                    },
+                }
+            }
+        }
+    ]
+
+
 # test_inner_group_strange_parsing_results()

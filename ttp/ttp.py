@@ -2130,7 +2130,9 @@ class _variable_class:
             if string_before_var:
                 string_before_var = re.escape(string_before_var)
                 if not "_exact_space_" in self.LINE:
-                    string_before_var = re.sub(r"(\\ |\\\t)+", r"[ \\t]+", string_before_var)
+                    string_before_var = re.sub(
+                        r"(\\ |\\\t)+", r"[ \\t]+", string_before_var
+                    )
                     # prior to 0.8.0 variant that only accounts for spaces
                     # string_before_var = re.sub(r"(\\ )+", r"\\ +", string_before_var)
                 if not "_exact_" in self.LINE:
@@ -2623,7 +2625,7 @@ class _results_class:
         )  # keeps track of started groups to not add false matches
         self.ended_groups = (
             set()
-        ) # keeps track of ended groups to not add false matches or filtered results
+        )  # keeps track of ended groups to not add false matches or filtered results
         self.record = {
             "result": {},
             "PATH": [],
@@ -2684,7 +2686,7 @@ class _results_class:
                             elif self.record["GRP_ID"] and re_["GROUP"].group_id[
                                 0
                             ].startswith(self.record["GRP_ID"][0]):
-                                break                    
+                                break
                     # start RE preferred next
                     elif start_re:
                         for index in start_re:
@@ -2723,10 +2725,10 @@ class _results_class:
                             result_data = result[index][1]
                             # prefer result with same path as current record
                             if re_["GROUP"].group_id == self.record["GRP_ID"]:
-                                break     
-								
+                                break
+
                 group = re_["GROUP"]
-				
+
                 # check if result is false, add group to ended groups if so
                 if result_data == False:
                     self.ended_groups.add(re_["GROUP"].group_id)
@@ -2935,7 +2937,7 @@ class _results_class:
         else:
             if REDICT["GROUP"].group_id not in self.started_groups:
                 self.started_groups.append(REDICT["GROUP"].group_id)
-          
+
         # process recorded group results and save them
         if self.processgrp() != False:
             self.save_curelements(
@@ -2961,7 +2963,7 @@ class _results_class:
         else:
             if REDICT["GROUP"].group_id not in self.started_groups:
                 self.started_groups.append(REDICT["GROUP"].group_id)
-            
+
         # process recorded group results and save them
         if self.processgrp() != False:
             self.save_curelements(

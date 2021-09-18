@@ -4,7 +4,7 @@ sys.path.insert(0, "../..")
 import pprint
 import logging
 import json
-import pytest 
+import pytest
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -541,5 +541,6 @@ interface {{ name }}
     parser = ttp(data=data, template=template)
     with pytest.raises(RuntimeError):
         parser.parse()
+
 
 test_raise()

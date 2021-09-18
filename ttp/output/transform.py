@@ -6,7 +6,7 @@ log = logging.getLogger(__name__)
 def traverse(data, path, strict=True):
     """Method to traverse dictionary data and return element
     at given path.
-    
+
     strict - if True will fail with KeyError if path item not in data
              will return empty dict if fails to find path item in data
     """

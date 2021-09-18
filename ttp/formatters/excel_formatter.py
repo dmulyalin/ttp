@@ -26,12 +26,12 @@ def excel_formatter(data, **kwargs):
         raise SystemExit()
     update = kwargs.get("update")
     url = kwargs.get("url", "./Output/")
-    
+
     # from filename
     filename = kwargs.get("filename")
     if not filename.endswith(".xlsx"):
         filename = "{}.xlsx".format(filename)
-        
+
     # form table_tabs - list of dictionaries
     table_tabs = []
     for index, tab_det in enumerate(table):
@@ -49,12 +49,12 @@ def excel_formatter(data, **kwargs):
             "headers": headers,
             "missing": tab_det.get("missing", ""),
             "key": tab_det.get("key", ""),
-			"strict": tab_det.get("strict", True)
+            "strict": tab_det.get("strict", True),
         }
         # form tab table
         tab_table_data = _ttp_["formatters"]["table"](data, **tab_kwargs)
         table_tabs.append({"name": tab_name, "data": tab_table_data})
-        
+
     # check if need to load existing workbook
     if update and os.path.exists(os.path.join(url, filename)):
         wb = load_workbook(os.path.join(url, filename))
