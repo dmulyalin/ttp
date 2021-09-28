@@ -6160,3 +6160,104 @@ interface {{ interface }} l2transport
 
 
 # test_interface_template_not_collecting_all_data_reduced_2()
+
+def test_issue_61():
+    data = """
+banner motd &
+BANNER MESSAGE line 1
+BANNER MESSAGE line 2
+BANNER MESSAGE line 3
+&
+some
+other staff
+    """
+    template_to_match_marker = "banner motd {{ marker }}"
+    template_to_parse_banner = """
+<group name="motd">
+banner motd {{ ignore(banner_marker) }} {{ _start_ }}
+{{ banner_mesage | _line_ | joinmatches("\\n") }}
+{{ ignore(banner_marker) }} {{ _end_ }}
+</group>
+    """
+    # extract marker value
+    parser = ttp(data, template_to_match_marker)
+    parser.parse()
+    marker = parser.result()[0][0]["marker"]
+    
+    # parse banner
+    parser = ttp(data, template_to_parse_banner, vars={"banner_marker": marker})    
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'motd': {'banner_mesage': 'BANNER MESSAGE line 1\n'
+                                               'BANNER MESSAGE line 2\n'
+                                               'BANNER MESSAGE line 3'}}]]
+                                               
+# test_issue_61()
+
+def test_fortigate_intf_parsing():
+    template = """
+<group name="interfaces">
+config system interface {{ _start_ }}
+    <group name="/interfaces*">
+    edit "{{ interface }}"
+        set allowaccess {{ allowaccess }}
+        set description "{{ description }}"
+        set interface "{{ phy_interface }}"
+        set snmp-index {{ snmp_index }}
+        set type {{ fgt_int_type }}
+        set vdom "{{ vdom }}"
+        set vlanid {{ vlan }}
+    next {{ _end_ }}
+    </group>
+end {{ _end_ }}
+</group>
+    """
+    data = """
+config system np6
+    edit "np6_0"
+    next
+end
+config system interface
+    edit "mgmt1"
+        set vdom "root"
+        set ip 10.10.10.1 255.255.255.248
+        set allowaccess ping
+        set type physical
+        set description "mgmt1"
+        set snmp-index 1
+    next
+    edit "port1"
+        set vdom "internal"
+        set ip 20.20.20.1 255.255.255.248
+        set allowaccess ping
+        set type physical
+        set snmp-index 2
+    next
+end
+config system custom-language
+    edit "en"
+        set filename "en"
+    next
+    edit "fr"
+        set filename "fr"
+    next
+end    
+    """
+    parser = ttp(data, template)    
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'interfaces': [{'allowaccess': 'ping',
+                                     'description': 'mgmt1',
+                                     'fgt_int_type': 'physical',
+                                     'interface': 'mgmt1',
+                                     'snmp_index': '1',
+                                     'vdom': 'root'},
+                                    {'allowaccess': 'ping',
+                                     'fgt_int_type': 'physical',
+                                     'interface': 'port1',
+                                     'snmp_index': '2',
+                                     'vdom': 'internal'}]}]]
+                                     
+# test_fortigate_intf_parsing()

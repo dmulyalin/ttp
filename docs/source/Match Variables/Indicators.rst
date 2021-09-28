@@ -364,9 +364,14 @@ Results::
     
 _headers_
 ------------------------------------------------------------------------------
-``head1  head2 ... headN {{ _headers_ }}``
+``head1  head2 ... headN {{ _headers_ }}`` or ``head1  head2 ... headN {{ _headers_ | columns(5) }}``
 
 This indicator uses headers line to dynamically form regular expression to parse fixed-width, one-line text tables.
+
+Starting with TTP 0.8.1 ``columns`` attribute added to ``_headers_`` indicator. ``columns`` attribute
+takes single digit as an argument to represent the number of mandatory columns to match by ``_headers_``.
+
+Default ``columns`` attribute value is number of headers minus 2 i.e. ``len(headers) - 2``
 
 Column width calculated based on header items length, variables names dynamically formed out of header items. As a result there are a number of restrictions:
 
@@ -375,8 +380,8 @@ Column width calculated based on header items length, variables names dynamicall
 * header items must be left-aligned to indicate beginning of the column
 * header items cannot contain spaces, replace them with underscore
 * header items must be valid Python identifies to form variables names
-* match variable functions not supported for header items, instead, group functions and macro can be used for processing
-* last column can be empty, but last column and next to the last column cannot be empty simultaneously, otherwise row not matched
+* match variable functions not supported for header items, instead, group functions can be used for processing
+* by default, last column can be empty and next to the last column is optional, this can be adjusted using ``columns`` attribute
 
 How column width calculated::
 
@@ -386,7 +391,12 @@ How column width calculated::
     <--------><-----------------><-----------><---------><------><----><-infinite->
         C1            C2              C3           C4       C5     C6       C7
         
-Where C1 - C7 columns and <---> is a column width formalized in ``.{x,y}`` regex. Column C7 width is a ``.*`` regex.
+Assuming ``columns`` attribute value is 5 this regex set formed:
+
+* C1 - C4 mandatory columns width represented by ``.{x}`` regex, where ``x`` is columns width ``<---->`` value
+* C5 mandatory represented by ``.{1, x}`` regex, where ``x`` is columns width ``<---->`` value
+* C6 optional column represented by ``.{0, x}`` regex, where ``x`` is columns width ``<---->`` value
+* last optional column C7 represented by ``.*`` regex
 
 **Example-1**
 
@@ -468,3 +478,61 @@ Result::
        'Next_Hop': '12.123.12.1',
        'Path': '65000 ?',
        'Weight': '0'}]]]
+       
+Example-3 
+
+This example demonstrates how to use ``columns`` attribute. Below text data has 7 distinctive columns, meaning we can adjust ``columns`` attribute value from 1 to 7 depending on results we need to produce.
+
+Data::
+
+    Port      Name               Status       Vlan       Duplex  Speed Type
+    Gi0/1
+    Gi0/2     PIT-VDU212
+    Gi0/3     PIT-VDU212         notconnect
+    Gi0/4     PIT-VDU212         notconnect   18
+    Gi0/5     PIT-VDU212         notconnect   18         auto
+    Gi0/6     PIT-VDU212         notconnect   18         auto    auto
+    Gi0/7     PIT-VDU212         notconnect   18         auto    auto  10/100/1000BaseTX
+    
+Template::
+
+    <group name="columns_7">
+    Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(7) }}
+    </group> 
+
+    <group name="columns_6">
+    Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(6) }}
+    </group>   
+    
+    <group name="columns_5">
+    Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(5) }}
+    </group>   
+    
+    <group name="columns_4">
+    Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(4) }}
+    </group>   
+    
+    <group name="columns_3">
+    Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(3) }}
+    </group> 
+    
+Result::
+
+    [[{'columns_3': [{'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/3', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': ''},
+                     {'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/4', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+       'columns_4': [{'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/4', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+       'columns_5': [{'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/5', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+       'columns_6': [{'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
+                     {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
+       'columns_7': {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}}]]
+	   
+The less the value of ``columns`` attribute the more lines with optional/empty columns will be matched, the higher the value 
+the stricter ``_headers_`` regex is, producing less matches with empty columns.
