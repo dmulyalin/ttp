@@ -898,3 +898,66 @@ Port      Name               Status       Vlan       Duplex  Speed Type   {{ _he
 
 
 # test_headers_with_column()
+
+def test_headers_on_tabular_output():
+    data = """
+
+Partition Name   L3V  Index  Max. Aflex  Admin Count
+----------------------------------------------------
+sivr_icm         No   1      32          0
+ent_mgmt         No   2      32          0
+Cloud            No   3  *   32          0
+lync             No   4      32          0
+sap              No   5      32          0
+config_mgmts     No   6      32          0
+Uprising         No   7      32          0
+ERC_MGMT         No   8      32          0
+sc_sw_ctrl       No   9      32          0
+cust_hub         No   10     32          0
+A10-CIS          No   11     32          0
+SAP_Dev_Admin    No   12 *   32          0
+sentry_ext       No   13     32          0
+web_ecom_srvs    No   14     32          0
+dir_sec_svc      No   15     32          0
+eng_ops          No   16     32          0
+mw_mgmt          No   17     32          0
+oracle_db_adm    No   18     32          0
+idm_mgmt         No   19     32          0
+info_mgmt        No   20 *   32          0
+sa_ops_natapps   No   21     32          0
+eng_supt         No   37 *   32          0
+retail_apps      No   128    32          0    
+    """
+    template = """
+Partition_Name   L3V  Index  Max__Aflex  Admin_Count {{ _headers_ }}
+    """
+    parser = ttp(data=data, template=template, log_level="ERROR")
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res, width=170)
+    assert res == [[[{'Admin_Count': '-----------', 'Index': '-------', 'L3V': '-----', 'Max__Aflex': '------------', 'Partition_Name': '-----------------'},
+                     {'Admin_Count': '0', 'Index': '1', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'sivr_icm'},
+                     {'Admin_Count': '0', 'Index': '2', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'ent_mgmt'},
+                     {'Admin_Count': '0', 'Index': '3  *', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'Cloud'},
+                     {'Admin_Count': '0', 'Index': '4', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'lync'},
+                     {'Admin_Count': '0', 'Index': '5', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'sap'},
+                     {'Admin_Count': '0', 'Index': '6', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'config_mgmts'},
+                     {'Admin_Count': '0', 'Index': '7', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'Uprising'},
+                     {'Admin_Count': '0', 'Index': '8', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'ERC_MGMT'},
+                     {'Admin_Count': '0', 'Index': '9', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'sc_sw_ctrl'},
+                     {'Admin_Count': '0', 'Index': '10', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'cust_hub'},
+                     {'Admin_Count': '0', 'Index': '11', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'A10-CIS'},
+                     {'Admin_Count': '0', 'Index': '12 *', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'SAP_Dev_Admin'},
+                     {'Admin_Count': '0', 'Index': '13', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'sentry_ext'},
+                     {'Admin_Count': '0', 'Index': '14', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'web_ecom_srvs'},
+                     {'Admin_Count': '0', 'Index': '15', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'dir_sec_svc'},
+                     {'Admin_Count': '0', 'Index': '16', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'eng_ops'},
+                     {'Admin_Count': '0', 'Index': '17', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'mw_mgmt'},
+                     {'Admin_Count': '0', 'Index': '18', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'oracle_db_adm'},
+                     {'Admin_Count': '0', 'Index': '19', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'idm_mgmt'},
+                     {'Admin_Count': '0', 'Index': '20 *', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'info_mgmt'},
+                     {'Admin_Count': '0', 'Index': '21', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'sa_ops_natapps'},
+                     {'Admin_Count': '0', 'Index': '37 *', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'eng_supt'},
+                     {'Admin_Count': '0', 'Index': '128', 'L3V': 'No', 'Max__Aflex': '32', 'Partition_Name': 'retail_apps'}]]]
+    
+# test_headers_on_tabular_output()
