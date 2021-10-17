@@ -1646,7 +1646,7 @@ class _group_class:
             self.path = ["_anonymous_*"] if self.top else self.path
             self.name = ".".join(self.path)
             self.group_id = (
-                self.name,
+                self.name + "._anonymous_",
                 self.grp_index,
             )
 

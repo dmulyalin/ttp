@@ -6119,6 +6119,9 @@ def test_interface_template_not_collecting_all_data_reduced_2():
 
     IDEA: try to implement automatic end of group tracking, to add pevious
     groups to self.ended_groups if next, different group starts.
+    
+    Current solution to this problem would be to use _end_ to explicitly 
+    indicate end of group
     """
     data = """
 interface TenGigE0/0/0/5
@@ -6261,3 +6264,292 @@ end
                                      'vdom': 'internal'}]}]]
                                      
 # test_fortigate_intf_parsing()
+
+
+def test_issue_57_one_more():
+    """
+    Without _anonymous_ group groups id formation bug fix 
+    below template/data were producitng this result:
+[[{'portchannel': {'1': {'local_members': [{}],
+                         'remote_members': [{'flag': '{EF}',
+                                             'interface': 'GE6/0/1',
+                                             'mac': '0000-0000-0000',
+                                             'oper_key': '0',
+                                             'priority': '32768',
+                                             'status': '0',
+                                             'sys_id': '0x8000'},
+                                            {'flag': '{EF}',
+                                             'interface': 'GE6/0/2',
+                                             'mac': '0000-0000-0000',
+                                             'oper_key': '0',
+                                             'priority': '32768',
+                                             'status': '0',
+                                             'sys_id': '0x8000'}]},
+                   '2': {'local_members': [{}],
+                         'remote_members': [{'flag': '{EF}',
+                                             'interface': 'GE6/0/3',
+                                             'mac': '0000-0000-0000',
+                                             'oper_key': '0',
+                                             'priority': '32768',
+                                             'status': '0',
+                                             'sys_id': '0x8000'},
+                                            {'flag': '{EF}',
+                                             'interface': 'GE6/0/4',
+                                             'mac': '0000-0000-0000',
+                                             'oper_key': '0',
+                                             'priority': '32768',
+                                             'status': '0',
+                                             'sys_id': '0x8000'}]}}}]]
+    Further debugging revelead the flaw in results selection logic,
+    due to exclude("Port") statemets group was invalidated and anonymous group_id
+    was same as parent group_id resulting in new anonymous group matches were not 
+    able to restart the group, fixed by changing the way how anonymous group id formed.
+    
+    Before fix:
+
+    self.ended_groups:  set()
+    re_["GROUP"].group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+    re_["GROUP"].parent_group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+    
+    self.ended_groups:  {('portchannel.{{channel_number}}.local_members*', 0)}
+    re_["GROUP"].group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+    re_["GROUP"].parent_group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+    
+    self.ended_groups:  {('portchannel.{{channel_number}}.local_members*', 0)}
+    re_["GROUP"].group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+    re_["GROUP"].parent_group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+
+    After fix:
+
+    self.ended_groups:  set()
+    re_["GROUP"].group_id:  ('portchannel.{{channel_number}}.local_members*._anonymous_', 0)
+    re_["GROUP"].parent_group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+    
+    self.ended_groups:  {('portchannel.{{channel_number}}.local_members*._anonymous_', 0)}
+    re_["GROUP"].group_id:  ('portchannel.{{channel_number}}.local_members*._anonymous_', 0)
+    re_["GROUP"].parent_group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+    
+    self.ended_groups:  set()
+    re_["GROUP"].group_id:  ('portchannel.{{channel_number}}.local_members*._anonymous_', 0)
+    re_["GROUP"].parent_group_id:  ('portchannel.{{channel_number}}.local_members*', 0)
+    """
+    data = """
+Loadsharing Type: Shar -- Loadsharing, NonS -- Non-Loadsharing
+Port Status: S -- Selected, U -- Unselected,
+             I -- Individual, * -- Management port
+Flags:  A -- LACP_Activity, B -- LACP_Timeout, C -- Aggregation,
+        D -- Synchronization, E -- Collecting, F -- Distributing,
+        G -- Defaulted, H -- Expired
+
+Aggregate Interface: Bridge-Aggregation1
+Aggregation Mode: Dynamic
+Loadsharing Type: Shar
+Management VLAN : None
+System ID: 0x8000, d07e-28b5-a200
+Local:
+  Port             Status  Priority Oper-Key  Flag
+--------------------------------------------------------------------------------
+  GE6/0/1          U       32768    1         {ACG}
+  GE6/0/2          U       32768    1         {ACG}
+Remote:
+  Actor            Partner Priority Oper-Key  SystemID               Flag
+--------------------------------------------------------------------------------
+  GE6/0/1          0       32768    0         0x8000, 0000-0000-0000 {EF}
+  GE6/0/2          0       32768    0         0x8000, 0000-0000-0000 {EF}
+
+Aggregate Interface: Bridge-Aggregation2
+Aggregation Mode: Dynamic
+Loadsharing Type: Shar
+Management VLAN : None
+System ID: 0x8000, d07e-28b5-a200
+Local:
+  Port             Status  Priority Oper-Key  Flag
+--------------------------------------------------------------------------------
+  GE6/0/3          U       32768    2         {ACG}
+  GE6/0/4          U       32768    2         {ACG}
+Remote:
+  Actor            Partner Priority Oper-Key  SystemID               Flag
+--------------------------------------------------------------------------------
+  GE6/0/3          0       32768    0         0x8000, 0000-0000-0000 {EF}
+  GE6/0/4          0       32768    0         0x8000, 0000-0000-0000 {EF}
+    """
+    template = """
+<group name = "portchannel.{{channel_number}}">
+Aggregate Interface: Bridge-Aggregation{{ channel_number}}
+
+<group name = "local_members*" void="">
+Local: {{_start_}}
+  <group>
+  {{interface  | exclude("Port") }} {{status}} {{priority}} {{oper_key }} {{flag}}
+  </group>
+</group>
+
+<group name = "remote_members*">
+  {{interface }} {{status}} {{priority}} {{oper_key}} {{sys_id}}, {{ mac | MAC }} {{flag}}
+</group>
+
+</group>
+    """
+    parser = ttp(data, template)    
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'portchannel': {'1': {'local_members': [{'flag': '{ACG}',
+                                                              'interface': 'GE6/0/1',
+                                                              'oper_key': '1',
+                                                              'priority': '32768',
+                                                              'status': 'U'},
+                                                             {'flag': '{ACG}',
+                                                              'interface': 'GE6/0/2',
+                                                              'oper_key': '1',
+                                                              'priority': '32768',
+                                                              'status': 'U'}],
+                                           'remote_members': [{'flag': '{EF}',
+                                                               'interface': 'GE6/0/1',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'},
+                                                              {'flag': '{EF}',
+                                                               'interface': 'GE6/0/2',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'}]},
+                                     '2': {'local_members': [{'flag': '{ACG}',
+                                                              'interface': 'GE6/0/3',
+                                                              'oper_key': '2',
+                                                              'priority': '32768',
+                                                              'status': 'U'},
+                                                             {'flag': '{ACG}',
+                                                              'interface': 'GE6/0/4',
+                                                              'oper_key': '2',
+                                                              'priority': '32768',
+                                                              'status': 'U'}],
+                                           'remote_members': [{'flag': '{EF}',
+                                                               'interface': 'GE6/0/3',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'},
+                                                              {'flag': '{EF}',
+                                                               'interface': 'GE6/0/4',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'}]}}}]]
+# test_issue_57_one_more()
+
+
+def test_issue_57_one_more_answer():
+    data = """
+Loadsharing Type: Shar -- Loadsharing, NonS -- Non-Loadsharing
+Port Status: S -- Selected, U -- Unselected,
+             I -- Individual, * -- Management port
+Flags:  A -- LACP_Activity, B -- LACP_Timeout, C -- Aggregation,
+        D -- Synchronization, E -- Collecting, F -- Distributing,
+        G -- Defaulted, H -- Expired
+
+Aggregate Interface: Bridge-Aggregation1
+Aggregation Mode: Dynamic
+Loadsharing Type: Shar
+Management VLAN : None
+System ID: 0x8000, d07e-28b5-a200
+Local:
+  Port             Status  Priority Oper-Key  Flag
+--------------------------------------------------------------------------------
+  GE6/0/1          U       32768    1         {ACG}
+  GE6/0/2          U       32768    1         {ACG}
+Remote:
+  Actor            Partner Priority Oper-Key  SystemID               Flag
+--------------------------------------------------------------------------------
+  GE6/0/1          0       32768    0         0x8000, 0000-0000-0000 {EF}
+  GE6/0/2          0       32768    0         0x8000, 0000-0000-0000 {EF}
+
+Aggregate Interface: Bridge-Aggregation2
+Aggregation Mode: Dynamic
+Loadsharing Type: Shar
+Management VLAN : None
+System ID: 0x8000, d07e-28b5-a200
+Local:
+  Port             Status  Priority Oper-Key  Flag
+--------------------------------------------------------------------------------
+  GE6/0/3          U       32768    2         {ACG}
+  GE6/0/4          U       32768    2         {ACG}
+Remote:
+  Actor            Partner Priority Oper-Key  SystemID               Flag
+--------------------------------------------------------------------------------
+  GE6/0/3          0       32768    0         0x8000, 0000-0000-0000 {EF}
+  GE6/0/4          0       32768    0         0x8000, 0000-0000-0000 {EF}
+    """
+    template = """
+<group name = "portchannel.{{channel_number}}">
+Aggregate Interface: Bridge-Aggregation{{ channel_number}}
+
+<group name = "local_members*">
+  {{interface}} {{status}} {{priority | DIGIT}} {{oper_key | DIGIT}} {{flag}}
+</group>
+
+<group name = "remote_members*">
+  {{interface}} {{status}} {{priority | DIGIT}} {{oper_key | DIGIT}} {{sys_id}}, {{ mac | MAC }} {{flag}}
+</group>
+
+</group>
+    """
+    parser = ttp(data, template)    
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'portchannel': {'1': {'local_members': [{'flag': '{ACG}',
+                                                              'interface': 'GE6/0/1',
+                                                              'oper_key': '1',
+                                                              'priority': '32768',
+                                                              'status': 'U'},
+                                                             {'flag': '{ACG}',
+                                                              'interface': 'GE6/0/2',
+                                                              'oper_key': '1',
+                                                              'priority': '32768',
+                                                              'status': 'U'}],
+                                           'remote_members': [{'flag': '{EF}',
+                                                               'interface': 'GE6/0/1',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'},
+                                                              {'flag': '{EF}',
+                                                               'interface': 'GE6/0/2',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'}]},
+                                     '2': {'local_members': [{'flag': '{ACG}',
+                                                              'interface': 'GE6/0/3',
+                                                              'oper_key': '2',
+                                                              'priority': '32768',
+                                                              'status': 'U'},
+                                                             {'flag': '{ACG}',
+                                                              'interface': 'GE6/0/4',
+                                                              'oper_key': '2',
+                                                              'priority': '32768',
+                                                              'status': 'U'}],
+                                           'remote_members': [{'flag': '{EF}',
+                                                               'interface': 'GE6/0/3',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'},
+                                                              {'flag': '{EF}',
+                                                               'interface': 'GE6/0/4',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'}]}}}]]
+# test_issue_57_one_more_answer()
