@@ -6553,3 +6553,182 @@ Aggregate Interface: Bridge-Aggregation{{ channel_number}}
                                                                'status': '0',
                                                                'sys_id': '0x8000'}]}}}]]
 # test_issue_57_one_more_answer()
+
+
+def test_issue_57_one_more_empty_dict_in_res():
+    """
+    Without fix this results produced:
+    
+[[{'portchannel': {'1': {'local_members': [{},
+                                           {'flag': '{ACG}',
+                                            'interface': 'GE6/0/1',
+                                            'oper_key': '1',
+                                            'priority': '32768',
+                                            'status': 'U'},
+                                           {'flag': '{ACG}',
+                                            'interface': 'GE6/0/2',
+                                            'oper_key': '1',
+                                            'priority': '32768',
+                                            'status': 'U'}],
+                         'remote_members': [{},
+                                            {'flag': '{EF}',
+                                             'interface': 'GE6/0/1',
+                                             'mac': '0000-0000-0000',
+                                             'oper_key': '0',
+                                             'priority': '32768',
+                                             'status': '0',
+                                             'sys_id': '0x8000'},
+                                            {'flag': '{EF}',
+                                             'interface': 'GE6/0/2',
+                                             'mac': '0000-0000-0000',
+                                             'oper_key': '0',
+                                             'priority': '32768',
+                                             'status': '0',
+                                             'sys_id': '0x8000'}]},
+                   '2': {'local_members': [{},
+                                           {'flag': '{ACG}',
+                                            'interface': 'GE6/0/3',
+                                            'oper_key': '2',
+                                            'priority': '32768',
+                                            'status': 'U'},
+                                           {'flag': '{ACG}',
+                                            'interface': 'GE6/0/4',
+                                            'oper_key': '2',
+                                            'priority': '32768',
+                                            'status': 'U'}],
+                         'remote_members': [{},
+                                            {'flag': '{EF}',
+                                             'interface': 'GE6/0/3',
+                                             'mac': '0000-0000-0000',
+                                             'oper_key': '0',
+                                             'priority': '32768',
+                                             'status': '0',
+                                             'sys_id': '0x8000'},
+                                            {'flag': '{EF}',
+                                             'interface': 'GE6/0/4',
+                                             'mac': '0000-0000-0000',
+                                             'oper_key': '0',
+                                             'priority': '32768',
+                                             'status': '0',
+                                             'sys_id': '0x8000'}]}}}]]
+                                             
+    Above results contain empty dictionary list item, this is because 
+    local_members* and remote_members* use * to indicate list item
+    as a result self.dict_by_path was returning E as a list element,
+    and results were appended to that element, but results are empty dictionary,
+    update saving logic to check if results are empty and skip appending them 
+    if so.
+    """
+    data = """
+Loadsharing Type: Shar -- Loadsharing, NonS -- Non-Loadsharing
+Port Status: S -- Selected, U -- Unselected,
+             I -- Individual, * -- Management port
+Flags:  A -- LACP_Activity, B -- LACP_Timeout, C -- Aggregation,
+        D -- Synchronization, E -- Collecting, F -- Distributing,
+        G -- Defaulted, H -- Expired
+
+Aggregate Interface: Bridge-Aggregation1
+Aggregation Mode: Dynamic
+Loadsharing Type: Shar
+Management VLAN : None
+System ID: 0x8000, d07e-28b5-a200
+Local:
+  Port             Status  Priority Oper-Key  Flag
+--------------------------------------------------------------------------------
+  GE6/0/1          U       32768    1         {ACG}
+  GE6/0/2          U       32768    1         {ACG}
+Remote:
+  Actor            Partner Priority Oper-Key  SystemID               Flag
+--------------------------------------------------------------------------------
+  GE6/0/1          0       32768    0         0x8000, 0000-0000-0000 {EF}
+  GE6/0/2          0       32768    0         0x8000, 0000-0000-0000 {EF}
+
+Aggregate Interface: Bridge-Aggregation2
+Aggregation Mode: Dynamic
+Loadsharing Type: Shar
+Management VLAN : None
+System ID: 0x8000, d07e-28b5-a200
+Local:
+  Port             Status  Priority Oper-Key  Flag
+--------------------------------------------------------------------------------
+  GE6/0/3          U       32768    2         {ACG}
+  GE6/0/4          U       32768    2         {ACG}
+Remote:
+  Actor            Partner Priority Oper-Key  SystemID               Flag
+--------------------------------------------------------------------------------
+  GE6/0/3          0       32768    0         0x8000, 0000-0000-0000 {EF}
+  GE6/0/4          0       32768    0         0x8000, 0000-0000-0000 {EF}
+    """
+    template = """
+<group name = "portchannel.{{channel_number}}">
+Aggregate Interface: Bridge-Aggregation{{ channel_number}}
+
+<group name = "local_members*">
+Local: {{_start_}}
+  <group>
+  {{interface }} {{status}} {{priority}} {{oper_key | DIGIT }} {{flag}}
+  </group>
+</group>
+
+<group name = "remote_members*">
+Remote: {{_start_}}
+  <group>
+  {{interface }} {{status}} {{priority}} {{oper_key}} {{sys_id}}, {{ mac | MAC }} {{flag}}
+  </group>
+</group>
+
+</group>
+    """
+    parser = ttp(data, template)    
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'portchannel': {'1': {'local_members': [{'flag': '{ACG}',
+                                                              'interface': 'GE6/0/1',
+                                                              'oper_key': '1',
+                                                              'priority': '32768',
+                                                              'status': 'U'},
+                                                             {'flag': '{ACG}',
+                                                              'interface': 'GE6/0/2',
+                                                              'oper_key': '1',
+                                                              'priority': '32768',
+                                                              'status': 'U'}],
+                                           'remote_members': [{'flag': '{EF}',
+                                                               'interface': 'GE6/0/1',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'},
+                                                              {'flag': '{EF}',
+                                                               'interface': 'GE6/0/2',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'}]},
+                                     '2': {'local_members': [{'flag': '{ACG}',
+                                                              'interface': 'GE6/0/3',
+                                                              'oper_key': '2',
+                                                              'priority': '32768',
+                                                              'status': 'U'},
+                                                             {'flag': '{ACG}',
+                                                              'interface': 'GE6/0/4',
+                                                              'oper_key': '2',
+                                                              'priority': '32768',
+                                                              'status': 'U'}],
+                                           'remote_members': [{'flag': '{EF}',
+                                                               'interface': 'GE6/0/3',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'},
+                                                              {'flag': '{EF}',
+                                                               'interface': 'GE6/0/4',
+                                                               'mac': '0000-0000-0000',
+                                                               'oper_key': '0',
+                                                               'priority': '32768',
+                                                               'status': '0',
+                                                               'sys_id': '0x8000'}]}}}]]
+# test_issue_57_one_more_empty_dict_in_res()

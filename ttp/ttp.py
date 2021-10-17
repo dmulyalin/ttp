@@ -2932,7 +2932,7 @@ class _results_class:
         """Method to save current group results in self.results"""
         # get ELEMENT from self.results by result_path
         E = self.dict_by_path(PATH=result_path, ELEMENT=self.results)
-        if isinstance(E, list):
+        if isinstance(E, list) and result_data:
             E.append(result_data)
         elif isinstance(E, dict):
             # check if result_path endswith "**" - update result's ELEMENET without converting it into list:
