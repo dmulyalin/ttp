@@ -6732,3 +6732,66 @@ Remote: {{_start_}}
                                                                'status': '0',
                                                                'sys_id': '0x8000'}]}}}]]
 # test_issue_57_one_more_empty_dict_in_res()
+
+
+def test_issue_62():
+    data = """
+security:
+	received (in 351815.564 secs):
+		220203204 packets	14522703007 bytes
+		3 pkts/sec	41010 bytes/sec
+	transmitted (in 351815 secs):
+		0 packets	0 bytes
+		0 pkts/sec	0 bytes/sec
+	"""
+    template = """
+<group name = '{{ nameif }}'>
+{{ nameif | ORPHRASE }}:
+{{ ignore('\s+') }}received{{ ignore('.*') }}
+{{ ignore('\s+') }}{{ rpps | DIGIT }} pkts/sec{{ ignore('.*') }}
+{{ ignore('\s+') }}trasmitted{{ ignore('.*') }}
+{{ ignore('\s+') }}{{ tpps | DIGIT }} pkts/sec{{ ignore('.*') }}
+</group>
+	"""
+    parser = ttp(data, template)    
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+	
+    assert res == [[{'security': {'rpps': '3'}}]]
+# test_issue_62()
+
+
+def test_issue_62_fix():
+    data = """
+security:
+	received (in 351815.564 secs):
+		220203204 packets	14522703007 bytes
+		3 pkts/sec	41010 bytes/sec
+	transmitted (in 351815 secs):
+		0 packets	0 bytes
+		0 pkts/sec	0 bytes/sec
+	"""
+    template = """
+<group name = '{{ nameif }}'>
+{{ nameif | ORPHRASE }}:
+
+<group name="rx">
+	received (in {{ ignore }} secs): {{ _start_ }}
+		{{ rpps }} pkts/sec	41010 bytes/sec
+</group>
+
+<group name="tx">
+	transmitted (in {{ ignore }} secs): {{ _start_ }}
+		{{ tpps }} pkts/sec	0 bytes/sec
+</group>
+
+</group>
+	"""
+    parser = ttp(data, template)    
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'security': {'rx': {'rpps': '3'}, 'tx': {'tpps': '0'}}}]]
+
+# test_issue_62_fix()
