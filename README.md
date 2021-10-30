@@ -183,3 +183,10 @@ parser.parse()
 
 # Contributions
 Feel free to submit an issue, report a bug or ask a question, feature requests are welcomed. Or [buy](https://paypal.me/dmulyalin) Author a coffee
+
+# Additional resources
+
+List of additional resources:
+
+- Sandbox to test TTP templates - http://textfsm.nornir.tech/ by [tbotnz](https://github.com/tbotnz)
+- Videos on TTP - https://pynet.twb-tech.com/videos/ttp/ttp.html by [Kirk Byers](https://github.com/ktbyers)
