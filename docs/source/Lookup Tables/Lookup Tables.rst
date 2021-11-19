@@ -18,7 +18,7 @@ Lookups tag allows to define a lookup table that will be transformed into lookup
    * - `key`_   
      - If csv loader used, *key* specifies column name to use as a key
    * - `database`_   
-     - Name of database loader touse to load lookup data
+     - Name of database loader to use to load lookup data
 	 
 name
 ------------------------------------------------------------------------------
