@@ -21,15 +21,16 @@ Core Functionality
 
 TTP has a number of systems built into it:
 
-* groups system - help to define results hierarchy and data processing functions with filtering
-* parsing system - uses regular expressions derived out of templates to parse and process data
-* input system - used to define various input data sources, help to retrieve data, prepare it and map to the groups for parsing
-* output system - allows to format parsing results and return them to certain destinations
-* macro - inline Python code that can be used to process results and extend TTP functionality, having access to _ttp_ dictionary containing all groups, match, inputs, outputs functions
-* lookup tables - helps to enrich results with additional information or reference results across different templates or groups to combine them
-* template variables - variables store, accessible during template execution for caching or retrieving values
-* templates tags - to define several independent templates within single file together with results forming mode
-* CLI tool - allows to execute templates directly
-* Lazy loader system - TTP only imports function it uses within the templates, that significantly increases start time
-* Multiprocessing system - controls the spun and data exchange of several Python processes to increase parsing performance
+* Groups system - help to define results hierarchy and data processing functions with filtering
+* Parsing system - uses regular expressions derived out of templates to parse and process data
+* Input system - used to define various input data sources, help to retrieve data, prepare it and map to the groups for parsing
+* Output system - allows to format parsing results and return them to certain destinations
+* Macro - inline Python code that can be used to process results and extend TTP functionality, having access to _ttp_ dictionary containing all groups, match, inputs, outputs functions
+* Lookup tables - helps to enrich results with additional information or reference results across different templates or groups to combine them
+* Template variables - variables store, accessible during template execution for caching or retrieving values
+* Template tags - to define several independent templates within single file together with results forming mode
+* Extend tags - helps to extend template with other templates to facilitate re-use of templates
+* CLI tool - allows to run templates directly from command line
+* Lazy loader system - TTP only imports function it uses within the templates, that significantly decreases start time
+* Multiprocessing system - controls the start and data exchange between several Python processes to increase parsing performance
 * Logging system - helps to troubleshoot and debug TTP
