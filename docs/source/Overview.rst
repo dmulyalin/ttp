@@ -26,7 +26,7 @@ TTP has a number of systems built into it:
 * input system - used to define various input data sources, help to retrieve data, prepare it and map to the groups for parsing
 * output system - allows to format parsing results and return them to certain destinations
 * macro - inline Python code that can be used to process results and extend TTP functionality, having access to _ttp_ dictionary containing all groups, match, inputs, outputs functions
-* lookup tables - helps to enreach results with additional information or reference results across different templates or groups to combine them
+* lookup tables - helps to enrich results with additional information or reference results across different templates or groups to combine them
 * template variables - variables store, accessible during template execution for caching or retrieving values
 * templates tags - to define several independent templates within single file together with results forming mode
 * CLI tool - allows to execute templates directly

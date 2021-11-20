@@ -33,7 +33,8 @@ release = '0.8.1'
 extensions = [
 'sphinx.ext.autodoc',
 'sphinx.ext.napoleon',
-'sphinx.ext.autosectionlabel'
+'sphinx.ext.autosectionlabel',
+'sphinxcontrib.spelling',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

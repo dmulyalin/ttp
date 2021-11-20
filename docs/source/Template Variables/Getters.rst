@@ -38,7 +38,7 @@ Supported prompts are:
 * Huawei such as ``<hostname>``
 * Cisco IOS Exec such as ``hostname>``
 * Cisco IOS XR such as ``RP/0/4/CPU0:hostname#``
-* Cisco IOS Priviledged such as ``hostname#``
+* Cisco IOS Privileged such as ``hostname#``
 * Fortigate such as ``hostname (context) #``
 * Nokia (ALU) SROS such as ``A:hostname>``, ``*A:hostname#`` or ``*A:ALA-12>config#``
 

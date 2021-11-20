@@ -30,9 +30,9 @@ Name of the output, optional attribute, can be used to reference it in groups :r
 
 description
 ******************************************************************************
-``name="descrition_string"``
+``name="desription_string"``
 
-descrition_string, optional string that contains output description or notes, can serve documentation purposes.
+desription_string, optional string that contains output description or notes, can serve documentation purposes.
 
 load
 ******************************************************************************

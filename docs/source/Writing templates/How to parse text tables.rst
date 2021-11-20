@@ -59,7 +59,7 @@ Excluding DIGIT regex formatters will still allow to match all digits but will m
                                       'ip': '10.12.15.6',
                                       'mac': '0950.5C8A.5e43'}]}]]
                                       
-TTP can help parsing text tables data for one more specific usecase, for example this data::
+TTP can help parsing text tables data for one more specific use case, for example this data::
 
     VRF VRF-CUST-1 (VRF Id = 4); default RD 12345:241;
       Old CLI format, supports IPv4 only

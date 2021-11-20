@@ -18,7 +18,7 @@ Lookups tag allows to define a lookup table that will be transformed into lookup
    * - `key`_   
      - If csv loader used, *key* specifies column name to use as a key
    * - `database`_   
-     - Name of database loader touse to load lookup data
+     - Name of database loader to use to load lookup data
 	 
 name
 ------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ Sample template lookup tag to define geoip2 .mmdb files location::
     Country = 'C:/path/to/GeoLite2-Country.mmdb'
     </lookup>
 	
-To correctly load databases TTP expects "City", "ASN", "Country" arguments to be defined within lookup tag data, argument names are not case sensetive, each argument should contain OS patch to respective databse file.
+To correctly load databases TTP expects "City", "ASN", "Country" arguments to be defined within lookup tag data, argument names are not case sensitive, each argument should contain OS patch to respective database file.
 
 Above example contains Python formatted data, but it can be YAML or JSON as well, for instance YAML formatted data::
 

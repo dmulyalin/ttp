@@ -195,9 +195,9 @@ results
 Template results attribute allows to influence the logic used to combine template results, options are:
 
     * per_input - default, allows to combine results on a per input basis. For instance, if we have two text files with data that needs to be parsed, first file will be parsed by a set of groups associated with this template, combining results in a structure, that will be appended to the list of overall template results. Same will happen with next file. As a result, for this particular template two result items will be produced, one for each file. 
-    * per_template - allows to combine results on a per template basis. For instance, if we have two text files with data that needs to be parsed, first file will be parsed by a set of groups associated with this template, combining results in a structure, that structure will be used by TTP to merge with results produced by next file. As a result, for this particular template single results item will be produced, that item will contain merged results for all inputed files/datum.
+    * per_template - allows to combine results on a per template basis. For instance, if we have two text files with data that needs to be parsed, first file will be parsed by a set of groups associated with this template, combining results in a structure, that structure will be used by TTP to merge with results produced by next file. As a result, for this particular template single results item will be produced, that item will contain merged results for all inputs' files/datum.
     
-Main usecase for per_template behavior is to combine results across all the inputs and produce structure that will be more flat and might be easier to work with in certain situations.
+Main use case for per_template behavior is to combine results across all the inputs and produce structure that will be more flat and might be easier to work with in certain situations.
     
 **Example**
 

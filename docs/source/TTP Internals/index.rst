@@ -30,7 +30,7 @@ To handle cases where ``ttp_dict_cache.pickle`` cannot be saved under TTP module
 Sometimes it is good to have name of TTP function to reference python reserved names, for instance ``set`` or ``del``, but, it is against best practices to name your functions with python
 well reserved names. At the same time, TTP does not call function directly but rather reference to function stored in ``_ttp_`` dictionary and that reference got called upon request.
 
-As a result ``_name_map_`` can be defined within .py file to map fuinction names within that file to ``_ttp_`` dictionary keys. 
+As a result ``_name_map_`` can be defined within .py file to map function names within that file to ``_ttp_`` dictionary keys. 
 
 Consider this example ::
 
@@ -199,7 +199,7 @@ All above functions contained within ``.py`` files and spread across respective 
 * ``ttp_object`` - reference to ttp parser object itself
 * ``utils`` - various utilities
 * ``variable`` - template variables getter function
-* ``vars`` - contains in run vaues of template variables - variables defined in ``<vars>`` tag
+* ``vars`` - contains in run values of template variables - variables defined in ``<vars>`` tag
 
 It is also possible to add custom function in ``_ttp_`` dictionary using ``add_function`` method.
 

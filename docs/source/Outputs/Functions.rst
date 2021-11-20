@@ -115,7 +115,7 @@ and key_name="interface", dit_to_list function will return this list::
     [ {"admin": "administratively down", "interface": "Fa0"},
       {"access_vlan": "24", "interface": "Ge0/1"} ]
 
-Primary usecase is to produce list data out of dictionary, this function used internally by table output formatter for that purpose.
+Primary use case is to produce list data out of dictionary, this function used internally by table output formatter for that purpose.
 
 **Example**
 
@@ -324,7 +324,7 @@ deepdiff
 
 This function takes overall parsing results or results for specified input and compares them with data before sourced either from template, another input results or template variable.
 
-Sample usecase. Two folders on hard drive, one folder with data before and second folder with data after changes were done to network devices, TTP can be used to parse this data and run results comparison using deepdiff function, showing the differences between Python structures content, as opposed to comparing text data itself.
+Sample use case. Two folders on hard drive, one folder with data before and second folder with data after changes were done to network devices, TTP can be used to parse this data and run results comparison using deepdiff function, showing the differences between Python structures content, as opposed to comparing text data itself.
 
 Few words about **mode**. In ``bulk`` mode overall ``before`` results compared with overall ``after`` results, in ``iterate`` mode **first** item in results for ``before`` compared (iterated) against each item in results for ``after``.
 

@@ -161,11 +161,11 @@ Notes:
 4. ``exclude("disabled=")`` because of ``ORPHRASE`` false matches could be produced, e.g.: ``{'comment': 'Cambium disabled=yes'...`` - that is due to regular expression behavior, need to filter such results
 5. ``strip('"')`` removes quote character from left and right of the matched string
 
-How to combine multiple matches for the same match varible? 
------------------------------------------------------------
+How to combine multiple matches for the same match variable? 
+------------------------------------------------------------
 
 It is possible to use ``joinmatch`` match variable function to join multiple matches for the same variable. Sample
-usecase could be to combine multiple configuration statements for the same type of parameter under same variable,
+use case could be to combine multiple configuration statements for the same type of parameter under same variable,
 for instance consider example below.
 
 Data::

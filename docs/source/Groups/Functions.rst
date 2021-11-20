@@ -1,5 +1,5 @@
 Functions
-===============
+=========
 
 Group functions can be applied to group results to transform them in a desired way, functions can also be used to validate and filter match results. 
 
@@ -36,7 +36,7 @@ Condition functions help to evaluate group results and return *False* or *True*,
    * - `void`_   
      - invalidates group results, allowing to skip them
    * - `str_to_unicode`_   
-     - converts Python2 str srings in unicode strings
+     - converts Python2 str strings in unicode strings
    * - `equal`_   
      - verifies that key's value is equal to provided value
    * - `to_int`_   
@@ -1054,7 +1054,7 @@ Result::
     
 **Example-2**
 
-In this example, value to check for defined as a variable. This can be useful if veriables need to be set dynamically.
+In this example, value to check for defined as a variable. This can be useful if variables need to be set dynamically.
 
 Template::
 
@@ -1087,7 +1087,7 @@ Results::
         ]
     ]
 
-ip_in_question - name of thevariable from <vars> tag.
+ip_in_question - name of the variable from <vars> tag.
 
 exclude_val
 ------------------------------------------------------------------------------
@@ -1100,7 +1100,7 @@ This function checks if certain key in group results equal to value provided, re
 
 **Example-2**
 
-In this example, value to check for defined as a variable. This can be useful if veriables need to be set dynamically.
+In this example, value to check for defined as a variable. This can be useful if variables need to be set dynamically.
 
 Template::
 
@@ -1577,7 +1577,7 @@ validate
 
 **Prerequisites** `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
 
-Function to add validation results produced by Cerberus library to parsing results. Primary usecase - compliance validation and testing.
+Function to add validation results produced by Cerberus library to parsing results. Primary use case - compliance validation and testing.
 
 **Supported parameters**
 
@@ -1588,7 +1588,7 @@ Function to add validation results produced by Cerberus library to parsing resul
 
 **Example**
 
-Consider simple usecase - put table together with checks that interfaces have description defined
+Consider simple use case - put table together with checks that interfaces have description defined
 
 Template::
 

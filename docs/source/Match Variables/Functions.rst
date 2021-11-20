@@ -1507,12 +1507,12 @@ geoip_lookup
 ------------------------------------------------------------------------------
 ``{{ name | geoip_lookup(db_name, add_field) }}``
 
-* db_name - Name of the input that contains GeoIP2 database OS absolute path, supporteddatabases are ASN, Country or City
+* db_name - Name of the input that contains GeoIP2 database OS absolute path, supported databases are ASN, Country or City
 * add_field - default is "geoip_lookup", can be set to string that will indicate name of new field to use for lookup results
 
-geoip_lookup function use GeoIP2 databases to create Python geoip2 module lookup objects that can be used to enreach results output with information about BGP ASN, Country or City associated with given IP address. db_name reference to lookup tag name with database type separated by dot, such as `lookup_tag_name.database_name`, reference :ref:`Lookup Tables/Lookup Tables:geoip2 database` on how to properly structure lookup tag.
+geoip_lookup function use GeoIP2 databases to create Python geoip2 module lookup objects that can be used to enrich results output with information about BGP ASN, Country or City associated with given IP address. db_name reference to lookup tag name with database type separated by dot, such as `lookup_tag_name.database_name`, reference :ref:`Lookup Tables/Lookup Tables:geoip2 database` on how to properly structure lookup tag.
 
-This function need valid IPv4 orIPv6 address as an input to perfrom lookup against.
+This function need valid IPv4 or IPv6 address as an input to perform lookup against.
 
 **Prerequisites**
 
@@ -2198,7 +2198,9 @@ cidr_match
 
 * ``prefix`` - IPv4 or IPv6 prefix string, for instance '10.0.0.0/16' or name of <vars> tag variable.
 
-This function allows to convert provided prefix in ipaddress IPNetwork object and convert match_result into IPInterface object, after that, cidr_match will run *overlaps* check to see if provided prefix and match result ip address overlapping, returning Trueif so and False otherwise, allowing to filter match results based on that.
+This function allows to convert provided prefix in ipaddress IPNetwork object and convert match_result into IPInterface 
+object, after that, cidr_match will run *overlaps* check to see if provided prefix and match result ip address overlapping, 
+returning True if so and False otherwise, allowing to filter match results based on that.
 
 **Example-1**
 
@@ -2427,7 +2429,7 @@ sformat
 
 * value - string to format with match result or name of variable for from <vars> tag.
 
-sformat allows to embed match result within arbitrary string using syntaxis supported by python built-in format function.
+sformat allows to embed match result within arbitrary string using syntaxes supported by python built-in format function.
 
 **Example**
 
@@ -2468,7 +2470,8 @@ This function can be used to parse text strings of below format to extract uptim
 
 Arguments:
 
-* ``format`` - default is seconds, optional argument to specify format of returned results, if seconds - integer, number of seconds will be returned, if dict - will return a dictionary of extracted time
+* ``format`` - default is seconds, optional argument to specify format of returned results, if seconds - integer, number of seconds will be returned, 
+  if dict - will return a dictionary of extracted time
 
 
 **Example**
@@ -2510,7 +2513,9 @@ mac_eui
 ------------------------------------------------------------------------------
 ``{{ name | mac_eui }}``
 
-This function normalizes mac address representation format by deleting ``-:.`` characters from mac address string and converting it into aa:bb:cc:dd:ee:ff. It also handles the case when mac address trailing zeros stripped by device in show commands output, by staffing zeros to make mac address 12 symbols long, e.g. aabb.ccdd.ee will be converted to aa:bb:cc:dd:ee:00
+This function normalizes mac address representation format by deleting ``-:.`` characters from mac address string and converting it into 
+aa:bb:cc:dd:ee:ff. It also handles the case when mac address trailing zeros stripped by device in show commands output, by staffing zeros 
+to make mac address 12 symbols long, e.g. aabb.ccdd.ee will be converted to aa:bb:cc:dd:ee:00
 
 count
 ------------------------------------------------------------------------------
@@ -2519,7 +2524,9 @@ count
 * var - string, name of per input variable to store count results
 * globvar - string, name of global variable to store count results across several input datums
 
-This function introduces counting capabilities, allowing to increase counter variable on every successful match. There are two types of count variables supported - per input and global, as the names imply, per input variable has input significance, while global variable can help to count matches across several inputs.
+This function introduces counting capabilities, allowing to increase counter variable on every successful match. There are two types of 
+count variables supported - per input and global, as the names imply, per input variable has input significance, while global variable 
+can help to count matches across several inputs.
 
 **Example**
 

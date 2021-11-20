@@ -5,7 +5,7 @@ It is possible to specify null path as a name, null path looks like ``name="_"``
 
 Special handling implemented for null path - TTP will merge results with parent for group with null path, as a result null path ``_`` will not appear in results. 
 
-One of the usecases for this feature is to create a group that will behave like a normal group in terms of results forming and processing, but will merge with parent in the process of saving into overall results. 
+One of the use cases for this feature is to create a group that will behave like a normal group in terms of results forming and processing, but will merge with parent in the process of saving into overall results. 
 
 **Example**
 

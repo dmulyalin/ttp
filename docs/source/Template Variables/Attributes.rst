@@ -27,8 +27,8 @@ Supported loaders:
 * python - uses python *exec* method to load data structured in native Python formats
 * yaml - relies on PyYAML to load YAML structured data
 * json - used to load json formatted variables data
-* ini - *configparser* Python standart module used to read variables from ini structured file
-* csv - csv formatted data loaded with Python *csv* standart library module
+* ini - *configparser* Python standard module used to read variables from ini structured file
+* csv - csv formatted data loaded with Python *csv* standard library module
 
 **Example**
 
@@ -104,7 +104,7 @@ Result as displayed by Python pprint outputter
                         'python_data': ['.lab.local', '.static.on.net', '.abc'],
                         'yaml_data': ['.lab.local', '.static.on.net', '.abc']}}]
 						
-YAML, JSON and Python formats are suitalble for encoding any arbitrary data and loaded as is.
+YAML, JSON and Python formats are suitable for encoding any arbitrary data and loaded as is.
 
 INI structured data loaded into python nested dictionary, where top level keys represent ini section names each with nested dictionary of variables. 
 
