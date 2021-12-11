@@ -1073,9 +1073,9 @@ def test_in_threads_parsing():
     Function to test parsing in multiple threads
     """
     res_data = {}
-    max_workers = 500
+    max_workers = 800
     template="""
-<group name="interfaces">
+<group name="interfaces" containsall="interface, vrf">
 interface {{ interface }}
  description {{ description | re(".+") }}
  vrf {{ vrf }}
@@ -1109,18 +1109,28 @@ interface GigabitEthernet0/0/0/22
             
     # pprint.pprint(res_data)
     assert len(res_data) == max_workers
-    # assert all([
-    #     i == [[{'interfaces': [{'description': 'GigabitEthernet0/0/0/23 description',
-    #                             'interface': 'GigabitEthernet0/0/0/23',
-    #                             'ip': '10.1.1.253',
-    #                             'mask': '255.255.255.252',
-    #                             'vrf': 'IPRAN-MGMT'},
-    #                            {'description': 'GigabitEthernet0/0/0/22 description',
-    #                             'interface': 'GigabitEthernet0/0/0/22',
-    #                             'ip': '10.1.2.253',
-    #                             'mask': '255.255.255.252',
-    #                             'vrf': 'IPRAN-MGMT'}]}]]
-    #     for i in res_data.values()
-    # ])
+    assert all([
+        i == ['[\n'
+              '    {\n'
+              '        "interfaces": [\n'
+              '            {\n'
+              '                "description": "GigabitEthernet0/0/0/23 description",\n'
+              '                "interface": "GigabitEthernet0/0/0/23",\n'
+              '                "ip": "10.1.1.253",\n'
+              '                "mask": "255.255.255.252",\n'
+              '                "vrf": "IPRAN-MGMT"\n'
+              '            },\n'
+              '            {\n'
+              '                "description": "GigabitEthernet0/0/0/22 description",\n'
+              '                "interface": "GigabitEthernet0/0/0/22",\n'
+              '                "ip": "10.1.2.253",\n'
+              '                "mask": "255.255.255.252",\n'
+              '                "vrf": "IPRAN-MGMT"\n'
+              '            }\n'
+              '        ]\n'
+              '    }\n'
+              ']']
+        for i in res_data.values()
+    ])
 
-test_in_threads_parsing()
+# test_in_threads_parsing()
