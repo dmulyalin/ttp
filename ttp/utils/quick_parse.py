@@ -2,7 +2,7 @@ from ttp import ttp
 
 
 def quick_parse(
-    data=None, template=None, ttp_kwargs={}, parse_kwargs={}, result_kwargs={}
+    data=None, template=None, ttp_kwargs=None, parse_kwargs=None, result_kwargs=None
 ):
     """
     Function to parse data and return results.
@@ -36,6 +36,9 @@ def quick_parse(
 
         parsing_result = quick_parse(data, template)
     """
+    ttp_kwargs = ttp_kwargs or {}
+    parse_kwargs = parse_kwargs or {}
+    result_kwargs = result_kwargs or {}
     # instantiate TTP parser object
     if data:
         parser = ttp(data=data, template=template, **ttp_kwargs)

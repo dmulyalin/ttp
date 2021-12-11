@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def load_files(path, extensions=[], filters=[], read=False):
+def load_files(path, extensions=None, filters=None, read=False):
     """
     Method to load files from path, and filter file names with
     REs filters and extensions.
@@ -17,6 +17,8 @@ def load_files(path, extensions=[], filters=[], read=False):
         List of (type, text_data) tuples or empty list []  if
         read True, if read False return (type, url,) or []
     """
+    extensions = extensions or []
+    filters = filters or []
     files = []
     # need to use path[:5000] cause if path is actually text of the template
     # and has length more then X symbols, os.path will choke with "path too long"

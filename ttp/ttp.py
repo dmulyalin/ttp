@@ -208,14 +208,14 @@ class ttp:
         log_level="WARNING",
         log_file=None,
         base_path="",
-        vars={},
+        vars=None,
     ):
         self.__data_size = 0
         self.__datums_count = 0
         self._templates = []
         self.base_path = base_path
         self.multiproc_threshold = 5242880  # in bytes, equal to 5MBytes
-        self.vars = vars  # dictionary of variables to add to each template vars
+        self.vars = vars or {}  # dictionary of variables to add to each template vars
         self.lookups = {}
         # setup logging
         logging_config(log_level, log_file)
@@ -235,7 +235,7 @@ class ttp:
         data,
         input_name="Default_Input",
         template_name="_root_template_",
-        groups=["all"],
+        groups=None,
     ):
         """Method to load data to be parsed. Data associated with certain
         input of ``input_name`` and template of ``template_name``.
@@ -250,7 +250,8 @@ class ttp:
         * ``input_name`` (str) name of the input to put data in, default is *Default_Input*
         * ``groups`` (list) list of group names to use to parse this input data
         * ``template_name`` (str) name of the template to add input for
-        """
+        """ 
+        groups = groups or ["all"]
         if not self._templates:
             log.warning(
                 "ttp.add_input: no TTP templates to associate input data with, load template(s) first."
@@ -271,7 +272,7 @@ class ttp:
         data,
         input_name="Default_Input",
         template_name="_root_template_",
-        groups=["all"],
+        groups=None,
     ):
         """Method to replace existing templates inputs data with new set of data. This
         method is alias to ``clear_input`` and ``add_input`` methods.
@@ -287,6 +288,7 @@ class ttp:
         * ``groups`` (list) list of group names to use to parse this input data
         * ``template_name`` (str) name of the template to set input for
         """
+        groups = groups or ["all"]
         if not self._templates:
             log.warning(
                 "ttp.set_input: no TTP templates to associate input data with, load template(s) first."
@@ -326,7 +328,7 @@ class ttp:
                     elif i[0] == "text_data":
                         self.__data_size += getsizeof(i[1])
 
-    def add_template(self, template, template_name="_root_template_", filters=[]):
+    def add_template(self, template, template_name="_root_template_", filters=None):
         """Method to load TTP templates into the parser.
 
         **Parameters**
@@ -340,6 +342,7 @@ class ttp:
         templates specified in filter list, groups/macro/inputs/etc. will not
         be loaded and no results produced.
         """
+        filters = filters or []
         log.debug("ttp.add_template - loading template '{}'".format(template_name))
         # get a list of [(type, text,)] tuples or empty list []
         items = _ttp_["utils"]["load_files"](path=template, read=True)
@@ -505,7 +508,7 @@ class ttp:
                         results_data = parserObj.main_results
                 template.form_results(results_data)
 
-    def result(self, templates=[], structure="list", **kwargs):
+    def result(self, templates=None, structure="list", **kwargs):
         """Method to get parsing results, supports basic filtering based on
         templates' names, results can be formatted and returned to specified
         returner.
@@ -591,6 +594,7 @@ class ttp:
              {'interface': 'Lo2', 'ip': '2.2.2.2', 'mask': '32'},
              {'interface': 'Lo3', 'ip': '3.3.3.3', 'mask': '32'}]
         """
+        templates = templates or []
         # filter templates to run outputs for:
         templates = [templates] if isinstance(templates, str) else templates
         templates_obj = self._templates
@@ -666,7 +670,7 @@ class ttp:
                 ret[template_obj.name][input_name] = input_obj.parameters
         return ret
 
-    def clear_result(self, templates=[]):
+    def clear_result(self, templates=None):
         """Method to clear parsing results for templates.
 
         **Parameters**
@@ -674,6 +678,7 @@ class ttp:
         * ``templates`` (list or str) - name of template(s) to clear results for,
           if not provided will clear results for all templates.
         """
+        templates = templates or []
         # filter templates objects to clear results for
         templates = [templates] if isinstance(templates, str) else templates
         # clear results
@@ -859,11 +864,14 @@ class _template_class:
         self,
         template_text,
         base_path="",
-        ttp_vars={},
+        ttp_vars=None,
         name="_root_template_",
-        filters=[],
-        ttp_macro={},
+        filters=None,
+        ttp_macro=None,
     ):
+        ttp_vars = ttp_vars or {}
+        filters = filters or []
+        ttp_macro = ttp_macro or {}
         self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here
         self.vars = {  # dictionary to store template variables
             "_vars_to_results_": {},  # to indicate variables and patch where they should be saved in results
@@ -982,7 +990,7 @@ class _template_class:
         [self.vars.pop(var_name) for var_name in self.vars["_var_functions_"].keys()]
 
     def update_input(
-        self, element=None, data=None, input_name="Default_Input", groups=["all"]
+        self, element=None, data=None, input_name="Default_Input", groups=None
     ):
         """
         Method to set data for template input
@@ -991,6 +999,7 @@ class _template_class:
             input_name (str): name of the input
             groups (list): list of groups to use for that input
         """
+        groups = groups or ["all"]
         input_obj = _input_class(
             element=element,
             input_name=input_name,
@@ -1586,10 +1595,9 @@ class _group_class:
         element,
         grp_index=0,
         top=False,
-        path=[],
+        path=None,
         pathchar=".",
-        vars={},
-        impot_list=[],
+        vars=None,
         parent_group_id=None,
     ):
         """Init method
@@ -1615,7 +1623,7 @@ class _group_class:
         """
         self.pathchar = pathchar
         self.top = top
-        self.path = list(path)
+        self.path = list(path or [])
         self.defaults = {}
         self.runs = {}
         self.default = "_Not_Given_"
@@ -1630,7 +1638,7 @@ class _group_class:
         self.name = ""
         self.group_id = ""
         self.parent_group_id = parent_group_id
-        self.vars = vars
+        self.vars = vars or {}
         self.grp_index = grp_index
         self.inputs = []
         self.attributes = {}
@@ -2310,11 +2318,13 @@ class _parser_class:
         self.DATATEXT = ""
         self.DATANAME = ""
 
-    def set_data(self, D, main_results={}, input_functions=[]):
+    def set_data(self, D, main_results=None, input_functions=None):
         """Method to load data:
         Args:
             D (tuple): items are dict of (data_type, data_path,)
         """
+        main_results = main_results or {}
+        input_functions = input_functions or []
         self.main_results = main_results
         if D[0] == "text_data":
             self.DATATEXT = "\n" + D[1] + "\n\n"
@@ -2948,7 +2958,9 @@ class _results_class:
             else:
                 E.update(result_data)
 
-    def start(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+    def start(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
+        DEFAULTS = DEFAULTS or {}
+        FUNCTIONS = FUNCTIONS or []
         # perform group path tracing
         while self.started_groups:
             # check if child group started
@@ -2974,7 +2986,9 @@ class _results_class:
             "GRP_ID": REDICT["GROUP"].group_id,
         }
 
-    def startempty(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+    def startempty(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
+        DEFAULTS = DEFAULTS or {}
+        FUNCTIONS = FUNCTIONS or []
         # perform group path tracing
         while self.started_groups:
             # check if child group started
@@ -3000,7 +3014,9 @@ class _results_class:
             "GRP_ID": REDICT["GROUP"].group_id,
         }
 
-    def add(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+    def add(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
+        DEFAULTS = DEFAULTS or {}
+        FUNCTIONS = FUNCTIONS or []
         if self.record["PATH"] == PATH:  # if same path - save into self.record
             # update without overriding already existing values:
             result.update(self.record["result"])
@@ -3018,7 +3034,9 @@ class _results_class:
             elif isinstance(ELEMENT, list):
                 ELEMENT[-1].update(result)
 
-    def join(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+    def join(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
+        DEFAULTS = DEFAULTS or {}
+        FUNCTIONS = FUNCTIONS or []
         # if path not the same, results belong to different group, skip them
         if self.record["PATH"] != PATH:
             return
@@ -3047,7 +3065,9 @@ class _results_class:
             else:
                 self.record["result"][k] = result[k]  # if first result
 
-    def end(self, result, PATH, DEFAULTS={}, FUNCTIONS=[], REDICT=""):
+    def end(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
+        DEFAULTS = DEFAULTS or {}
+        FUNCTIONS = FUNCTIONS or []
         # if path not the same and this is not child it means that
         # results belong to different group - do not end current group
         if (
@@ -3233,7 +3253,14 @@ class _outputter_class:
             else:
                 self.attributes[attr_name] = attributes
 
-    def run(self, data, macro={}):
+    def run(self, data, macro=None):
+        """
+        Function to run outputter.
+        
+        :param data: (dict or list) data to run outputter for
+        :param macro: (dict) dictionary of macro functions
+        """
+        marco = macro or {}
         _ttp_["output_object"] = self
         if macro:
             _ttp_["macro"] = macro

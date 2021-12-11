@@ -1,4 +1,4 @@
-def table(data, path=[], missing="", key="", strict=True, headers=[], **kwargs):
+def table(data, path=None, missing="", key="", strict=True, headers=None, **kwargs):
     """Method to form table there table is list of lists,
     first item - headers row. Method used by csv/tabulate/excel
     formatters.
@@ -10,6 +10,8 @@ def table(data, path=[], missing="", key="", strict=True, headers=[], **kwargs):
     :param key: (str) name of key to use for transforming dictionary to list
     :param headers: (list) list of table headers
     """
+    headers = headers or []
+    path = path or []
     table = []
     data_to_table = []
     source_data = []
