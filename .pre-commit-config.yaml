@@ -1,0 +1,54 @@
+# to run pre-commit on demand using below configuration:
+# pre-commit run --all-files
+
+default_language_version:
+    python: python3.7
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: check-ast
+      - id: end-of-file-fixer
+        exclude: ^tests/
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+        exclude: ^tests/
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+        exclude: ^tests/
+  # black
+  - repo: https://github.com/psf/black
+    rev: 19.3b0
+    hooks:
+      - id: black
+        exclude: ^test/|^docs/|gitignore|README|LICENSE|requirements|pre-commit-config|pylintrc|readthedocs
+        args:
+          - "--line-length=88"
+  # flake8
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: flake8
+        exclude: ^test/|^docs/|gitignore|README|LICENSE|requirements|pre-commit-config|pylintrc|readthedocs
+        args:
+          - "--max-line-length=88"
+          - "--max-complexity=19"
+          - "--select=B,C,E,F,W,T4,B9"
+          - "--ignore=F403,E402,E722,E203,W503,C901,E501"
+  # bandit - security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.0
+    hooks:
+      - id: bandit
+        exclude: ^test/|^docs/|gitignore|README|LICENSE|requirements|pre-commit-config|pylintrc|readthedocs
+  # pylint, to run it directly use: python3 -m pylint ./ttr/ --rcfile=pylintrc
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: python3 -m pylint
+        language: system
+        args:
+          - "--rcfile=pylintrc"
+        exclude: ^test/|^docs/|gitignore|README|LICENSE|requirements|pre-commit-config|pylintrc|readthedocs

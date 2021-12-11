@@ -1,5 +1,6 @@
 import sys
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sys.path.insert(0, "../..")
 import pprint
@@ -1065,3 +1066,61 @@ interface preconfigure GigabitEthernet0/0/0/0/23
 
 
 # test_inner_group_strange_parsing_results()
+
+
+def test_in_threads_parsing():
+    """
+    Function to test parsing in multiple threads
+    """
+    res_data = {}
+    max_workers = 500
+    template="""
+<group name="interfaces">
+interface {{ interface }}
+ description {{ description | re(".+") }}
+ vrf {{ vrf }}
+ ipv4 address {{ ip }} {{ mask }}
+! {{ _end_ }}
+</group>
+    """
+	
+    def worker():
+        data="""
+interface GigabitEthernet0/0/0/23
+ description GigabitEthernet0/0/0/23 description
+ vrf IPRAN-MGMT
+ ipv4 address 10.1.1.253 255.255.255.252
+!
+interface GigabitEthernet0/0/0/22
+ description GigabitEthernet0/0/0/22 description
+ vrf IPRAN-MGMT
+ ipv4 address 10.1.2.253 255.255.255.252
+!
+        """
+        parser = ttp(data=data, template=template, log_level="warning")
+        parser.parse(one=True)
+        return parser.result(format="json")
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(worker): worker_id for worker_id in range(max_workers)}
+        for future in as_completed(futures):
+            worker_id = futures[future]
+            res_data[worker_id] = future.result()
+            
+    # pprint.pprint(res_data)
+    assert len(res_data) == max_workers
+    # assert all([
+    #     i == [[{'interfaces': [{'description': 'GigabitEthernet0/0/0/23 description',
+    #                             'interface': 'GigabitEthernet0/0/0/23',
+    #                             'ip': '10.1.1.253',
+    #                             'mask': '255.255.255.252',
+    #                             'vrf': 'IPRAN-MGMT'},
+    #                            {'description': 'GigabitEthernet0/0/0/22 description',
+    #                             'interface': 'GigabitEthernet0/0/0/22',
+    #                             'ip': '10.1.2.253',
+    #                             'mask': '255.255.255.252',
+    #                             'vrf': 'IPRAN-MGMT'}]}]]
+    #     for i in res_data.values()
+    # ])
+
+test_in_threads_parsing()

@@ -6795,3 +6795,69 @@ security:
     assert res == [[{'security': {'rx': {'rpps': '3'}, 'tx': {'tpps': '0'}}}]]
 
 # test_issue_62_fix()
+
+
+def test_lookup_crosstemplates():
+    template = """
+<template name="interfaces">
+<input load="text">
+interface FastEthernet2.13
+ description Customer CPE interface
+ ip address 10.12.13.1 255.255.255.0
+ vrf forwarding CPE-VRF
+!
+interface GigabitEthernet2.13
+ description Customer CPE interface
+ ip address 10.12.14.1 255.255.255.0
+ vrf forwarding CUST1
+!
+</input>
+
+<group name="{{ interface }}">
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ subnet | PHRASE | to_ip | network | to_str }}
+ vrf forwarding {{ vrf }}
+</group>
+</template>
+
+<template name="arp">
+<input load="text">
+Protocol  Address     Age (min)  Hardware Addr   Type   Interface
+Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
+Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
+</input>
+
+<group lookup="interface, template='interfaces', update=True">
+Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
+</group>
+</template>
+    """
+    parser = ttp()
+    parser.add_template(template)
+    parser.parse()
+    
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'FastEthernet2.13': {'description': 'Customer CPE interface',
+                        'subnet': '10.12.13.0/24',
+                        'vrf': 'CPE-VRF'},
+   'GigabitEthernet2.13': {'description': 'Customer CPE interface',
+                           'subnet': '10.12.14.0/24',
+                           'vrf': 'CUST1'}}],
+ [[{'age': '98',
+    'description': 'Customer CPE interface',
+    'interface': 'FastEthernet2.13',
+    'ip': '10.12.13.2',
+    'mac': '0950.5785.5cd1',
+    'subnet': '10.12.13.0/24',
+    'vrf': 'CPE-VRF'},
+   {'age': '131',
+    'description': 'Customer CPE interface',
+    'interface': 'GigabitEthernet2.13',
+    'ip': '10.12.14.3',
+    'mac': '0150.7685.14d5',
+    'subnet': '10.12.14.0/24',
+    'vrf': 'CUST1'}]]]
+
+# test_lookup_crosstemplates()
