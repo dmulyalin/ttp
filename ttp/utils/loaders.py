@@ -27,26 +27,10 @@ def load_files(path, extensions=None, filters=None, read=False):
     # check if structured, non text, data given, return it as is if so
     # to process within input macro/function
     if not isinstance(path, str):
-        return [
-            (
-                "structured_data",
-                path,
-            )
-        ]
+        return [("structured_data", path)]
     elif _ttp_["python_major_version"] == 2:
-        if not isinstance(
-            path,
-            (
-                unicode,
-                str,
-            ),
-        ):
-            return [
-                (
-                    "structured_data",
-                    path,
-                )
-            ]
+        if not isinstance(path, (unicode, str)):
+            return [("structured_data", path)]
 
     # check if path is a reference to template in ttp_templates collection
     if path.startswith("ttp://"):
@@ -59,30 +43,15 @@ def load_files(path, extensions=None, filters=None, read=False):
             try:
                 if _ttp_["python_major_version"] == 2:
                     with open(path, "r") as file_obj:
-                        return [
-                            (
-                                "text_data",
-                                file_obj.read(),
-                            )
-                        ]
+                        return [("text_data", file_obj.read())]
                 with open(path, "r", encoding="utf-8") as file_obj:
-                    return [
-                        (
-                            "text_data",
-                            file_obj.read(),
-                        )
-                    ]
+                    return [("text_data", file_obj.read())]
             except UnicodeDecodeError:
                 log.warning(
                     'ttp_utils.load_files: Unicode read error, file "{}"'.format(path)
                 )
         else:
-            return [
-                (
-                    "file_name",
-                    path,
-                )
-            ]
+            return [("file_name", path)]
     # check if path is a directory:
     elif os.path.isdir(path[0:5000]):
         from re import search as re_search
@@ -97,48 +66,22 @@ def load_files(path, extensions=None, filters=None, read=False):
             for f in files:
                 if _ttp_["python_major_version"] == 2:
                     with open((os.path.join(path, f)), "r") as file_obj:
-                        ret.append(
-                            (
-                                "text_data",
-                                file_obj.read(),
-                            )
-                        )
+                        ret.append(("text_data", file_obj.read()))
                 elif _ttp_["python_major_version"] == 3:
                     with open(
                         (os.path.join(path, f)), "r", encoding="utf-8"
                     ) as file_obj:
-                        ret.append(
-                            (
-                                "text_data",
-                                file_obj.read(),
-                            )
-                        )
+                        ret.append(("text_data", file_obj.read()))
             return ret
         else:
-            return [
-                (
-                    "file_name",
-                    os.path.join(path, f),
-                )
-                for f in files
-            ]
+            return [("file_name", os.path.join(path, f)) for f in files]
     # check if path is a string:
     elif isinstance(path, str):
-        return [
-            (
-                "text_data",
-                path,
-            )
-        ]
+        return [("text_data", path)]
     # check if py2, if so check if path is unicode string:
     elif _ttp_["python_major_version"] == 2:
         if isinstance(path, unicode):
-            return [
-                (
-                    "text_data",
-                    path,
-                )
-            ]
+            return [("text_data", path)]
     else:
         return []
 

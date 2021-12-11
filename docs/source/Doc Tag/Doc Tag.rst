@@ -14,33 +14,33 @@ In this template ``<doc>`` tag helps to document information about the template 
 
     <doc>
     TTP template to parse Cisco IOS "show ip arp" output.
-    
+
     Template can be invoked using Netmiko run_ttp method like this:
-    
-        import pprint 
+
+        import pprint
         from netmiko import ConnectHandler
-        
+
         net_connect = ConnectHandler(
             device_type="cisco_ios",
             host="1.2.3.4",
             username="admin",
             password="admin",
         )
-        
+
         res = net_connect.run_ttp("ttp://misc/netmiko/cisco.ios.arp.txt", res_kwargs={"structure": "flat_list"})
-        
+
         pprint.pprint(res)
     </doc>
-    
-    
+
+
     <input>
     commands = [
         "show ip arp"
     ]
     </input>
-    
+
     <group method="table" to_int="age">
-    {{ protocol }} {{ ip | IP }} {{ age | replace("-", "-1") }} {{ mac | mac_eui }} {{ type | let("interface", "Uncknown") }}    
+    {{ protocol }} {{ ip | IP }} {{ age | replace("-", "-1") }} {{ mac | mac_eui }} {{ type | let("interface", "Uncknown") }}
     {{ protocol }} {{ ip | IP }} {{ age | replace("-", "-1") }} {{ mac | mac_eui }} {{ type }} {{ interface | resuball("short_interface_names") }}
     </group>
-    
+

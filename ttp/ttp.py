@@ -172,6 +172,7 @@ def lazy_import_functions():
     log.info("ttp.lazy_import_functions: finished functions lazy import")
     return _ttp_
 
+
 """
 ==============================================================================
 MAIN TTP CLASS
@@ -252,7 +253,7 @@ class ttp:
         * ``input_name`` (str) name of the input to put data in, default is *Default_Input*
         * ``groups`` (list) list of group names to use to parse this input data
         * ``template_name`` (str) name of the template to add input for
-        """ 
+        """
         groups = groups or ["all"]
         if not self._templates:
             log.warning(
@@ -356,7 +357,7 @@ class ttp:
                 name=template_name,
                 filters=filters,
                 ttp_macro=self._ttp_.get("_custom_functions_", {}).get("macro", {}),
-                _ttp_ = self._ttp_
+                _ttp_=self._ttp_,
             )
             # if not template_obj.templates - no 'template' tags in template
             self._templates += (
@@ -487,7 +488,10 @@ class ttp:
             self._ttp_["macro"] = template.macro
             self._ttp_["template_obj"] = template
             parserObj = _parser_class(
-                lookups=template.lookups, vars=template.vars, groups=template.groups, _ttp_=self._ttp_
+                lookups=template.lookups,
+                vars=template.vars,
+                groups=template.groups,
+                _ttp_=self._ttp_,
             )
             if template.results_method.lower() == "per_input":
                 for input_name, input_obj in template.inputs.items():
@@ -780,7 +784,9 @@ class ttp:
         self._ttp_[scope][name] = fun
         # save custom function separately to pass on to multiprocessing
         # for updating _ttp_ dictionary on reinitialization
-        self._ttp_.setdefault("_custom_functions_", {}).setdefault(scope, {})[name] = fun
+        self._ttp_.setdefault("_custom_functions_", {}).setdefault(scope, {})[
+            name
+        ] = fun
 
 
 """
@@ -870,13 +876,15 @@ class _template_class:
         ttp_vars=None,
         name="_root_template_",
         filters=None,
-        ttp_macro=None, 
+        ttp_macro=None,
     ):
         self._ttp_ = _ttp_
         ttp_vars = ttp_vars or {}
         filters = filters or []
         ttp_macro = ttp_macro or {}
-        self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here
+        self.PATHCHAR = (
+            "."
+        )  # character to separate path items, like ntp.clock.time, '.' is pathChar here
         self.vars = {  # dictionary to store template variables
             "_vars_to_results_": {},  # to indicate variables and patch where they should be saved in results
             # _vars_to_results_ is a dict of {pathN:[var_key1, var_keyN]} data
@@ -1193,7 +1201,7 @@ class _template_class:
                 pathchar=self.PATHCHAR,
                 vars=self.vars,
                 grp_index=grp_index,
-                _ttp_=self._ttp_
+                _ttp_=self._ttp_,
             )
         )
 
@@ -1207,7 +1215,9 @@ class _template_class:
         for v in self.tags["vars"]:
             self.parse_vars(v)
         for o in self.tags["outputs"]:
-            self.outputs.append(_outputter_class(o, _ttp_=self._ttp_, template_obj=self))
+            self.outputs.append(
+                _outputter_class(o, _ttp_=self._ttp_, template_obj=self)
+            )
         for L in self.tags["lookups"]:
             self.parse_lookup(L)
         for grp_index, g in enumerate(self.tags["groups"]):
@@ -1390,7 +1400,7 @@ class _input_class:
         input_name="Default_Input",
         groups="all",
     ):
-        self._ttp_ = _ttp_ 
+        self._ttp_ = _ttp_
         self.attributes = {
             "load": "python",
             "extensions": [],
@@ -1664,10 +1674,7 @@ class _group_class:
         if self.name == "":
             self.path = ["_anonymous_*"] if self.top else self.path
             self.name = ".".join(self.path)
-            self.group_id = (
-                self.name + "._anonymous_",
-                self.grp_index,
-            )
+            self.group_id = (self.name + "._anonymous_", self.grp_index)
 
     def get_attributes(self, data):
         def extract_default(O):
@@ -1698,10 +1705,7 @@ class _group_class:
             else:
                 self.path = self.path + O.split(self.pathchar)
             self.name = ".".join(self.path)
-            self.group_id = (
-                self.name,
-                self.grp_index,
-            )
+            self.group_id = (self.name, self.grp_index)
 
         def extract_chain(var_name):
             """add items from chain to group functions"""
@@ -1786,7 +1790,9 @@ class _group_class:
             is_line = False
             skip_regex = False
             for variable in i["variables"]:
-                variableObj = _variable_class(variable, i["line"], group=self, _ttp_=self._ttp_)
+                variableObj = _variable_class(
+                    variable, i["line"], group=self, _ttp_=self._ttp_
+                )
 
                 # check if need to skip appending regex dict to regexes list
                 # have to skip it for unconditional 'set' function
@@ -1868,7 +1874,7 @@ class _group_class:
                     vars=self.vars,
                     grp_index=g_index,
                     parent_group_id=self.group_id,
-                    _ttp_=self._ttp_
+                    _ttp_=self._ttp_,
                 )
             )
             # get regexes from tail
@@ -2128,19 +2134,9 @@ class _variable_class:
         no_indent_line = self.LINE.lstrip()
         llen = len(self.LINE)
         vars_spans = (
-            [
-                (
-                    0,
-                    0,
-                )
-            ]
+            [(0, 0)]
             + [i.span() for i in re.finditer(r"{{([\S\s]+?)}}", no_indent_line)]
-            + [
-                (
-                    llen,
-                    llen,
-                )
-            ]
+            + [(llen, llen)]
         )
         for index, var_span in enumerate(vars_spans[1:]):
             previous_var_span = vars_spans[index]
@@ -2210,12 +2206,12 @@ class _variable_class:
 
         def regex_headers(data):
             """
-            Goal is to create this regex::            
+            Goal is to create this regex::
                 \\n(?P<Port>.{10})(?P<Name>.{1,19})(?P<Status>.*)(?=\\n)
-                
+
             Out of this string::
               Port      Name  Status  {{ _headers_ }}
-              
+
             :param data: (dict) variable dictionary, but not used here
             """
             # remove {{ _headers_ }} variable from end of string
@@ -2486,19 +2482,9 @@ class _parser_class:
                 # form result dictionary of dictionaries:
                 span_start = start + match.span()[0]
                 if span_start not in results:
-                    results[span_start] = [
-                        (
-                            regex,
-                            result,
-                        )
-                    ]
+                    results[span_start] = [(regex, result)]
                 else:
-                    results[span_start].append(
-                        (
-                            regex,
-                            result,
-                        )
-                    )
+                    results[span_start].append((regex, result))
 
         def run_re(group, results, start=0, end=-1):
             """Recursive function to run REs"""
@@ -2538,12 +2524,7 @@ class _parser_class:
                     while key in results:
                         key += 1
                     else:
-                        results[key] = [
-                            (
-                                start_re,
-                                {},
-                            )
-                        ]
+                        results[key] = [(start_re, {})]
 
                 # run recursion to fill in results for children
                 for child_group in group.children:
@@ -2596,12 +2577,7 @@ class _parser_class:
             # get results for groups with group specific results:
             else:
                 # form a tuple of ({results}, [group.outputs],)
-                grps_unsort_rslts.append(
-                    (
-                        run_re(group, results={}),
-                        group.outputs,
-                    )
-                )
+                grps_unsort_rslts.append((run_re(group, results={}), group.outputs))
         # update groups runs (group default values) with global variables
         self.update_groups_runs(self._ttp_["global_vars"])
         # update groups runs (group default values) with group specific/local variables
@@ -3272,7 +3248,7 @@ class _outputter_class:
     def run(self, data, macro=None):
         """
         Function to run outputter.
-        
+
         :param data: (dict or list) data to run outputter for
         :param macro: (dict) dictionary of macro functions
         """

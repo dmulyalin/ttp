@@ -6,26 +6,26 @@ Indicators
 ================
 
 Indicators or directives can be used to change parsing logic or indicate certain events.
-     
+
 .. list-table:: indicators
    :widths: 10 90
    :header-rows: 1
-   
+
    * - Name
-     - Description  
-   * - `_exact_`_ 
+     - Description
+   * - `_exact_`_
      - Threats digits as is without replacing them with ``\d+`` pattern
-   * - `_exact_space_`_ 
+   * - `_exact_space_`_
      - Leave space characters in place without replacing them with ``r(\\ +)`` pattern
-   * - `_start_`_ 
+   * - `_start_`_
      - Explicitly indicates start of the group
-   * - `_end_`_ 
+   * - `_end_`_
      - Explicitly indicates end of the group
-   * - `_line_`_ 
+   * - `_line_`_
      - If present any line will be matched
-   * - `ignore`_ 
+   * - `ignore`_
      - Substitute string at given position with regular expression without matching results
-   * - `_headers_`_ 
+   * - `_headers_`_
      - To dynamically form regex for parsing fixed-width, one-line text tables
 
 _exact_
@@ -45,7 +45,7 @@ Sample Data::
   address-family ipv6 unicast
    maximum prefix 300 80
   !
-  
+
 If Template::
 
  <group name="vrfs">
@@ -55,7 +55,7 @@ If Template::
    maximum prefix {{ limit }} {{ warning }}
   </group>
  </group>
-   
+
 Result will be::
 
  {
@@ -73,7 +73,7 @@ Result will be::
          "vrf": "VRF-A"
      }
  }
- 
+
 As you can see ipv6 part of vrf configuration was matched as well and we got undesirable results, one of the possible solutions would be to use _exact_ directive to indicate that "ipv4" should be matches exactly.
 
 If Template::
@@ -86,7 +86,7 @@ If Template::
   !{{ _end_ }}
   </group>
  </group>
- 
+
 Result will be::
 
  {
@@ -98,7 +98,7 @@ Result will be::
          "vrf": "VRF-A"
      }
  }
- 
+
 _exact_space_
 ------------------------------------------------------------------------------
 ``{{ name | _exact_space_ }}``
@@ -111,32 +111,32 @@ _start_
 
 This directive can be used to explicitly indicate start of the group by matching certain line or if we have multiple lines that can indicate start of the same group.
 
-**Example-1** 
+**Example-1**
 
 In this example line "-------------------------" can serve as an indicator of the beginning of the group, but we do not have any match variables defined in it.
 
 Sample data::
 
- switch-a#show cdp neighbors detail 
+ switch-a#show cdp neighbors detail
  -------------------------
  Device ID: switch-b
- Entry address(es): 
+ Entry address(es):
    IP address: 131.0.0.1
- 
+
  -------------------------
  Device ID: switch-c
- Entry address(es): 
+ Entry address(es):
    IP address: 131.0.0.2
-   
+
 Template::
 
  <group name="cdp_peers">
  ------------------------- {{ _start_ }}
  Device ID: {{ peer_hostname }}
- Entry address(es): 
+ Entry address(es):
    IP address: {{ peer_ip }}
  </group>
- 
+
 Result::
 
  {
@@ -151,7 +151,7 @@ Result::
          }
      ]
  }
- 
+
 **Example-2**
 
 In this example, two different lines can serve as an indicator of the start for the same group.
@@ -163,7 +163,7 @@ Sample Data::
  !
  interface GigabitEthernet1/1
   description core-1
-  
+
 Template::
 
  <group name="interfaces">
@@ -171,7 +171,7 @@ Template::
  interface GigabitEthernet{{ if_id | _start_ }}
   description {{ description }}
  </group>
- 
+
 Result will be::
 
  {
@@ -186,7 +186,7 @@ Result will be::
          }
      ]
  }
- 
+
 _end_
 ------------------------------------------------------------------------------
 ``pattern {{ _end_ }}``
@@ -199,11 +199,11 @@ _line_
 ------------------------------------------------------------------------------
 ``{{ name | _line_ }}``
 
-This indicator serves double purpose, first of all, special regular expression will be used to match any line in text, moreover, additional logic will be incorporated for such a cases when same portion of text data was matched by _line_ and other regular expression simultaneously. Main use case for _line_ indicator is to match and collect data that not been matched by other match variables. 
+This indicator serves double purpose, first of all, special regular expression will be used to match any line in text, moreover, additional logic will be incorporated for such a cases when same portion of text data was matched by _line_ and other regular expression simultaneously. Main use case for _line_ indicator is to match and collect data that not been matched by other match variables.
 
 All TTP match variables function can be used together with _line_ indicator, for instance ``contains`` function can be used to filter results.
 
-TTP will assign only last line matched by _line_ to match variable, if multiple lines needs to be saved, ``joinmatches`` function can be used. 
+TTP will assign only last line matched by _line_ to match variable, if multiple lines needs to be saved, ``joinmatches`` function can be used.
 
 .. warning:: _line_ expression is computation intensive and can take longer time to process, it is recommended to use _end_ indicator together with _line_ whenever possible to minimize performance impact. In addition, having as clear source data as possible also helps, as it allows to avoid false positives - unnecessary matches.
 
@@ -225,7 +225,7 @@ Template::
      switchport port-security mac-address sticky
     !
     </input>
-    
+
     <group>
     interface {{ interface }}
      ip address {{ ip }}/{{ mask }}
@@ -268,7 +268,7 @@ Primary use case of this indicator is to ignore changing alpha-numerical charact
     FastEthernet0/1 is up, line protocol is up
       Hardware is Gt96k FE, address is b20a.1e00.8777 (bia c201.1d00.1111)
       MTU 1500 bytes, BW 100000 Kbit/sec, DLY 1000 usec,
-  
+
 **Example-1**
 
 What if only need to extract bia MAC address within parenthesis, below template will **not** work for all cases::
@@ -276,7 +276,7 @@ What if only need to extract bia MAC address within parenthesis, below template 
     {{ interface }} is up, line protocol is up
       Hardware is Gt96k FE, address is c201.1d00.0000 (bia {{MAC}})
       MTU {{ mtu }} bytes, BW 100000 Kbit/sec, DLY 1000 usec,
-      
+
 Result::
 
     [
@@ -292,13 +292,13 @@ Result::
             }
         ]
     ]
-    
+
 As we can see MAC address for FastEthernet0/1 was not matched due to the fact that "c201.1d00.0000" text was used in template, to fix it we need to ignore MAC address before parenthesis as it keeps changing across the source data::
 
     {{ interface }} is up, line protocol is up
       Hardware is Gt96k FE, address is {{ ignore }} (bia {{MAC}})
       MTU {{ mtu }} bytes, BW 100000 Kbit/sec, DLY 1000 usec,
-      
+
 Result::
 
     [
@@ -315,7 +315,7 @@ Result::
             }
         ]
     ]
-    
+
 **Example-2**
 
 In this example template variable "pattern_var" used together with ignore, that variable reference regular expression pattern that contains pipe symbol.
@@ -330,17 +330,17 @@ Template::
       Hardware is Gt96k FE, address is b20a.1e00.8777 (bia c201.1d00.1111)
       MTU 1500 bytes, BW 100000 Kbit/sec, DLY 1000 usec,
     </input>
-    
+
     <vars>
     pattern_var = "\S+|\d+"
     </vars>
-    
+
     <group name="interfaces">
     {{ interface }} is up, line protocol is up
       Hardware is Gt96k FE, address is {{ ignore("pattern_var") }} (bia {{MAC}})
       MTU {{ mtu }} bytes, BW 100000 Kbit/sec, DLY 1000 usec,
     </group>
-    
+
 Results::
 
     [
@@ -361,7 +361,7 @@ Results::
             }
         ]
     ]
-    
+
 _headers_
 ------------------------------------------------------------------------------
 ``head1  head2 ... headN {{ _headers_ }}`` or ``head1  head2 ... headN {{ _headers_ | columns(5) }}``
@@ -386,11 +386,11 @@ Column width calculated based on header items length, variables names dynamicall
 How column width calculated::
 
     Column width calculated from left to the left edge of each header:
-    
+
     Port      Name               Status       Vlan       Duplex  Speed Type
     <--------><-----------------><-----------><---------><------><----><-infinite->
         C1            C2              C3           C4       C5     C6       C7
-        
+
 Assuming ``columns`` attribute value is 5 this regex set formed:
 
 * C1 - C4 mandatory columns width represented by ``.{x}`` regex, where ``x`` is columns width ``<---->`` value
@@ -411,10 +411,10 @@ Template::
     Gi0/15                       connected    trunk        full   1000 1000BaseLX SFP
     Gi0/16    pitrs2201 te1/1/4  connected    trunk        full   1000  1000BaseLX SFP
     </input>
-    
+
     <group>
     Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ }}
-    </group>   
+    </group>
 
 Result::
 
@@ -439,7 +439,7 @@ Result::
         'Status': 'connected',
         'Type': '1000BaseLX SFP',
         'Vlan': 'trunk'}]]]
-        
+
 **Example-2**
 
 Header line can be indented by a number of spaces or tabs, but each tab replaced with 4 space characters to calculate column width.
@@ -452,10 +452,10 @@ Template::
     *>e222.222.222.2/32   12.123.12.1              0                     0 65000 ?
     *>e333.33.333.333/32  12.123.12.1              0                     0 65000 ?
     </input>
-    
+
     <group>
        Network            Next_Hop            Metric     LocPrf     Weight Path  {{ _headers_ }}
-    </group>   
+    </group>
 
 
 Result::
@@ -478,8 +478,8 @@ Result::
        'Next_Hop': '12.123.12.1',
        'Path': '65000 ?',
        'Weight': '0'}]]]
-       
-Example-3 
+
+Example-3
 
 This example demonstrates how to use ``columns`` attribute. Below text data has 7 distinctive columns, meaning we can adjust ``columns`` attribute value from 1 to 7 depending on results we need to produce.
 
@@ -493,29 +493,29 @@ Data::
     Gi0/5     PIT-VDU212         notconnect   18         auto
     Gi0/6     PIT-VDU212         notconnect   18         auto    auto
     Gi0/7     PIT-VDU212         notconnect   18         auto    auto  10/100/1000BaseTX
-    
+
 Template::
 
     <group name="columns_7">
     Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(7) }}
-    </group> 
+    </group>
 
     <group name="columns_6">
     Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(6) }}
-    </group>   
-    
+    </group>
+
     <group name="columns_5">
     Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(5) }}
-    </group>   
-    
+    </group>
+
     <group name="columns_4">
     Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(4) }}
-    </group>   
-    
+    </group>
+
     <group name="columns_3">
     Port      Name               Status       Vlan       Duplex  Speed Type   {{ _headers_ | columns(3) }}
-    </group> 
-    
+    </group>
+
 Result::
 
     [[{'columns_3': [{'Duplex': '', 'Name': 'PIT-VDU212', 'Port': 'Gi0/3', 'Speed': '', 'Status': 'notconnect', 'Type': '', 'Vlan': ''},
@@ -533,6 +533,6 @@ Result::
        'columns_6': [{'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/6', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '', 'Vlan': '18'},
                      {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
        'columns_7': {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}}]]
-	   
-The less the value of ``columns`` attribute the more lines with optional/empty columns will be matched, the higher the value 
+
+The less the value of ``columns`` attribute the more lines with optional/empty columns will be matched, the higher the value
 the stricter ``_headers_`` regex is, producing less matches with empty columns.

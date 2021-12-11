@@ -24,7 +24,7 @@ In essence TTP can help to:
   - Transform results in desired format to ease consumption by humans or machines
   - Return results to various destinations for storage or further processing
 
-Reference [documentation](https://ttp.readthedocs.io) for more information. 
+Reference [documentation](https://ttp.readthedocs.io) for more information.
 
 TTP [Networktocode Slack channel](https://networktocode.slack.com/archives/C018HMJQECB)
 
@@ -89,12 +89,12 @@ This template first parses "show bgp vrf CUST-1 vpnv4 unicast summary" commands
 output, forming results for "bgp_state" dictionary, where peer ip is a key.
 
 Following that, "show run | section bgp" output parsed by group "bgp_cfg". That
-group uses nested groups to form results structure, including absolute path 
+group uses nested groups to form results structure, including absolute path
 "/bgp_peers*" with path formatter to produce a list of peers under "bgp_peers"
-path. 
+path.
 
-For each peer "hostname" and local bgp "local_asn" added using previous matches. 
-Additionally, group lookup function used to lookup peer state from "bgp_state" 
+For each peer "hostname" and local bgp "local_asn" added using previous matches.
+Additionally, group lookup function used to lookup peer state from "bgp_state"
 group results, adding found data to peer results.
 
 Finally, "bgp_peers" section of results passed via "tabulate_outputter" to
@@ -137,10 +137,10 @@ router bgp {{ asn | record(asn) }}
   </group>
 </group>
 
-<output 
+<output
 name="tabulate_outputter"
-format="tabulate" 
-path="bgp_peers" 
+format="tabulate"
+path="bgp_peers"
 returner="terminal"
 headers="hostname, local_asn, vrf_name, peer_ip, peer_asn, uptime, state, description, afi, rpl_in, rpl_out"
 />

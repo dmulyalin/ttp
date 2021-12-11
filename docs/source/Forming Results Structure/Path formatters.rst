@@ -5,8 +5,8 @@ Path formatters
 
 By default ttp assumes that all the *path items* must be joined into a dictionary structure, in other words group name "item1.item2.item3" will be transformed into nested dictionary::
 
-    {"item1": 
-	 {"item2": 
+    {"item1":
+	 {"item2":
 	  {"item3": {}
     	}
       }
@@ -29,14 +29,14 @@ Consider this group with name attribute formed in such a way that interfaces ite
       ip address {{ ip }}/{{ mask }}
       vrf {{ vrf }}
     </group>
-	
+
 If below data parsed with that template::
 
     interface Vlan777
       description Management
       ip address 192.168.0.1/24
       vrf MGMT
-	  
+
 This result will be produced::
 
     [

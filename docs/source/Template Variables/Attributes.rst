@@ -7,18 +7,18 @@ Attributes
 
    * - Attribute
      - Description
-   * - `name`_   
+   * - `name`_
      - String of dot-separated path items
-   * - `load`_   
+   * - `load`_
      - Indicates which loader to use to read tag data, default is *python*
-   * - `include`_   
+   * - `include`_
      - Specifies location of the file with variables data to load
-   * - `key`_   
+   * - `key`_
      - If csv loader used, *key* specifies column name to use as a key
-	 
+
 load
 ------------------------------------------------------------------------------
-``load="loader_name"``	
+``load="loader_name"``
 
 * loader_name (optional) - name of the loader to use to render supplied variables data, default is python.
 
@@ -41,12 +41,12 @@ Template
      ip address 192.168.123.1 255.255.255.0
     !
     </input>
-    
+
     <!--Python formatted variables data-->
     <vars name="vars">
     python_domains = ['.lab.local', '.static.on.net', '.abc']
     </vars>
-    
+
     <!--YAML formatted variables data-->
     <vars load="yaml" name="vars">
     yaml_domains:
@@ -54,7 +54,7 @@ Template
       - '.static.on.net'
       - '.abc'
     </vars>
-    
+
     <!--Json formatted variables data-->
     <vars load="json" name="vars">
     {
@@ -65,7 +65,7 @@ Template
         ]
     }
     </vars>
-    
+
     <!--INI formatted variables data-->
     <variables load="ini" name="vars">
     [ini_domains]
@@ -73,7 +73,7 @@ Template
     2: '.static.on.net'
     3: '.abc'
     </variables>
-    
+
     <!--CSV formatted variables data-->
     <variables load="csv" name="vars.csv">
     id, domain
@@ -81,12 +81,12 @@ Template
     2,  .static.on.net
     3,  .abc
     </variables>
-    
+
     <group name="interfaces">
     interface {{ interface }}
-     ip address {{ ip }} {{ mask }}	
+     ip address {{ ip }} {{ mask }}
     </group>
-	
+
 Result as displayed by Python pprint outputter
 
 .. code-block::
@@ -103,16 +103,16 @@ Result as displayed by Python pprint outputter
                         'json_data': ['.lab.local', '.static.on.net', '.abc'],
                         'python_data': ['.lab.local', '.static.on.net', '.abc'],
                         'yaml_data': ['.lab.local', '.static.on.net', '.abc']}}]
-						
+
 YAML, JSON and Python formats are suitable for encoding any arbitrary data and loaded as is.
 
-INI structured data loaded into python nested dictionary, where top level keys represent ini section names each with nested dictionary of variables. 
+INI structured data loaded into python nested dictionary, where top level keys represent ini section names each with nested dictionary of variables.
 
 CSV data also transformed into dictionary using first column values to fill in dictionary keys, unless specified otherwise using *key* attribute
 
 include
 ------------------------------------------------------------------------------
-``include="path"``	
+``include="path"``
 
 * path - absolute OS path to text file with variables data.
 
@@ -134,18 +134,18 @@ Template
     serial='AS4FCVG456'
     model='WS-3560-PS'
     </vars>
-    
+
     <vars name="vars.ip*">
     # variables that will be saved under {'vars': {'ip': []}} path
     IP="Undefined"
     MASK="255.255.255.255"
     </vars>
-    
+
     <vars load="yaml">
     # set of vars in yaml format that will not be included in results
     intf_mode: "layer3"
     </vars>
-    
+
     <input load="text">
     interface Vlan777
      description Management
@@ -153,7 +153,7 @@ Template
      vrf MGMT
     !
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      description {{ description }}
@@ -192,9 +192,9 @@ Result
             }
         }
     ]
-	
+
 key
 ------------------------------------------------------------------------------
-``key="column_name"``	
+``key="column_name"``
 
 * column_name - optional string attribute that can be used by csv loader to use given column values as a key for dictionary constructed out of csv data.

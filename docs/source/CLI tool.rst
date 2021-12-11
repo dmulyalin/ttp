@@ -1,14 +1,14 @@
 CLI tool
 ========
 
-TTP comes with simple CLI tool that takes path to data, path to template and produces parsing results. Results can be represented in one of formats supported by CLI tool - yaml, json, raw or pprint, results will be printer to screen. Alternatively, format can be specified using template output tags and printed to screen or returned to file using returners. 
+TTP comes with simple CLI tool that takes path to data, path to template and produces parsing results. Results can be represented in one of formats supported by CLI tool - yaml, json, raw or pprint, results will be printer to screen. Alternatively, format can be specified using template output tags and printed to screen or returned to file using returners.
 
 Sample usage::
 
   ttp --data "/path/to/data/" --template "path/to/template.txt" --outputter json
-  
+
   results will be printed to screen in JSON format.
-  
+
 **Available options**
 
 * ``-d, --data`` Path to data file or directory with files to process

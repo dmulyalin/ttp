@@ -1,63 +1,63 @@
 Functions
 =========
 
-Group functions can be applied to group results to transform them in a desired way, functions can also be used to validate and filter match results. 
+Group functions can be applied to group results to transform them in a desired way, functions can also be used to validate and filter match results.
 
 Condition functions help to evaluate group results and return *False* or *True*, if *False* returned, group results will be discarded.
-  
+
 .. list-table:: group functions
    :widths: 10 90
    :header-rows: 1
 
    * - Name
      - Description
-   * - `containsall`_ 
+   * - `containsall`_
      - checks if group result contains matches for all given variables
-   * - `contains`_ 
+   * - `contains`_
      - checks if group result contains match at least for one of given variables
-   * - `macro`_   
-     - Name of the macros function to run against group result 
-   * - `functions or chain`_ 
+   * - `macro`_
+     - Name of the macros function to run against group result
+   * - `functions or chain`_
      - String containing list of functions to run this group results through
-   * - `to_ip`_   
+   * - `to_ip`_
      - transforms given values in ipaddress IPAddress object
-   * - `exclude`_   
+   * - `exclude`_
      - invalidates group results if **any** of given keys present in group
-   * - `excludeall`_   
+   * - `excludeall`_
      - invalidates group results if **all** given keys present in group
-   * - `del`_   
+   * - `del`_
      - delete given keys from group results
-   * - `sformat`_   
-     - format provided string with match result and/or template variables 
-   * - `itemize`_   
-     - produce list of items extracted out of group match results dictionary 
-   * - `cerberus`_   
+   * - `sformat`_
+     - format provided string with match result and/or template variables
+   * - `itemize`_
+     - produce list of items extracted out of group match results dictionary
+   * - `cerberus`_
      - filter results using Cerberus validation engine
-   * - `void`_   
+   * - `void`_
      - invalidates group results, allowing to skip them
-   * - `str_to_unicode`_   
+   * - `str_to_unicode`_
      - converts Python2 str strings in unicode strings
-   * - `equal`_   
+   * - `equal`_
      - verifies that key's value is equal to provided value
-   * - `to_int`_   
+   * - `to_int`_
      - converts given keys to integer (int or float) or tries to convert all match result values
-   * - `contains_val`_   
+   * - `contains_val`_
      - check if certain key contains certain value, return True if so and False otherwise
-   * - `exclude_val`_   
+   * - `exclude_val`_
      - check if certain key contains certain value, return False if so and True otherwise
-   * - `record`_   
+   * - `record`_
      - save (record) variable value in results object and global scope dictionaries
-   * - `set`_   
+   * - `set`_
      - get value from results object variables dictionary and assign it to variable
-   * - `expand`_   
+   * - `expand`_
      - expand match variable dot separated name to dictionary
-   * - `validate`_   
+   * - `validate`_
      - add Cerberus validation information to results without filtering them
-   * - `lookup`_   
-     - lookup match value in lookup table, other group or template results     
-   * - `items2dict`_   
-     - combine values of key_name and value_name keys in a key-value pair 
-     
+   * - `lookup`_
+     - lookup match value in lookup table, other group or template results
+   * - `items2dict`_
+     - combine values of key_name and value_name keys in a key-value pair
+
 containsall
 ------------------------------------------------------------------------------
 ``containsall="variable1, variable2, variableN"``
@@ -68,7 +68,7 @@ containsall
 
 **Example**
 
-For instance we want to get results only for interfaces that has IP address configured on them **and** vrf, 
+For instance we want to get results only for interfaces that has IP address configured on them **and** vrf,
 all the rest of interfaces should not make it to results.
 
 Data::
@@ -160,7 +160,7 @@ Result::
             }
         ]
     }
-    
+
 macro
 ------------------------------------------------------------------------------
 ``macro="name1, name2, ... , nameN"``
@@ -192,7 +192,7 @@ Template::
      description Routing ID loopback
     !
     </input>
-    
+
     <macro>
     def check_if_svi(data):
         if "Vlan" in data["interface"]:
@@ -200,7 +200,7 @@ Template::
         else:
             data["is_svi"] = False
         return data
-            
+
     def check_if_loop(data):
         if "Loopback" in data["interface"]:
             data["is_loop"] = True
@@ -208,17 +208,17 @@ Template::
             data["is_loop"] = False
         return data
     </macro>
-     
+
     <macro>
     def description_mod(data):
         # function to revert words order in descripotion
         words_list = data.get("description", "").split(" ")
         words_list_reversed = list(reversed(words_list))
-        words_reversed = " ".join(words_list_reversed) 
+        words_reversed = " ".join(words_list_reversed)
         data["description"] = words_reversed
         return data
     </macro>
-     
+
     <group name="interfaces_macro" macro="description_mod, check_if_svi, check_if_loop">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
@@ -251,7 +251,7 @@ Result::
             ]
         }
     ]
-    
+
 functions or chain
 ------------------------------------------------------------------------------
 ``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
@@ -312,7 +312,7 @@ Template::
      ip address 192.168.222.1 255.255.255.0
     !
     </input>
-    
+
     <macro>
     def check_if_svi(data):
         if "Vlan" in data["interface"]:
@@ -320,7 +320,7 @@ Template::
         else:
             data["is_svi"] = False
         return data
-            
+
     def check_if_loop(data):
         if "Loopback" in data["interface"]:
             data["is_loop"] = True
@@ -328,23 +328,23 @@ Template::
             data["is_loop"] = False
         return data
     </macro>
-     
+
     <macro>
     def description_mod(data):
         # To revert words order in descripotion
         words_list = data.get("description", "").split(" ")
         words_list_reversed = list(reversed(words_list))
-        words_reversed = " ".join(words_list_reversed) 
+        words_reversed = " ".join(words_list_reversed)
         data["description"] = words_reversed
         return data
     </macro>
-     
+
     <group name="interfaces_macro" functions="contains('ip') | macro('description_mod') | macro('check_if_svi') | macro('check_if_loop')">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
      ip address {{ ip }} {{ mask }}
     </group>
-    
+
 Result::
 
     [
@@ -386,7 +386,7 @@ Template::
       vlan 30
       description test loopback1
     </input>
-    
+
     <vars>
     chain1 = [
         "del(vlan) | set('set_value', 'set_key')",
@@ -396,35 +396,35 @@ Template::
         "macro(test_macro3, test_macro4)",
     ]
     </vars>
-    
+
     <macro>
     def test_macro(data):
         data["test_macro"] = "DONE"
         return data
-    
+
     def test_macro1(data):
         data["test_macro1"] = "DONE"
         return data
-        
+
     def test_macro2(data):
         data["test_macro2"] = "DONE"
         return data
-        
+
     def test_macro3(data):
         data["test_macro3"] = "DONE"
         return data
-        
+
     def test_macro4(data):
         data["test_macro4"] = "DONE"
         return data
     </macro>
-    
+
     <group chain="chain1">
     interface {{ interface }}
       vlan {{ vlan | to_int }}
       description {{ description | ORPHRASE }}
     </group>
-    
+
 Result::
 
     [[[{'description': 'test loopback0',
@@ -465,17 +465,17 @@ Template::
      ip address 2002::fd10 subnet mask 124
     !
     </input>
-    
+
     <group name="interfaces_with_funcs" functions="to_ip('ip', 'mask')">
     interface {{ interface }}
      ip address {{ ip }}  subnet mask {{ mask }}
     </group>
-    
+
     <group name="interfaces_with_to_ip_args" to_ip = "'ip', 'mask'">
     interface {{ interface }}
      ip address {{ ip }}  subnet mask {{ mask }}
     </group>
-    
+
     <group name="interfaces_with_to_ip_kwargs" to_ip = "ip_key='ip', mask_key='mask'">
     interface {{ interface }}
      ip address {{ ip }}  subnet mask {{ mask }}
@@ -501,14 +501,14 @@ Results::
                                                 {   'interface': 'Vlan710',
                                                     'ip': IPv6Interface('2002::fd10/124'),
                                                     'mask': '124'}]}]
-                                                    
+
 exclude
 ------------------------------------------------------------------------------
 ``exclude="variable1, variable2, ..., variableN"``
 
 * variableN - name of the variable on presence of which to invalidate/exclude group results
 
-This function allows to invalidate group match results based on the fact that **any** of the given variable names/keys are present. 
+This function allows to invalidate group match results based on the fact that **any** of the given variable names/keys are present.
 
 **Example**
 
@@ -535,7 +535,7 @@ Template::
      description {{ description | ORPHRASE }}
      switchport port-security mac {{ sec_mac }}
     </group>
-    
+
 Results::
 
     [
@@ -553,7 +553,7 @@ excludeall
 
 * variable - name of the variable on presence of which to invalidate/exclude group results
 
-excludeall allows to invalidate group results based on the fact that **all** of the given variable names/keys are present in match results. 
+excludeall allows to invalidate group results based on the fact that **all** of the given variable names/keys are present in match results.
 
 del
 ------------------------------------------------------------------------------
@@ -577,14 +577,14 @@ Template::
      switchport port-security mac 4
     !
     </input>
-    
+
     <group name="interfaces-test1-31" del="description, ip">
     interface {{ interface }}
      ip address {{ ip }}/{{ mask }}
      description {{ description | ORPHRASE }}
      switchport port-security mac {{ sec_mac }}
     </group>
-    
+
 Results::
 
     [
@@ -604,7 +604,7 @@ Results::
             ]
         }
     ]
-    
+
 sformat
 ------------------------------------------------------------------------------
 ``sformat="string='text', add_field='name'"`` or ``sformat="'text', 'name'"``
@@ -617,7 +617,7 @@ sformat (string format) method used to form string in certain way using template
     1 global variables produced by :ref:`Match Variables/Functions:record` function
     2 template variables as specified in <vars> tag
     3 group match results
-    
+
 Next variables in above list override the previous one.
 
 **Example**
@@ -627,19 +627,19 @@ Template::
     <vars>
     domain = "com"
     </vars>
-    
+
     <input load="text">
     switch-1 uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
     </input>
-    
+
     <input load="text">
     Default domain is lab.local
     </input>
-    
+
     <group name="uptime">
     {{ hostname | record("hostname")}} uptime is {{ uptime | PHRASE }}
     </group>
-    
+
     <group name="fqdn_dets_1" sformat="string='{hostname}.{fqdn},{domain}', add_field='fqdn'">
     Default domain is {{ fqdn }}
     </group>
@@ -659,7 +659,7 @@ Results::
             }
         }
     ]
-    
+
 string ``{hostname}.{fqdn},{domain}`` formatted using ``hostname`` variable from globally recorded vars, ``fqdn`` variable from group match results and ``domain`` variable defined in template vars. In this example ``add_field`` was set to ``fqdn`` to override fqdn match variable matched values
 
 itemize
@@ -669,7 +669,7 @@ itemize
 * key - mandatory, name of the key to use create a list of items from
 * path - optional, by default path taken from group name attribute, dot separated string of there to save a list of itemized items within results tree
 
-This function allows to take single result item from group match results and place it into the list at specified path. 
+This function allows to take single result item from group match results and place it into the list at specified path.
 
 Motivation behind this function is to be able to create a list of items out of group match results. For instance produce a list of all IP addresses configured on device or VRFs or OSPF processes without the need to iterate over parsing results to extract items in question.
 
@@ -694,7 +694,7 @@ Template::
      ip address 192.168.1.1/124
     !
     </input>
-    
+
     <group name="interfaces_list" itemize="interface">
     interface {{ interface }}
      ip address {{ ip }}
@@ -711,7 +711,7 @@ Results::
             ]
         }
     ]
-    
+
 cerberus
 ------------------------------------------------------------------------------
 ``cerberus="schema='var_name', log_errors=False, allow_unknown=True, add_errors=False"``
@@ -733,7 +733,7 @@ Let's say we want to extract information only for interfaces that satisfy these 
 
 * has "Gigabit" in the name
 * contains "Customer" in description
-* dot1q vlan id is in 200-300 range 
+* dot1q vlan id is in 200-300 range
 * interface belongs to one of VRFs - "Management" or "Data"
 
 Template::
@@ -763,7 +763,7 @@ Template::
      ipv6 address 2001:ad56::1273/64
     !
     </input>
-    
+
     <vars>
     my_schema = {
         "interface": {
@@ -776,21 +776,21 @@ Template::
             "regex": ".*Customer.*"
         },
         "vid": {
-            "min": 200, 
+            "min": 200,
             "max": 300
         }
     }
     </vars>
-    
+
     <group name="filtered_interfaces*" cerberus="my_schema">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
      encapsulation dot1q {{ vid | to_int }}
      vrf forwarding {{ vrf }}
      ip address {{ ip }} {{ mask }}
-     ipv6 address {{ ipv6 }}/{{ maskv6 }} 
+     ipv6 address {{ ipv6 }}/{{ maskv6 }}
     </group>
-    
+
 Result::
 
     [
@@ -817,7 +817,7 @@ Result::
             }
         ]
     ]
-    
+
 By default only results that passed validation criteria will be returned by TTP, however, if ``add_errors`` set to True::
 
     <group name="filtered_interfaces*" cerberus="schema='my_schema', add_errors=True">
@@ -826,9 +826,9 @@ By default only results that passed validation criteria will be returned by TTP,
      encapsulation dot1q {{ vid | to_int }}
      vrf forwarding {{ vrf }}
      ip address {[ ip }} {{ mask }}
-     ipv6 address {{ ipv6 }}/{{ maskv6 }} 
+     ipv6 address {{ ipv6 }}/{{ maskv6 }}
     </group>
-    
+
 None of the results will be filtered, but validation errors information will be included::
 
     [
@@ -879,7 +879,7 @@ None of the results will be filtered, but validation errors information will be 
             }
         ]
     ]
-    
+
 void
 ------------------------------------------------------------------------------
 ``void=""`` or ``functions="void"``
@@ -913,12 +913,12 @@ Template::
      description wlap2
     !
     </input>
-    
+
     <group name="interfaces" equal="description, Foo">
     interface {{ interface }}
      description {{ description }}
     </group>
-    
+
 Results::
 
     [
@@ -931,14 +931,14 @@ Results::
             }
         ]
     ]
-    
+
 to_int
 ------------------------------------------------------------------------------
 ``to_int=""`` or ``to_int="key1, key2, keyN"``
 
 * keyN - name of keys to run conversion for, if omitted, all group match results items will be attempted to convert into integer.
 
-This function tries to convert string representation of digit into integer using python int() function, if fails it next tries to convert to integer using python float() function. 
+This function tries to convert string representation of digit into integer using python int() function, if fails it next tries to convert to integer using python float() function.
 If either int() or float() conversion was successful, string converted to digit will replace match result, on failure nothing will be done with match results.
 
 **Example**
@@ -957,7 +957,7 @@ Template::
        DRB Cipher Algo = LTE AES
        Num PDUs = 1
     </input>
-    
+
     <group name="all_to_int" to_int="">
     Subscription ID = {{ Subscription_ID }}
     Version = {{ version }}
@@ -969,7 +969,7 @@ Template::
        DRB Cipher Algo = {{ DRB_Cipher_Algo | PHRASE }}
        Num PDUs = {{ Num_PDUs }}
     </group>
-    
+
     <group name="some_to_int" to_int="version, Subpacket_Version">
     Subscription ID = {{ Subscription_ID }}
     Version = {{ version }}
@@ -981,7 +981,7 @@ Template::
        DRB Cipher Algo = {{ DRB_Cipher_Algo | PHRASE }}
        Num PDUs = {{ Num_PDUs }}
     </group>
-    
+
 Results::
 
     [
@@ -1012,7 +1012,7 @@ Results::
             }
         ]
     ]
-    
+
 contains_val
 ------------------------------------------------------------------------------
 ``contains_val="key, value"``
@@ -1034,7 +1034,7 @@ Template::
      ip address 2.2.2.3/24
     !
     </input>
-    
+
     <group name="interfaces" contains_val="'ip', '2.2.2.2/24'">
     interface {{ interface }}
      ip address {{ ip }}
@@ -1042,7 +1042,7 @@ Template::
 
 Result::
 
-    
+
     [
         {
             "interfaces": {
@@ -1051,7 +1051,7 @@ Result::
             }
         }
     ]
-    
+
 **Example-2**
 
 In this example, value to check for defined as a variable. This can be useful if variables need to be set dynamically.
@@ -1065,16 +1065,16 @@ Template::
     interface Lo1
     ip address 1.1.1.1 32
     </input>
-    
+
     <vars>
     ip_in_question="1.1.1.1"
     </vars>
-    
+
     <group contains_val="ip, ip_in_question">
     interface {{ interface }}
     ip address {{ ip }} {{ mask }}
     </group>
-    
+
 Results::
 
     [
@@ -1111,16 +1111,16 @@ Template::
     interface Lo1
     ip address 1.1.1.1 32
     </input>
-    
+
     <vars>
     ip_in_question="1.1.1.1"
     </vars>
-    
+
     <group exclude_val="ip, ip_in_question">
     interface {{ interface }}
     ip address {{ ip }} {{ mask }}
     </group>
-    
+
 Results::
 
     [
@@ -1132,7 +1132,7 @@ Results::
             }
         ]
     ]
-    
+
 record
 ------------------------------------------------------------------------------
 ``record="source, target"``
@@ -1163,10 +1163,10 @@ Template::
       neighbor 10.6.254.67 activate
      exit-address-family
     </input>
-    
+
     <group name="bgp_config">
     router bgp {{ bgp_asn }}
-    
+
     <group name="VRFs" record="vrf">
      address-family {{ afi }} vrf {{ vrf | record(vrf) }}
       <group name="neighbors**.{{ neighbor }}**" method="table">
@@ -1175,9 +1175,9 @@ Template::
       </group>
      exit-address-family {{ _end_ }}
     </group>
-    
+
     </group>
-    
+
 Result::
 
     [
@@ -1212,7 +1212,7 @@ Result::
         ]
     ]
 
-**Example-1** 
+**Example-1**
 
 In this example same data was parsed by same template, using group ``record`` function to record match results. To keep it simple same name "vrf" used as a source and target name for variables.
 
@@ -1231,10 +1231,10 @@ Template::
       neighbor 10.61.254.68 activate
      exit-address-family
     </input>
-    
+
     <group name="bgp_config">
     router bgp {{ bgp_asn }}
-    
+
     <group name="VRFs" record="vrf">
      address-family {{ afi }} vrf {{ vrf }}
       <group name="neighbors**.{{ neighbor }}**" method="table" set="vrf">
@@ -1242,7 +1242,7 @@ Template::
       </group>
      exit-address-family {{ _end_ }}
     </group>
-    
+
     </group>
 
 Results::
@@ -1306,10 +1306,10 @@ Template::
       neighbor 10.61.254.68 activate
      exit-address-family
     </input>
-    
+
     <group name="bgp_config">
     router bgp {{ bgp_asn }}
-    
+
     <group name="VRFs" record="vrf, vrf_name">
      address-family {{ afi }} vrf {{ vrf }}
       <group name="neighbors**.{{ neighbor }}**" method="table" set="vrf_name, peer_vrf">
@@ -1317,7 +1317,7 @@ Template::
       </group>
      exit-address-family {{ _end_ }}
     </group>
-    
+
     </group>
 
 Results::
@@ -1391,10 +1391,10 @@ Template::
       neighbor 10.61.254.68 activate
      exit-address-family
     </input>
-    
+
     <group name="bgp_config">
     router bgp {{ bgp_asn }}
-    
+
     <group name="VRFs" record="vrf">
      address-family {{ afi }} vrf {{ vrf }}
      address-family {{ afi | _start_ }}
@@ -1403,7 +1403,7 @@ Template::
       </group>
      exit-address-family {{ _end_ }}
     </group>
-    
+
     </group>
 
 Results::
@@ -1446,8 +1446,8 @@ Results::
             }
         ]
     ]
-    
-.. warning:: default value will not be used as long as variable with given name found in ``_ttp_["vars"]`` or ``_ttp_["global_vars"]`` dictionary. 
+
+.. warning:: default value will not be used as long as variable with given name found in ``_ttp_["vars"]`` or ``_ttp_["global_vars"]`` dictionary.
 
 Above warning is significant for cases where values recorded and set in wrong order. For instance, this text data was re-ordered to produce wrong results::
 
@@ -1503,7 +1503,7 @@ will lead to improper results::
             }
         ]
     ]
-    
+
 expand
 ------------------------------------------------------------------------------
 ``expand=""``
@@ -1519,26 +1519,26 @@ In this template target.x match variables will be expanded/transformed to nested
 Template::
 
     <input load="text">
-    switch-1#show cdp neighbors detail 
+    switch-1#show cdp neighbors detail
     -------------------------
     Device ID: switch-2
-    Entry address(es): 
+    Entry address(es):
       IP address: 10.13.1.7
-    Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP 
+    Platform: cisco WS-C6509,  Capabilities: Router Switch IGMP
     Interface: GigabitEthernet4/6,  Port ID (outgoing port): GigabitEthernet1/5
-    
+
     -------------------------
     Device ID: switch-3
-    Entry address(es): 
+    Entry address(es):
       IP address: 10.17.14.1
-    Platform: cisco WS-C3560-48TS,  Capabilities: Switch IGMP 
+    Platform: cisco WS-C3560-48TS,  Capabilities: Switch IGMP
     Interface: GigabitEthernet1/1,  Port ID (outgoing port): GigabitEthernet0/1
     </input>
-    
+
     <group name="cdp*" expand="">
     Device ID: {{ target.id }}
       IP address: {{ target.top_label }}
-    Platform: {{ target.bottom_label | ORPHRASE }},  Capabilities: {{ ignore(ORPHRASE) }} 
+    Platform: {{ target.bottom_label | ORPHRASE }},  Capabilities: {{ ignore(ORPHRASE) }}
     Interface: {{ src_label | resuball(IfsNormalize) }},  Port ID (outgoing port): {{ trgt_label | ORPHRASE | resuball(IfsNormalize) }}
     </group>
 
@@ -1570,7 +1570,7 @@ Result::
             }
         ]
     ]
-    
+
 validate
 ------------------------------------------------------------------------------
 ``validate="schema, result='valid', info='', errors='', allow_unknown=True"``
@@ -1599,7 +1599,7 @@ Template::
     interface Lo1
      description this interface has description
     </input>
-    
+
     <input load="text">
     device-2#
     interface Lo10
@@ -1607,20 +1607,20 @@ Template::
     interface Lo11
      description another interface with description
     </input>
-    
+
     <vars>
     intf_description_validate = {
         'description': {'required': True, 'type': 'string'}
     }
     hostname="gethostname"
     </vars>
-    
+
     <group validate="intf_description_validate, info='{interface} has description', result='validation_result', errors='err_details'">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
      {{ hostname | set(hostname) }}
     </group>
-    
+
     <output>
     format = "tabulate"
     headers = "hostname, info, validation_result, err_details"
@@ -1637,13 +1637,13 @@ lookup
 ------------------------------------------------------------------------------
 ``lookup="key, name=None, template=None, group=None, add_field=False, replace=True, update=False"``
 
-Function to lookup match value in lookup table, other group or template results     
+Function to lookup match value in lookup table, other group or template results
 
 .. warning:: groups and templates order matters, groups or templates that used for lookup, should be parsed before groups that uses them.
 
 **Supported parameters**
 
-* ``key`` name of match variable to use for lookup 
+* ``key`` name of match variable to use for lookup
 * ``name`` dot separated path to lookup table data location, lookup table defined in ``<lookup>`` tag
 * ``template`` dot separated path to template results to use for lookups
 * ``group`` dot separated path to group results to use for lookups, group within same template
@@ -1666,13 +1666,13 @@ Template::
     Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
     Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
     </input>
-    
+
     <lookup name="lookup_data" load="python">
     { "ip_addresses": {
       "10.12.13.2": "app_1",
       "10.12.14.3": "app_2"}}
     </lookup>
-    
+
     <group name="arp" lookup="'ip', name='lookup_data.ip_addresses', add_field='APP'">
     Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     </group>
@@ -1708,24 +1708,24 @@ Template::
      vrf forwarding CUST1
     !
     </input>
-    
+
     <input name="arp" load="text">
     Protocol  Address     Age (min)  Hardware Addr   Type   Interface
     Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
     Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
     </input>
-    
+
     <group name="interfaces.{{ interface }}" input="interfaces">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
      ip address {{ subnet | PHRASE | to_ip | network | to_str }}
      vrf forwarding {{ vrf }}
     </group>
-    
+
     <group name="arp" lookup="interface, group='interfaces', update=True" input="arp">
     Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     </group>
-    
+
 Results::
 
     [[{'interfaces': {'FastEthernet2.13': {'description': 'Customer CPE interface',
@@ -1749,7 +1749,7 @@ Results::
                 'mac': '0150.7685.14d5',
                 'subnet': '10.12.14.0/24',
                 'vrf': 'CUST1'}]}]]
-                
+
 **Example-3**
 
 Use another template results for lookup with action set to update
@@ -1769,7 +1769,7 @@ Template::
      vrf forwarding CUST1
     !
     </input>
-    
+
     <group name="{{ interface }}">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
@@ -1777,19 +1777,19 @@ Template::
      vrf forwarding {{ vrf }}
     </group>
     </template>
-    
+
     <template name="arp">
     <input load="text">
     Protocol  Address     Age (min)  Hardware Addr   Type   Interface
     Internet  10.12.13.2        98   0950.5785.5cd1  ARPA   FastEthernet2.13
     Internet  10.12.14.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
     </input>
-    
+
     <group lookup="interface, template='interfaces', update=True">
     Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     </group>
     </template>
-    
+
 Results::
 
     [[{'FastEthernet2.13': {'description': 'Customer CPE interface',
@@ -1812,12 +1812,12 @@ Results::
         'mac': '0150.7685.14d5',
         'subnet': '10.12.14.0/24',
         'vrf': 'CUST1'}]]]
-        
+
 items2dict
 ------------------------------------------------------------------------------
 ``items2dict="key_name, value_name"``
 
-Function to combine values of key_name and value_name keys in a key-value pair.  
+Function to combine values of key_name and value_name keys in a key-value pair.
 
 **Example**
 
@@ -1832,19 +1832,19 @@ Template::
     vlan 456
      name WORKSTATIONS
     </input>
-    
+
     <group name="vlans*" items2dict="vlan, name">
     vlan {{ vlan }}
      name {{ name }}
     </group>
-    
+
 Result::
 
     [
         [
             {
                 'vlans': [
-                    {'123': 'SERVERS'}, 
+                    {'123': 'SERVERS'},
                     {'456': 'WORKSTATIONS'}
                 ]
             }

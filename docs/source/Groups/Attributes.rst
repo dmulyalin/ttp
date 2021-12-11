@@ -9,16 +9,16 @@ Each group tag (<g>, <grp>, <group>) can have a number of attributes, they used 
 
    * - Attribute
      - Description
-   * - `name`_   
+   * - `name`_
      - Uniquely identifies group(s) within template and specifies results path location
-   * - `input`_  
+   * - `input`_
      - Name of input tag or OS path string to files location
-   * - `default`_   
+   * - `default`_
      - Contains default value that should be set for all variables if nothing been matched
-   * - `method`_   
+   * - `method`_
      - Indicates parsing method, supported values are *group* or *table*
-   * - `output`_   
-     - Specify group specific outputs to run group result through          
+   * - `output`_
+     - Specify group specific outputs to run group result through
 
 name
 ------------------------------------------------------------------------------
@@ -44,14 +44,14 @@ Template::
 
     <input name="test1" load="text">
     interface GigabitEthernet3/3
-     switchport trunk allowed vlan add 138,166-173 
+     switchport trunk allowed vlan add 138,166-173
     </input>
-    
+
     <group name="interfaces" input="test1">
     interface {{ interface }}
      switchport trunk allowed vlan add {{ trunk_vlans }}
     </group>
-    
+
 Result::
 
     [
@@ -62,7 +62,7 @@ Result::
             }
         }
     ]
-    
+
 **Example-2**
 
 In this example several inputs define, by default groups set to 'all' for them, moreover, groups have identical name attribute. In this case group's *input* attribute helps to define which input should be parsed by which group.
@@ -75,14 +75,14 @@ Template::
      switchport trunk allowed vlan add 111,222
     !
     </input>
-    
+
     <input name="input_2" load="text">
     interface GigabitEthernet3/22
      description input_2_data
      switchport trunk allowed vlan add 222,888
     !
     </input>
-    
+
     <group name="interfaces.trunks" input="input_1">
     interface {{ interface }}
      switchport trunk allowed vlan add {{ trunk_vlans }}
@@ -90,7 +90,7 @@ Template::
      {{ group_id | set("group_1") }}
     !{{ _end_ }}
     </group>
-    
+
     <group name="interfaces.trunks" input="input_2">
     interface {{ interface }}
      switchport trunk allowed vlan add {{ trunk_vlans }}
@@ -98,7 +98,7 @@ Template::
      {{ group_id | set("group_2") }}
     !{{ _end_ }}
     </group>
-    
+
 Result::
 
     [
@@ -128,7 +128,7 @@ default
 ------------------------------------------------------------------------------
 ``default="value"``
 
-* value (optional) - string that should be used as a default value for all variables within this group or template variable name. 
+* value (optional) - string that should be used as a default value for all variables within this group or template variable name.
 
 If default value reference template variable that contains dictionary, that dictionary structure will merge with group results. If group does not have matches, in that case default structure will be uses as group results.
 
@@ -140,9 +140,9 @@ Template::
 
     <input name="test1" load="text">
     interface GigabitEthernet3/3
-     switchport trunk allowed vlan add 138,166-173 
+     switchport trunk allowed vlan add 138,166-173
     </input>
-    
+
     <group name="interfaces" input="test1" default="some_default_value">
     interface {{ interface }}
      description {{ description }}
@@ -174,14 +174,14 @@ Template::
     <input load="text">
     device-hostame uptime is 27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds
     </input>
-    
+
     <group name="uptime**">
     device-hostame uptime is {{ uptime | PHRASE }}
     <group name="software">
      software version {{ version | default("uncknown") }}
     </group>
     </group>
-    
+
     <group name="domain" default="Uncknown">
     Default domain is {{ fqdn }}
     </group>
@@ -203,7 +203,7 @@ Result::
             }
         ]
     ]
-    
+
 In above example in input there is no data to match by group ``domain``, this group default values were saved in results. Same is for child group ``software`` - no data to match in input, hence default values appears in results, because match variable ``software`` is start RE.
 
 **Example-3**
@@ -219,7 +219,7 @@ Template::
     interface Lo1
      description this interface has description
     </input>
-    
+
     <input load="text">
     interface Lo10
      ip address 1.1.1.2 255.255.255.255
@@ -228,14 +228,14 @@ Template::
      description another interface with description
      ip address 1.1.1.3 255.255.255.255
     </input>
-    
+
     <vars>
     var_name = {
         "L3": True,
         "has_ip": True
     }
     </vars>
-    
+
     <group name="interfaces">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
@@ -243,7 +243,7 @@ Template::
      ip address {{ IP }} {{ MASK }}
      </group>
     </group>
-    
+
 Results::
 
     [[{'interfaces': [{'IPv4_addresses': {'IP': '1.1.1.1',
@@ -319,8 +319,8 @@ Result::
             ]
         }
     ]
-    
-    
+
+
 output
 ------------------------------------------------------------------------------
 ``output="output1, output2, ... , outputN"``

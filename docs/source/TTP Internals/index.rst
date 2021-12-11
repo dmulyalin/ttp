@@ -30,19 +30,19 @@ To handle cases where ``ttp_dict_cache.pickle`` cannot be saved under TTP module
 Sometimes it is good to have name of TTP function to reference python reserved names, for instance ``set`` or ``del``, but, it is against best practices to name your functions with python
 well reserved names. At the same time, TTP does not call function directly but rather reference to function stored in ``_ttp_`` dictionary and that reference got called upon request.
 
-As a result ``_name_map_`` can be defined within .py file to map function names within that file to ``_ttp_`` dictionary keys. 
+As a result ``_name_map_`` can be defined within .py file to map function names within that file to ``_ttp_`` dictionary keys.
 
 Consider this example ::
 
     _name_map_ = {
         "set_func": "set"
     }
-    
+
     def set_func():
         pass
-    
+
 Here, ``set_func`` is function defined within file, on load TTP will add reference to that function under ``set`` key in a ``_ttp_`` dictionary using ``_name_map_``
- 
+
 
 _ttp_ (not so) dunder dictionary
 --------------------------------
@@ -180,7 +180,7 @@ The purpose of ``_ttp_`` is multi-fold:
                   'getfilename': <ttp.ttp.CachedModule object at 0x0367EB30>,
                   'gethostname': <ttp.ttp.CachedModule object at 0x03688F50>},
      'vars': {}}
-                  
+
 All above functions contained within ``.py`` files and spread across respective directories of TTP module. Description of ``_ttp_`` dictionary keys:
 
 * ``global_vars`` - dictionary to store variables produced by ``record`` function, this dictionary accessible between templates
@@ -208,10 +208,10 @@ Cross referencing functions using _ttp_ dictionary
 
 As mentioned before, ``_ttp_`` dictionary injected in global name-space of loaded functions, allowing functions to have access one to another and TTP in-run objects.
 
-Sample example on how to use cross referencing within macro:: 
+Sample example on how to use cross referencing within macro::
 
     from ttp import ttp
-    
+
     template = """
     <input load="text">
     interface Lo0
@@ -220,12 +220,12 @@ Sample example on how to use cross referencing within macro::
     interface Lo1
      ip address 1.1.1.1/30
     </input>
-    
+
     <group macro="add_last_host">
     interface {{ interface }}
      ip address {{ ip }}
     </group>
-    
+
     <macro>
     def add_last_host(data):
         # function to add last host in subnet to results
@@ -239,10 +239,10 @@ Sample example on how to use cross referencing within macro::
     parser.parse()
     res = parser.result()
     pprint.pprint(res)
-    
+
 Results::
 
     [[[{'interface': 'Lo0', 'ip': '124.171.238.50/29', 'last_host': '124.171.238.54'},
        {'interface': 'Lo1', 'ip': '1.1.1.1/30', 'last_host': '1.1.1.2'}]]]
-       
+
 In this example ``_ttp_["match"]["to_ip"](data["ip"])`` is a call to match variable ``to_ip`` function to convert match result in IPv4Interface object. Methods of this object, for example, can be used to extract information about last host in the subnet.

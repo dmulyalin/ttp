@@ -1,11 +1,11 @@
 Dynamic Path
 ============
 
-Above are examples of static path, where all the path items are known and predefined beforehand, however, ttp supports dynamic path formation using match variable results for certain match variable names, i.e we have match variable name set to *interface* and correspondent match result would be Gi0/1, it is possible to use Gi0/1 as a path item. 
+Above are examples of static path, where all the path items are known and predefined beforehand, however, ttp supports dynamic path formation using match variable results for certain match variable names, i.e we have match variable name set to *interface* and correspondent match result would be Gi0/1, it is possible to use Gi0/1 as a path item.
 
 Search for dynamic path item value happens using below sequence:
 
-* *First* - group match results searched for path item value, 
+* *First* - group match results searched for path item value,
 * *Second* - upper group results cache (latest values) used,
 * *Third* - template variables searched for path item value,
 * *Last* - group results discarded as invalid
@@ -29,7 +29,7 @@ Data::
       description Management
       ip address 192.168.0.1/24
       vrf MGMT
-	  
+
 Template::
 
     <group name="interfaces.{{ interface }}">
@@ -38,7 +38,7 @@ Template::
       ip address {{ ip }}/{{ mask }}
       vrf {{ vrf }}
     </group>
-	  
+
 Result::
 
     [
@@ -61,7 +61,7 @@ Result::
             }
         }
     ]
-	
+
 Because each path item is a string, and each item produced by spilling name attributes using '.' dot character, it is possible to produce dynamic path there portions of path item will be dynamically substituted.
 
 
@@ -78,7 +78,7 @@ Data::
       description Management
       ip address 192.168.0.1/24
       vrf MGMT
-	  
+
 Template::
 
     <group name="interfaces.cool_{{ interface }}_interface">
@@ -87,7 +87,7 @@ Template::
       ip address {{ ip }}/{{ mask }}
       vrf {{ vrf }}
     </group>
-	  
+
 Result::
 
     [
@@ -110,11 +110,11 @@ Result::
             }
         }
     ]
-	
-.. note:: 
- 
+
+.. note::
+
   Substitution of dynamic path items happens using re.sub method without the limit set on the count of such a substitutions, e.g. if path item "cool_{{ interface }}_interface_{{ interface }}" and if interface value is "Gi0/1" resulted path item will be "cool_Gi0/1_interface_Gi0/1"
-	
+
 Nested hierarchies also supported with dynamic path, as if no variable found in the group match results ttp will try to find variable in the dynamic path cache or template variables.
 
 **Example-3**
@@ -139,13 +139,13 @@ Data::
           address-family ipv4 unicast
             route-map AAPTVRF-LB-BGP-IMPORT-V4 in
             route-map AAPTVRF-LB-BGP-EXPORT-V4 out
-	  
+
 Template::
 
     <vars>
     hostname = "gethostname"
     </vars>
-    
+
     <group name="{{ hostname }}.router.bgp.BGP_AS_{{ asn }}">
     router bgp {{ asn }}
       <group name="vrfs.{{ vrf_name }}">
@@ -162,7 +162,7 @@ Template::
     	</group>
        </group>
     </group>
-	
+
 Result::
 
     - ucs-core-switch-1:

@@ -1,7 +1,7 @@
 Attributes
 ==========
 
-There are a number of attributes that outputs system can use. Some attributes can be specific to output itself (name, description), others can be used by formatters or returners. 
+There are a number of attributes that outputs system can use. Some attributes can be specific to output itself (name, description), others can be used by formatters or returners.
 
 .. list-table::
    :widths: 10 90
@@ -9,24 +9,24 @@ There are a number of attributes that outputs system can use. Some attributes ca
 
    * - Name
      - Description
-   * - `name`_ 
+   * - `name`_
      - name of the output, can be referenced in group *output* attribute
-   * - `description`_ 
+   * - `description`_
      - attribute to contain description of outputter
-   * - `load`_ 
+   * - `load`_
      - name of the loader to use to load output tag text
-   * - `returner`_ 
+   * - `returner`_
      - returner to use to return data e.g. self, file, terminal
-   * - `format`_ 
-     - formatter to use to format results    
-   * - `condition`_ 
-     - condition to check before running output       
+   * - `format`_
+     - formatter to use to format results
+   * - `condition`_
+     - condition to check before running output
 
 name
 ******************************************************************************
 ``name="output_name"``
 
-Name of the output, optional attribute, can be used to reference it in groups :ref:`Groups/Attributes:output` attribute, in that case that output will become group specific and will only process results for this group. 
+Name of the output, optional attribute, can be used to reference it in groups :ref:`Groups/Attributes:output` attribute, in that case that output will become group specific and will only process results for this group.
 
 description
 ******************************************************************************
@@ -36,7 +36,7 @@ desription_string, optional string that contains output description or notes, ca
 
 load
 ******************************************************************************
-``load="loader_name"``    
+``load="loader_name"``
 
 Name of the loader to use to render supplied output tag text data, default is python.
 
@@ -47,22 +47,22 @@ Supported loaders:
 * json - used to load JSON formatted variables data
 * ini - `configparser <https://docs.python.org/3/library/configparser.html>`_ Python standard module used to read variables from ini structured file
 * csv - csv formatted data loaded with Python *csv* standard library module
-     
+
 returner
 ******************************************************************************
-``returner=returner_name"``    
+``returner=returner_name"``
 
 Name of the returner to use to return results.
 
 format
 ******************************************************************************
-``format=formatter_name"``    
+``format=formatter_name"``
 
 Name of the formatter to use to format results.
 
 condition
 ******************************************************************************
-``condition="template_variable_name, template_variable_value"`` 
+``condition="template_variable_name, template_variable_value"``
 
 Where:
 
@@ -88,7 +88,7 @@ Here we conditionally run csv output formatter using ``convert_to_csv`` template
     interface GigabitEthernet1/4
      description vCPEs access control
      ip address 172.16.33.10 255.255.255.128
-    """    
+    """
     template = """
     <group>
     interface {{ interface }}
@@ -96,17 +96,17 @@ Here we conditionally run csv output formatter using ``convert_to_csv`` template
      encapsulation dot1q {{ vlan }}
      ip address {{ ip }} {{ mask }}
     </group>
-    
+
     <output condition="convert_to_csv, True" format="csv"/>
     """
     parser1 = ttp(data=data, template=template, vars={"convert_to_csv": False})
     parser1.parse()
     res1 = parser1.result()
-    
+
     parser2 = ttp(data=data, template=template, vars={"convert_to_csv": True})
     parser2.parse()
     res2 = parser2.result()
-    
+
     pprint.pprint(res1)
     # prints:
     # [[[{'interface': 'GigabitEthernet1/3.251',
@@ -116,12 +116,12 @@ Here we conditionally run csv output formatter using ``convert_to_csv`` template
     #    {'interface': 'GigabitEthernet1/4',
     #     'ip': '172.16.33.10',
     #     'mask': '255.255.255.128'}]]]
-                           
+
     pprint.pprint(res2)
     # prints:
     # ['"interface","ip","mask","vlan"\n'
     #  '"GigabitEthernet1/3.251","172.16.33.10","255.255.255.128","251"\n'
     #  '"GigabitEthernet1/4","172.16.33.10","255.255.255.128",""']
-    
-Outputter ``<output condition="convert_to_csv, True" format="csv"/>`` indicates that this outputter will only run if 
+
+Outputter ``<output condition="convert_to_csv, True" format="csv"/>`` indicates that this outputter will only run if
 ``convert_to_csv`` template variable set to ``True``

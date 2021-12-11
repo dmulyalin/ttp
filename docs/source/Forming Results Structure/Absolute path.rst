@@ -1,7 +1,7 @@
 Absolute path
 =============
 
-By default TTP treats name attribute as a relative path, relative to parent groups, expanding path to full (absolute) path for each and every group. 
+By default TTP treats name attribute as a relative path, relative to parent groups, expanding path to full (absolute) path for each and every group.
 
 For instance for below template::
 
@@ -21,16 +21,16 @@ For instance for below template::
 
     <group name="bgp_config">
     router bgp {{ bgp_asn }}
-    
+
     <group name="VRFs">
      address-family {{ afi }} vrf {{ vrf }}
       <group name="neighbors**.{{ neighbor }}**" method="table">
       neighbor {{ neighbor }} route-policy {{ ingreass_rpl }} in
       </group>
     </group>
-    
+
     </group>
-    
+
 Paths for child groups will be expanded to the list of absolute path items:
 
 .. list-table::
@@ -39,13 +39,13 @@ Paths for child groups will be expanded to the list of absolute path items:
 
    * - Name attribute
      - Path
-   * - bgp_config 
+   * - bgp_config
      - [bgp_config]
    * - VRFs
      - [bgp_config, VRFs]
    * - neighbors**.{{ neighbor }}**
      - [bgp_config, VRFs, neighbors, {{ neighbor }}]
-     
+
 Results structure for above template will look like::
 
     [
@@ -103,19 +103,19 @@ Example Template::
       neighbor 10.61.254.68 route-policy DENY_ALL in
      exit-address-family
     </input>
-    
+
     <group name="bgp_config">
     router bgp {{ bgp_asn }}
-    
+
     <group name="VRFs">
      address-family {{ afi }} vrf {{ vrf }}
       <group name="/neighbors**.{{ neighbor }}**" method="table">
       neighbor {{ neighbor }} route-policy {{ ingreass_rpl }} in
       </group>
     </group>
-    
+
     </group>
-    
+
 In above template, note the name of this child group - `name="/neighbors**.{{ neighbor }}**"` - it is prepended with forward slash character and treated as absolute path. Result structure for above template will be::
 
     [
@@ -163,7 +163,7 @@ Empty absolute path ``name="/"`` substituted with an ``_anonymous_*`` group name
     vrf forwarding MGMT
     ip address 10.123.89.55 255.255.255.0
     </input>
-    
+
     <input load="text">
     r1#show run interface
     interface GigabitEthernet1
@@ -173,7 +173,7 @@ Empty absolute path ``name="/"`` substituted with an ``_anonymous_*`` group name
     interface GigabitEthernet2
     ip address 10.123.89.55 255.255.255.0
     </input>
-    
+
     <group void="">
     interface {{ interface }}
     description {{ description | ORPHRASE }}
@@ -182,7 +182,7 @@ Empty absolute path ``name="/"`` substituted with an ``_anonymous_*`` group name
     </group>
     </group>
     </template>
-    
+
 Results::
 
     [[{'ip': '10.123.89.55', 'mask': '255.255.255.0'},

@@ -1,6 +1,6 @@
 Lookup Tables
 =============
-   
+
 Lookups tag allows to define a lookup table that will be transformed into lookup dictionary, dictionary that can be used to lookup values to include them into parsing results. Lookup table can be called from match variable using *lookup* function.
 
 .. list-table:: lookup tag attributes
@@ -9,26 +9,26 @@ Lookups tag allows to define a lookup table that will be transformed into lookup
 
    * - Name
      - Description
-   * - `name`_ 
+   * - `name`_
      - name of the lookup table to reference in match variable *lookup* function
-   * - `load`_ 
+   * - `load`_
      - name of the loader to use to load lookup text
-   * - `include`_   
+   * - `include`_
      - specifies location of the file to load lookup table from
-   * - `key`_   
+   * - `key`_
      - If csv loader used, *key* specifies column name to use as a key
-   * - `database`_   
+   * - `database`_
      - Name of database loader to use to load lookup data
-	 
+
 name
 ------------------------------------------------------------------------------
 ``name="lookup_table_name"``
 
 * lookup_table_name(mandatory) - string to use as a name for lookup table, that is required attribute without it lookup data will not be loaded.
-     
+
 load
 ------------------------------------------------------------------------------
-``load="loader_name"``    
+``load="loader_name"``
 
 * loader_name (optional) - name of the loader to use to render supplied variables data, default is python.
 
@@ -44,13 +44,13 @@ If load is csv, first column by default will be used to create lookup dictionary
 
 include
 ------------------------------------------------------------------------------
-``include="path"``    
+``include="path"``
 
 * path - absolute OS path to text file with lookup table data.
 
 key
 ------------------------------------------------------------------------------
-``key="column_name"``    
+``key="column_name"``
 
 * column_name - optional string attribute that can be used by csv loader to use given column values as a key for dictionary constructed out of csv data.
 
@@ -65,14 +65,14 @@ Template::
     65100,Subs,Private ASN,734
     65200,Privs,Undef ASN,121
     </lookup>
-    
+
     <input load="text">
     router bgp 65100
     </input>
-    
+
     <group name="bgp_config">
     router bgp {{ bgp_as | lookup("aux_csv", add_field="as_details") }}
-    </group> 
+    </group>
 
 Result::
 
@@ -88,10 +88,10 @@ Result::
             }
         }
     ]
-    
+
 Because no *key* attribute provided, csv data was loaded in python dictionary using first column - ASN - as a key. This is the resulted lookup dictionary::
 
-    { 
+    {
       "65100": {
             "as_name": "Subs",
             "as_description" : "Private ASN",
@@ -103,10 +103,10 @@ Because no *key* attribute provided, csv data was loaded in python dictionary us
             "prefix_num": "121"
         }
     }
-    
+
 If *key* will be set to "as_name", lookup dictionary will become::
 
-    { 
+    {
       "Subs": {
             "ASN": "65100",
             "as_description" : "Private ASN",
@@ -118,19 +118,19 @@ If *key* will be set to "as_name", lookup dictionary will become::
             "prefix_num": "121"
         }
     }
-    
+
 INI Example
 ------------------------------------------------------------------------------
 
-If table provided in INI format, data will be transformed into dictionary with top key equal to lookup table names, next level of keys will correspond to INI sections which will nest a dictionary of actual key-value pairs. For instance in below template with lookup name "location", INI data will be loaded into this python dictionary structure:: 
+If table provided in INI format, data will be transformed into dictionary with top key equal to lookup table names, next level of keys will correspond to INI sections which will nest a dictionary of actual key-value pairs. For instance in below template with lookup name "location", INI data will be loaded into this python dictionary structure::
 
-    { "locations": 
+    { "locations":
         { "cities": {
             "-mel-": "7 Name St, Suburb A, Melbourne, Postal Code",
             "-bri-" : "8 Name St, Suburb B, Brisbane, Postal Code"
         }
     }}
-    
+
 As a result dictionary data to use for lookup can be referenced using "locations.cities" string in lookup/rlookup match variables function.
 
 Template::
@@ -149,15 +149,15 @@ Template::
     -mel- : 7 Name St, Suburb A, Melbourne, Postal Code
     -bri- : 8 Name St, Suburb B, Brisbane, Postal Code
     </lookup>
-    
+
     <group name="bgp_config">
     router bgp {{ bgp_as }}
      <group name="peers">
       neighbor {{ peer }}
         description {{ description | rlookup('locations.cities', add_field='location') }}
      </group>
-    </group> 
-    
+    </group>
+
 Result::
 
     [
@@ -179,7 +179,7 @@ Result::
             }
         }
     ]
-    
+
 YAML Example
 ------------------------------------------------------------------------------
 
@@ -197,15 +197,15 @@ Template::
       as_name: Cust1
       prefix_num: '156'
     </lookup>
-    
+
     <input load="text">
     router bgp 65100
     </input>
-    
+
     <group name="bgp_config">
     router bgp {{ bgp_as | lookup("yaml_look", add_field="as_details") }}
-    </group> 
-    
+    </group>
+
 Result::
 
     [
@@ -219,13 +219,13 @@ Result::
                 "bgp_as": "65100"
             }
         }
-    ]  
-	
+    ]
+
 database
 ------------------------------------------------------------------------------
 ``database="db name"``
 
-Name of database to use to populate lookup data. 
+Name of database to use to populate lookup data.
 
 Below is a list of supported databases
 
@@ -243,7 +243,7 @@ Sample template lookup tag to define geoip2 .mmdb files location::
     AsN     = 'C:/path/to/GeoLite2-ASN.mmdb'
     Country = 'C:/path/to/GeoLite2-Country.mmdb'
     </lookup>
-	
+
 To correctly load databases TTP expects "City", "ASN", "Country" arguments to be defined within lookup tag data, argument names are not case sensitive, each argument should contain OS patch to respective database file.
 
 Above example contains Python formatted data, but it can be YAML or JSON as well, for instance YAML formatted data::

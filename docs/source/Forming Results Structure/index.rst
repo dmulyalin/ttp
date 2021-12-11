@@ -8,7 +8,7 @@ TTP supports variety of techniques to influence results structure. Majority of t
 .. toctree::
    :maxdepth: 2
    :titlesonly:
-   
+
    Group Name Attribute
    Path formatters
    Dynamic Path
@@ -16,7 +16,7 @@ TTP supports variety of techniques to influence results structure. Majority of t
    Anonymous group
    Null path name attribute
    Absolute path
-   
+
 Expanding Match Variables
 -------------------------
 

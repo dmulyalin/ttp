@@ -22,7 +22,7 @@ It is easy to notice that there is a lot of data which is the same and there is 
      description {{ description | PHRASE }}
      ip address {{ ip }} {{ mask }}
     </group>
-    
+
 After parsing this configuration data with that template results will be::
 
     [
@@ -43,14 +43,14 @@ After parsing this configuration data with that template results will be::
             ]
         }
     ]
-	
-As a result each interfaces group produced separate dictionary and all interfaces dictionaries were combined in a list under *interfaces* key which is derived from group name. 
+
+As a result each interfaces group produced separate dictionary and all interfaces dictionaries were combined in a list under *interfaces* key which is derived from group name.
 
 Group reference
 -------------------
 
 .. toctree::
    :maxdepth: 2
-   
+
    Attributes
    Functions

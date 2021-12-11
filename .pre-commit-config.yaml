@@ -10,13 +10,13 @@ repos:
     hooks:
       - id: check-ast
       - id: end-of-file-fixer
-        exclude: ^tests/
+        exclude: ^test/
       - id: requirements-txt-fixer
       - id: trailing-whitespace
-        exclude: ^tests/
+        exclude: ^test/
       - id: check-added-large-files
         args: ['--maxkb=1000']
-        exclude: ^tests/
+        exclude: ^test/
   # black
   - repo: https://github.com/psf/black
     rev: 19.3b0

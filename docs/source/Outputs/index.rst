@@ -11,14 +11,14 @@ In addition two types of outputter exists - template specific and group specific
 
 There is a set of function available in outputs to process/modify results further.
 
-.. note:: If several outputs provided - they run sequentially in the order defined in template. Within single output, processing order is - functions run first, after that formatters, followed by returners. 
+.. note:: If several outputs provided - they run sequentially in the order defined in template. Within single output, processing order is - functions run first, after that formatters, followed by returners.
 
 Outputs reference
 -------------------
 
 .. toctree::
    :maxdepth: 2
-   
+
    Attributes
    Functions
    Formatters

@@ -16,7 +16,7 @@ setup(
     url="https://github.com/dmulyalin/ttp",
     packages=find_packages(),
     include_package_data=True,
-    data_files=[('', ['LICENSE'])],
+    data_files=[("", ["LICENSE"])],
     classifiers=[
         "Topic :: Utilities",
         "Programming Language :: Python :: 2.7",
@@ -26,7 +26,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    entry_points = {
-        'console_scripts': ['ttp=ttp.ttp:cli_tool'],
-    }
+    entry_points={"console_scripts": ["ttp=ttp.ttp:cli_tool"]},
 )

@@ -3,21 +3,21 @@ Functions
 
 Input tag support functions to pre-process data.
 
-.. list-table:: 
+.. list-table::
    :widths: 10 90
    :header-rows: 1
 
    * - Attribute
      - Description
-   * - `functions attribute`_   
+   * - `functions attribute`_
      - pipe-separated list of functions
-   * - `macro`_   
+   * - `macro`_
      - comma-separated list of macro functions to run input data through
-   * - `extract_commands`_   
+   * - `extract_commands`_
      - comma-separated list of commands output to extract from text data
-   * - `test`_   
+   * - `test`_
      - Test function to verify input function handling
-     
+
 functions attribute
 ------------------------------------------------------------------------
 ``functions="function1('attributes') | function2('attributes') | ... | functionN('attributes')"``
@@ -46,12 +46,12 @@ Depending on data returned by macro function, TTP will behave differently accord
 
 extract_commands
 ------------------------------------------------------------------------
-``extract_commands="command1, command2, ... , commandN"``     
+``extract_commands="command1, command2, ... , commandN"``
 
 Purpose of this function is for each network device command string TTP can extract associated data from input text, so that input groups will only process data they designed to parse
-    
+
 ..note:: to be able to successfully extract show commands output, text data should contain device hostname together with command itself. ``gethostname`` function will be called on data to extract hostname
-    
+
 **Example**
 
 In below template, only "show interfaces" command output will be processed, as only that command specified in input ``extract_commands`` attribute.
@@ -69,7 +69,7 @@ Template::
     GigabitEthernet55 is up, line protocol is up
       Hardware is CSR vNIC, address is 0800.2779.e888 (bia 0800.2779.e888)
     </input>
-    
+
     <group name="interfaces_status">
     {{ interface }} is up, line protocol is up
       Hardware is CSR vNIC, address is {{ mac }} (bia {{ bia_mac }})
@@ -91,6 +91,6 @@ Result::
 
 test
 ------------------------------------------------------------------------
-``test=""``     
+``test=""``
 
 Test function to verify input function call, test simply prints informational message to the screen, indicating that input test function was called.

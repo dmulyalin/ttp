@@ -1,8 +1,8 @@
 Extend Tag
 ==========
 
-Extend tag allows to extend template with content of other templates. Parent template will load **all** 
-tags of extended template and process them as if they were inserted in place of the ``extend`` tag 
+Extend tag allows to extend template with content of other templates. Parent template will load **all**
+tags of extended template and process them as if they were inserted in place of the ``extend`` tag
 definition.
 
 Extend tag can be nested within groups as well, but in that case only ``group`` and ``extend`` tags loaded from
@@ -14,19 +14,19 @@ extended template, other tags (lookup, vars, input, output) are ignored. Nested 
 
    * - Attribute
      - Description
-   * - `template`_   
+   * - `template`_
      - OS path to template file or reference to template within TTP Templates repository
-   * - `inputs`_   
+   * - `inputs`_
      - filter, comma separated list of input tag names to load
-   * - `groups`_   
+   * - `groups`_
      - filter, comma separated list of group tag names to load
-   * - `vars`_   
+   * - `vars`_
      - filter, comma separated list of template variables tag names to load
-   * - `lookups`_   
+   * - `lookups`_
      - filter, comma separated list of lookup tag names to load
-   * - `outputs`_   
+   * - `outputs`_
      - filter, comma separated list of output tag names to load
-     
+
 template
 --------
 ``template="path_string"``
@@ -53,16 +53,16 @@ This template uses reference to a template within TTP templates repository to lo
      description Some description 2
      ip address 10.1.0.1 255.255.255.0
     !
-    
+
 Template content::
 
     <extend template="ttp://platform/test_platform_show_run_pipe_sec_interface.txt"/>
-    
+
     <group name="vlans.{{ vlan }}">
     vlan {{ vlan }}
      name {{ name }}
     </group>
-    
+
 Where ``ttp://platform/test_platform_show_run_pipe_sec_interface.txt`` template content is::
 
     <group>
@@ -72,7 +72,7 @@ Where ``ttp://platform/test_platform_show_run_pipe_sec_interface.txt`` template 
      ip address {{ ip }} {{ mask }}
      shutdown {{ disabled | set(True) }}
     </group>
-    
+
 Results::
 
    [
@@ -96,7 +96,7 @@ Results::
             ]
         ]
     ]
-    
+
 **Example-2**
 
 This template extending groups from a file on local file system to parse this data::
@@ -117,16 +117,16 @@ This template extending groups from a file on local file system to parse this da
      description Some description 2
      ip address 10.1.0.1 255.255.255.0
     !
-    
+
 Template content::
 
     <extend template="/templates/parse_interfaces.txt"/>
-    
+
     <group name="vlans.{{ vlan }}">
     vlan {{ vlan }}
      name {{ name }}
     </group>
-    
+
 Where ``/templates/parse_interfaces.txt`` template content is::
 
     <group>
@@ -136,7 +136,7 @@ Where ``/templates/parse_interfaces.txt`` template content is::
      ip address {{ ip }} {{ mask }}
      shutdown {{ disabled | set(True) }}
     </group>
-    
+
 Results::
 
    [
@@ -160,10 +160,10 @@ Results::
             ]
         ]
     ]
-    
+
 **Example-3**
 
-This example demonstrates how to use ``extend`` tag withing groups. 
+This example demonstrates how to use ``extend`` tag withing groups.
 
 Sample data::
 
@@ -173,20 +173,20 @@ Sample data::
      !
      neighbor 2.2.2.2 remote-as 65000
      neighbor 2.2.2.3 remote-as 65001
-     
+
 Parent template is::
 
     <group name="bgp_config">
     router bgp {{ bgp_as }}
-    
+
     <extend template="/template/bgp_params.txt"/>
-    
+
     <group name="peers">
      neighbor {{ peer }} remote-as {{ asn }}
     </group>
-    
-    </group> 
-    
+
+    </group>
+
 Where ``/template/bgp_params.txt`` content is::
 
     <group name="config">

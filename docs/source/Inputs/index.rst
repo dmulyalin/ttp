@@ -1,7 +1,7 @@
 Inputs
 =======
 
-Inputs can be used to specify data location and how it should be loaded or filtered. Inputs can be attached to groups for parsing, for instance this particular input data should be parsed by this set of groups only. That can help to increase the overall performance as only data belonging to particular group will be parsed. 
+Inputs can be used to specify data location and how it should be loaded or filtered. Inputs can be attached to groups for parsing, for instance this particular input data should be parsed by this set of groups only. That can help to increase the overall performance as only data belonging to particular group will be parsed.
 
 .. note:: Order of inputs preserved as internally they represented using OrderedDict object, that can be useful if data produced by first input needs to bused by other inputs.
 
@@ -15,7 +15,7 @@ Assuming we have this folders structure to store data that needs to be parsed::
                 sw-1.txt
              data-2/
                 sw-2.txt
-                sw3.txt                       
+                sw3.txt
 
 Where content::
 
@@ -34,18 +34,18 @@ Where content::
     interface GigabitEthernet3/3
      switchport access vlan 600
     !
-    
+
     [sw-2.txt]
     interface Vlan221
       ip address 10.8.14.130/25
-    
+
     interface Vlan223
       ip address 10.10.15.130/25
-    
+
     [sw3.txt]
     interface Vlan220
       ip address 10.9.14.130/24
-    
+
     interface Vlan230
       ip address 10.11.15.130/25
 
@@ -60,23 +60,23 @@ Template::
     url: "/Data/Inputs/data-1/"
     extensions: ["txt"]
     </input>
-    
+
     <input name="dataset-2" load="python" groups="interfaces2">
     url = ["/Data/Inputs/data-2/"]
     filters = ["sw\-\d.*"]
     </input>
-    
+
     <group name="interfaces1">
     interface {{ interface }}
      switchport access vlan {{ access_vlan }}
     </group>
-    
+
     <group name="interfaces2">
     interface {{ interface }}
       ip address {{ ip  }}/{{ mask }}
     </group>
     </template>
-    
+
 And result would be::
 
     [
@@ -113,7 +113,7 @@ Inputs reference
 
 .. toctree::
    :maxdepth: 2
-   
+
    Attributes
    Functions
    Sources

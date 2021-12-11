@@ -21,11 +21,11 @@ To create template, take data that needs to be parsed and replace portions of it
      ip address {{ ip }}/{{ mask }}
      description {{ description }}
      ip vrf {{ vrf }}
-    
+
 Above data and template can be saved in two files, and ttp CLI tool can be used to parse it with command::
 
-    ttp -d "/path/to/data/file.txt" -t "/path/to/template.txt" --outputter json	
-	
+    ttp -d "/path/to/data/file.txt" -t "/path/to/template.txt" --outputter json
+
 And get these results::
 
     [
@@ -45,14 +45,14 @@ And get these results::
             }
         ]
     ]
-	
+
 .. note:: TTP match variables names used as regular expressions group names, hence they should be valid Python identifiers. However, TTP sanitizes match variable name prior to using it in regex by replacing all non-alpha characters with underscore and prepending underscore if variable name starts with digit. Original variable name used as is to store results.
 
 Above process is very similar to writing `Jinja2 <https://palletsprojects.com/p/jinja/>`_ templates but in reverse direction - we have text and we need to transform it into structured data, as opposed to having structured data, that needs to be rendered with Jinja2 template to produce text.
 
 .. warning:: Indentation is important. Trailing spaces and tabs are ignored by TTP.
 
-TTP use leading spaces and tabs to produce better match results, exact number of leading spaces and tabs used to form regular expressions. There is a way to ignore indentation by the use of :ref:`Match Variables/Indicators:ignore` indicator coupled with ``[\s\t]*`` or ``\s+`` or ``\s{1,3}`` or ``\t+`` etc.  regular expressions. 
+TTP use leading spaces and tabs to produce better match results, exact number of leading spaces and tabs used to form regular expressions. There is a way to ignore indentation by the use of :ref:`Match Variables/Indicators:ignore` indicator coupled with ``[\s\t]*`` or ``\s+`` or ``\s{1,3}`` or ``\t+`` etc.  regular expressions.
 
 TTP supports various output formats, for instance, if we need to emit data not in json but csv format we can use outputter and write this template::
 
@@ -62,12 +62,12 @@ TTP supports various output formats, for instance, if we need to emit data not i
      description {{ description }}
      ip vrf {{ vrf }}
     </group>
-    
-    <output format="csv" returner="terminal"/> 
 
-Run ttp CLI tool without -o option to print only results produced by outputter defined within template:: 
+    <output format="csv" returner="terminal"/>
 
-	ttp -d "/path/to/data/file.txt" -t "/path/to/template.txt"	
+Run ttp CLI tool without -o option to print only results produced by outputter defined within template::
+
+	ttp -d "/path/to/data/file.txt" -t "/path/to/template.txt"
 
 We told TTP that ``returner="terminal"``, because of that results will be printed to terminal screen::
 
@@ -85,7 +85,7 @@ HOW TOs
 
 .. toctree::
    :maxdepth: 2
-   
+
    How to parse hierarchical (configuration) data
    How to parse text tables
    How to parse show commands output

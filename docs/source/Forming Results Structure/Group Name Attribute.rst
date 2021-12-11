@@ -11,14 +11,14 @@ Consider a group with this name attribute value::
       ip address {{ ip }}/{{ mask }}
       vrf {{ vrf }}
     </group>
-	
+
 If below data parsed with that template::
 
     interface Vlan777
       description Management
       ip address 192.168.0.1/24
       vrf MGMT
-	  
+
 This result will be produced::
 
     [
@@ -38,5 +38,5 @@ This result will be produced::
             }
         }
     ]
-	
+
 Name attribute allows to from arbitrary (from practical perspective) depth structure in deterministic fashion, enabling further programmatic consumption of produced results.

@@ -3,7 +3,7 @@ Template Text Parser
 .. toctree::
    :maxdepth: 2
    :titlesonly:
-   
+
    Overview
    Installation
    Quick start

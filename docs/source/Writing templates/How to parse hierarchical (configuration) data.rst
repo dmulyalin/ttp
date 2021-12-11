@@ -33,7 +33,7 @@ TTP can use simple templates that does not contain much hierarchy (same as the d
        address-family ipv4 labeled-unicast
         route-policy PASS-ALL in
         route-policy PASS-ALL out
-    
+
 In such a case we have to use ttp groups to define nested, hierarchical structure, sample template might look like this::
 
     <group name="bgp_cfg">
@@ -42,11 +42,11 @@ In such a case we have to use ttp groups to define nested, hierarchical structur
      address-family ipv4 unicast {{ _start_ }}
       router-id {{ bgp_rid }}
      </group>
-     
+
      <group name="vrfs">
      vrf {{ vrf }}
       rd {{ rd }}
-      
+
       <group name="neighbors">
       neighbor {{ neighbor }}
        remote-as {{ neighbor_asn }}
@@ -59,11 +59,11 @@ In such a case we have to use ttp groups to define nested, hierarchical structur
       </group>
      </group>
     </group>
-    
+
 Above data and template can be saved in two files and run using ttp CLI tool with command::
 
-    ttp -d "/path/to/data/file.txt" -t "/path/to/template.txt" --outputter yaml	
-	
+    ttp -d "/path/to/data/file.txt" -t "/path/to/template.txt" --outputter yaml
+
 These results will be printed to screen::
 
     - bgp_cfg:
@@ -119,7 +119,7 @@ Not too bad, but let's say we want VRFs to be represented as a dictionary with V
       </group>
      </group>
     </group>
-    
+
 After parsing TTP will print these structure::
 
     - bgp_cfg:
@@ -149,10 +149,10 @@ After parsing TTP will print these structure::
                   RPL_OUT: vCE102-link2.102
                 neighbor_asn: '102.103'
             rd: 102:103
-        
+
 That's better, but what actually changed to have such a different results, well, not to much by the look of it, but quite a lot in fact.
 
-TTP group's name attribute actually used as a path where to save group parsing results within results tree, to denote different levels dot symbol can be used, that is how we get new *vrf* and *peers* keys in the output. 
+TTP group's name attribute actually used as a path where to save group parsing results within results tree, to denote different levels dot symbol can be used, that is how we get new *vrf* and *peers* keys in the output.
 
 In addition we used TTP dynamic path feature by introducing ``{{ vrf }}`` and ``{{ neighbor }}`` in the name of the group, that will be dynamically substituted with matching results.
 

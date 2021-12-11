@@ -9,11 +9,11 @@ Inputs can use various sources to retrieve data for parsing.
 
    * - Source
      - Description
-   * - `Netmiko`_   
+   * - `Netmiko`_
      - uses Netmiko library to retrieve data from devices over SSH or Telnet
-   * - `Nornir`_   
+   * - `Nornir`_
      - uses Nornir library with Netmiko plugin to retrieve data from devices
-     
+
 Netmiko
 ---------
 
@@ -36,7 +36,7 @@ Template::
     <vars>
     hostname="gethostname"
     </vars>
-    
+
     <input source="netmiko" name="arp">
     devices = ["192.168.217.10", "192.168.217.7"]
     device_type = "cisco_ios"
@@ -44,13 +44,13 @@ Template::
     password = "cisco"
     commands = ["show ip arp"]
     </input>
-    
+
     <group name="arp" input="arp">
     Internet  {{ ip }}  {{ age }}   {{ mac }} ARPA   {{ interface }}
     {{ hostname | set(hostname) }}
     </group>
-    
-    
+
+
     <input source="netmiko" name="interfaces">
     host = "192.168.217.10"
     device_type = "cisco_ios"
@@ -58,7 +58,7 @@ Template::
     password = "get_user_pass"
     commands = ["show run"]
     </input>
-    
+
     <group name="interfaces" input="interfaces">
     interface {{ interface }}
      description {{ description | ORPHRASE }}
@@ -66,7 +66,7 @@ Template::
      ip address {{ ip }} {{ mask }}
     {{ hostname | set(hostname) }}
     </group>
-    
+
 Nornir
 ---------
 
@@ -83,7 +83,7 @@ This source uses `netmiko_send_command <https://nornir.readthedocs.io/en/latest/
 * ``username`` devices username, if value is ``get_user_input`` prompts user for input
 * ``password`` devices password, if value is ``get_user_pass`` prompts user for input
 * ``num_workers`` default is 100, maximum number of worker threads to instantiate for tasks execution
-* ``netmiko_kwargs`` arguments to pass on to `netmiko_send_command <https://nornir.readthedocs.io/en/latest/plugins/tasks/networking.html#nornir.plugins.tasks.networking.netmiko_send_command>`_ task plugin, default values:: 
+* ``netmiko_kwargs`` arguments to pass on to `netmiko_send_command <https://nornir.readthedocs.io/en/latest/plugins/tasks/networking.html#nornir.plugins.tasks.networking.netmiko_send_command>`_ task plugin, default values::
 
     strip_prompt = False
     strip_command = False
@@ -106,17 +106,17 @@ Template::
                 "username": "cisco",
                 "password": "cisco",
                 "platform": "cisco_ios"
-            }   
+            }
     }
     username = "get_user_input"
     password = "get_user_pass"
     commands = ["show ip arp"]
     netmiko_kwargs = {
-        "strip_prompt": False, 
+        "strip_prompt": False,
         "strip_command": False
     }
     </input>
-    
+
     <group name="arp" input="arp">
     Internet  {{ ip }}  {{ age }}   {{ mac }} ARPA   {{ interface }}
     {{ hostname | set(hostname) }}

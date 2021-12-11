@@ -3,29 +3,29 @@ Attributes
 
 There are a number of attributes supported by input tag, these attributes help to define input behavior and how data should be loaded and parsed.
 
-Additionally input tag text payload can contain structured data, that data can be retrieved using ``get_input_load`` method. Input tag ``load`` attribute instructs how to load that data. For instance, if tag text structured in yaml format, yaml loader can be used to load it in Python data structure. 
+Additionally input tag text payload can contain structured data, that data can be retrieved using ``get_input_load`` method. Input tag ``load`` attribute instructs how to load that data. For instance, if tag text structured in yaml format, yaml loader can be used to load it in Python data structure.
 
 Attributes in input tag and attributes loaded from input tag text are combined in single structure if both are dictionaries, as a result, most of the attributes can be specified in either way.
 
-.. list-table:: 
+.. list-table::
    :widths: 10 90
    :header-rows: 1
 
    * - Attribute
      - Description
-   * - `name`_   
+   * - `name`_
      - Uniquely identifies input within template
-   * - `groups`_   
+   * - `groups`_
      - comma-separated list of group(s) that should be used to parse input data
-   * - `load`_   
+   * - `load`_
      - loader name that should be used to load text data from input tag
-   * - `url`_   
+   * - `url`_
      - single or list of urls of data location
-   * - `extensions`_   
+   * - `extensions`_
      - single or list of file extensions to load, e.g. "txt" or "log" or "conf"
-   * - `filters`_   
+   * - `filters`_
      - single or list of regular expression  to filter file names
-	 
+
 name
 ------------------------------------------------------------------------
 ``name="string"``
@@ -59,7 +59,7 @@ Template::
 
     <input name="test1" load="text" groups="interfaces.trunks">
     interface GigabitEthernet3/3
-     switchport trunk allowed vlan add 138,166-173 
+     switchport trunk allowed vlan add 138,166-173
     !
     interface GigabitEthernet3/4
      switchport trunk allowed vlan add 100-105
@@ -67,7 +67,7 @@ Template::
     interface GigabitEthernet3/5
      switchport trunk allowed vlan add 459,531,704-707
     </input>
-    
+
     <group name="interfaces.trunks">
     interface {{ interface }}
      switchport trunk allowed vlan add {{ trunk_vlans }}
@@ -95,7 +95,7 @@ Result::
             }
         }
     ]
-     
+
 url
 ------------------------------------------------------------------------
 ``url="url-1"`` or ``url=["url-1", "url-2", ... , "url-N"]``
@@ -119,13 +119,13 @@ Template::
     <input load="yaml">
     url: "./Data/Inputs/dataset_1/"
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
       ip address {{ ip  }}/{{ mask }}
     </group>
     </template>
-	
+
 After combining base path and provided url, TTP will use ``C:/base/path/to/Data/Inputs/dataset_1/`` to load input data files.
 
 **Example-2**
@@ -137,14 +137,14 @@ Template::
     <input load="yaml">
     url: "./Data/Inputs/dataset_1/"
     </input>
-    
+
     <group name="interfaces">
     interface {{ interface }}
       ip address {{ ip  }}/{{ mask }}
     </group>
 
 In this case TTP will search for data files using relative path ``./Data/Inputs/dataset_1/``, extending it in relation to current directory, directory where TTP was executed.
-     
+
 extensions
 ------------------------------------------------------------------------
 ``extensions="extension-1"`` or ``extensions=["extension-1", "extension-2", ... , "extension-N"]``

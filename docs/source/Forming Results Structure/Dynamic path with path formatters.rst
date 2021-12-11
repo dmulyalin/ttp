@@ -1,6 +1,6 @@
 Dynamic path with path formatters
-=================================				  
-	
+=================================
+
 Dynamic path with path formatters is also supported. In example below child for *interfaces* will be a list.
 
 **Example**
@@ -18,7 +18,7 @@ Data::
       description Management
       ip address 192.168.0.1/24
       vrf MGMT
-	  
+
 Template::
 
     <group name="interfaces*.{{ interface }}">
@@ -27,7 +27,7 @@ Template::
       ip address {{ ip }}/{{ mask }}
       vrf {{ vrf }}
     </group>
-	  
+
 Result::
 
     [

@@ -1,53 +1,53 @@
 Regex Patterns
 ==============
 
-Regexes are in the heart of TTP, but they hidden from user, match patterns or regex formatters can be used to explicitly specify regular expressions that should be used for parsing. 
-     
+Regexes are in the heart of TTP, but they hidden from user, match patterns or regex formatters can be used to explicitly specify regular expressions that should be used for parsing.
+
 By convention, regex patterns written in upper case, but it is not a hard requirement and custom patterns can use any names.
-     
+
 .. list-table:: indicators
    :widths: 10 90
    :header-rows: 1
-   
+
    * - Name
-     - Description  
-   * - `re`_ 
+     - Description
+   * - `re`_
      - allows to specify regular expression to use for match variable
-   * - `WORD`_ 
+   * - `WORD`_
      - matches single word
-   * - `PHRASE`_ 
+   * - `PHRASE`_
      - matches a collection of words separated by single space character
-   * - `ORPHRASE`_ 
+   * - `ORPHRASE`_
      - matches phrase or single word
-   * - `_line_`_ 
+   * - `_line_`_
      - matches any line
-   * - `ROW`_ 
+   * - `ROW`_
      - matches text-table data with space as column delimiter
-   * - `DIGIT`_ 
+   * - `DIGIT`_
      - matches single number
-   * - `IP`_ 
+   * - `IP`_
      - matches IPv4 address
-   * - `PREFIX`_ 
+   * - `PREFIX`_
      - matches IPv4 prefix
-   * - `IPV6`_ 
+   * - `IPV6`_
      - matches IPv6 address
-   * - `PREFIXV6`_ 
+   * - `PREFIXV6`_
      - matches IPv6 prefix
-   * - `MAC`_ 
-     - matches MAC address     
-     
+   * - `MAC`_
+     - matches MAC address
+
 re
 ------------------------------------------------------------------------------
 ``{{ name | re("regex_value") }}``
 
-* regex_value - regular expression value, this value either substituted with re pattern or used as is. 
+* regex_value - regular expression value, this value either substituted with re pattern or used as is.
 
 Regular expression value searched using below sequence.
 
     1. Template variables checked to to find variable names equal to regex_value
     2. Built-in regex patterns searched using regex_value
-    3. regex_value used as is 
-    
+    3. regex_value used as is
+
 **Example**
 
 Template::
@@ -56,18 +56,18 @@ Template::
     # template variable with custom regular expression:
     GE_INTF = "GigabitEthernet\S+"
     </vars>
-    
+
     <input load="text">
     Protocol  Address     Age (min)  Hardware Addr   Type   Interface
     Internet  10.12.13.1        98   0950.5785.5cd1  ARPA   FastEthernet2.13
     Internet  10.12.13.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
     Internet  10.12.13.4       198   0950.5C8A.5c41  ARPA   GigabitEthernet2.17
     </input>
-    
+
     <group>
     Internet  {{ ip | re("IP")}}  {{ age | re("\d+") }}   {{ mac }}  ARPA   {{ interface | re("GE_INTF") }}
     </group>
-    
+
 Results::
 
     [
@@ -89,13 +89,13 @@ Results::
 
 In this example group line:
 
- ``Internet  {{ ip | re("IP")}}  {{ age | re("\d+") }}   {{ mac }}  ARPA   {{ interface | re("GE_INTF") }}`` 
- 
+ ``Internet  {{ ip | re("IP")}}  {{ age | re("\d+") }}   {{ mac }}  ARPA   {{ interface | re("GE_INTF") }}``
+
 transformed into this regular expression:
- 
+
 ``'\nInternet\ +(?P<ip>(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))\ +(?P<age>(?:\d+))\ +(?P<mac>(?:\S+))\ +ARPA\ +(?P<interface>(?:GigabitEthernet\S+))[\t ]*(?=\n)'``
 
-using built-in IP pattern for *ip*, ``\d+`` inline regex for *age* and custom ``GE_INTF`` pattern for *interface* match variable. 
+using built-in IP pattern for *ip*, ``\d+`` inline regex for *age* and custom ``GE_INTF`` pattern for *interface* match variable.
 
 
 .. warning:: inline definition of regular expressions delimited by ``|`` pipe character is not supported due to TTP uses pipe to separate match variable arguments. In other words, this ``{{ name | re("re1|re2|re3") }}`` is not supported. Workaround - reference template variable with required regular expression.
@@ -113,11 +113,11 @@ Template::
     Internet  10.12.13.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
     Internet  10.12.13.4       198   0950.5C8A.5c41  ARPA   GigabitEthernet2.17
     </input>
-    
+
     <vars>
     INTF_RE = r"GigabitEthernet\\S+|Fast\\S+"
     </vars>
-    
+
     <group name="arp_test">
     Internet  {{ ip | re("IP")}}  {{ age | re(r"\\d+") }}   {{ mac }}  ARPA   {{ interface | re("INTF_RE") }}
     </group>
@@ -148,7 +148,7 @@ Another technique to associate match variable with multiple regular expressions,
     Internet  10.12.13.3       131   0150.7685.14d5  ARPA   GigabitEthernet2.13
     Internet  10.12.13.4       198   0950.5C8A.5c41  ARPA   GigabitEthernet2.17
     </input>
-    
+
     <group name="arp_test">
     Internet  {{ ip }}  {{ age }}   {{ mac }}  ARPA   {{ interface | re(r"GigabitEthernet\\S+") | re(r"Fast\\S+") }}
     </group>
@@ -200,7 +200,7 @@ Template::
      ip address 2002::fd37/124
     !
     </input>
-    
+
     <group>
     interface {{ interface }}
      description {{ description | ORPHRASE }}
@@ -246,17 +246,17 @@ Template::
     Pesaro# show ip vrf detail Customer_A
     VRF Customer_A; default RD 100:101
       Interfaces:
-        Loopback101      Loopback111      Vlan707    
+        Loopback101      Loopback111      Vlan707
     </input>
-    
+
     <group name="vrfs">
     VRF {{ vrf }}; default RD {{ rd }}
     <group name="interfaces">
       Interfaces: {{ _start_ }}
-        {{ intf_list | ROW }} 
+        {{ intf_list | ROW }}
     </group>
     </group>
-    
+
 Results::
 
     [

@@ -44,4 +44,4 @@ max-attributes=50
 spelling-dict=en_US
 
 # List of comma separated words that should not be checked.
-spelling-ignore-words=ttr,multitemplate,xlsx,pprint,ip,datums,vrf,vid,openpyxl,CSV,csv,yaml,json,CLI,BGP,txt,subfolders,argparser,nonconfig,config,Yangson,autofunction,filepath,kwargs,args,hostname,ydir,submodule,yangson,subfolder,yml,stringio,autoclass,renderes,validator,noindex,yfile,DictReader,ret,inet,ipmask,namespace,typedef,ietf,noqa
+spelling-ignore-words=ttr,multitemplate,xlsx,pprint,ip,datums,vrf,vid,openpyxl,CSV,csv,yaml,json,CLI,BGP,txt,subfolders,argparser,nonconfig,config,Yangson,autofunction,filepath,kwargs,args,hostname,ydir,submodule,yangson,subfolder,yml,stringio,autoclass,renderes,validator,noindex,yfile,DictReader,ret,inet,ipmask,namespace,typedef,ietf,noqa,formatters,TTP,ttp,outputter,strftime,regexes,ETree,XML,bool,funcs,getters,endswith,joinchar,joinmatches,startempty,iterable,unicode,ini,configparser,py,boolean,endswith,lookahead
