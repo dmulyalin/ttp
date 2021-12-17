@@ -8,4 +8,4 @@ API reference for TTP module.
 .. autoclass:: ttp
    :members:
 
-.. autofunction:: ttp.utils.quick_parse.quick_parse
+.. autofunction:: ttp.quick_parse
