@@ -191,4 +191,3 @@ Sample Template::
     iterate=True
     facility=77
     </output>
-

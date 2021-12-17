@@ -43,4 +43,3 @@ In this template ``<doc>`` tag helps to document information about the template 
     {{ protocol }} {{ ip | IP }} {{ age | replace("-", "-1") }} {{ mac | mac_eui }} {{ type | let("interface", "Uncknown") }}
     {{ protocol }} {{ ip | IP }} {{ age | replace("-", "-1") }} {{ mac | mac_eui }} {{ type }} {{ interface | resuball("short_interface_names") }}
     </group>
-

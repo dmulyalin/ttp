@@ -29,7 +29,7 @@ def load_files(path, extensions=None, filters=None, read=False):
     if not isinstance(path, str):
         return [("structured_data", path)]
     elif _ttp_["python_major_version"] == 2:
-        if not isinstance(path, (unicode, str)):
+        if not isinstance(path, (unicode, str)):  # pylint: disable=undefined-variable
             return [("structured_data", path)]
 
     # check if path is a reference to template in ttp_templates collection

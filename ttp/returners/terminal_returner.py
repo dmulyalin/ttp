@@ -34,7 +34,9 @@ def terminal_returner(data, **kwargs):
             data = data.replace(yeallow_word, fttr.format(Y, yeallow_word, N))
     # print output
     if _ttp_["python_major_version"] is 2:
-        if isinstance(data, str) or isinstance(data, unicode):
+        if isinstance(data, str) or isinstance(
+            data, unicode
+        ):  # pylint: disable=undefined-variable
             print(data)
         else:
             print(str(data).replace("\\n", "\n"))

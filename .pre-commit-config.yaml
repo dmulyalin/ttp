@@ -9,6 +9,7 @@ repos:
     rev: v2.3.0
     hooks:
       - id: check-ast
+        exclude: .+_py2.py # skip Python2 files
       - id: end-of-file-fixer
         exclude: ^test/
       - id: requirements-txt-fixer
@@ -35,7 +36,7 @@ repos:
           - "--max-line-length=88"
           - "--max-complexity=19"
           - "--select=B,C,E,F,W,T4,B9"
-          - "--ignore=F403,E402,E722,E203,W503,C901,E501"
+          - "--ignore=F403,E402,E722,E203,W503,C901,E501,F821"
   # bandit - security checks
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.0
