@@ -6861,3 +6861,100 @@ Internet  {{ ip }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
     'vrf': 'CUST1'}]]]
 
 # test_lookup_crosstemplates()
+
+def test_answer_hpe_bgp():
+    data = """
+ ipv4-family vpn-instance FHA
+  router-id 10.251.0.15
+  peer 10.251.64.113 as-number 64991
+  peer 10.251.64.97 as-number 64991
+  aggregate 10.251.64.0 255.255.248.0 detail-suppressed attribute-policy IGP_into_FHA
+  aggregate 10.251.160.0 255.255.248.0 detail-suppressed attribute-policy IGP_into_FHA
+  preference 75 80 90
+  network 10.248.128.0 255.255.255.0 route-policy IGP_into_FHA
+  network 10.248.137.160 255.255.255.224 route-policy IGP_into_FHA
+  peer 10.251.64.97 route-policy fhadmz_to_fha import
+  peer 10.251.64.97 ebgp-max-hop 5
+  peer 10.251.64.97 timer keepalive 1 hold 5
+  peer 10.251.64.97 route-update-interval 1
+  peer 10.251.64.97 connect-interface LoopBack101
+  peer 10.251.64.97 fake-as 64881
+  peer 10.251.64.113 route-policy fha_to_fhaimz export
+  peer 10.251.64.113 route-policy fhaimz_to_fha import
+  peer 10.251.64.113 ebgp-max-hop 5
+  peer 10.251.64.113 timer keepalive 1 hold 5
+  peer 10.251.64.113 route-update-interval 1
+  peer 10.251.64.113 connect-interface LoopBack101
+  peer 10.251.64.113 fake-as 64881
+    """
+    template = """
+<group name= "bgp_af.{{vpn_instance}}.{{address_family}}">
+ {{address_family}}-family vpn-instance {{vpn_instance}}
+  router-id {{router_id}}
+  preference {{pref_internal}} {{pref_external}} {{pref_local}}
+
+ <group name= "bgp_peer.{{peer_id}}**" method="table">
+  peer {{peer_id}} as-number {{peer_as_number}}
+  peer {{peer_id}} group {{peer_group_id }}
+  peer {{peer_id}} label_route_capability {{label_router_capability | re("label-route-capability")}}
+  peer {{peer_id}} {{bfd | re("bfd") | let("enabled") }}
+  peer {{peer_id}} route-policy {{peer_import_policy}} import
+  peer {{peer_id}} route-policy {{peer_export_policy}} export
+  peer {{peer_id}} ebgp-max-hop {{ebgp_max_hop}}
+  peer {{peer_id}} timer keepalive {{timet_keepalive}} hold {{timer_hold}}
+  peer {{peer_id}} route-update-interval {{timer_route_update}}
+  peer {{peer_id}} connect-interface {{source_interface}}
+  peer {{peer_id}} fake-as {{local_as}}
+ </group>
+
+<group name="aggregate">
+  aggregate {{network}} {{mask}} {{detail_suppressed }} attribute-policy {{attribute_policy}}
+</group>
+  
+<group name="networks">
+  network {{network}} {{mask}} route-policy {{route_policy}}
+</group>  
+
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'bgp_af': {'FHA': {'ipv4': {'aggregate': [{'attribute_policy': 'IGP_into_FHA',
+                                              'detail_suppressed': 'detail-suppressed',
+                                              'mask': '255.255.248.0',
+                                              'network': '10.251.64.0'},
+                                             {'attribute_policy': 'IGP_into_FHA',
+                                              'detail_suppressed': 'detail-suppressed',
+                                              'mask': '255.255.248.0',
+                                              'network': '10.251.160.0'}],
+                               'bgp_peer': {'10.251.64.113': {'ebgp_max_hop': '5',
+                                                              'local_as': '64881',
+                                                              'peer_as_number': '64991',
+                                                              'peer_export_policy': 'fha_to_fhaimz',
+                                                              'peer_import_policy': 'fhaimz_to_fha',
+                                                              'source_interface': 'LoopBack101',
+                                                              'timer_hold': '5',
+                                                              'timer_route_update': '1',
+                                                              'timet_keepalive': '1'},
+                                            '10.251.64.97': {'ebgp_max_hop': '5',
+                                                             'local_as': '64881',
+                                                             'peer_as_number': '64991',
+                                                             'peer_import_policy': 'fhadmz_to_fha',
+                                                             'source_interface': 'LoopBack101',
+                                                             'timer_hold': '5',
+                                                             'timer_route_update': '1',
+                                                             'timet_keepalive': '1'}},
+                               'networks': [{'mask': '255.255.255.0',
+                                             'network': '10.248.128.0',
+                                             'route_policy': 'IGP_into_FHA'},
+                                            {'mask': '255.255.255.224',
+                                             'network': '10.248.137.160',
+                                             'route_policy': 'IGP_into_FHA'}],
+                               'pref_external': '80',
+                               'pref_internal': '75',
+                               'pref_local': '90',
+                               'router_id': '10.251.0.15'}}}}]]
+# test_answer_hpe_bgp()

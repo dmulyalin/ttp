@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = "0.8.2"
+__version__ = "0.8.3"
 
 import re
 import os
@@ -91,12 +91,15 @@ def lazy_import_functions():
             with open(cache_file, "rb") as f:
                 _ttp_ = pickle.load(f)
             # use unpickled _ttp_ dictionary if it of the same python version
-            if _ttp_["python_major_version"] == version_info.major:
+            if (
+                _ttp_["python_major_version"] == version_info.major
+                and _ttp_.get("__version__") == __version__
+            ):
                 log.info(
                     "ttp.lazy_import_functions: loaded _ttp_ dictionary from ttp_dict_cache.pickle"
                 )
                 return _ttp_
-            # rebuilt _ttp_ dictionary if different Python version
+            # rebuilt _ttp_ dictionary as it is of different version
             else:
                 _ttp_ = {
                     "macro": {},
@@ -104,6 +107,7 @@ def lazy_import_functions():
                     "global_vars": {},
                     "template_obj": {},
                     "vars": {},
+                    "__version__": __version__,
                 }
     except Exception as e:
         log.warning(
@@ -882,9 +886,7 @@ class _template_class:
         ttp_vars = ttp_vars or {}
         filters = filters or []
         ttp_macro = ttp_macro or {}
-        self.PATHCHAR = (
-            "."
-        )  # character to separate path items, like ntp.clock.time, '.' is pathChar here
+        self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here
         self.vars = {  # dictionary to store template variables
             "_vars_to_results_": {},  # to indicate variables and patch where they should be saved in results
             # _vars_to_results_ is a dict of {pathN:[var_key1, var_keyN]} data
