@@ -1,6 +1,6 @@
 black
 Cerberus==1.*
-deepdiff=4.*
+deepdiff==4.*
 Jinja2==2.*
 openpyxl==3.*
 pre-commit==2.*
