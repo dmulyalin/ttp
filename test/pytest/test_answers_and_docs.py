@@ -6737,13 +6737,13 @@ Remote: {{_start_}}
 def test_issue_62():
     data = """
 security:
-	received (in 351815.564 secs):
-		220203204 packets	14522703007 bytes
-		3 pkts/sec	41010 bytes/sec
-	transmitted (in 351815 secs):
-		0 packets	0 bytes
-		0 pkts/sec	0 bytes/sec
-	"""
+    received (in 351815.564 secs):
+        220203204 packets    14522703007 bytes
+        3 pkts/sec    41010 bytes/sec
+    transmitted (in 351815 secs):
+        0 packets    0 bytes
+        0 pkts/sec    0 bytes/sec
+    """
     template = """
 <group name = '{{ nameif }}'>
 {{ nameif | ORPHRASE }}:
@@ -6752,12 +6752,12 @@ security:
 {{ ignore('\s+') }}trasmitted{{ ignore('.*') }}
 {{ ignore('\s+') }}{{ tpps | DIGIT }} pkts/sec{{ ignore('.*') }}
 </group>
-	"""
+    """
     parser = ttp(data, template)    
     parser.parse()
     res = parser.result()
     pprint.pprint(res)
-	
+    
     assert res == [[{'security': {'rpps': '3'}}]]
 # test_issue_62()
 
@@ -6765,29 +6765,29 @@ security:
 def test_issue_62_fix():
     data = """
 security:
-	received (in 351815.564 secs):
-		220203204 packets	14522703007 bytes
-		3 pkts/sec	41010 bytes/sec
-	transmitted (in 351815 secs):
-		0 packets	0 bytes
-		0 pkts/sec	0 bytes/sec
-	"""
+    received (in 351815.564 secs):
+        220203204 packets    14522703007 bytes
+        3 pkts/sec    41010 bytes/sec
+    transmitted (in 351815 secs):
+        0 packets    0 bytes
+        0 pkts/sec    0 bytes/sec
+    """
     template = """
 <group name = '{{ nameif }}'>
 {{ nameif | ORPHRASE }}:
 
 <group name="rx">
-	received (in {{ ignore }} secs): {{ _start_ }}
-		{{ rpps }} pkts/sec	41010 bytes/sec
+    received (in {{ ignore }} secs): {{ _start_ }}
+        {{ rpps }} pkts/sec    41010 bytes/sec
 </group>
 
 <group name="tx">
-	transmitted (in {{ ignore }} secs): {{ _start_ }}
-		{{ tpps }} pkts/sec	0 bytes/sec
+    transmitted (in {{ ignore }} secs): {{ _start_ }}
+        {{ tpps }} pkts/sec    0 bytes/sec
 </group>
 
 </group>
-	"""
+    """
     parser = ttp(data, template)    
     parser.parse()
     res = parser.result()
@@ -6958,3 +6958,94 @@ def test_answer_hpe_bgp():
                                'pref_local': '90',
                                'router_id': '10.251.0.15'}}}}]]
 # test_answer_hpe_bgp()
+
+
+def test_stackoverflow_62421344_python_parse_text():
+    data = """
+JAVA_OPTS=blablalba
+lbalbalba
+
+1. main1:
+
+     aelo1 2020-06-15 11 4001
+     sddg2 2020-06-12 19 422
+
+2. main2:
+
+     fdata3 2020-06-16 11 4422
+     gcontent4 2020-06-12 19 422
+
+3. main3:
+
+     hxvnt5 2020-06-17 11 4002
+     vcfdet6 2020-06-12 19 422
+    """
+    
+    template = """
+<group contains="value">
+1. main1: {{ _start_ }}
+     {{ ignore }} {{ date }} {{ hour | lessthan("12") }} {{ value | greaterthan("4000") }}
+</group>     
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[[{'date': '2020-06-15', 'hour': '11', 'value': '4001'},
+                     {'date': '2020-06-16', 'hour': '11', 'value': '4422'},
+                     {'date': '2020-06-17', 'hour': '11', 'value': '4002'}]]]
+   
+# test_stackoverflow_62421344_python_parse_text()
+
+def test_same_config_different_contexts():
+    """
+    data below contains nemserevers across different config contexts,
+    TTp matches all of them but voids all except from within vrfs.
+    """
+    data = """
+bar
+  ip name-server 3.3.3.1
+  ip name-server 6.6.6.2
+vrf context management
+  foo bar
+  ip name-server 2.2.2.2
+  ip name-server 4.4.4.4
+  ip name-server 5.5.5.5
+  ip route 0.0.0.0/0 2.3.4.5
+foo
+  ip name-server 3.3.3.3
+  ip name-server 6.6.6.6
+biz
+  ip name-server 3.3.3.4
+  ip name-server 6.6.6.7
+vrf context main_vrf
+  ip name-server 1.2.3.4
+  ip route 0.0.0.0/0 4.5.6.7
+bar
+  ip name-server 3.3.3.1
+  ip name-server 6.6.6.2
+    """
+    template = """
+<group name="vrfs*.{{ vrf_name }}**">
+vrf context {{ vrf_name | ORPHRASE | _start_ }}
+  ip name-server {{ name_servers | to_list | joinmatches}}
+    
+<group name="another_contexts" void="">
+foo {{ _start_ }}
+biz {{ _start_ }}
+bar {{ _start_ }}
+  ip name-server {{ name_servers | to_list | joinmatches}}
+</group>
+
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)
+    assert res == [[{'vrfs': [{'main_vrf': {'name_servers': ['1.2.3.4']},
+                               'management': {'name_servers': ['2.2.2.2',
+                                                               '4.4.4.4',
+                                                               '5.5.5.5']}}]}]]
+											 
+# test_same_config_different_contexts()

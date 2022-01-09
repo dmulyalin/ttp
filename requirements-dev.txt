@@ -1,0 +1,8 @@
+black
+Jinja2==2.*
+openpyxl==3.*
+pre-commit==2.*
+pytest==5.*
+PyYAML==5.*
+yangson==1.*
+Cerberus==1.*
