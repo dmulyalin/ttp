@@ -6747,10 +6747,10 @@ security:
     template = """
 <group name = '{{ nameif }}'>
 {{ nameif | ORPHRASE }}:
-{{ ignore('\s+') }}received{{ ignore('.*') }}
-{{ ignore('\s+') }}{{ rpps | DIGIT }} pkts/sec{{ ignore('.*') }}
-{{ ignore('\s+') }}trasmitted{{ ignore('.*') }}
-{{ ignore('\s+') }}{{ tpps | DIGIT }} pkts/sec{{ ignore('.*') }}
+{{ ignore(r'\s+') }}received{{ ignore('.*') }}
+{{ ignore(r'\s+') }}{{ rpps | DIGIT }} pkts/sec{{ ignore('.*') }}
+{{ ignore(r'\s+') }}trasmitted{{ ignore('.*') }}
+{{ ignore(r'\s+') }}{{ tpps | DIGIT }} pkts/sec{{ ignore('.*') }}
 </group>
     """
     parser = ttp(data, template)    

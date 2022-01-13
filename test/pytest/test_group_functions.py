@@ -789,3 +789,79 @@ vlan {{ vlan }}
 
 
 # test_items2dict_function()
+
+def test_expand():
+    template = """
+<input load="text">
+interface GigabitEthernet1/1
+   description to core-1
+   mtu 9100
+   switchport mode trunk
+!
+</input>
+
+<group name="interfaces.interface*" expand="" >
+interface {{ name }}
+   description {{ config.description | ORPHRASE }}
+   mtu {{ config.mtu | to_int }}
+   <group name="switched-vlan">
+   switchport mode {{ mode }}
+   </group>
+! {{_end_}}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'interfaces': {'interface': [{'config': {'description': 'to core-1',
+                                            'mtu': 9100},
+                                 'name': 'GigabitEthernet1/1',
+                                 'switched-vlan': {'mode': 'trunk'}}]}}]]
+								 
+# test_expand()
+
+def test_expand_issue_65():
+    template = """
+<input load="text">
+interface GigabitEthernet1/1
+   description to core-1
+   switchport mode trunk
+   mtu 9100
+   vrf ABC
+!
+interface GigabitEthernet1/2
+   description to AGG-1
+   switchport mode access
+   mtu 9200
+   vrf XYZ
+!
+</input>
+
+<group name="interfaces.interface*" expand="">
+interface {{ name }}
+   description {{ config.description | ORPHRASE }}
+   mtu {{ config.mtu | to_int }}
+   vrf {{ vrf }}
+   <group name="switched-vlan">
+   switchport mode {{ mode }}
+   </group>
+! {{_end_}}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    # pprint.pprint(res)    
+    assert res == [[{'interfaces': {'interface': [{'config': {'description': 'to core-1',
+                                            'mtu': 9100},
+                                 'name': 'GigabitEthernet1/1',
+                                 'switched-vlan': {'mode': 'trunk'},
+                                 'vrf': 'ABC'},
+                                {'config': {'description': 'to AGG-1',
+                                            'mtu': 9200},
+                                 'name': 'GigabitEthernet1/2',
+                                 'switched-vlan': {'mode': 'access'},
+                                 'vrf': 'XYZ'}]}}]]
+								 
+# test_expand_issue_65()

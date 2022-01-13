@@ -2933,15 +2933,35 @@ class _results_class:
                 PATH, ELEMENT[-1]
             )  # run recursion with last item in the list
 
+    def _merge_recursively(self, element, result_data):
+        """
+        Function to recursively merge result_data dictionary into element dictionary
+
+        :param element: (dict) current results element dictionary
+        :param result_data: (dict) new results data to merge into existing one
+        """
+        for nk, nd in result_data.items():
+            # check if need to run recursion
+            if element.get(nk) and isinstance(nd, dict):
+                self._merge_recursively(element[nk], nd)
+            # nd is not a dict, simply save it in existing results
+            else:
+                element[nk] = nd
+
     def save_curelements(self, result_data, result_path):
         """Method to save current group results in self.results"""
         # get ELEMENT from self.results by result_path
         E = self.dict_by_path(PATH=result_path, ELEMENT=self.results)
         if isinstance(E, list) and result_data:
-            E.append(result_data)
+            if self.record.get("merge_with_last"):
+                self._merge_recursively(E[-1], result_data)
+            else:
+                E.append(result_data)
         elif isinstance(E, dict):
+            if self.record.get("merge_with_last"):
+                self._merge_recursively(E, result_data)
             # check if result_path endswith "**" - update result's ELEMENET without converting it into list:
-            if len(result_path[-1]) - len(result_path[-1].rstrip("*")) == 2:
+            elif len(result_path[-1]) - len(result_path[-1].rstrip("*")) == 2:
                 result_data.update(E)
                 E.update(result_data)
             # to match all the other cases, like templates without "**" in path:
@@ -3017,17 +3037,21 @@ class _results_class:
             result.update(self.record["result"])
             self.record["result"] = result
         # if different path - that can happen if we have group ended and result
-        # actually belong to another already started group, hence have save
+        # actually belongs to another already started group, hence need to save
         # directly into results
         elif REDICT["GROUP"].group_id in self.started_groups:
-            processed_path = self.form_path(PATH)
-            if processed_path is False:
-                return
-            ELEMENT = self.dict_by_path(PATH=processed_path, ELEMENT=self.results)
-            if isinstance(ELEMENT, dict):
-                ELEMENT.update(result)
-            elif isinstance(ELEMENT, list):
-                ELEMENT[-1].update(result)
+            # save current results to results structure and start new record
+            self.start(
+                result=result,
+                PATH=PATH,
+                DEFAULTS=DEFAULTS,
+                FUNCTIONS=FUNCTIONS,
+                REDICT=REDICT,
+            )
+            # mark new record as needed to be merged with last item in results
+            self.record["merge_with_last"] = True
+            # no need to add DEFAULTS for this record as DEFAULTS processed already by previous group record
+            self.record["DEFAULTS"] = {}
 
     def join(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
         DEFAULTS = DEFAULTS or {}
