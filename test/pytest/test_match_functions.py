@@ -543,31 +543,3 @@ interface {{ name }}
 
 
 # test_raise()
-
-
-def test_to_int_with_dynamic_path_issue_67():
-    data = """
-foo domain 100
-  bar 123
-  biz
-  baz
-foo domain 101
-  bar 234
-  biz
-foo domain 102
-  bar 345   
-    """
-    template = """
-<group name="foo**.{{ domain_id }}**">
-foo domain {{ domain_id | DIGIT | to_int | _start_ }}
-  bar {{ bar | DIGIT | to_int }}
-  biz {{ biz | default(false) | set(true) }}
-  baz {{ baz | default(false) | set(true) }}
-</group>    
-    """
-    parser = ttp(data, template, log_level="error")
-    parser.parse()
-    res = parser.result()
-    pprint.pprint(res, width=100)
-    
-test_to_int_with_dynamic_path_issue_67()

@@ -7049,3 +7049,95 @@ bar {{ _start_ }}
                                                                '5.5.5.5']}}]}]]
 											 
 # test_same_config_different_contexts()
+
+
+def test_to_int_with_dynamic_path_issue_67():
+    data = """
+foo domain 100
+  bar 123
+  biz
+  baz
+foo domain 101
+  bar 234
+  biz
+foo domain 102
+  bar 345   
+    """
+    template = """
+<group name="foo**.{{ domain_id }}**">
+foo domain {{ domain_id | DIGIT | to_int | _start_ }}
+  bar {{ bar | DIGIT | to_int }}
+  biz {{ biz | default(false) | set(true) }}
+  baz {{ baz | default(false) | set(true) }}
+</group>    
+    """
+    parser = ttp(data, template, log_level="error", dynamic_path_key_to_int=True)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=100)
+    assert res == [[{'foo': {100: {'bar': 123, 'baz': True, 'biz': True},
+                             101: {'bar': 234, 'baz': False, 'biz': True},
+                             102: {'bar': 345, 'baz': False, 'biz': False}}}]]
+
+# test_to_int_with_dynamic_path_issue_67()
+
+def test_to_int_with_dynamic_path_issue_67_multiptocess_mode():
+    data1 = """
+foo domain 100
+  bar 123
+  biz
+  baz
+foo domain 101
+  bar 234
+  biz
+foo domain 102
+  bar 345   
+    """
+    data2 = """
+foo domain 100
+  bar 123
+  biz
+  baz
+    """
+    data3 = """
+foo domain 101
+  bar 234
+  biz
+foo domain 102
+  bar 345   
+    """
+    data4 = """
+foo domain 100
+  bar 123
+  biz
+  baz
+foo domain 102
+  bar 345   
+    """
+    template = """
+<group name="foo**.{{ domain_id }}**">
+foo domain {{ domain_id | DIGIT | to_int | _start_ }}
+  bar {{ bar | DIGIT | to_int }}
+  biz {{ biz | default(false) | set(true) }}
+  baz {{ baz | default(false) | set(true) }}
+</group>    
+    """
+    parser = ttp(template=template, log_level="error", dynamic_path_key_to_int=True)
+    parser.add_input(data1)
+    parser.add_input(data2)
+    parser.add_input(data3)
+    parser.add_input(data4)
+    parser.parse(multi=True)
+    res = parser.result(structure="flat_list")
+    # pprint.pprint(res, width=100)
+    assert {'foo': {100: {'bar': 123, 'baz': True, 'biz': True}}} in res
+    assert {'foo': {100: {'bar': 123, 'baz': True, 'biz': True},
+                    101: {'bar': 234, 'baz': False, 'biz': True},
+                    102: {'bar': 345, 'baz': False, 'biz': False}}} in res
+    assert {'foo': {100: {'bar': 123, 'baz': True, 'biz': True},
+                    102: {'bar': 345, 'baz': False, 'biz': False}}} in res
+    assert {'foo': {101: {'bar': 234, 'baz': False, 'biz': True},
+                    102: {'bar': 345, 'baz': False, 'biz': False}}} in res
+
+# if __name__ == '__main__':
+#     test_to_int_with_dynamic_path_issue_67_multiptocess_mode()

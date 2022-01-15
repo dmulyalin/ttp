@@ -189,14 +189,13 @@ class ttp:
     and dispatch data to parser object to parse in single or multiple processes,
     construct final results and run outputs.
 
-    **Parameters**
-
-    * ``data`` file object or OS path to text file or directory with text files with data to parse
-    * ``template`` file object or OS path to text file with template or template text string
-    * ``base_path`` (str) base OS path prefix to load data from for template's inputs
-    * ``log_level`` (str) level of logging "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
-    * ``log_file`` (str) path where to save log file
-    * ``vars`` dictionary of variables to make available to ttp parser
+    :param data: (obj) file object or OS path to text file or directory with text files with data to parse
+    :param template: (obj) file object or OS path to text file with template or template text string
+    :param base_path: (str) base OS path prefix to load data from for template's inputs
+    :param log_level: (str) level of logging "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+    :param log_file: (str) path where to save log file
+    :param vars: (dict) dictionary of variables to make available to ttp parser
+    :dynamic_path_key_to_int: (bool) if True converts dynamic path keys to integers, False by default
 
     Example::
 
@@ -215,6 +214,7 @@ class ttp:
         log_file=None,
         base_path="",
         vars=None,
+        dynamic_path_key_to_int=False,
     ):
         self.__data_size = 0
         self.__datums_count = 0
@@ -230,6 +230,7 @@ class ttp:
         self._ttp_ = lazy_import_functions()
         # add reference to TTP object in _ttp_ dunder
         self._ttp_["ttp_object"] = self
+        self._ttp_["dynamic_path_key_to_int"] = dynamic_path_key_to_int
         # check if template given, if so - load it
         if template != "":
             self.add_template(template=template)
@@ -460,6 +461,7 @@ class ttp:
                     groups=template.groups,
                     macro_text=template.macro_text,
                     custom_functions=self._ttp_.get("_custom_functions_", {}),
+                    dynamic_path_key_to_int=self._ttp_["dynamic_path_key_to_int"],
                 )
                 for i in range(num_processes)
             ]
@@ -812,10 +814,12 @@ class _worker(Process):
         groups,
         macro_text,
         custom_functions,
+        dynamic_path_key_to_int,
     ):
         Process.__init__(self)
         self._ttp_ = lazy_import_functions()
         self._ttp_.update(custom_functions)
+        self._ttp_["dynamic_path_key_to_int"] = dynamic_path_key_to_int
         self.task_queue = task_queue
         self.results_queue = results_queue
         self.macro_text = macro_text
@@ -2881,7 +2885,13 @@ class _results_class:
                 else:
                     _ = KEYS.pop(0)
             name = str(KEYS[0]).rstrip("*")  # get the name of first item in PATH keys
-            if len(KEYS[0]) - len(name) == 1:  # if one * at the end - make a list
+            stars_count = len(KEYS[0]) - len(
+                name
+            )  # get the number of "*" key ends with
+            if self._ttp_["dynamic_path_key_to_int"]:
+                # convert key to integer if it is integer
+                name = int(name) if name.isdigit() else name
+            if stars_count == 1:  # if one * at the end - make a list
                 if len(KEYS) == 1:  # if KEYS=[1,2,3,4*], returns {1:{2:{3:{4:[{}]}}}}
                     return {name: []}  # if last item in PATH - return emplty list
                 else:  # if KEYS=[1,2,3*,4], returns {1:{2:{3:[{4:{}}]}}}
@@ -2904,6 +2914,9 @@ class _results_class:
             return ELEMENT  # check if PATH is empty, if so - stop and return ELEMENT
         elif isinstance(ELEMENT, dict):
             name = PATH[0].rstrip("*")
+            if self._ttp_["dynamic_path_key_to_int"]:
+                # convert key to integer if it is integer
+                name = int(name) if name.isdigit() else name
             # add support for null path
             if name == "_":
                 if len(PATH) == 1:  # reached end of PATH, need to return ELEMENT
