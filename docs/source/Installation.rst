@@ -9,6 +9,10 @@ Or clone from GitHub, unzip, navigate to folder and run::
 
     python setup.py install or python -m pip install .
 
+Install all optional dependencies::
+
+    pip install ttp[full]
+
 Additional dependencies
 -----------------------
 
@@ -34,3 +38,7 @@ TTP mainly uses built-in libraries. However, additional modules need to be insta
 
 * INI lookup tables - requires `configparser <https://pypi.org/project/configparser/>`_
 * :ref:`Lookup Tables/Lookup Tables:geoip2 database` - requires `GeoIP2  <https://pypi.org/project/geoip2/>`_
+
+All above optional dependencies can be installed using `full` extras:
+
+    pip install ttp[full]

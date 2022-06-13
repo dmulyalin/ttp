@@ -8,6 +8,13 @@ build:
 sphinx:
   configuration: docs/source/conf.py
 
+# Python requirements required to build the docs
 python:
-  install:
-    - requirements: docs/requirements.txt
+   install:
+   - method: pip
+     path: .
+   - method: pip
+     path: .
+     extra_requirements:
+       - docs
+   system_packages: true
