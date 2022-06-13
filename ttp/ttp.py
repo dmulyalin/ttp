@@ -1572,13 +1572,6 @@ class _input_class:
         if self.attributes["load"] == "text" and element_text:
             self.data = [("text_data", element_text)]
             return
-        # try to source data by calling external module
-        elif self.attributes.get("source", "") in self._ttp_["sources"]:
-            datums = self._ttp_["sources"][self.attributes["source"]](
-                self.name, **self.parameters
-            )
-            self.data = [("text_data", datum) for datum in datums]
-            return
         elif data:
             for d_item in data:
                 if not d_item in self.data:

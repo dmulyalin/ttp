@@ -18,11 +18,6 @@ TTP mainly uses built-in libraries. However, additional modules need to be insta
 
 * :ref:`Groups/Functions:cerberus` - requires `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_
 
-**Input Sources**
-
-* :ref:`Inputs/Sources:Netmiko`  - requires `Netmiko library <https://pypi.org/project/netmiko/>`_
-* :ref:`Inputs/Sources:Nornir` - requires `Nornir library <https://pypi.org/project/nornir/>`_
-
 **Output Formatters**
 
 * :ref:`Outputs/Formatters:yaml` - requires `PyYAML module <https://pypi.org/project/PyYAML/>`_
