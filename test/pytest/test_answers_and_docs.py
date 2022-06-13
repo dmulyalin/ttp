@@ -7141,3 +7141,58 @@ foo domain {{ domain_id | DIGIT | to_int | _start_ }}
 
 # if __name__ == '__main__':
 #     test_to_int_with_dynamic_path_issue_67_multiptocess_mode()
+
+def test_issue_69_fix():
+    template1 = """
+<input load="text">
+snmp-server chassis-id test
+snmp-server host 2.2.2.2 version 2c public
+snmp-server host 1.1.1.1 version 2c public
+snmp-server enable traps bgp
+snmp-server enable traps entity
+</input>
+
+<group name="snmp.config" expand="" >
+snmp-server chassis-id {{ chassis_id }}
+<group name="servers*" expand="" >
+snmp-server host {{ server }} version {{ version }} {{ community }}
+</group>
+snmp-server enable traps {{ traps | joinmatches(',') | to_list }}
+</group>
+    """
+    template2 = """
+<input load="text">
+snmp-server chassis-id test
+snmp-server enable traps bgp
+snmp-server enable traps entity
+snmp-server host 2.2.2.2 version 2c public
+snmp-server host 1.1.1.1 version 2c public
+</input>
+
+<group name="snmp.config" expand="" >
+snmp-server chassis-id {{ chassis_id }}
+<group name="servers*" expand="" >
+snmp-server host {{ server }} version {{ version }} {{ community }}
+</group>
+snmp-server enable traps {{ traps | joinmatches(',') | to_list }}
+</group>
+    """
+    parser1 = ttp(template=template1)
+    parser1.parse()
+    res1 = parser1.result()    
+    pprint.pprint(res1)
+    
+    parser2 = ttp(template=template2)
+    parser2.parse()
+    res2 = parser2.result()    
+    pprint.pprint(res2)
+    
+    assert res1 == res2 == [[{'snmp': {'config': {'chassis_id': 'test',
+                                                  'servers': [{'community': 'public',
+                                                               'server': '2.2.2.2',
+                                                               'version': '2c'},
+                                                              {'community': 'public',
+                                                               'server': '1.1.1.1',
+                                                               'version': '2c'}],
+                                                  'traps': ['bgp', 'entity']}}}]]
+# test_issue_69_fix()

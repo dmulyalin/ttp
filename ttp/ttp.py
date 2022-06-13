@@ -3062,33 +3062,48 @@ class _results_class:
     def join(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
         DEFAULTS = DEFAULTS or {}
         FUNCTIONS = FUNCTIONS or []
-        # if path not the same, results belong to different group, skip them
-        if self.record["PATH"] != PATH:
-            return
-        # retrieve joinchar to use
-        joinchar = "\n"
-        for varname, varvalue in result.items():
-            # check if need to skip vars that were added to results on the go
-            if not varname in REDICT["VARIABLES"]:
-                continue
-            for item in REDICT["VARIABLES"][varname].functions:
-                if item["name"] == "joinmatches":
-                    joinchar = item["args"][0] if item["args"] else joinchar
-                    break
-        # join results:
-        for k in result.keys():
-            if k in self.record["result"]:  # if we already have results
-                if isinstance(self.record["result"][k], str):
-                    self.record["result"][k] += joinchar + result[k]  # join strings
-                elif isinstance(self.record["result"][k], list):
-                    if isinstance(result[k], list):
-                        self.record["result"][k] += result[k]  # join lists
-                    else:
-                        self.record["result"][k].append(result[k])  # append to list
-                else:  # transform result to list and append new result to it
-                    self.record["result"][k] = [self.record["result"][k], result[k]]
-            else:
-                self.record["result"][k] = result[k]  # if first result
+        # if same path - save into self.record
+        if self.record["PATH"] == PATH:
+            # retrieve joinchar to use
+            joinchar = "\n"
+            for varname, varvalue in result.items():
+                # check if need to skip vars that were added to results on the go
+                if not varname in REDICT["VARIABLES"]:
+                    continue
+                for item in REDICT["VARIABLES"][varname].functions:
+                    if item["name"] == "joinmatches":
+                        joinchar = item["args"][0] if item["args"] else joinchar
+                        break
+            # join results:
+            for k in result.keys():
+                if k in self.record["result"]:  # if we already have results
+                    if isinstance(self.record["result"][k], str):
+                        self.record["result"][k] += joinchar + result[k]  # join strings
+                    elif isinstance(self.record["result"][k], list):
+                        if isinstance(result[k], list):
+                            self.record["result"][k] += result[k]  # join lists
+                        else:
+                            self.record["result"][k].append(result[k])  # append to list
+                    else:  # transform result to list and append new result to it
+                        self.record["result"][k] = [self.record["result"][k], result[k]]
+                else:
+                    self.record["result"][k] = result[k]  # if first result
+        # if different path - that can happen if we have group ended and result
+        # actually belongs to another already started group, hence need to save
+        # directly into results
+        elif REDICT["GROUP"].group_id in self.started_groups:
+            # save current results to results structure and start new record by calling self.start
+            self.start(
+                result=result,
+                PATH=PATH,
+                DEFAULTS=DEFAULTS,
+                FUNCTIONS=FUNCTIONS,
+                REDICT=REDICT,
+            )
+            # mark new record as needed to be merged with last item in results
+            self.record["merge_with_last"] = True
+            # no need to add DEFAULTS for this record as DEFAULTS processed already by previous group record
+            self.record["DEFAULTS"] = {}
 
     def end(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
         DEFAULTS = DEFAULTS or {}
