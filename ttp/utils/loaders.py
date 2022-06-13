@@ -4,6 +4,25 @@ import logging
 log = logging.getLogger(__name__)
 
 
+def _load_template_file(filepath, read):
+    """
+    Helper function to load template file content or return path to template
+    """
+    if read:
+        try:
+            if _ttp_["python_major_version"] == 2:
+                with open(filepath, "r") as file_obj:
+                    return [("text_data", file_obj.read())]
+            with open(filepath, "r", encoding="utf-8") as file_obj:
+                return [("text_data", file_obj.read())]
+        except UnicodeDecodeError:
+            log.warning(
+                'ttp_utils.load_files: Unicode read error, file "{}"'.format(filepath)
+            )
+    else:
+        return [("file_name", filepath)]
+
+
 def load_files(path, extensions=None, filters=None, read=False):
     """
     Method to load files from path, and filter file names with
@@ -20,6 +39,7 @@ def load_files(path, extensions=None, filters=None, read=False):
     extensions = extensions or []
     filters = filters or []
     files = []
+    ttp_templates_dir = os.getenv("TTP_TEMPLATES_DIR")
     # need to use path[:5000] cause if path is actually text of the template
     # and has length more then X symbols, os.path will choke with "path too long"
     # error, hence the safe-assumption that no os path exists longer then 5000 symbols
@@ -37,21 +57,14 @@ def load_files(path, extensions=None, filters=None, read=False):
         from ttp_templates import get_template
 
         return [("text_data", get_template(path=path.replace("ttp://", "")))]
-    # check if path is a path to file:
+    # check if path is a path to file
     elif os.path.isfile(path[:5000]):
-        if read:
-            try:
-                if _ttp_["python_major_version"] == 2:
-                    with open(path, "r") as file_obj:
-                        return [("text_data", file_obj.read())]
-                with open(path, "r", encoding="utf-8") as file_obj:
-                    return [("text_data", file_obj.read())]
-            except UnicodeDecodeError:
-                log.warning(
-                    'ttp_utils.load_files: Unicode read error, file "{}"'.format(path)
-                )
-        else:
-            return [("file_name", path)]
+        return _load_template_file(path, read)
+    # check if path is a path to file within ttp_templates_dir
+    elif ttp_templates_dir and os.path.isfile(
+        os.path.join(ttp_templates_dir, path[:5000])
+    ):
+        return _load_template_file(os.path.join(ttp_templates_dir, path[:5000]), read)
     # check if path is a directory:
     elif os.path.isdir(path[0:5000]):
         from re import search as re_search

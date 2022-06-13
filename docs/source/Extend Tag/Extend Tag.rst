@@ -26,12 +26,14 @@ extended template, other tags (lookup, vars, input, output) are ignored. Nested 
      - filter, comma separated list of lookup tag names to load
    * - `outputs`_
      - filter, comma separated list of output tag names to load
+   * - `macro`_
+     - name of macro function to pass template content through
 
 template
 --------
 ``template="path_string"``
 
-``path_string`` (mandatory) - OS path to template file or reference to template within TTP Templates repository in a form of ``ttp://path/to/template`` path.
+``path_string`` (mandatory) - relative current working directory or absolute OS path to template file or reference to template within TTP Templates repository in a form of ``ttp://path/to/template`` path. Alternatively, OS path to file within ``TTP_TEMPLATES_DIR`` directory, where ``TTP_TEMPLATES_DIR`` is an environment variable.
 
 **Example-1**
 
@@ -200,6 +202,28 @@ After parsing these results produced::
                       'peers': [{'asn': '65000', 'peer': '2.2.2.2'},
                                 {'asn': '65001', 'peer': '2.2.2.3'}]}}]]
 
+**Example-4**
+
+This example demonstrates how to use ``extend`` tag and ``TTP_TEMPLATES_DIR`` to load templates.
+
+Given this files structure::
+
+    C:
+    └───TTP_TEMPLATES
+        └───parse_vlans_template.txt
+
+And having ``TTP_TEMPLATES_DIR`` set to ``C:\TTP_TEMPLATES\`` value, we can use this template
+to refer to ``parse_vlans_template.txt`` file from within extend tag::
+
+    <extend template="parse_vlans_template.txt"/>
+
+Where ``parse_vlans_template.txt`` content is::
+
+    <group name="vlans.{{ vlan }}">
+    vlan {{ vlan }}
+     name {{ name }}
+    </group>
+
 inputs
 ------
 ``inputs="name1, name2, .. , nameN"``
@@ -229,3 +253,65 @@ outputs
 ``outputs="name1, name2, .. , nameN"``
 
 This filter allows to form a comma separated list of output tags to load from extended template, identified by output tag name attribute.
+
+macro
+-----
+``macro="macro_name"``
+
+Apply arbitrary Python function on template text content before embedding it into parent template.
+
+.. warning:: macro uses python ``exec`` function to parse code payload without imposing any restrictions, hence it is dangerous to
+   run templates from untrusted sources as they can have macro defined in them that can be used to execute any arbitrary code on the system.
+
+Macro function must accept single argument to hold embedded template string and must return string
+with resulted template content.
+
+**Example**
+
+In this example we define macro function to append 4 spaces to embedded template content.
+
+Template::
+
+    <macro>
+    def indent(template_text):
+        # macro to indent each line of original template with 4 space characters
+        return "\\n".join(f"    {line}" for line in template_text.splitlines())
+    </macro>
+
+    <extend template="./assets/extend_vlan.txt" macro="indent"/>
+
+Where file ``./assets/extend_vlan.txt`` content is::
+
+    <group name="vlans.{{ vlan }}">
+    vlan {{ vlan }}
+     name {{ name }}
+    </group>
+
+After passing through macro final template content will look like::
+
+    <macro>
+    def indent(data):
+        # macro to indent each line of original template with 4 space characters
+        return "\\n".join(f"    {line}" for line in data.splitlines())
+    </macro>
+
+        <group name="vlans.{{ vlan }}">
+        vlan {{ vlan }}
+         name {{ name }}
+        </group>
+
+For this sample data::
+
+    # this data indented with 4 spaces
+        vlan 1234
+         name some_vlan
+        !
+        vlan 910
+         name one_more
+        !
+
+Final template will produce results::
+
+    [
+        [{"vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}}}]
+    ]

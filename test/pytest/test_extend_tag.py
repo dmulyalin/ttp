@@ -1,4 +1,5 @@
 import sys
+import os
 
 sys.path.insert(0, "../..")
 import pprint
@@ -856,3 +857,56 @@ vlan 910
 
 
 # test_extend_tag_groups_recursive_extend_load_several_top_groups()
+
+
+def test_extend_tag_from_file_with_macro():
+    template = """
+<macro>
+def indent(data):
+    # macro to indent each line of original template with 4 space characters
+    return "\\n".join(f"    {line}" for line in data.splitlines())
+</macro>
+
+<extend template="./assets/extend_vlan.txt" macro="indent"/>
+    """
+    data = """
+    vlan 1234
+     name some_vlan
+    !
+    vlan 910
+     name one_more
+    !
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [
+        [{"vlans": {"1234": {"name": "some_vlan"}, "910": {"name": "one_more"}}}]
+    ]
+	
+# test_extend_tag_from_file_with_macro()
+
+
+def test_ttp_templates_dir_env_variable_with_extend():
+    os.environ["TTP_TEMPLATES_DIR"] = os.path.join(
+        os.getcwd(), "assets", "TTP_TEMPLATES_DIR_TEST"
+    )
+    data = """
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    template = """
+<extend template="test_ttp_templates_dir_env_variable.txt"/>
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}}]]
+    
+# test_ttp_templates_dir_env_variable_with_extend()

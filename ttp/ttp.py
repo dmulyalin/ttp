@@ -190,7 +190,9 @@ class ttp:
     construct final results and run outputs.
 
     :param data: (obj) file object or OS path to text file or directory with text files with data to parse
-    :param template: (obj) file object or OS path to text file with template or template text string
+    :param template: (obj) one of: file object, OS path to template text file, OS path to directory with
+        templates text files, template text string, TTP Templates path (ttp://x/y/z), OS path to template
+        text file within ``TTP_TEMPLATES_DIR`` directory, where ``TTP_TEMPLATES_DIR`` is an environment variable.
     :param base_path: (str) base OS path prefix to load data from for template's inputs
     :param log_level: (str) level of logging "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
     :param log_file: (str) path where to save log file
@@ -201,6 +203,14 @@ class ttp:
 
         from ttp import ttp
         parser = ttp(data="/os/path/to/data/dir/", template="/os/path/to/template.txt")
+        parser.parse()
+        result = parser.result(format="json")
+        print(result[0])
+
+    Or if ``TTP_TEMPLATES_DIR=/absolute/os/path/to/templates/dir/``::
+
+        from ttp import ttp
+        parser = ttp(data="/os/path/to/data/dir/", template="template.txt")
         parser.parse()
         result = parser.result(format="json")
         print(result[0])
@@ -912,8 +922,8 @@ class _template_class:
         self.macro = ttp_macro  # dictionary of macro name to function mapping
         self.results_method = "per_input"  # how to join results
         self.macro_text = (
-            []
-        )  # list to contain macro functions text to transfer into other processes
+            set()
+        )  # set to contain macro functions text to transfer into other processes
         self.filters = filters  # list that contains names of child templates to extract
         self.__doc__ = ""  # string to contain template doc/description
         self.template = template_text  # attribute to store template text
@@ -1153,7 +1163,7 @@ class _template_class:
             )
             self.macro.update(funcs)
             # save macro text to be able to restore macro functions within another process
-            self.macro_text.append(element.text)
+            self.macro_text.add(element.text)
         except SyntaxError as e:
             log.error(
                 "template.parse_macro: syntax error, failed to load macro: \n{},\nError: {}".format(
@@ -1310,6 +1320,11 @@ class _template_class:
         # load template string to XML etree object
         if template_text:
             template_ET = self.construct_etree(template_text)
+        # load macro functions from top template into self.macro dict
+        if top == True:
+            for child in template_ET:
+                if child.tag == "macro":
+                    self.parse_macro(child)
         # recursively iterate over etree handling extend tags
         for index, child in enumerate(template_ET):
             if child.tag == "extend":
@@ -1321,7 +1336,12 @@ class _template_class:
                             path_to_template
                         )
                     )
-                extend_ET = self.construct_etree(content[0][1])
+                # run extend tag macro function if any
+                template_content = content[0][1]
+                if child.attrib.get("macro") in self.macro:
+                    template_content = self.macro[child.attrib["macro"]](content[0][1])
+                # construct etree out of template content
+                extend_ET = self.construct_etree(template_content)
                 # if extended template has _anonymous_ group as the only child, use only its text
                 if (
                     len(extend_ET) == 1

@@ -1135,3 +1135,22 @@ interface GigabitEthernet0/0/0/22
 
 # test_in_threads_parsing()
 
+def test_ttp_templates_dir_env_variable():
+    os.environ["TTP_TEMPLATES_DIR"] = os.path.join(
+        os.getcwd(), "assets", "TTP_TEMPLATES_DIR_TEST"
+    )
+    data = """
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    parser = ttp(data=data, template="test_ttp_templates_dir_env_variable.txt")
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}}]]
+    
+# test_ttp_templates_dir_env_variable()

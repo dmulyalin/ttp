@@ -345,7 +345,7 @@ table:
     """
     # copy workbook to update it
     copyfile(
-        src="./Output/excel_out_test_excel_formatter_update_source.xlsx",
+        src="./assets/excel_out_test_excel_formatter_update_source.xlsx",
         dst="./Output/excel_out_test_excel_formatter_update.xlsx",
     )
     # run parsing
@@ -433,7 +433,7 @@ interface {{ interface | contains("Vlan") }}
     """
     # copy workbook to update it
     copyfile(
-        src="./Output/excel_out_test_excel_formatter_update_source.xlsx",
+        src="./assets/excel_out_test_excel_formatter_update_source.xlsx",
         dst="./Output/excel_out_test_excel_formatter_update.xlsx",
     )
     # run parsing
