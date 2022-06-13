@@ -195,7 +195,7 @@ class ttp:
     :param log_level: (str) level of logging "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
     :param log_file: (str) path where to save log file
     :param vars: (dict) dictionary of variables to make available to ttp parser
-    :dynamic_path_key_to_int: (bool) if True converts dynamic path keys to integers, False by default
+    :param dynamic_path_key_to_int: (bool) if True converts dynamic path keys to integers, False by default
 
     Example::
 
