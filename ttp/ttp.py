@@ -2610,8 +2610,8 @@ class _parser_class:
                 raw_results.append(
                     [group_result[key] for key in sorted(list(group_result.keys()))]
                 )
-        # import pprint
-        # pprint.pprint(raw_results)
+
+        # import pprint; pprint.pprint(raw_results)
 
         # form results for global groups:
         RSLTSOBJ = _results_class(self._ttp_)
@@ -2702,7 +2702,7 @@ class _results_class:
                 if len(result) == 1:
                     re_ = result[0][0]
                     result_data = result[0][1]
-                # if same results captured by multiple regexes, need to do further decision checks
+                # if same results captured by multiple regexes, need to do further decision making
                 else:
                     re_ = None
                     startempty_re, start_re, normal_re, line_re = [], [], [], []
@@ -2718,6 +2718,7 @@ class _results_class:
                             normal_re.append(index)
                     # startempty RE always more preferred
                     if startempty_re:
+                        # first run - look for results with same path as current record
                         for index in startempty_re:
                             re_ = result[index][0]
                             result_data = result[index][1]
@@ -2727,13 +2728,27 @@ class _results_class:
                             # prefer result with same path as current record
                             elif re_["GROUP"].group_id == self.record["GRP_ID"]:
                                 break
-                            # prefer children of current record group
-                            elif self.record["GRP_ID"] and re_["GROUP"].group_id[
-                                0
-                            ].startswith(self.record["GRP_ID"][0]):
-                                break
+                        else:
+                            # if second run - check other preferred conditions
+                            for index in startempty_re:
+                                re_ = result[index][0]
+                                result_data = result[index][1]
+                                # skip results that did not pass validation check
+                                if result_data == False:
+                                    continue
+                                # prefer children of current record group
+                                elif self.record["GRP_ID"] and re_["GROUP"].group_id[
+                                    0
+                                ].startswith(self.record["GRP_ID"][0]):
+                                    break
+                                # prefer results for group that has parent started
+                                elif (
+                                    re_["GROUP"].parent_group_id in self.started_groups
+                                ):
+                                    break
                     # start RE preferred next
                     elif start_re:
+                        # first run - look for results with same path as current record
                         for index in start_re:
                             re_ = result[index][0]
                             result_data = result[index][1]
@@ -2743,11 +2758,24 @@ class _results_class:
                             # prefer result with same path as current record
                             elif re_["GROUP"].group_id == self.record["GRP_ID"]:
                                 break
-                            # prefer children of current record group
-                            elif self.record["GRP_ID"] and re_["GROUP"].group_id[
-                                0
-                            ].startswith(self.record["GRP_ID"][0]):
-                                break
+                        else:
+                            # if second run - check other preferred conditions
+                            for index in start_re:
+                                re_ = result[index][0]
+                                result_data = result[index][1]
+                                # skip results that did not pass validation check
+                                if result_data == False:
+                                    continue
+                                # prefer children of current record group
+                                elif self.record["GRP_ID"] and re_["GROUP"].group_id[
+                                    0
+                                ].startswith(self.record["GRP_ID"][0]):
+                                    break
+                                # prefer results for group that has parent started
+                                elif (
+                                    re_["GROUP"].parent_group_id in self.started_groups
+                                ):
+                                    break
                     # normal and end REs preferred next
                     elif normal_re:
                         for index in normal_re:

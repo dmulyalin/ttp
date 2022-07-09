@@ -696,7 +696,7 @@ def test_child_group_do_not_start_if_no_parent_started():
 <group name="ospf_processes.{{ pid }}**">
             OSPF Router with ID ({{ local_rid }}) (Process ID {{ pid }})
             
-<group name="router_lsa*" record="area" del="area" void="">
+<group name="router_lsa*" functions="record('area') | del('area') | void">
                 Router Link States (Area {{ area }})
 
   <group set="area">
@@ -776,7 +776,7 @@ RP/0/RP0/CPU0:router-1#show ospf database router
     parser = ttp(data=data, template=template, log_level="warning")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)
+    pprint.pprint(res)
     assert res == [
         [
             {
@@ -786,7 +786,7 @@ RP/0/RP0/CPU0:router-1#show ospf database router
                         "router_lsa": [
                             {
                                 "age": "406",
-                                "area": "area",
+                                "area": "0.0.0.0",
                                 "originator_rid": "10.0.1.1",
                                 "ptp_peers": [
                                     {"link_data": "0.0.0.12"},
@@ -795,7 +795,7 @@ RP/0/RP0/CPU0:router-1#show ospf database router
                             },
                             {
                                 "age": "1604",
-                                "area": "area",
+                                "area": "0.0.0.0",
                                 "originator_rid": "10.0.1.2",
                                 "ptp_peers": [
                                     {"link_data": "0.0.0.52"},

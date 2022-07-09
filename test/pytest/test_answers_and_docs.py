@@ -2578,7 +2578,7 @@ vrf {{name}}
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)
+    pprint.pprint(res)
     assert res == [
         [
             {
@@ -7196,3 +7196,66 @@ snmp-server enable traps {{ traps | joinmatches(',') | to_list }}
                                                                'version': '2c'}],
                                                   'traps': ['bgp', 'entity']}}}]]
 # test_issue_69_fix()
+
+
+def test_issue_77():
+    """
+    """
+    data ="""
+lsp "lsp100"
+    primary "name"
+        include "1"
+        exclude "2"
+    exit
+    secondary "name"
+        include "3"
+        exclude "4"
+    exit
+exit
+lsp "lsp101"
+    primary "name"
+        include "5"
+        exclude "6"
+    exit
+    secondary "name"
+        include "7"
+        exclude "8"
+    exit
+exit    
+    """
+    template = """
+<group name="lsp**.{{ lspname }}**">
+lsp "{{ lspname | _start_ }}"
+    <group name="primary**.{{ primaryname }}**">
+    primary "{{ primaryname | _start_ }}"
+        <group name="include**.{{ item }}**">
+        include "{{ item | _start_ }}"
+        </group>
+        <group name="exclude**.{{ item }}**">
+        exclude "{{ item | _start_ }}"
+        </group>
+    exit{{ _end_ }}
+    </group>
+    <group name="secondary**.{{ secondaryname }}**">
+    secondary "{{ secondaryname | _start_ }}"
+        <group name="include**.{{ item }}**">
+        include "{{ item | _start_ }}"
+        </group>
+        <group name="exclude**.{{ item }}**">
+        exclude "{{ item | _start_ }}"
+        </group>
+    exit{{ _end_ }}
+    </group>
+exit{{ _end_ }}
+</group>
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=100)
+    assert res == [[{'lsp': {'lsp100': {'primary': {'name': {'exclude': {'2': {}}, 'include': {'1': {}}}},
+                      'secondary': {'name': {'exclude': {'4': {}}, 'include': {'3': {}}}}},
+           'lsp101': {'primary': {'name': {'exclude': {'6': {}}, 'include': {'5': {}}}},
+                      'secondary': {'name': {'exclude': {'8': {}}, 'include': {'7': {}}}}}}}]]
+                      
+# test_issue_77()
