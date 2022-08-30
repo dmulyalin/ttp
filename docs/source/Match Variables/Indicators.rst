@@ -107,7 +107,7 @@ _exact_space_
 ------------------------------------------------------------------------------
 ``{{ name | _exact_space_ }}``
 
-By default, the parser will replace all space characters in a template with the with '\\ +' pattern.
+By default, the parser will replace all space characters in a template with the '\\ +' pattern.
 However, if ``_exact_space_`` is present in any match variable within a line, space characters will remain unchanged and parsed as is.
 
 _start_
@@ -552,5 +552,5 @@ Result::
                      {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
        'columns_7': {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}}]]
 
-The smaller the value of ``columns`` attribute is, the more lines with optional/empty columns will be matched. 
+The smaller the value of ``columns`` attribute is, the more lines with optional/empty columns will be matched.
 The larger the value is, the stricter the ``_headers_`` regex will be, producing less matches with empty columns.

@@ -1,9 +1,6 @@
 # to run pre-commit on demand using below configuration:
 # pre-commit run --all-files
 
-default_language_version:
-    python: python3.7
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0

@@ -12,7 +12,7 @@ By default, TTP accounts for the most general case: where a TTP object is assume
 Each template produces its own results, which gives the first level of lists.
 
 Within each template, several inputs can be defined (whereby input = string/text to parse).
-Results for each input are parsed independently and then aggregated into a list. 
+Results for each input are parsed independently and then aggregated into a list.
 This gives the second level of lists.
 
 If a template does not have any groups, or has groups without a ``name`` attribute, its results
@@ -274,7 +274,7 @@ Result::
 How do I escape < and >  characters in a template?
 ------------------------------------------------
 
-In XML, ``<`` and ``>`` have special meanings. Since TTP templates are XML documents, 
+In XML, ``<`` and ``>`` have special meanings. Since TTP templates are XML documents,
 we need to use escape sequences to match these characters:
 
 Data::
