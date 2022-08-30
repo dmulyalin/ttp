@@ -5,7 +5,7 @@
 Indicators
 ================
 
-Indicators or directives can be used to change parsing logic or indicate certain events.
+Indicators, or directives, can be used to change parsing logic or indicate certain events.
 
 .. list-table:: indicators
    :widths: 10 90
@@ -14,15 +14,15 @@ Indicators or directives can be used to change parsing logic or indicate certain
    * - Name
      - Description
    * - `_exact_`_
-     - Threats digits as is without replacing them with ``\d+`` pattern
+     - Leaves digits as is without replacing them with ``\d+`` pattern
    * - `_exact_space_`_
-     - Leave space characters in place without replacing them with ``r(\\ +)`` pattern
+     - Leaves space characters as is without replacing them with ``r(\\ +)`` pattern
    * - `_start_`_
      - Explicitly indicates start of the group
    * - `_end_`_
      - Explicitly indicates end of the group
    * - `_line_`_
-     - If present any line will be matched
+     - If present, any line will be matched
    * - `ignore`_
      - Substitute string at given position with regular expression without matching results
    * - `_headers_`_
@@ -32,9 +32,12 @@ _exact_
 ------------------------------------------------------------------------------
 ``{{ name | _exact_ }}``
 
-By default all digits in template replaced with '\d+' pattern, if ``_exact_`` present in any match variable within that line, digits are unchanged and used for parsing as is.
+By default, the parser will replace all digits in a template with the '\d+' pattern.
+However, if ``_exact_`` is present in any match variable within a line, digits will remain unchanged and parsed as is.
 
-**Example**
+This is an important consideration for when a pattern contains numbers.
+
+**Example: capturing an IPv4 configuration**
 
 Sample Data::
 
@@ -46,7 +49,7 @@ Sample Data::
    maximum prefix 300 80
   !
 
-If Template::
+Template without ``_exact_``::
 
  <group name="vrfs">
  vrf {{ vrf }}
@@ -56,7 +59,7 @@ If Template::
   </group>
  </group>
 
-Result will be::
+Result::
 
  {
      "vrfs": {
@@ -74,9 +77,10 @@ Result will be::
      }
  }
 
-As you can see ipv6 part of vrf configuration was matched as well and we got undesirable results, one of the possible solutions would be to use _exact_ directive to indicate that "ipv4" should be matches exactly.
+As you can see, the ipv6 part of vrf configuration was matched as well, which wasn't what we wanted.
+A possible solution would be to use``_exact_`` to indicate that "ipv4" should be matched exactly.
 
-If Template::
+Template with ``_exact_``::
 
  <group name="vrfs">
  vrf {{ vrf }}
@@ -87,7 +91,7 @@ If Template::
   </group>
  </group>
 
-Result will be::
+Result::
 
  {
      "vrfs": {
@@ -103,17 +107,18 @@ _exact_space_
 ------------------------------------------------------------------------------
 ``{{ name | _exact_space_ }}``
 
-By default all space characters in template replaced with '\\ +' pattern, if _exact_space_ present, space characters will stay unchanged and will be used for parsing as is.
+By default, the parser will replace all space characters in a template with the with '\\ +' pattern.
+However, if ``_exact_space_`` is present in any match variable within a line, space characters will remain unchanged and parsed as is.
 
 _start_
 ------------------------------------------------------------------------------
 ``{{ name | _start_ }}`` or {{ _start_ }}
 
-This directive can be used to explicitly indicate start of the group by matching certain line or if we have multiple lines that can indicate start of the same group.
+Explicitly indicates the start of the group by matching a certain line, or even multiple lines.
 
 **Example-1**
 
-In this example line "-------------------------" can serve as an indicator of the beginning of the group, but we do not have any match variables defined in it.
+In this example, line "-------------------------" can serve as an indicator of the beginning of the group, but we do not have any match variables defined in it.
 
 Sample data::
 
@@ -172,7 +177,7 @@ Template::
   description {{ description }}
  </group>
 
-Result will be::
+Result::
 
  {
      "interfaces": [
@@ -191,25 +196,31 @@ _end_
 ------------------------------------------------------------------------------
 ``pattern {{ _end_ }}``
 
-Explicitly indicates the end of the group. If line was matched that has _end_ indicator assigned - that will trigger processing and saving group results into results tree. The purpose of this indicator is to optimize parsing performance allowing TTP to determine the end of the group faster and eliminate checking of unrelated text data.
+Explicitly indicates the end of the group.
+When a line with the ``_end_`` indicator is encountered by the parser, it acts as a trigger for processing and saving group results into the results tree.
 
-.. warning :: using ``_end_`` together with match variables not supported as of TTP 0.6.0 and earlier, i.e. {{ name | _end_ }} not fully supported
+The purpose of this indicator is to optimize parsing performance. TTP is able to determine the end of the group faster and eliminate checking of unrelated text data.
+
+.. warning :: using ``_end_`` together with match variables (i.e. ``{{ name | _end_ }}`` ) is not supported as of TTP 0.6.0 and earlier.
 
 _line_
 ------------------------------------------------------------------------------
 ``{{ name | _line_ }}``
 
-This indicator serves double purpose, first of all, special regular expression will be used to match any line in text, moreover, additional logic will be incorporated for such a cases when same portion of text data was matched by _line_ and other regular expression simultaneously. Main use case for _line_ indicator is to match and collect data that not been matched by other match variables.
+The main purpose of the ``_line_`` indicator is to match and collect data that hasn't been matched by other variables.
 
-All TTP match variables function can be used together with _line_ indicator, for instance ``contains`` function can be used to filter results.
+This indicator serves two purposes. Firstly, special regex will be used to match any line in text.
+Moreover, additional logic will be incorporated when a portion of text data is matched by ``_line_`` and other regular expressions simultaneously.
 
-TTP will assign only last line matched by _line_ to match variable, if multiple lines needs to be saved, ``joinmatches`` function can be used.
+All TTP match variables functions can be used with ``_line_``. For instance, the ``contains`` function can be used to filter results.
 
-.. warning:: _line_ expression is computation intensive and can take longer time to process, it is recommended to use _end_ indicator together with _line_ whenever possible to minimize performance impact. In addition, having as clear source data as possible also helps, as it allows to avoid false positives - unnecessary matches.
+TTP will only assign the last line matched by ``_line_`` to the variable. If multiple lines need to be saved, use ``joinmatches``.
+
+.. warning:: ``_line_`` is computationally intensive and can result in longer processing times. It is recommended to use ``_end_`` together with ``_line_`` whenever possible to minimize performance impacts. As always, this can be helped by having very clear source data, as it aids avoiding false positives (i.e. undesirable matches).
 
 **Example**
 
-Let's say we want to match all port-security related configuration on the interface and save it into port_security_cfg variable.
+Let's say we want to get all port-security related configurations on an interface, and save them into a single match variable (``port_security_cfg``).
 
 Template::
 
@@ -252,15 +263,21 @@ ignore
 ------------------------------------------------------------------------------
 ``{{ ignore }}`` or ``{{ ignore("value") }}``
 
-``value`` can be of:
+``value`` can be any of the following:
 
-* regular expression string - regex to use to substitute portion of the string, default is ``\S+``, meaning any non-space character one or more times.
+* regular expression string - regex to use to substitute a portion of the string. Default is ``\S+``, meaning any non-space character one or more times.
 * template variable - name of template variable that contains regular expression to use
 * built in re pattern - name of regex pattern to use, for example :ref:`Match Variables/Patterns:WORD`
 
-.. note:: Reference template variable if ignore pattern contains ``|`` (pipe) character, as pipe character used by TTP to separate match variable functions and cannot be used in inline regex.
+.. note:: A template variable should be used if your ignore pattern contains a ``|`` (pipe) character. The pipe character is used by TTP to separate functions and cannot be used in inline regex.
 
-Primary use case of this indicator is to ignore changing alpha-numerical characters or ignore portion of the line. For example consider this data::
+The primary use case of this indicator is to ignore alpha-numerical characters that can vary, or ignore portions of the line.
+
+**Example-1**
+
+For the following data, we only want to extract the bia MAC address within the parentheses, ``c201.1d00.1234`` and ``c201.1d00.1111``.
+
+Sample Data::
 
     FastEthernet0/0 is up, line protocol is up
       Hardware is Gt96k FE, address is c201.1d00.0000 (bia c201.1d00.1234)
@@ -269,15 +286,15 @@ Primary use case of this indicator is to ignore changing alpha-numerical charact
       Hardware is Gt96k FE, address is b20a.1e00.8777 (bia c201.1d00.1111)
       MTU 1500 bytes, BW 100000 Kbit/sec, DLY 1000 usec,
 
-**Example-1**
 
-What if only need to extract bia MAC address within parenthesis, below template will **not** work for all cases::
+We could try the following template::
 
     {{ interface }} is up, line protocol is up
       Hardware is Gt96k FE, address is c201.1d00.0000 (bia {{MAC}})
       MTU {{ mtu }} bytes, BW 100000 Kbit/sec, DLY 1000 usec,
 
-Result::
+But it would only match for a single case! We'd only get matches for "c201.1d00.0000", since it's hard-coded into the template.
+The bia MAC address for FastEthernet0/1 would not be matched, and we would receive the following result::
 
     [
         [
@@ -293,7 +310,7 @@ Result::
         ]
     ]
 
-As we can see MAC address for FastEthernet0/1 was not matched due to the fact that "c201.1d00.0000" text was used in template, to fix it we need to ignore MAC address before parenthesis as it keeps changing across the source data::
+Solution template::
 
     {{ interface }} is up, line protocol is up
       Hardware is Gt96k FE, address is {{ ignore }} (bia {{MAC}})
@@ -318,7 +335,7 @@ Result::
 
 **Example-2**
 
-In this example template variable "pattern_var" used together with ignore, that variable reference regular expression pattern that contains pipe symbol.
+In this example, we use ``ignore`` with a template variable "pattern_var": a regex pattern that contains the pipe symbol.
 
 Template::
 
@@ -366,24 +383,25 @@ _headers_
 ------------------------------------------------------------------------------
 ``head1  head2 ... headN {{ _headers_ }}`` or ``head1  head2 ... headN {{ _headers_ | columns(5) }}``
 
-This indicator uses headers line to dynamically form regular expression to parse fixed-width, one-line text tables.
+When used with a line of headers, this indicator dynamically forms regular expressions for parsing fixed-width, single-line text tables.
 
-Starting with TTP 0.8.1 ``columns`` attribute added to ``_headers_`` indicator. ``columns`` attribute
-takes single digit as an argument to represent the number of mandatory columns to match by ``_headers_``.
+Starting with TTP 0.8.1, the ``columns`` attribute can be used with ``_headers_``.
+``columns`` is a single digit that represents the number of mandatory columns for ``_headers_`` to match.
 
-Default ``columns`` attribute value is number of headers minus 2 i.e. ``len(headers) - 2``
+The default value of ``columns`` is the number of headers minus 2 i.e. ``len(headers) - 2``
 
-Column width calculated based on header items length, variables names dynamically formed out of header items. As a result there are a number of restrictions:
+Calculations are made by the parser based on these headers. Column width is based on the character lengths of headers, and they are also used to dynamically form variable names.
+As a result there are a number of restrictions:
 
 * headers line must match original data to calculate correct columns width
-* header items must be separated by at least one space character
-* header items must be left-aligned to indicate beginning of the column
-* header items cannot contain spaces, replace them with underscore
-* header items must be valid Python identifies to form variables names
-* match variable functions not supported for header items, instead, group functions can be used for processing
-* by default, last column can be empty and next to the last column is optional, this can be adjusted using ``columns`` attribute
+* headers must be separated by at least one space character
+* headers must be left-aligned to indicate beginning of the column
+* headers cannot contain spaces - use underscores instead
+* headers must be valid Python identifiers, since the parser uses them as variable names
+* match variable functions are not supported for headers. Instead, group functions can be used for processing
+* by default, the last column can be empty and the next to last column is optional. This can be adjusted with the ``columns`` attribute
 
-How column width calculated::
+How column width is calculated::
 
     Column width calculated from left to the left edge of each header:
 
@@ -391,12 +409,12 @@ How column width calculated::
     <--------><-----------------><-----------><---------><------><----><-infinite->
         C1            C2              C3           C4       C5     C6       C7
 
-Assuming ``columns`` attribute value is 5 this regex set formed:
+Assuming ``columns`` attribute value is 5, this regex set is formed:
 
-* C1 - C4 mandatory columns width represented by ``.{x}`` regex, where ``x`` is columns width ``<---->`` value
-* C5 mandatory represented by ``.{1, x}`` regex, where ``x`` is columns width ``<---->`` value
-* C6 optional column represented by ``.{0, x}`` regex, where ``x`` is columns width ``<---->`` value
-* last optional column C7 represented by ``.*`` regex
+* C1 - C4 are mandatory columns. Their width is represented by the regex pattern ``.{x}`` , where ``x`` is column width (represented by ``<---->`` values above)
+* C5 is also mandatory, represented by the regex pattern ``.{1, x}`` , where ``x`` is columns width
+* C6 is an optional column, represented by the regex pattern ``.{0, x}`` , where ``x`` is columns width
+* The last column C7 is also optional, represented by the regex pattern ``.*``
 
 **Example-1**
 
@@ -534,5 +552,5 @@ Result::
                      {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}],
        'columns_7': {'Duplex': 'auto', 'Name': 'PIT-VDU212', 'Port': 'Gi0/7', 'Speed': 'auto', 'Status': 'notconnect', 'Type': '10/100/1000BaseTX', 'Vlan': '18'}}]]
 
-The less the value of ``columns`` attribute the more lines with optional/empty columns will be matched, the higher the value
-the stricter ``_headers_`` regex is, producing less matches with empty columns.
+The smaller the value of ``columns`` attribute is, the more lines with optional/empty columns will be matched. 
+The larger the value is, the stricter the ``_headers_`` regex will be, producing less matches with empty columns.

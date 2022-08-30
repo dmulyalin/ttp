@@ -1,14 +1,15 @@
 Match Variables
 ===============
 
-Match variables used as names (keys) for information (values) that needs to be extracted from text data.  Match variables placed within ``{{`` and ``}}`` double curly brackets. For instance::
+Match variables are used as names (keys) for information (values) that needs to be extracted from text data.
+You can declare a match variable by naming it within double curly brackets, ``{{`` and ``}}``. For instance::
 
     <group name="interfaces">
     interface {{ interface }}
      switchport trunk allowed vlan add {{ trunk_vlans }}
     </group>
 
-Match variables are ``interface`` and ``trunk_vlans`` will store matching values extracted from this sample data::
+The match variables ``interface`` and ``trunk_vlans`` will store matching values extracted from this sample data::
 
     interface GigabitEthernet3/4
      switchport trunk allowed vlan add 771,893
@@ -31,7 +32,9 @@ After parsing, TTP will produce this result::
         }
     ]
 
-Match variables can reference various function to process data during parsing, indicators to change parsing logic or regular expression patterns to use for data parsing. Match variables combined with groups can help to define the way how data parsed, processed and structured.
+You can also combine match variables with indicators, functions, and/or regular expression patterns.
+These help define the way your data is parsed, processed and structured - especially when combined with groups.
+
 
 Match Variables reference
 -------------------------

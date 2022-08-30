@@ -5,30 +5,31 @@ Collection of answers to frequently asked questions.
 
 .. contents:: :local:
 
-Why TTP returns nested list of lists of lists?
+Why does TTP return a nested list of lists of lists?
 ----------------------------------------------
 
-By default TTP accounts for most general case where several templates added in TTP object,
-each template producing its own results, that is why top structure is a list.
+By default, TTP accounts for the most general case: where a TTP object is assumed to have several templates.
+Each template produces its own results, which gives the first level of lists.
 
-Within template, several inputs can be defined (input = string/text to parse), parsing results
-for each input produced independently, joining in a list, where each item corresponds to
-input. That gives second level of lists.
+Within each template, several inputs can be defined (whereby input = string/text to parse).
+Results for each input are parsed independently and then aggregated into a list. 
+This gives the second level of lists.
 
-If template does not have groups defined or has groups without ``name`` attribute, results for
-such a template will produce list of items on a per-input basis. That is third level of lists.
+If a template does not have any groups, or has groups without a ``name`` attribute, its results
+will produce a list of items on a per-input basis. This gives the third level of lists.
 
-Above is a default, generalized behavior that (so far) works for all cases, as items always can be
+This is the default, generalized behaviour that (so far) works for all cases, as items always can be
 appended to the list.
 
 Reference :ref:`results_structure` documentation on how to produce results suitable for your case
-using TTP built-in techniques, otherwise, Python results post-processing proved to be useful
-as well.
+using TTP built-in techniques. Otherwise, Python results post-processing may also prove useful.
 
-How to add comments in TTP templates?
+How do I add comments in TTP templates?
 -------------------------------------
 
-To put single line comment within TTP group use double hash tag - ``##``, e.g.::
+There are three different ways you can add comments.
+
+1. Single line comments within a group, using ``##``::
 
     <group name="interfaces">
     ## important comment
@@ -37,7 +38,7 @@ To put single line comment within TTP group use double hash tag - ``##``, e.g.::
      description {{ description }}
     </group>
 
-To place comments outside of TTP groups can use XML comments::
+2. Multi-line comments outside of groups, using XML comments::
 
     <!--Your comment, can be
     multi line
@@ -47,8 +48,7 @@ To place comments outside of TTP groups can use XML comments::
      description {{ description }}
     </group>
 
-If you after writing extensive description about your template, using <doc> tag
-could be another option::
+3. For more extensive descriptions, use the <doc> tag::
 
     <doc>
     My
@@ -63,30 +63,30 @@ could be another option::
 
 Starting with TTP 0.7.0 double hash ## comments can be indented.
 
-How to make TTP always return a list even if single item matched?
+How do I make TTP always return a list, even if there is only one matched item?
 -----------------------------------------------------------------
 
-Please reference TTP :ref:`path_formatters` for details on how
-to enforce list or dictionary as part of results structure.
+Please refer to :ref:`path_formatters` for details on how
+to enforce the results structure with a list or dictionary.
 
-Generally, going through :ref:`results_structure` documentation
-might be useful as well.
+The :ref:`results_structure` documentation may also be of use.
 
 
-How to match several variations of slightly changing output?
+How do I match several variations of slightly changing output?
 ------------------------------------------------------------
 
-If you can, better use API, as parsing semi structured text for varying output
-can be "fun" with results fragile. Keep reading if you have no other choice.
+It is recommended to use the API wherever possible. Parsing semi-structured text for varying output
+can be "fun", and may produce fragile results.
 
-In general case, TTP transform templates in regular expressions, if your data changing,
-so your template should as well. For instance, several ``_start_`` lines could be
-used in a template or group ``method`` attribute could be set to ``table`` to match
-several variations of output. In addition ``ignore`` indicator could be used to ignore
-portion of the text data or add additional regular expressions to match and ignore varying
-data.
+In most cases, TTP transforms templates into regular expressions. If your data changes,
+so should your template. Some potential solutions for matching varying output include:
 
-Consider this data::
+* using several ``_start_`` lines in a template
+* setting a group's ``method`` attribute to ``table``
+* using the ``ignore`` indicator to ignore portions of the input data
+* add additional regular expressions to match and ignore varying data.
+
+Consider this data, which displays the many output variations for a single command::
 
     # not disabled and no comment
     /ip address add address=10.4.1.245 interface=lo0 network=10.4.1.245
@@ -111,8 +111,7 @@ Consider this data::
     # disabled with comment with quotes
     /ip address add address=10.4.248.20/29 comment="Backhaul to AGR (Test Segment)" disabled=yes interface=vlan209@bond1 network=10.4.248.16
 
-Above are the different variations of the same show command output. This template could be
-used to match all of them::
+This template could be used to match all of them::
 
     <vars>
     default_values = {
@@ -135,7 +134,7 @@ used to match all of them::
     /ip address add address={{ ip | _start_ }}/{{ mask }} comment={{ comment | ORPHRASE | exclude("disabled=") | strip('"') }} disabled={{ disabled }} interface={{ interface }} network={{ network }}
     </group>
 
-Producing this uniform results::
+Producing uniform results::
 
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
@@ -155,18 +154,17 @@ Producing this uniform results::
 
 Notes:
 
-1. ``_start_`` indicator used to denote several start regexes
+1. ``_start_`` indicator denotes several start regexes
 2. ``default="default_values"`` helps to ensure that results will always have default values
-3. ``ORPHRASE`` regex pattern to match single word or several words separated by single space (phrase)
-4. ``exclude("disabled=")`` because of ``ORPHRASE`` false matches could be produced, e.g.: ``{'comment': 'Cambium disabled=yes'...`` - that is due to regular expression behavior, need to filter such results
+3. ``ORPHRASE`` is a regex pattern for matching either 1) a single word or 2) several words separated by single spaces (a phrase)
+4. ``exclude("disabled=")`` because of ``ORPHRASE`` false matches that could be produced, e.g.: ``{'comment': 'Cambium disabled=yes'...`` This is due to regular expression behavior, and you will need to filter such results
 5. ``strip('"')`` removes quote character from left and right of the matched string
 
-How to combine multiple matches for the same match variable?
+How do I combine multiple matches into the same match variable?
 ------------------------------------------------------------
 
-It is possible to use ``joinmatch`` match variable function to join multiple matches for the same variable. Sample
-use case could be to combine multiple configuration statements for the same type of parameter under same variable,
-for instance consider example below.
+You can use the ``joinmatch`` function to join multiple matches into a single variable.
+For example, if you had a parameter with multiple configuration statements, you could combine them:
 
 Data::
 
@@ -191,12 +189,11 @@ Result::
     ]
 
 
-How to capture all non matched lines?
--------------------------------------
+How do I capture all lines that aren't matched by a variable?
+-------------------------------------------------------------
 
-There is ``_line_`` indicators exists for the purpose of matching text lines, ``_line_`` indicator combined
-with ``joinmatches`` match variable function can be used to capture all lines not matched by other match
-variables, have a look at below example.
+This can be done using the ``_line_`` indicator, which matches **any** line of text. Combined
+with the ``joinmatches`` function, you can use this to capture all non-matched lines, e.g.:
 
 Data::
 
@@ -228,14 +225,13 @@ Results::
                            'switchport port-security mac-address sticky'}
                           ]]
 
-How to capture multi-line output?
----------------------------------
+How do I capture multi-line output?
+-----------------------------------
 
-For the purpose of matching multiple lines and combining them under same variable ``_line_`` indicator
-with ``joinmatches`` match variable function could be used.
+If you want to capture something that spans multiple lines, you can combine the lines into one variable
+by using ``_line_`` with the ``joinmatches`` function.
 
-For instance, we want to match system description in LLDP neighbors output but it spans multiple lines,
-here is how that can be done.
+For instance, we want to match the system description in LLDP neighbors output, but it spans multiple lines:
 
 Sample data::
 
@@ -275,11 +271,11 @@ Result::
                                                        'Copyright (c) 1986-2012 by Cisco Systems, Inc. '
                                                        'Compiled Sun 15-Apr-12 02:35 by p'}}]]]
 
-How to escape < and >  characters in a template?
+How do I escape < and >  characters in a template?
 ------------------------------------------------
 
-In XML characters ``<`` and ``>`` has special meaning, TTP templates are XML documents, because
-of that if tags' data needs to contain ``<`` or ``>`` need to use escape sequences. Consider below example.
+In XML, ``<`` and ``>`` have special meanings. Since TTP templates are XML documents, 
+we need to use escape sequences to match these characters:
 
 Data::
 
@@ -287,12 +283,13 @@ Data::
     Name:Michael<br>
     Name:July<br>
 
-This template would **not** work as Python XML Etree library will transform ``&lt;br&gt;`` to ``<br>`` and
-will fail to parse it as there is no closing tag::
+Template::
 
     Name:{{ name }}&lt;br&gt;
 
-Instead need to envelope template string in ``<group>`` tag, that way escape sequences interpreted properly::
+The above template would **not** work. The Python XML Etree library will transform ``&lt;br&gt;`` to ``<br>`` and
+will fail to parse it as there is no closing tag.
+Instead, to properly interpret escape sequences, we need to wrap the template strings in ``<group>`` tags::
 
     <group name="people">
     Name:{{ name }}&lt;br&gt;
