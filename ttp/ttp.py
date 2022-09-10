@@ -900,9 +900,7 @@ class _template_class:
         ttp_vars = ttp_vars or {}
         filters = filters or []
         ttp_macro = ttp_macro or {}
-        self.PATHCHAR = (
-            "."
-        )  # character to separate path items, like ntp.clock.time, '.' is pathChar here
+        self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here
         self.vars = {  # dictionary to store template variables
             "_vars_to_results_": {},  # to indicate variables and patch where they should be saved in results
             # _vars_to_results_ is a dict of {pathN:[var_key1, var_keyN]} data

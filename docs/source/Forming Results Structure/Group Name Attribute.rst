@@ -24,7 +24,7 @@ This result will be produced::
     [
         {
             "interfaces": {
-                "SVIs": {
+                "vlan": {
                     "L3": {
                         "vrf-enabled": {
                             "description": "Management",

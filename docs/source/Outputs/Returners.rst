@@ -105,7 +105,7 @@ Results will be printed to terminal window. Terminal returner support colouring 
 * ``colour`` if present with any value, colorama module will be initiated to colour certain words in output
 * ``red_words`` comma separated list of patterns to colour in red, default is *False,No,Failed,Error,Failure,Fail,false,no,failed,error,failure,fail*
 * ``green_words`` comma separated list of patterns to colour in green, default is *True,Yes,Success,Ok,true,yes,success,ok*
-* ``yeallow_words`` comma separated list of patterns to colour in yellow, default is *Warning,warning*
+* ``yellow_words`` comma separated list of patterns to colour in yellow, default is *Warning,warning*
 
 **Example**
 

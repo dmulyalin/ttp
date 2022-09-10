@@ -17,7 +17,7 @@ repos:
         exclude: ^test/
   # black
   - repo: https://github.com/psf/black
-    rev: 19.3b0
+    rev: 22.8.0
     hooks:
       - id: black
         exclude: ^test/|^docs/|gitignore|README|LICENSE|requirements|pre-commit-config|pylintrc|readthedocs|.+_py2.py

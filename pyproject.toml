@@ -50,12 +50,12 @@ sphinxcontrib-serializinghtml = { version = "1.1.5", optional = true, markers = 
 sphinxcontrib-spelling = { version = "7.2.1", optional = true, markers = "python_version >= '3.7'" }
 
 [tool.poetry.dev-dependencies]
-bandit = { version = "1.7.*", markers = "python_version >= '3.7'" }
-black = { version = "22.3.*", markers = "python_version >= '3.7'" }
-flake8 = { version = "4.0.*", markers = "python_version >= '3.7'" }
-pre-commit = { version = "2.15.*", markers = "python_version >= '3.7'" }
-pyenchant = { version = "3.2.*", markers = "python_version >= '3.7'" }
-pylint = { version = "2.12.*", markers = "python_version >= '3.7'" }
+bandit = { version = "*", markers = "python_version >= '3.7'" }
+black = { version = "*", markers = "python_version >= '3.7'" }
+flake8 = { version = "*", markers = "python_version >= '3.7'" }
+pre-commit = { version = "*", markers = "python_version >= '3.7'" }
+pyenchant = { version = "*", markers = "python_version >= '3.7'" }
+pylint = { version = "*", markers = "python_version >= '3.7'" }
 pytest = { version = "^7.1.*", markers = "python_version >= '3.7'" }
 
 [build-system]
