@@ -610,7 +610,7 @@ table:
         parser.parse()
 
 
-test_excel_formatter_no_results_at_path_strict_true()
+# test_excel_formatter_no_results_at_path_strict_true()
 
 
 def test_tabulate_formatter():
