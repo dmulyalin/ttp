@@ -1794,3 +1794,100 @@ interface {{ interface }}
 
 
 # test_quick_parse_function_template_only()
+
+
+def test_get_template_method():
+    template = """
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+    """
+    parser = ttp(template=template)
+    res = parser.get_template()
+    print(res)
+    assert res == """<template>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+    
+</template>"""
+    
+# test_get_template_method()
+
+
+def test_get_template_method_nested_templates():
+    template = """
+<macro>
+def indent1(template_text):
+    return "\\n".join(f" {line}" for line in template_text.splitlines())
+    
+def indent2(template_text):
+    return "\\n".join(f"  {line}" for line in template_text.splitlines())
+</macro>
+
+<group name="bgp">
+router bgp {{ asn }}
+ <extend template="./assets/test_extend_tag_bgp_config.txt" macro="indent1"/>
+ 
+
+ <group name="vrfs*">
+ vrf {{ vrf }}
+  rd {{ rd }}
+  <extend template="./assets/test_extend_tag_bgp_config.txt" macro="indent2"/>
+ </group>
+ 
+</group>
+
+<extend template="./assets/extend_vlan.txt"/>
+
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+    """
+    parser = ttp(template=template)
+    res = parser.get_template()
+    print(res)
+    # beware for empty lines and trailing spaces in template below
+    assert res == """<template>
+
+<macro>
+def indent1(template_text):
+    return "\\n".join(f" {line}" for line in template_text.splitlines())
+    
+def indent2(template_text):
+    return "\\n".join(f"  {line}" for line in template_text.splitlines())
+</macro>
+
+<group name="bgp">
+router bgp {{ asn }}
+ <group name="config">
+ router-id {{ rid }}
+ </group>
+<group name="vrfs*">
+ vrf {{ vrf }}
+  rd {{ rd }}
+  <group name="config">
+  router-id {{ rid }}
+  </group>
+</group>
+ 
+</group>
+
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name }}
+</group>
+<group>
+interface {{ interface }}
+ description {{ description | ORPHRASE }}
+ ip address {{ ip }} {{ mask }}
+</group>
+    
+</template>"""

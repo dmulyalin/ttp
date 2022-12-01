@@ -804,6 +804,12 @@ class ttp:
             name
         ] = fun
 
+    def get_template(self):
+        """Method to return a string of fully constructed TTP templates. This is
+        mainly to assist with troubleshooting ``extend`` tags processing.
+        """
+        return "\n".join(t.template for t in self._templates)
+        
 
 """
 ==============================================================================
