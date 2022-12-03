@@ -7259,3 +7259,107 @@ exit{{ _end_ }}
                       'secondary': {'name': {'exclude': {'8': {}}, 'include': {'7': {}}}}}}}]]
                       
 # test_issue_77()
+
+def test_issue_94():
+    data = """
+router isis LAB
+ flex-algo 128
+  priority 100
+  metric-type delay
+  advertise-definition
+  prefix-metric
+ !
+ address-family ipv4 unicast
+  metric-style wide
+ !
+!
+    """
+    template = """
+<group name="routing.isis.LAB" default="MISSING">
+router isis LAB {{ _start_ |  _exact_ }}
+ 
+ <group name="fa128" default="MISSING">
+ flex-algo 128 {{ _start_ |  _exact_ }}
+  priority {{ priority | equal('999') }}
+  metric-type {{ metric_type | equal('delay') }}
+  advertise-definition {{ advertise_definition | set('true') }}
+  prefix-metric {{ prefix_metric | set('true') }}
+ !{{ _end_ }}
+ </group>
+ 
+ <group name="LEFTOVER">
+ {{ LEFTOVER | _line_ | joinmatches }}
+ </group>
+
+!{{ _end_ }}
+</group>    
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=100)    
+    assert res == [[{'routing': {'isis': {'LAB': {'LEFTOVER': [{'LEFTOVER': ' priority 100'},
+                                                               {'LEFTOVER': 'address-family ipv4 unicast'},
+                                                               {'LEFTOVER': ' metric-style wide'}],
+                                                  'fa128': {'advertise_definition': 'true',
+                                                            'metric_type': 'delay',
+                                                            'prefix_metric': 'true',
+                                                            'priority': 'MISSING'}}}}}]]
+# test_issue_94()
+
+def test_issue_94_1():
+    data = """
+router isis LAB
+ flex-algo 128
+  priority 100
+  metric-type delay
+  advertise-definition
+  prefix-metric
+ !
+ address-family ipv4 unicast
+  metric-style wide
+  advertise passive-only
+  mpls traffic-eng level-2-only
+ !
+ interface Loopback0
+  passive
+!
+    """
+    template = """
+<group name="routing.isis.LAB" default="MISSING">
+router isis LAB {{ _start_ |  _exact_ }}
+ 
+ <group name="fa128" default="MISSING">
+ flex-algo 128 {{ _start_ |  _exact_ }}
+  priority {{ priority | equal('999') }}
+  metric-type {{ metric_type | equal('delay') }}
+  advertise-definition {{ advertise_definition | set('true') }}
+  prefix-metric {{ prefix_metric | set('true') }}
+  {{ LEFTOVER | _line_  | joinmatches }}
+ !{{ _end_ }}
+ </group>
+ 
+ <group name="LEFTOVER">
+ {{ LEFTOVER | _line_ | joinmatches }}
+ </group>
+
+!{{ _end_ }}
+</group>    
+    """
+    parser = ttp(data, template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=100)  
+    assert res == [[{'routing': {'isis': {'LAB': {'LEFTOVER': [{'LEFTOVER': 'address-family ipv4 unicast'},
+                                                               {'LEFTOVER': ' metric-style wide'},
+                                                               {'LEFTOVER': ' advertise passive-only'},
+                                                               {'LEFTOVER': ' mpls traffic-eng level-2-only'},
+                                                               {'LEFTOVER': 'interface Loopback0'},
+                                                               {'LEFTOVER': ' passive'}],
+                                                  'fa128': {'LEFTOVER': 'priority 100',
+                                                            'advertise_definition': 'true',
+                                                            'metric_type': 'delay',
+                                                            'prefix_metric': 'true',
+                                                            'priority': 'MISSING'}}}}}]]
+                                          
+# test_issue_94_1()

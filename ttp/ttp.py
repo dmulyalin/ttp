@@ -3040,6 +3040,11 @@ class _results_class:
             if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
                 self.started_groups.append(REDICT["GROUP"].group_id)
                 break
+            # check if _line_ group started, don't remove previous started 
+            # groups to allow collection of non matched lines - #94
+            if REDICT.get("IS_LINE"):
+                self.started_groups.append(REDICT["GROUP"].group_id)
+                break                
             _ = self.started_groups.pop()
         # meaning top group started
         else:
@@ -3068,6 +3073,11 @@ class _results_class:
             if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
                 self.started_groups.append(REDICT["GROUP"].group_id)
                 break
+            # check if _line_ group started, don't remove previous started 
+            # groups to allow collection of non matched lines - #94
+            if REDICT.get("IS_LINE"):
+                self.started_groups.append(REDICT["GROUP"].group_id)
+                break    
             _ = self.started_groups.pop()
         # meaning top group started
         else:
