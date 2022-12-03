@@ -1743,7 +1743,7 @@ def qinq(data):
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)
+    pprint.pprint(res)
     assert res == [
         [
             {
@@ -2308,7 +2308,7 @@ def test_github_issue_37_cleaned_data_template():
     parser = ttp(data=data, template=template, log_level="ERROR")
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)
+    pprint.pprint(res)
     assert res == [
         [
             {
@@ -7363,3 +7363,79 @@ router isis LAB {{ _start_ |  _exact_ }}
                                                             'priority': 'MISSING'}}}}}]]
                                           
 # test_issue_94_1()
+
+
+def test_issue_89():
+    template = """
+<input load="text">
+interface Bundle-Ether801.101
+ description TTP MACRO TEST INTERFACE
+ mtu 9104
+ ipv4 address 192.168.1.1 255.255.255.0
+ ipv4 address 10.50.45.1 255.255.255.128 secondary
+ load-interval 30
+ encapsulation dot1q 101
+!
+</input>
+
+<macro>
+def is_trunk(data):
+    if "dot1q" in data:
+        data['trunk'] = True
+    else:
+        data['trunk'] = False
+    return data
+
+</macro>
+
+<group name="interfaces.{{ interface }}" macro="is_trunk">
+interface {{ interface }}
+ description {{ description |ORPHRASE }}
+ mtu {{ mtu }}
+ vrf {{ vrf |default(None) }}
+ service-policy input {{ sp_ingress |default(None) }}
+ service-policy output {{ sp_egress |default(None) }}
+ ipv4 address {{ ipv4_addr |default(None) }} {{ ipv4_mask |default(None) }}
+ <group name="secondary">
+ ipv4 address {{ ipv4_addr |default(None) }} {{ ipv4_mask |default(None) }} secondary
+ </group>
+ ipv6 address {{ ipv6_addr |default(None) }}/{{ ipv6_mask |default(None) }}
+ encapsulation dot1q {{ dot1q }}
+ ipv4 access-group {{ ingress_acl_v4 |_exact_ |default(None) }} ingress
+ ipv4 access-group {{ egress_acl_v4 |_exact_ |default(None) }} egress
+ bundle id {{ lag_id }} mode {{ mode }}
+ ipv6 access-group {{ ingress_acl_v6 |_exact_ |default(None) }} ingress
+ ipv6 access-group {{ egress_acl_v6 |_exact_ |default(None) }} egress
+ shutdown {{ disabled |set(True) }}
+! {{ _end_ }}
+</group>
+
+"""
+    parser = ttp(
+        template=template,
+        log_level="ERROR",
+        log_file="macro_test_1.log",
+    )
+    parser.parse()
+    res = parser.result()
+    
+    pprint.pprint(res)
+    assert res == [[{'interfaces': {'Bundle-Ether801.101': {'description': 'TTP MACRO TEST INTERFACE',
+                                                            'dot1q': '101',
+                                                            'egress_acl_v4': None,
+                                                            'egress_acl_v6': None,
+                                                            'ingress_acl_v4': None,
+                                                            'ingress_acl_v6': None,
+                                                            'ipv4_addr': '192.168.1.1',
+                                                            'ipv4_mask': '255.255.255.0',
+                                                            'ipv6_addr': None,
+                                                            'ipv6_mask': None,
+                                                            'mtu': '9104',
+                                                            'secondary': {'ipv4_addr': '10.50.45.1',
+                                                                          'ipv4_mask': '255.255.255.128'},
+                                                            'sp_egress': None,
+                                                            'sp_ingress': None,
+                                                            'trunk': True,
+                                                            'vrf': None}}}]]
+                                          
+# test_issue_89()

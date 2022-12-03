@@ -809,7 +809,7 @@ class ttp:
         mainly to assist with troubleshooting ``extend`` tags processing.
         """
         return "\n".join(t.template for t in self._templates)
-        
+
 
 """
 ==============================================================================
@@ -2328,7 +2328,7 @@ class _variable_class:
     def debug(self):
         from pprint import pformat
 
-        text = r"Variable object {}, Variable name '{}' content:\n{}".format(
+        text = "Variable object {}, Variable name '{}' content:\n{}".format(
             self, self.var_name, pformat(vars(self), indent=4)
         )
         log.debug(text)
@@ -3040,11 +3040,11 @@ class _results_class:
             if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
                 self.started_groups.append(REDICT["GROUP"].group_id)
                 break
-            # check if _line_ group started, don't remove previous started 
+            # check if _line_ group started, don't remove previous started
             # groups to allow collection of non matched lines - #94
             if REDICT.get("IS_LINE"):
                 self.started_groups.append(REDICT["GROUP"].group_id)
-                break                
+                break
             _ = self.started_groups.pop()
         # meaning top group started
         else:
@@ -3073,11 +3073,11 @@ class _results_class:
             if REDICT["GROUP"].parent_group_id == self.started_groups[-1]:
                 self.started_groups.append(REDICT["GROUP"].group_id)
                 break
-            # check if _line_ group started, don't remove previous started 
+            # check if _line_ group started, don't remove previous started
             # groups to allow collection of non matched lines - #94
             if REDICT.get("IS_LINE"):
                 self.started_groups.append(REDICT["GROUP"].group_id)
-                break    
+                break
             _ = self.started_groups.pop()
         # meaning top group started
         else:
@@ -3118,7 +3118,7 @@ class _results_class:
             )
             # mark new record as needed to be merged with last item in results
             self.record["merge_with_last"] = True
-            # no need to add DEFAULTS for this record as DEFAULTS processed already by previous group record
+            # no need to add DEFAULTS for this record, DEFAULTS added by previous group
             self.record["DEFAULTS"] = {}
 
     def join(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
@@ -3208,7 +3208,6 @@ class _results_class:
         # add default values to group results
         for k, v in self.record["DEFAULTS"].items():
             self.record["result"].setdefault(k, v)
-        # import pprint; pprint.pprint(self.record)
         # process group functions
         for item in self.record["FUNCTIONS"]:
             func_name = item["name"]

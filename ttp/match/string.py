@@ -92,19 +92,19 @@ def sprint(data):
 
 
 def replaceall(data, *args):
-    vars = _ttp_["vars"]
+    vars_ = _ttp_["vars"]
     args = list(args)
     new = ""
     if len(args) > 1:
         new = args.pop(0)
     for oldValue in args:
-        if oldValue in vars:
-            if isinstance(vars[oldValue], list):
-                for oldVal in vars[oldValue]:
+        if oldValue in vars_:
+            if isinstance(vars_[oldValue], list):
+                for oldVal in vars_[oldValue]:
                     if isinstance(oldVal, str):
                         data = data.replace(oldVal, new)
-            elif isinstance(vars[oldValue], dict):
-                for newVal, oldVal in vars[oldValue].items():
+            elif isinstance(vars_[oldValue], dict):
+                for newVal, oldVal in vars_[oldValue].items():
                     if isinstance(oldVal, list):
                         for i in oldVal:
                             if isinstance(i, str):

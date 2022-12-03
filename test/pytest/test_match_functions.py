@@ -543,3 +543,30 @@ interface {{ name }}
 
 
 # test_raise()
+
+
+def test_copy():
+    data = """
+interface Port-Channel11
+ ip address 1.1.1.123 255.255.255.255
+interface Port-Channel22
+ ip address 1.1.1.124 255.255.255.255
+    """
+    template = """
+interface {{ name }}
+ ip address {{ ip_last_octet | copy("ip_address") | split(".") | item(-1) }} {{ mask }}
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=100)
+    assert res == [[[{'ip_address': '1.1.1.123',
+                      'ip_last_octet': '123',
+                      'mask': '255.255.255.255',
+                      'name': 'Port-Channel11'},
+                     {'ip_address': '1.1.1.124',
+                      'ip_last_octet': '124',
+                      'mask': '255.255.255.255',
+                      'name': 'Port-Channel22'}]]]
+
+# test_copy()

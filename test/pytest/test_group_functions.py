@@ -852,7 +852,7 @@ interface {{ name }}
     parser = ttp(template=template)
     parser.parse()
     res = parser.result()
-    # pprint.pprint(res)    
+    pprint.pprint(res)    
     assert res == [[{'interfaces': {'interface': [{'config': {'description': 'to core-1',
                                             'mtu': 9100},
                                  'name': 'GigabitEthernet1/1',

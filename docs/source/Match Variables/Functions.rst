@@ -15,6 +15,8 @@ Action functions act upon match result to transform into desired state.
      - append provided string to the end of match result
    * - `chain`_
      - add functions from chain variable
+   * - `copy`_
+     - copy match value into another variable
    * - `count`_
      - function to count matches
    * - `default`_
@@ -2699,3 +2701,42 @@ Results::
             }
         ]
     ]
+
+copy
+------------------------------------------------------------------------------
+``{{ name | copy(variable_name) }}``
+
+``variable_name`` - name of variable to copy match value into
+
+THis function is useful to store processing match variable value into a
+variable before or during processing.
+
+**Example-1**
+
+In this example we would like to store IP address into a variable but we also 
+want to extract last octet value.
+
+Data::
+
+    interface Port-Channel11
+     ip address 1.1.1.123 255.255.255.255
+	!
+    interface Port-Channel22
+     ip address 1.1.1.124 255.255.255.255
+	!
+
+Template::
+
+    interface {{ name }}
+     ip address {{ ip_last_octet | copy("ip_address") | split(".") | item(-1) }} {{ mask }}
+	 
+Result::
+
+    [[[{'ip_address': '1.1.1.123',
+        'ip_last_octet': '123',
+        'mask': '255.255.255.255',
+        'name': 'Port-Channel11'},
+       {'ip_address': '1.1.1.124',
+        'ip_last_octet': '124',
+        'mask': '255.255.255.255',
+        'name': 'Port-Channel22'}]]]
