@@ -38,14 +38,14 @@ def exclude_re(data, pattern):
 
 
 def resub(data, old, new, count=1):
-    vars = _ttp_["parser_object"].vars
+    vars = _ttp_["vars"]
     if old in vars:
         return re.sub(re.escape(vars[old]), new, data, count=count), None
     return re.sub(old, new, data, count=count), None
 
 
 def resuball(data, *args):
-    vars = _ttp_["parser_object"].vars
+    vars = _ttp_["vars"]
     args = list(args)
     new = ""
     if len(args) > 1:

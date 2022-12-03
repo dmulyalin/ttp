@@ -2,7 +2,7 @@ _name_map_ = {"set_func": "set"}
 
 
 def set_func(data, value, match_line):
-    vars = _ttp_["parser_object"].vars
+    vars = _ttp_["vars"]
     if data.rstrip() == match_line:
         if isinstance(value, str):
             if value in vars:

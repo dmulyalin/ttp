@@ -120,7 +120,7 @@ def ip_info(data, *args):
 
 def cidr_match(data, prefix):
     # try to get value from TTP vars variables
-    prefix = _ttp_["parser_object"].vars.get(prefix, prefix)
+    prefix = _ttp_["vars"].get(prefix, prefix)
     # convert data to ipaddress object:
     if isinstance(data, str):
         try:

@@ -8,15 +8,11 @@ def exclude(data, pattern):
 
 
 def equal(data, value):
-    if data == value:
-        return data, True
-    return data, False
+    return data, data == value
 
 
 def notequal(data, value):
-    if data != value:
-        return data, True
-    return data, False
+    return data, data != value
 
 
 def contains(data, *patterns):
@@ -32,9 +28,7 @@ def sformat(data, string):
 
 
 def isdigit(data):
-    if data.strip().isdigit():
-        return data, True
-    return data, False
+    return data, data.strip().isdigit()
 
 
 def notdigit(data):
@@ -68,7 +62,7 @@ def append(data, char):
     # try to get char from global variables
     char_value = _ttp_["global_vars"].get(char, char)
     # try to get from input specific variables
-    char_value = _ttp_["parser_object"].vars.get(char, char)
+    char_value = _ttp_["vars"].get(char, char)
     if isinstance(data, str):
         return (data + char_value), None
     elif isinstance(data, list):
@@ -82,7 +76,7 @@ def prepend(data, char):
     # try to get char from global variables
     char_value = _ttp_["global_vars"].get(char, char)
     # try to get from input specific variables
-    char_value = _ttp_["parser_object"].vars.get(char, char)
+    char_value = _ttp_["vars"].get(char, char)
     if isinstance(data, str):
         return (char_value + data), None
     elif isinstance(data, list):
@@ -98,7 +92,7 @@ def sprint(data):
 
 
 def replaceall(data, *args):
-    vars = _ttp_["parser_object"].vars
+    vars = _ttp_["vars"]
     args = list(args)
     new = ""
     if len(args) > 1:

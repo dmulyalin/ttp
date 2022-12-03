@@ -109,7 +109,7 @@ def gpvlookup(data, name, add_field=False, record=False, multimatch=False):
             found_value += [key for pattern in patterns if fnmatch(data, pattern)]
     # record found_value if told to do so:
     if record is not False:
-        _ttp_["parser_object"].vars.update({record: found_value})
+        _ttp_["vars"].update({record: found_value})
         _ttp_["global_vars"].update({record: found_value})
     # decide to replace match result or add new field:
     if not found_value:
