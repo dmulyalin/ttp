@@ -3217,8 +3217,10 @@ class _results_class:
             self.record["result"], flags = self._ttp_["group"][func_name](
                 self.record["result"], *args, **kwargs
             )
-            # if conditions check been false, return False:
-            if flags == False:
+            # if conditions check been false, return False excepth when
+            # results marked as merge_with_last, this logic is weak but 
+            # simplest to fix issue #103
+            if flags == False and self.record.get("merge_with_last") != True:
                 return False
         processed_path = self.form_path(self.record["PATH"])
         if processed_path:

@@ -1154,3 +1154,58 @@ vlan 910
     assert res == [[{'vlans': {'1234': {'name': 'some_vlan'}, '910': {'name': 'one_more'}}}]]
     
 # test_ttp_templates_dir_env_variable()
+
+
+def test_nested_group_processing_order():
+    """
+    mac-address match comes after ipv4 group match, if we have 
+    contains="name" group function present, mac address not collected.
+    """
+    data = """
+interface Gig123
+ description foo
+ mtu 1234
+ ipv4 address 1.2.3.4 255.255.255.0
+ arp timeout 123
+ mac-address 123.123.1
+!
+interface Gig321
+ description foo
+ mtu 4321
+ ipv4 address 1.2.3.5 255.255.255.0
+ arp-timeout 4321
+ mac-address 123.123.2
+!
+    """
+    template = """
+<group name="interfaces*" contains="name">
+interface {{ name }}
+ description {{ description | re(".*") }}
+ mtu {{ mtu | to_int }}
+ mac-address {{ mac_address }}
+ arp timeout {{ arp_timeout }}
+ 
+ <group name="ipv4*" method="table">
+ ipv4 address {{ ip | _exact_ }} {{ mask }}
+ </group>
+ 
+!{{ _end_ }}
+</group>
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'interfaces': [{'arp_timeout': '123',
+                   'description': 'foo',
+                   'ipv4': [{'ip': '1.2.3.4', 'mask': '255.255.255.0'}],
+                   'mac_address': '123.123.1',
+                   'mtu': 1234,
+                   'name': 'Gig123'},
+                  {'description': 'foo',
+                   'ipv4': [{'ip': '1.2.3.5', 'mask': '255.255.255.0'}],
+                   'mac_address': '123.123.2',
+                   'mtu': 4321,
+                   'name': 'Gig321'}]}]]
+                   
+test_nested_group_processing_order()
