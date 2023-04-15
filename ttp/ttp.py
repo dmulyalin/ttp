@@ -3200,7 +3200,13 @@ class _results_class:
                     if m in self.record["result"]:
                         self.dyn_path_cache[m] = self.record["result"][m]
                         repl = str(self.record["result"].pop(m))
-                        path_item = re.sub(pattern, repl, path_item)
+                        # try re replacement first
+                        try:
+                            path_item = re.sub(pattern, repl, path_item)
+                        # might fail if match contains '\', try string replace
+                        except re.error:
+                            path_item = re.sub(pattern, "__replace_me__", path_item)
+                            path_item = path_item.replace("__replace_me__", repl)
                     elif m in self.dyn_path_cache:
                         path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
                     elif m in self.variables:

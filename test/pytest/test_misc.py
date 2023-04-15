@@ -1231,3 +1231,28 @@ exit {{ _end_ }}
     assert res == [[{'interfaces': {'lag-4:1629.*': {'interface': 'port lag-4:1629'}}}]]
     
 # test_asterisk_issue_97()
+
+
+def test_issue_98_special_char_in_match_path():
+    data = r"""
+routing-instances {
+    "some_routing_instance_70\1" {
+        instance-type vrf;
+    }
+}
+"""
+
+    template = """
+<group name="interfaces.{{ ri }}**">
+routing-instances {{ ignore }} 
+    {{ ri | _start_ }} { 
+    } {{ _end_ }}
+</group>
+"""
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'interfaces': {'"some_routing_instance_70\\1"': {}}}]]
+    
+# test_issue_98_special_char_in_match_path()
