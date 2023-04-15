@@ -1208,4 +1208,26 @@ interface {{ name }}
                    'mtu': 4321,
                    'name': 'Gig321'}]}]]
                    
-test_nested_group_processing_order()
+# test_nested_group_processing_order()
+
+
+def test_asterisk_issue_97():
+    data = """
+interface "port lag-4:1629" create
+    sap lag-4:1629.* create
+exit
+"""
+
+    template = """
+<group name="interfaces.{{ sap }}**">
+interface "{{ interface | ORPHRASE | _start_ }}" {{ ignore }}
+    sap {{ sap | _exact_ }} {{ ignore }}
+exit {{ _end_ }}
+</group>
+"""
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [[{'interfaces': {'lag-4:1629.*': {'interface': 'port lag-4:1629'}}}]]
+# test_asterisk_issue_97()
