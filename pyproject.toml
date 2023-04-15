@@ -56,7 +56,7 @@ flake8 = { version = "*", markers = "python_version >= '3.7'" }
 pre-commit = { version = "*", markers = "python_version >= '3.7'" }
 pyenchant = { version = "*", markers = "python_version >= '3.7'" }
 pylint = { version = "*", markers = "python_version >= '3.7'" }
-pytest = { version = "^7.1.*", markers = "python_version >= '3.7'" }
+pytest = { version = ">=7.1", markers = "python_version >= '3.7'" }
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
