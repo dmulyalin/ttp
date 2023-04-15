@@ -967,8 +967,10 @@ class _template_class:
     def debug(self):
         from pprint import pformat
 
+        attributes = dict(vars(self))
+        _ = attributes.pop("_ttp_")
         text = "Template Object {}, Template name '{}' content:\n{}".format(
-            self, self.name, pformat(vars(self), indent=4)
+            self, self.name, pformat(attributes, indent=4)
         )
         log.debug(text)
 
@@ -1930,8 +1932,10 @@ class _group_class:
     def debug(self):
         from pprint import pformat
 
+        attributes = dict(vars(self))
+        _ = attributes.pop("_ttp_")
         text = "Group object {}, Group name '{}' content:\n{}".format(
-            self, self.name, pformat(vars(self), indent=4)
+            self, self.name, pformat(attributes, indent=4)
         )
         log.debug(text)
         for re_dict in self.start_re:
@@ -2328,8 +2332,10 @@ class _variable_class:
     def debug(self):
         from pprint import pformat
 
+        attributes = dict(vars(self))
+        _ = attributes.pop("_ttp_") # remove _ttp_ dictionary to not clutter the output
         text = "Variable object {}, Variable name '{}' content:\n{}".format(
-            self, self.var_name, pformat(vars(self), indent=4)
+            self, self.var_name, pformat(attributes, indent=4)
         )
         log.debug(text)
 
@@ -2881,7 +2887,7 @@ class _results_class:
             transformed DATA with list at given PATH and appended results to it
         """
         if PATH:
-            name = PATH[0].rstrip("*")
+            name = PATH[0][0]
             # add support for null path
             if name == "_":
                 if len(PATH) == 1:  # reached end of PATH, process DATA and return it
@@ -2892,9 +2898,7 @@ class _results_class:
                     return DATA
                 else:  # have more path items, need to skip null path,
                     _ = PATH.pop(0)  # remove null path item to skip it
-                    name = PATH[0].rstrip(
-                        "*"
-                    )  # continue processing remaining PATH items
+                    name = PATH[0][0]
             if isinstance(DATA, dict):
                 if name in DATA:
                     DATA[name] = self.value_to_list(DATA[name], PATH[1:], result)
@@ -2929,14 +2933,12 @@ class _results_class:
                     return {}
                 else:
                     _ = KEYS.pop(0)
-            name = str(KEYS[0]).rstrip("*")  # get the name of first item in PATH keys
-            stars_count = len(KEYS[0]) - len(
-                name
-            )  # get the number of "*" key ends with
+            name = KEYS[0][0]
+            asterisk_count = KEYS[0][1]
             if self._ttp_["dynamic_path_key_to_int"]:
                 # convert key to integer if it is integer
                 name = int(name) if name.isdigit() else name
-            if stars_count == 1:  # if one * at the end - make a list
+            if asterisk_count == "*":  # if one * at the end - make a list
                 if len(KEYS) == 1:  # if KEYS=[1,2,3,4*], returns {1:{2:{3:{4:[{}]}}}}
                     return {name: []}  # if last item in PATH - return emplty list
                 else:  # if KEYS=[1,2,3*,4], returns {1:{2:{3:[{4:{}}]}}}
@@ -2958,7 +2960,7 @@ class _results_class:
         if PATH == []:
             return ELEMENT  # check if PATH is empty, if so - stop and return ELEMENT
         elif isinstance(ELEMENT, dict):
-            name = PATH[0].rstrip("*")
+            name = PATH[0][0]
             if self._ttp_["dynamic_path_key_to_int"]:
                 # convert key to integer if it is integer
                 name = int(name) if name.isdigit() else name
@@ -2968,9 +2970,7 @@ class _results_class:
                     return ELEMENT
                 else:  # have more path items, need to skip null path,
                     _ = PATH.pop(0)  # remove null path item to skip it
-                    name = PATH[0].rstrip(
-                        "*"
-                    )  # continue processing remaining PATH items
+                    name = PATH[0][0]
             if name in ELEMENT:  # check if first element of the list is in ELEMENT
                 return self.dict_by_path(
                     PATH[1:], ELEMENT[name]
@@ -3019,7 +3019,7 @@ class _results_class:
             if self.record.get("merge_with_last"):
                 self._merge_recursively(E, result_data)
             # check if result_path endswith "**" - update result's ELEMENET without converting it into list:
-            elif len(result_path[-1]) - len(result_path[-1].rstrip("*")) == 2:
+            elif result_path[-1][1] == "**":
                 result_data.update(E)
                 E.update(result_data)
             # to match all the other cases, like templates without "**" in path:
@@ -3183,24 +3183,31 @@ class _results_class:
         self.ended_groups.add(REDICT["GROUP"].group_id)
 
     def form_path(self, path):
-        """Method to form dynamic path"""
+        """
+        Method to form dynamic path transforming it into a list of tuples,
+        where each tuple first element is a path item value and second 
+        element is a number of asterisks, need to keep asterisks count 
+        separatefrom path item value becasue match result value can end 
+        with asterisk - issue #97
+        """
         for index, path_item in enumerate(path):
+            asterisk_count = len(path_item) - len(path_item.rstrip("*"))
+            path_item = path_item.rstrip("*")
             match = re.findall(r"{{\s*(\S+)\s*}}", path_item)
-            if not match:
-                continue
-            for m in match:
-                pattern = r"{{\s*" + m + r"\s*}}"
-                if m in self.record["result"]:
-                    self.dyn_path_cache[m] = self.record["result"][m]
-                    repl = str(self.record["result"].pop(m))
-                    path_item = re.sub(pattern, repl, path_item)
-                elif m in self.dyn_path_cache:
-                    path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
-                elif m in self.variables:
-                    path_item = re.sub(pattern, str(self.variables[m]), path_item)
-                else:
-                    return False
-            path[index] = path_item
+            if match:
+                for m in match:
+                    pattern = r"{{\s*" + m + r"\s*}}"
+                    if m in self.record["result"]:
+                        self.dyn_path_cache[m] = self.record["result"][m]
+                        repl = str(self.record["result"].pop(m))
+                        path_item = re.sub(pattern, repl, path_item)
+                    elif m in self.dyn_path_cache:
+                        path_item = re.sub(pattern, self.dyn_path_cache[m], path_item)
+                    elif m in self.variables:
+                        path_item = re.sub(pattern, str(self.variables[m]), path_item)
+                    else:
+                        return False
+            path[index] = (path_item, asterisk_count * "*",)
         return path
 
     def processgrp(self):
@@ -3217,7 +3224,7 @@ class _results_class:
             self.record["result"], flags = self._ttp_["group"][func_name](
                 self.record["result"], *args, **kwargs
             )
-            # if conditions check been false, return False excepth when
+            # if conditions check been false, return False except when
             # results marked as merge_with_last, this logic is weak but 
             # simplest to fix issue #103
             if flags == False and self.record.get("merge_with_last") != True:

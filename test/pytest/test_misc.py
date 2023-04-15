@@ -1217,7 +1217,6 @@ interface "port lag-4:1629" create
     sap lag-4:1629.* create
 exit
 """
-
     template = """
 <group name="interfaces.{{ sap }}**">
 interface "{{ interface | ORPHRASE | _start_ }}" {{ ignore }}
@@ -1230,4 +1229,5 @@ exit {{ _end_ }}
     res = parser.result()
     pprint.pprint(res)
     assert res == [[{'interfaces': {'lag-4:1629.*': {'interface': 'port lag-4:1629'}}}]]
+    
 # test_asterisk_issue_97()
