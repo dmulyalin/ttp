@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ttp"
-version = "0.9.3"
+version = "0.9.4"
 description = "Template Text Parser"
 authors = ["Denis Mulyalin <d.mulyalin@gmail.com>"]
 maintainers = ["Denis Mulyalin <d.mulyalin@gmail.com>"]

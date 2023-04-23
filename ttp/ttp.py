@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = "0.9.3"
+__version__ = "0.9.4"
 
 import re
 import os
@@ -3031,6 +3031,21 @@ class _results_class:
             else:
                 E.update(result_data)
 
+    def reconstruct_last_element(self, result_data, result_path):
+        """
+        Method to retrieve last element value, make a copy of it and nerge with
+        current results. This is to reconstruct group results for processing in
+        a case where we have tail matches.
+        """
+        # get ELEMENT from self.results by result_path
+        E = self.dict_by_path(PATH=result_path, ELEMENT=self.results)
+        if isinstance(E, list):
+            copied = E[-1].copy()
+        elif isinstance(E, dict):
+            copied = E.copy()
+        copied.update(result_data)
+        return copied
+    
     def start(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
         DEFAULTS = DEFAULTS or {}
         FUNCTIONS = FUNCTIONS or []
@@ -3221,6 +3236,12 @@ class _results_class:
         # add default values to group results
         for k, v in self.record["DEFAULTS"].items():
             self.record["result"].setdefault(k, v)
+        # if merge_with_last - tail match, attempt to reconstruct group result 
+        # this only will work if self.record["result"] contains enough info to form PATH        
+        if self.record.get("merge_with_last") is True:
+            processed_path = self.form_path(list(self.record["PATH"]))
+            if processed_path:
+                self.record["result"] = self.reconstruct_last_element(self.record["result"], processed_path)
         # process group functions
         for item in self.record["FUNCTIONS"]:
             func_name = item["name"]
@@ -3230,10 +3251,7 @@ class _results_class:
             self.record["result"], flags = self._ttp_["group"][func_name](
                 self.record["result"], *args, **kwargs
             )
-            # if conditions check been false, return False except when
-            # results marked as merge_with_last, this logic is weak but 
-            # simplest to fix issue #103
-            if flags == False and self.record.get("merge_with_last") != True:
+            if flags == False:
                 return False
         processed_path = self.form_path(self.record["PATH"])
         if processed_path:

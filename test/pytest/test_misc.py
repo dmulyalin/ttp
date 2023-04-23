@@ -1256,3 +1256,173 @@ routing-instances {{ ignore }}
     assert res == [[{'interfaces': {'"some_routing_instance_70\\1"': {}}}]]
     
 # test_issue_98_special_char_in_match_path()
+
+
+def test_tail_match_no_group_functions_processing():
+    data = """
+interface TenGigE0/0/0/42
+ description ELO ISP FCS1234456#
+ bundle id 1 mode active
+ lacp period short
+ lldp
+  enable
+  transmit disable
+ !
+!
+interface BVI200
+ description EPPINGHTHON office subnet
+ mtu 1700
+ vrf DATA
+ ipv4 address 10.231.2.2 255.255.255.0
+ ipv6 address fd51:231:2::2/64
+ ipv4 access-group OFFICE_IN_v4 ingress
+ ipv6 access-group OFFICE_IN_v6 ingress
+!    
+    """
+    template = """
+<template name="netbox_data" results="per_template">
+<macro>
+def add_interface_type(data):
+    data["interface_type"] = "other"    
+    if any(
+        i in data["name"].lower() for i in [
+            ".", "loopback", "tunnel"
+        ]
+    ):
+        data["interface_type"] = "virtual"
+    elif any(
+        i in data["name"].lower() for i in [
+            "bvi"
+        ]
+    ):
+        data["interface_type"] = "bridge"
+    elif "bundle" in data["name"].lower():
+        data["interface_type"] = "lag"    
+    return data
+    
+def add_parent_interface(data):
+    if "lag_id" in data:
+        data["parent"] = "Bundle-Ether{}".format(data["lag_id"])
+    elif "." in data["name"]:
+        data["parent"] = data["name"].split(".")[0]
+    return data    
+</macro>
+
+## ------------------------------------------------------------------------------------------
+## Interfaces configuration
+## ------------------------------------------------------------------------------------------
+<group name="interfaces*" functions="contains('name') | macro('add_interface_type') | macro('add_parent_interface')">
+interface {{ name | _start_ }}
+interface {{ name | _start_ }} l2transport
+interface preconfigure {{ name | _start_ | let("preconfigure", True) }}
+interface preconfigure {{ name | _start_ | let("preconfigure", True) }} l2transport
+ description {{ description | re(".*") | default("") }}
+ mtu {{ mtu | to_int }}
+ service-policy input {{ qos_policy_in }}
+ service-policy output {{ qos_policy_out }}
+ encapsulation dot1q {{ dot1q }}
+ vrf {{ vrf }}
+ bundle id {{ lag_id }} mode {{ lacp_mode }}
+ lacp period {{ lacp_period }}
+ shutdown {{ enabled | set(False) | default(True) }}
+ rewrite ingress tag {{ rewrite_ingress_tag | PHRASE }}
+ ipv4 access-group {{ ipv4_acl_in | _exact_ }} ingress
+ ipv4 access-group {{ ipv4_acl_out | _exact_ }} egress
+ ipv6 access-group {{ ipv6_acl_in | _exact_ }} ingress
+ ipv6 access-group {{ ipv6_acl_out | _exact_ }} egress
+ mac-address {{ mac_address }}
+ host-routing {{ host_routing | set(True) }}
+ arp timeout {{ arp_timeout }}
+ load-interval {{ load_interval }}
+ 
+ <group name="ipv4*" method="table">
+ ipv4 address {{ ip | _exact_ }} {{ mask }}
+ ipv4 address {{ ip | _exact_ | let("secondary", True) }} {{ mask}} secondary
+ </group>
+ 
+ <group name="ipv6*" method="table"> 
+ ipv6 address {{ ip | _exact_ }}/{{ mask }}
+ </group>
+ 
+ <group name="lldp">
+ lldp {{ _start_ }}
+  enable {{ lldp_enabled | set(True) }}
+  transmit disable {{ transmit_disabled | set(True) }}
+ </group>
+
+!{{ _end_ }}
+</group>
+
+
+</template>
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)
+    assert res == [{'interfaces': [{'description': 'ELO ISP FCS1234456#',
+                  'enabled': True,
+                  'interface_type': 'other',
+                  'lacp_mode': 'active',
+                  'lacp_period': 'short',
+                  'lag_id': '1',
+                  'lldp': {'lldp_enabled': True, 'transmit_disabled': True},
+                  'name': 'TenGigE0/0/0/42',
+                  'parent': 'Bundle-Ether1'},
+                 {'description': 'EPPINGHTHON office subnet',
+                  'enabled': True,
+                  'interface_type': 'bridge',
+                  'ipv4': [{'ip': '10.231.2.2', 'mask': '255.255.255.0'}],
+                  'ipv4_acl_in': 'OFFICE_IN_v4',
+                  'ipv6': [{'ip': 'fd51:231:2::2', 'mask': '64'}],
+                  'ipv6_acl_in': 'OFFICE_IN_v6',
+                  'mtu': 1700,
+                  'name': 'BVI200',
+                  'vrf': 'DATA'}]}]
+                  
+# test_tail_match_no_group_functions_processing()
+
+
+def test_issue_95():
+    data = """
+interface Port-Chanel11
+  description Storage
+!
+interface Loopback0
+  description RID
+  ip address 10.0.0.3/24
+!
+interface Vlan777
+  description Management
+  ip address 192.168.0.1/24
+  vrf MGMT
+!
+    """
+    template = """
+<macro>
+def title(data):
+    data['interface'] = data['interface'].upper()
+</macro>
+
+<group name='results*' macro='title' >
+interface {{ interface }}
+  description {{ description }}
+<group name = "ips">
+  ip address {{ ip }}/{{ mask }}
+</group>
+  vrf {{ vrf }}
+!{{_end_}}
+</group>
+    """
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)    
+    assert res == [[{'results': [{'description': 'Storage', 'interface': 'PORT-CHANEL11'},
+               {'description': 'RID',
+                'interface': 'LOOPBACK0',
+                'ips': {'ip': '10.0.0.3', 'mask': '24'}},
+               {'description': 'Management',
+                'interface': 'VLAN777',
+                'ips': {'ip': '192.168.0.1', 'mask': '24'},
+                'vrf': 'MGMT'}]}]]
