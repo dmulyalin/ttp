@@ -2,7 +2,7 @@ name = "ttp"
 
 __all__ = ["ttp"]
 __author__ = "Denis Mulyalin <d.mulyalin@gmail.com>"
-__version__ = "0.9.4"
+__version__ = "0.9.5"
 from sys import version_info
 
 # get python version:

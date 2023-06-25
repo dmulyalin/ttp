@@ -865,3 +865,126 @@ interface {{ name }}
                                  'vrf': 'XYZ'}]}}]]
 								 
 # test_expand_issue_65()
+
+def test_group_to_int_for_non_integer():
+    template = """
+<input load="text">
+interface GigabitEthernet1/1
+   mtu ABC
+!
+interface GigabitEthernet1/2
+   mtu 8000
+!    
+interface GigabitEthernet1/2
+   mtu 9200.0
+!    
+</input>
+
+<group to_int="">
+interface {{ name }}
+   mtu {{ mtu }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res) 
+    assert res == [[[{'mtu': 'ABC', 'name': 'GigabitEthernet1/1'},
+                     {'mtu': 8000, 'name': 'GigabitEthernet1/2'},
+                     {'mtu': 9200.0, 'name': 'GigabitEthernet1/2'}]]]
+   
+# test_group_to_int_for_non_integer()
+    
+def test_group_to_int_missing_key_issue_109():
+    template = """
+<input load="text">
+interface GigabitEthernet1/1
+   mtu ABC
+!
+interface GigabitEthernet1/2
+   mtu 8000
+!    
+interface GigabitEthernet1/2
+   mtu 9200.0
+!    
+</input>
+
+<group to_int="mtu, foo, bar">
+interface {{ name }}
+   mtu {{ mtu }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res) 
+    assert res == [[[{'mtu': 'ABC', 'name': 'GigabitEthernet1/1'},
+                     {'mtu': 8000, 'name': 'GigabitEthernet1/2'},
+                     {'mtu': 9200.0, 'name': 'GigabitEthernet1/2'}]]]
+
+# test_group_to_int_missing_key_issue_109()
+    
+def test_group_to_int_with_intlist_true_issue_109():
+    template = """
+<input load="text">
+interface GigabitEthernet1/1
+   switchport trunk allowed vlan 1,2,3,4
+!
+interface GigabitEthernet1/2
+   switchport trunk allowed vlan 123
+!    
+interface GigabitEthernet1/3
+   switchport trunk allowed vlan foo,bar
+!    
+interface GigabitEthernet1/4
+! 
+</input>
+
+<group to_int="trunk_vlan, intlist=True">
+interface {{ name }}
+   switchport trunk allowed vlan {{ trunk_vlan | split(',') }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)   
+    assert res == [[[{'name': 'GigabitEthernet1/1', 'trunk_vlan': [1, 2, 3, 4]},
+                     {'name': 'GigabitEthernet1/2', 'trunk_vlan': [123]},
+                     {'name': 'GigabitEthernet1/3', 'trunk_vlan': ['foo', 'bar']},
+                     {'name': 'GigabitEthernet1/4'}]]]
+    
+# test_group_to_int_with_intlist_issue_109()
+
+
+def test_group_to_int_with_intlist_false_issue_109():
+    template = """
+<input load="text">
+interface GigabitEthernet1/1
+   switchport trunk allowed vlan 1,2,3,4
+!
+interface GigabitEthernet1/2
+   switchport trunk allowed vlan 123
+!    
+interface GigabitEthernet1/3
+   switchport trunk allowed vlan foo,bar
+!    
+interface GigabitEthernet1/4
+! 
+</input>
+
+<group to_int="trunk_vlan">
+interface {{ name }}
+   switchport trunk allowed vlan {{ trunk_vlan | split(',') }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)   
+    assert res == [[[{'name': 'GigabitEthernet1/1', 'trunk_vlan': ['1', '2', '3', '4']},
+                     {'name': 'GigabitEthernet1/2', 'trunk_vlan': ['123']},
+                     {'name': 'GigabitEthernet1/3', 'trunk_vlan': ['foo', 'bar']},
+                     {'name': 'GigabitEthernet1/4'}]]]
+                     
+# test_group_to_int_with_intlist_false_issue_109()

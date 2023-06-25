@@ -9,7 +9,9 @@ def sformat(data, string, add_field):
     """
     try:
         data[add_field] = string.format(**data)
-    except KeyError:  # KeyError happens when not enough keys in **data supplied to format method
+    except (
+        KeyError
+    ):  # KeyError happens when not enough keys in **data supplied to format method
         kwargs = _ttp_["global_vars"].copy()
         kwargs.update(_ttp_["vars"])
         kwargs.update(data)

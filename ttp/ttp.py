@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = "0.9.4"
+__version__ = "0.9.5"
 
 import re
 import os
@@ -2333,7 +2333,7 @@ class _variable_class:
         from pprint import pformat
 
         attributes = dict(vars(self))
-        _ = attributes.pop("_ttp_") # remove _ttp_ dictionary to not clutter the output
+        _ = attributes.pop("_ttp_")  # remove _ttp_ dictionary to not clutter the output
         text = "Variable object {}, Variable name '{}' content:\n{}".format(
             self, self.var_name, pformat(attributes, indent=4)
         )
@@ -3045,7 +3045,7 @@ class _results_class:
             copied = E.copy()
         copied.update(result_data)
         return copied
-    
+
     def start(self, result, PATH, DEFAULTS=None, FUNCTIONS=None, REDICT=""):
         DEFAULTS = DEFAULTS or {}
         FUNCTIONS = FUNCTIONS or []
@@ -3200,9 +3200,9 @@ class _results_class:
     def form_path(self, path):
         """
         Method to form dynamic path transforming it into a list of tuples,
-        where each tuple first element is a path item value and second 
-        element is a number of asterisks, need to keep asterisks count 
-        separatefrom path item value becasue match result value can end 
+        where each tuple first element is a path item value and second
+        element is a number of asterisks, need to keep asterisks count
+        separatefrom path item value becasue match result value can end
         with asterisk - issue #97
         """
         for index, path_item in enumerate(path):
@@ -3228,7 +3228,10 @@ class _results_class:
                         path_item = re.sub(pattern, str(self.variables[m]), path_item)
                     else:
                         return False
-            path[index] = (path_item, asterisk_count * "*",)
+            path[index] = (
+                path_item,
+                asterisk_count * "*",
+            )
         return path
 
     def processgrp(self):
@@ -3236,12 +3239,14 @@ class _results_class:
         # add default values to group results
         for k, v in self.record["DEFAULTS"].items():
             self.record["result"].setdefault(k, v)
-        # if merge_with_last - tail match, attempt to reconstruct group result 
-        # this only will work if self.record["result"] contains enough info to form PATH        
+        # if merge_with_last - tail match, attempt to reconstruct group result
+        # this only will work if self.record["result"] contains enough info to form PATH
         if self.record.get("merge_with_last") is True:
             processed_path = self.form_path(list(self.record["PATH"]))
             if processed_path:
-                self.record["result"] = self.reconstruct_last_element(self.record["result"], processed_path)
+                self.record["result"] = self.reconstruct_last_element(
+                    self.record["result"], processed_path
+                )
         # process group functions
         for item in self.record["FUNCTIONS"]:
             func_name = item["name"]
@@ -3271,7 +3276,6 @@ class _outputter_class:
     """Class to serve run output functions, returners and formatters"""
 
     def __init__(self, element=None, template_obj=None, _ttp_=None, **kwargs):
-
         # set attributes default values
         self._ttp_ = _ttp_
         self.attributes = {"returner": "self", "format": "raw", "load": "python"}

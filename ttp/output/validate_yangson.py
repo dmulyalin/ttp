@@ -106,14 +106,14 @@ def _make_library(ydir):
         ) as yf:
             _module_entry(yf)
     marr = []
-    for (yam, mrev) in modmap:
+    for yam, mrev in modmap:
         men = {"name": yam, "revision": mrev}
         sarr = []
         mrec = modmap[(yam, mrev)]
         men["namespace"] = mrec["namespace"]
         fts = mrec["features"]
         imp_only = mrec["import-only"]
-        for (subm, srev) in mrec["includes"]:
+        for subm, srev in mrec["includes"]:
             sen = {"name": subm}
             try:
                 srec = submodmap[subm]
