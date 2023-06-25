@@ -934,14 +934,15 @@ Results::
 
 to_int
 ------------------------------------------------------------------------------
-``to_int=""`` or ``to_int="key1, key2, keyN"``
+``to_int=""`` or ``to_int="key1, key2, keyN, intlist=False"``
 
 * keyN - name of keys to run conversion for, if omitted, all group match results items will be attempted to convert into integer.
+* intlist - boolean, default is ``False``, if ``True``, attempts to convert match variable value which is a list of items into a list of integers
 
 This function tries to convert string representation of digit into integer using python int() function, if fails it next tries to convert to integer using python float() function.
 If either int() or float() conversion was successful, string converted to digit will replace match result, on failure nothing will be done with match results.
 
-**Example**
+**Example-1**
 
 Template::
 
@@ -1012,6 +1013,39 @@ Results::
             }
         ]
     ]
+
+**Example-2**
+
+This example demonstrates how to use ``intlist`` to convert a list of string integers into a list of integers
+
+Template::
+
+    <input load="text">
+    interface GigabitEthernet1/1
+       switchport trunk allowed vlan 1,2,3,4
+    !
+    interface GigabitEthernet1/2
+       switchport trunk allowed vlan 123
+    !    
+    interface GigabitEthernet1/3
+       switchport trunk allowed vlan foo,bar
+    !    
+    interface GigabitEthernet1/4
+    ! 
+    </input>
+    
+    <group to_int="trunk_vlan, intlist=True">
+    interface {{ name }}
+       switchport trunk allowed vlan {{ trunk_vlan | split(',') }}
+    </group>
+
+Result::
+
+
+    [[[{'name': 'GigabitEthernet1/1', 'trunk_vlan': [1, 2, 3, 4]},
+       {'name': 'GigabitEthernet1/2', 'trunk_vlan': [123]},
+       {'name': 'GigabitEthernet1/3', 'trunk_vlan': ['foo', 'bar']},
+       {'name': 'GigabitEthernet1/4'}]]]
 
 contains_val
 ------------------------------------------------------------------------------

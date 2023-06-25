@@ -988,3 +988,25 @@ interface {{ name }}
                      {'name': 'GigabitEthernet1/4'}]]]
                      
 # test_group_to_int_with_intlist_false_issue_109()
+
+
+def test_group_to_int_with_intlist_with_not_all_integers():
+    template = """
+<input load="text">
+interface GigabitEthernet1/1
+   switchport trunk allowed vlan 1,foo,3,4
+!
+</input>
+
+<group to_int="trunk_vlan, intlist=True">
+interface {{ name }}
+   switchport trunk allowed vlan {{ trunk_vlan | split(',') }}
+</group>
+    """
+    parser = ttp(template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res)   
+    assert res == [[[{'name': 'GigabitEthernet1/1', 'trunk_vlan': [1, 'foo', 3, 4]}]]]
+                     
+# test_group_to_int_with_intlist_with_not_all_integers()
