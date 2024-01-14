@@ -190,3 +190,9 @@ List of additional resources:
 
 - Sandbox to test TTP templates - http://textfsm.nornir.tech/ by [tbotnz](https://github.com/tbotnz)
 - Videos on TTP - https://pynet.twb-tech.com/videos/ttp/ttp.html by [Kirk Byers](https://github.com/ktbyers)
+
+# Want To Hire
+
+Reach out at [d.mulyalin@gmail.com](mailto:d.mulyalin@gmail.com?subject=[GitHub]%20TTP-Job) to discuss.
+
+Feel like you want to [sponsor me or buy me a coffee](https://paypal.me/dmulyalin).
