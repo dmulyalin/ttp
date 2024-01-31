@@ -78,7 +78,7 @@ Result::
  }
 
 As you can see, the ipv6 part of vrf configuration was matched as well, which wasn't what we wanted.
-A possible solution would be to use``_exact_`` to indicate that "ipv4" should be matched exactly.
+A possible solution would be to use ``_exact_`` to indicate that "ipv4" should be matched exactly.
 
 Template with ``_exact_``::
 
@@ -112,7 +112,7 @@ However, if ``_exact_space_`` is present in any match variable within a line, sp
 
 _start_
 ------------------------------------------------------------------------------
-``{{ name | _start_ }}`` or {{ _start_ }}
+``{{ name | _start_ }}`` or ``{{ _start_ }}``
 
 Explicitly indicates the start of the group by matching a certain line, or even multiple lines.
 
