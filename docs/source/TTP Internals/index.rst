@@ -25,7 +25,7 @@ Implications of above process are:
 4. Starting with version 0.7.0, usage of ``_ttp_`` dictionary cache improves TTP import performance by about 50ms
 5. Because of caching, TTP no longer scans sub folders, this means that to make TTP to see and use new function, ``ttp_dict_cache.pickle`` file **must** be deleted, forcing TTP to rescan and cache new function.
 
-To handle cases where ``ttp_dict_cache.pickle`` cannot be saved under TTP module path, for instance - read only file system or lack of privileges, but caching ``_ttp_`` dictionary still desirable, starting with version 0.8.0 lazy import system checks ``TTPCACHEFOLDER `` environment variable for file system path location to load/save ``ttp_dict_cache.pickle`` file.
+To handle cases where ``ttp_dict_cache.pickle`` cannot be saved under TTP module path, for instance - read only file system or lack of privileges, but caching ``_ttp_`` dictionary still desirable, starting with version 0.8.0 lazy import system checks ``TTPCACHEFOLDER`` environment variable for file system path location to load/save ``ttp_dict_cache.pickle`` file.
 
 Sometimes it is good to have name of TTP function to reference python reserved names, for instance ``set`` or ``del``, but, it is against best practices to name your functions with python
 well reserved names. At the same time, TTP does not call function directly but rather reference to function stored in ``_ttp_`` dictionary and that reference got called upon request.
