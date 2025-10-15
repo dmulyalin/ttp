@@ -149,7 +149,7 @@ def lazy_import_functions():
                     if target.id == "_name_map_":
                         _name_map_.update(
                             {
-                                key.s: assignment.value.values[index].s
+                                key.value: assignment.value.values[index].value
                                 for index, key in enumerate(assignment.value.keys)
                             }
                         )
