@@ -1776,9 +1776,13 @@ macro
 
 Macro brings Python language capabilities to match results processing and validation during ttp module execution, as it allows to run custom functions against match results. Macro functions referenced by their name in match variable definitions or as a group *macro* attribute.
 
-.. warning:: macro uses python ``exec`` function to parse code payload without imposing any restrictions, hence it is dangerous to run templates from untrusted sources as they can have macro defined in them that can be used to execute any arbitrary code on the system.
+Macro function must accept minimum one attribute to hold match results, for match variable data supplied to macro function is a match result string.
+It can also accept args and kwargs.
 
-Macro function must accept only one attribute to hold match results, for match variable data supplied to macro function is a match result string.
+Macro call can look like:
+
+* macro("myfunc")
+* macro("myfunc", *args, **kwargs)
 
 For match variables, depending on data returned by macro function, ttp will behave differently according to these rules:
 
