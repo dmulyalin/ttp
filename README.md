@@ -1,6 +1,7 @@
 [![Downloads](https://pepy.tech/badge/ttp)](https://pepy.tech/project/ttp)
 [![PyPI versions](https://img.shields.io/pypi/pyversions/ttp.svg)](https://pypi.python.org/pypi/ttp/)
 [![Documentation status](https://readthedocs.org/projects/ttp/badge/?version=latest)](http://ttp.readthedocs.io/?badge=latest)
+[![Tests](https://github.com/dmulyalin/ttp/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/dmulyalin/ttp/actions/workflows/main.yml)
 
 # Template Text Parser
 
