@@ -185,15 +185,10 @@ parser.parse()
 
 Feel free to submit an issue, report a bug or ask a question, feature requests are welcomed. 
 
-Or [sponsor me or buy me a coffee](https://paypal.me/dmulyalin) :smiley: :coffee:.
+# Community Contributions
 
-# Want To Hire
+List of community resources:
 
-Reach out at [d.mulyalin@gmail.com](mailto:d.mulyalin@gmail.com?subject=[GitHub]%20TTP-Job) to discuss.
-
-# Additional resources
-
-List of additional resources:
-
-- Sandbox to test TTP templates - http://textfsm.nornir.tech/ by [tbotnz](https://github.com/tbotnz)
-- Videos on TTP - https://pynet.twb-tech.com/videos/ttp/ttp.html by [Kirk Byers](https://github.com/ktbyers)
+- [Sandbox to test TTP templates](http://textfsm.nornir.tech/) by [tbotnz](https://github.com/tbotnz)
+- [TTP Video Tutorials](https://pynet.twb-tech.com/videos/ttp/ttp.html) by [Kirk Byers](https://github.com/ktbyers)
+- [TTP Standalone editor](https://github.com/roc-ops/TTP-Editor) by [roc-ops](https://github.com/roc-ops), [Online Sandbox to test it](https://roc-ops.github.io/TTP-Editor/)
