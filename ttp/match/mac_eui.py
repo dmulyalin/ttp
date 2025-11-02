@@ -5,7 +5,6 @@ Creds to https://stackoverflow.com/a/29446103 unswers on stackoeverflow
 and NAPALM base helpers module
 """
 
-
 from re import sub
 
 

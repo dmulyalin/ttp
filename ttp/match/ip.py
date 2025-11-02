@@ -5,11 +5,7 @@ log = logging.getLogger(__name__)
 
 
 def to_ip(data, *args):
-    # for py2 support need to convert data to unicode:
-    if _ttp_["python_major_version"] == 2:
-        ipaddr_data = unicode(data)  # pylint: disable=undefined-variable
-    elif _ttp_["python_major_version"] == 3:
-        ipaddr_data = data
+    ipaddr_data = data
     if "ipv4" in args:
         if "/" in ipaddr_data or " " in ipaddr_data:
             return ipaddress.IPv4Interface(ipaddr_data.replace(" ", "/")), None
@@ -35,11 +31,7 @@ def is_ip(data, *args):
 
 
 def to_net(data, *args):
-    # for py2 support need to convert data to unicode:
-    if _ttp_["python_major_version"] == 2:  # pylint: disable=undefined-variable
-        ipaddr_data = unicode(data)
-    elif _ttp_["python_major_version"] == 3:
-        ipaddr_data = data
+    ipaddr_data = data
     if "ipv4" in args:
         return ipaddress.IPv4Network(ipaddr_data), None
     elif "ipv6" in args:
@@ -141,22 +133,10 @@ def cidr_match(data, prefix):
     ):
         # if object is ipaddress, need to convert it into ipinterface with /32 mask:
         if ip_obj.version == 4:
-            # for py2 support need to convert data to unicode:
-            if _ttp_["python_major_version"] == 2:
-                ipaddr_data = unicode(
-                    "{}/32".format(str(ip_obj))
-                )  # pylint: disable=undefined-variable
-            elif _ttp_["python_major_version"] == 3:
-                ipaddr_data = "{}/32".format(str(ip_obj))
+            ipaddr_data = "{}/32".format(str(ip_obj))
             ip_obj = ipaddress.IPv4Interface(ipaddr_data)
         elif ip_obj.version == 6:
-            # for py2 support need to convert data to unicode:
-            if _ttp_["python_major_version"] == 2:
-                ipaddr_data = unicode(
-                    "{}/128".format(str(ip_obj))
-                )  # pylint: disable=undefined-variable
-            elif _ttp_["python_major_version"] == 3:
-                ipaddr_data = "{}/128".format(str(ip_obj))
+            ipaddr_data = "{}/128".format(str(ip_obj))
             ip_obj = ipaddress.IPv6Interface(ipaddr_data)
         check = ip_obj.network.overlaps(ip_net)
     else:

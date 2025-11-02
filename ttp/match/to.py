@@ -34,13 +34,4 @@ def to_float(data):
 
 
 def to_unicode(data):
-    if _ttp_["python_major_version"] == 2:
-        try:
-            return unicode(data), None  # pylint: disable=undefined-variable
-        except:
-            log.error(
-                "ttp.to_int: failed to convert value '{}' to unicode string".format(
-                    data
-                )
-            )
     return data, None

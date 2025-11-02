@@ -2072,36 +2072,6 @@ description="test match variable to_float and to_unicode functions"
 
 
 
-<input load="text" name="test1-40">
-interface GigabitEthernet1/3.251
- description Customer #32148
- encapsulation dot1q 251
- ip address 172.16.33.10 255.255.255.128
-!
-</input>
-
-<group name="interfaces-test1-40" input="test1-40" output="test1-40" str_to_unicode="">
-interface {{ interface }}
- description {{ description | ORPHRASE }}
- encapsulation dot1q {{ vid | to_float }}
- ip address {{ ip }} {{ mask }}
-</group>
-
-<output
-name="test1-40"
-load="python"
-functions="is_equal"
-description="test group str_to_unicode function"
->
-{   'interfaces-test1-40': {   'description': u'Customer #32148',
-                              'interface': u'GigabitEthernet1/3.251',
-                              'ip': u'172.16.33.10',
-                              'mask': u'255.255.255.128',
-                              'vid': 251.0}}
-</output>
-
-
-
 <input load="text" name="test1-41">
 interface GigabitEthernet1/3.251
  description Customer #32148

@@ -82,7 +82,6 @@ The purpose of ``_ttp_`` is multi-fold:
                'record': <ttp.ttp.CachedModule object at 0x03686090>,
                'set': <ttp.ttp.CachedModule object at 0x03686170>,
                'sformat': <ttp.ttp.CachedModule object at 0x03686150>,
-               'str_to_unicode': <ttp.ttp.CachedModule object at 0x03686DB0>,
                'to_int': <ttp.ttp.CachedModule object at 0x03686790>,
                'to_ip': <ttp.ttp.CachedModule object at 0x03686710>,
                'validate': <ttp.ttp.CachedModule object at 0x0367EB50>,
@@ -192,7 +191,7 @@ All above functions contained within ``.py`` files and spread across respective 
 * ``match`` - match variable functions
 * ``output`` - output functions
 * ``patterns`` - function to retrieve match variable regex patterns
-* ``python_major_version`` - integer 2 or 3, representing python major version, used for py2/py3 interop
+* ``python_major_version`` - integer 2 or 3, representing python major version
 * ``returners`` - output returner functions
 * ``sources`` - input source functions
 * ``template_obj`` - references to template object

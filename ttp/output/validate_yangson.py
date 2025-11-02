@@ -16,6 +16,7 @@ can increase execution time.
 YANGSON git repository tools/python/mkylib.py script can be used to generates
 YANG JSON library of YANG modules used for validation.
 """
+
 import logging
 import json
 import os
@@ -206,9 +207,9 @@ def validate_yangson(
     except:
         ret["exception"] = traceback.format_exc()
         ret["success"] = False
-        ret[
-            "comment"
-        ] = "Failed to instantiate DataModel, check YANG library and path to YANG modules."
+        ret["comment"] = (
+            "Failed to instantiate DataModel, check YANG library and path to YANG modules."
+        )
         if not metadata:
             return False
         else:

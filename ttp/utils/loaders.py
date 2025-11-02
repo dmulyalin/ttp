@@ -10,9 +10,6 @@ def _load_template_file(filepath, read):
     """
     if read:
         try:
-            if _ttp_["python_major_version"] == 2:
-                with open(filepath, "r") as file_obj:
-                    return [("text_data", file_obj.read())]
             with open(filepath, "r", encoding="utf-8") as file_obj:
                 return [("text_data", file_obj.read())]
         except UnicodeDecodeError:
@@ -48,9 +45,6 @@ def load_files(path, extensions=None, filters=None, read=False):
     # to process within input macro/function
     if not isinstance(path, str):
         return [("structured_data", path)]
-    elif _ttp_["python_major_version"] == 2:
-        if not isinstance(path, (unicode, str)):  # pylint: disable=undefined-variable
-            return [("structured_data", path)]
 
     # check if path is a reference to template in ttp_templates collection
     if path.startswith("ttp://"):
@@ -77,24 +71,15 @@ def load_files(path, extensions=None, filters=None, read=False):
         if read:
             ret = []
             for f in files:
-                if _ttp_["python_major_version"] == 2:
-                    with open((os.path.join(path, f)), "r") as file_obj:
-                        ret.append(("text_data", file_obj.read()))
-                elif _ttp_["python_major_version"] == 3:
-                    with open(
-                        (os.path.join(path, f)), "r", encoding="utf-8"
-                    ) as file_obj:
-                        ret.append(("text_data", file_obj.read()))
+
+                with open((os.path.join(path, f)), "r", encoding="utf-8") as file_obj:
+                    ret.append(("text_data", file_obj.read()))
             return ret
         else:
             return [("file_name", os.path.join(path, f)) for f in files]
     # check if path is a string:
     elif isinstance(path, str):
         return [("text_data", path)]
-    # check if py2, if so check if path is unicode string:
-    elif _ttp_["python_major_version"] == 2:
-        if isinstance(path, unicode):
-            return [("text_data", path)]
     else:
         return []
 
@@ -141,68 +126,35 @@ def _get_include_data(text_data, include):
 
 
 def load_ini(text_data, include=None, **kwargs):
-    if _ttp_["python_major_version"] == 3:
-        import configparser
+    import configparser
 
-        cfgparser = configparser.ConfigParser()
-        # to make cfgparser keep the case, e.g. VlaN222 will not become vlan222:
-        cfgparser.optionxform = str
-        # read from ini files first
-        if include:
-            files = load_files(path=include, extensions=[], filters=[], read=False)
-            for datum in files:
-                try:
-                    cfgparser.read(datum[1])
-                except:
-                    log.error(
-                        "ttp_utils.load_struct: Pythom3, Unable to load ini formatted data\n'{}'".format(
-                            text_data
-                        )
-                    )
-        # read from tag text next to make it more specific:
-        if text_data:
+    cfgparser = configparser.ConfigParser()
+    # to make cfgparser keep the case, e.g. VlaN222 will not become vlan222:
+    cfgparser.optionxform = str
+    # read from ini files first
+    if include:
+        files = load_files(path=include, extensions=[], filters=[], read=False)
+        for datum in files:
             try:
-                cfgparser.read_string(text_data)
+                cfgparser.read(datum[1])
             except:
                 log.error(
-                    "ttp_utils.load_struct: Python3, Unable to load ini formatted data\n'{}'".format(
+                    "ttp_utils.load_struct: Pythom3, Unable to load ini formatted data\n'{}'".format(
                         text_data
                     )
                 )
-        # convert configparser object into dictionary
-        result = {k: dict(cfgparser.items(k)) for k in list(cfgparser.keys())}
-    elif _ttp_["python_major_version"] == 2:
-        import ConfigParser
-        import StringIO  # pylint: disable=import-error
-
-        cfgparser = ConfigParser.ConfigParser()
-        # to make cfgparser keep the case, e.g. VlaN222 will not become vlan222:
-        cfgparser.optionxform = str
-        # read from ini files first
-        if include:
-            files = load_files(path=include, extensions=[], filters=[], read=False)
-            for datum in files:
-                try:
-                    cfgparser.read(datum[1])
-                except:
-                    log.error(
-                        "ttp_utils.load_struct: Python2, Unable to load ini formatted data\n'{}'".format(
-                            text_data
-                        )
-                    )
-        # read from tag text next to make it more specific:
-        if text_data:
-            buf_text_data = StringIO.StringIO(text_data)
-            try:
-                cfgparser.readfp(buf_text_data)
-            except:
-                log.error(
-                    "ttp_utils.load_struct: Python2, Unable to load ini formatted data\n'{}'".format(
-                        text_data
-                    )
+    # read from tag text next to make it more specific:
+    if text_data:
+        try:
+            cfgparser.read_string(text_data)
+        except:
+            log.error(
+                "ttp_utils.load_struct: Python3, Unable to load ini formatted data\n'{}'".format(
+                    text_data
                 )
-        # convert configparser object into dictionary
-        result = {k: dict(cfgparser.items(k)) for k in list(cfgparser.sections())}
+            )
+    # convert configparser object into dictionary
+    result = {k: dict(cfgparser.items(k)) for k in list(cfgparser.keys())}
     if "DEFAULT" in result:
         if not result["DEFAULT"]:  # delete empty DEFAULT section
             result.pop("DEFAULT")
