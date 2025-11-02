@@ -2713,7 +2713,7 @@ variable before or during processing.
 
 **Example-1**
 
-In this example we would like to store IP address into a variable but we also 
+In this example we would like to store IP address into a variable but we also
 want to extract last octet value.
 
 Data::
@@ -2729,7 +2729,7 @@ Template::
 
     interface {{ name }}
      ip address {{ ip_last_octet | copy("ip_address") | split(".") | item(-1) }} {{ mask }}
-	 
+
 Result::
 
     [[[{'ip_address': '1.1.1.123',

@@ -183,7 +183,7 @@ parser.parse()
 
 # Contributions
 
-Feel free to submit an issue, report a bug or ask a question, feature requests are welcomed. 
+Feel free to submit an issue, report a bug or ask a question, feature requests are welcomed.
 
 # Community Contributions
 

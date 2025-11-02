@@ -207,9 +207,9 @@ def validate_yangson(
     except:
         ret["exception"] = traceback.format_exc()
         ret["success"] = False
-        ret["comment"] = (
-            "Failed to instantiate DataModel, check YANG library and path to YANG modules."
-        )
+        ret[
+            "comment"
+        ] = "Failed to instantiate DataModel, check YANG library and path to YANG modules."
         if not metadata:
             return False
         else:

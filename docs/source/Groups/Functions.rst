@@ -1018,14 +1018,14 @@ Template::
     !
     interface GigabitEthernet1/2
        switchport trunk allowed vlan 123
-    !    
+    !
     interface GigabitEthernet1/3
        switchport trunk allowed vlan foo,bar
-    !    
+    !
     interface GigabitEthernet1/4
-    ! 
+    !
     </input>
-    
+
     <group to_int="trunk_vlan, intlist=True">
     interface {{ name }}
        switchport trunk allowed vlan {{ trunk_vlan | split(',') }}

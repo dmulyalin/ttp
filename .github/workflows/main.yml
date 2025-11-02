@@ -12,7 +12,7 @@ jobs:
     name: linters
     strategy:
       matrix:
-        python-version: [ '3.10' ]
+        python-version: [ '3.10', '3.11', '3.12', '3.13', '3.14']
         platform: [windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -39,7 +39,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ '3.10' ]
+        python-version: [ '3.10', '3.11', '3.12', '3.13', '3.14']
         platform: [ubuntu-latest, macOS-10.15, windows-latest]
     runs-on: ${{ matrix.platform }}
 
