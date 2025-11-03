@@ -37,6 +37,8 @@ Action functions act upon match result to transform into desired state.
      - join matches using provided character
    * - `let`_
      - Assigns provided value to match variable
+   * - `line_number`_
+     - save the line number where the match was found
    * - `lookup`_
      - find match value in lookup table and return result
    * - `mac_eui`_
@@ -992,6 +994,46 @@ Result::
                         "interface": "Te5/7"
                     }
                 ]
+            }
+        ]
+    ]
+
+line_number
+------------------------------------------------------------------------------
+``{{ name | line_number(new_field) }}``
+
+* new_field - field name to store the line number
+
+Data::
+
+ object-group service ServiceGroup
+   description "DESC"
+   test1 ok test2 fail
+   enable
+ exit
+
+Template::
+
+ object-group service {{ name | line_number("service_name_line")}}
+   description "{{ description | line_number("description_line")}}"
+   enable {{ enable | set(True) | line_number("enable_line") }}
+   test1 {{ test1 | line_number("test1_line")}} test2 {{ test2 | line_number("test2_line")}}
+
+Result::
+
+    [
+        [
+            {
+                "name": "ServiceGroup",
+                "service_name_line": 1
+                "description": "DESC",
+                "description_line": 2,
+                "enable": True,
+                "enable_line": 4,
+                "test1": "ok", 
+                "test1_line": 3,
+                "test2": "fail", 
+                "test2_line": 3,
             }
         ]
     ]
