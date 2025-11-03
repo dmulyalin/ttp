@@ -3,7 +3,6 @@ import sys
 sys.path.insert(0, "../..")
 import pprint
 import logging
-import json
 import pytest
 
 logging.basicConfig(level=logging.DEBUG)
@@ -570,3 +569,55 @@ interface {{ name }}
                       'name': 'Port-Channel22'}]]]
 
 # test_copy()
+
+
+def test_line_number():
+    data = """
+object-group service ServiceGroup
+  description "DESC" 
+  port-range 22
+  port-range 5000-5500
+  test1 ok test2 fail
+  enable
+exit
+"""
+    template = """
+<group name="service_groups*">
+object-group service {{ name | _start_ | line_number("service_name_line")}}
+  description "{{ description | _line_ | line_number("description_line")}}"
+  enable {{ enable | set(True) | line_number("enable_line") }}
+  test1 {{ test1 | line_number("test1_line")}} test2 {{ test2 | line_number("test2_line")}}
+  <group name="members*">
+  port-range {{ start | _start_ }}-{{ end | line_number("port_range_line")}}
+  port-range {{ start | _start_ | line_number("port_range_line") }}
+  </group>
+exit{{ _end_ }}
+</group>
+"""
+    parser = ttp(data=data, template=template)
+    parser.parse()
+    res = parser.result()
+    pprint.pprint(res, width=100)
+    assert res == [[
+        {
+            "service_groups": [
+                {
+                    "name": "ServiceGroup",
+                    "service_name_line": 2,
+                    "description": "DESC",
+                    "description_line": 3,
+                    "members": [
+                        {"start": "22", "port_range_line": 4},
+                        {"start": "5000", "end": "5500", "port_range_line": 5}
+                    ],
+                    "enable": True,
+                    "enable_line": 7,
+                    "test1": "ok",
+                    "test1_line": 6,
+                    "test2": "fail",
+                    "test2_line": 6,
+
+                }
+            ]
+        }
+    ]]

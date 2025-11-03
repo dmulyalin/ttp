@@ -2,18 +2,19 @@
 
 __version__ = "0.9.5"
 
+import inspect
 import re
 import os
 import logging
 import copy
 import ast
 import pickle
+from dataclasses import dataclass
 from xml.etree import cElementTree as ET
 from multiprocessing import Process, cpu_count, JoinableQueue, Queue
 from sys import version_info
 from sys import getsizeof
-from collections import OrderedDict
-
+from collections import OrderedDict, defaultdict
 
 # Initiate global variables
 log = logging.getLogger(__name__)
@@ -67,6 +68,16 @@ class CachedModule:
         self.load()
         # call original function
         return self._ttp_[self.parent_dir][self.function_name](*args, **kwargs)
+
+
+def get_function(ttp_parent_dir, function_name):
+    """Get a function by name from a directory
+
+    If the function isn't already loaded, load it.
+    """
+    if isinstance(ttp_parent_dir[function_name], CachedModule):
+        ttp_parent_dir[function_name].load()
+    return ttp_parent_dir[function_name]
 
 
 def lazy_import_functions():
@@ -2343,6 +2354,22 @@ TTP PARSER OBJECT
 """
 
 
+@dataclass
+class MatchContext:
+    """The context to pass to match functions.
+
+    Args:
+        span_start:
+            Number of characters that were omitted.
+            It is from this character number that the data was processed by the current regular expression.
+        match: current re.Match object
+
+    """
+
+    span_start: int
+    match: re.Match
+
+
 class _parser_class:
     """Parser Object to run parsing of data and constructing resulted dictionary/list"""
 
@@ -2434,13 +2461,15 @@ class _parser_class:
         def check_matches(regex, matches, results, start):
             for match in matches:
                 result = {}  # dict to store result
-                temp = {}
                 # check if groupdict present - means regex with no set variables been matchesd
                 if match.groupdict():
                     temp = match.groupdict()
                 # we have match but no variables - set regex, need to check it as well:
                 else:
                     temp = {key: match.group() for key in regex["VARIABLES"].keys()}
+
+                span_start = start + match.span()[0]
+
                 # process matched values
                 for var_name, data in temp.items():
                     flags = {}
@@ -2449,9 +2478,10 @@ class _parser_class:
                         args = item["args"]
                         kwargs = item["kwargs"]
                         try:  # try variable function
-                            data, flag = self._ttp_["match"][func_name](
-                                data, *args, **kwargs
-                            )
+                            function = get_function(self._ttp_["match"], func_name)
+                            if "context" in inspect.signature(function).parameters:
+                                kwargs["context"] = MatchContext(span_start=span_start, match=match)
+                            data, flag = function(data, *args, **kwargs)
                         except KeyError:
                             try:  # try data built-in function. e.g. if data is string, can run data.upper()
                                 attrib = getattr(data, func_name)
@@ -2483,9 +2513,8 @@ class _parser_class:
                                         )
                                     )
                         if flag is False:
-                            result = (
-                                False  # if flag False - checks produced negative result
-                            )
+                            # if flag False - checks produced negative result
+                            result = False
                             break
                         elif isinstance(flag, dict):
                             # update new_field data preserving previously got new_field
@@ -2507,11 +2536,7 @@ class _parser_class:
                 if result is False and not regex["ACTION"].startswith("start"):
                     continue
                 # form result dictionary of dictionaries:
-                span_start = start + match.span()[0]
-                if span_start not in results:
-                    results[span_start] = [(regex, result)]
-                else:
-                    results[span_start].append((regex, result))
+                results[span_start].append((regex, result))
 
         def run_re(group, results, start=0, end=-1):
             """Recursive function to run REs"""
@@ -2584,12 +2609,8 @@ class _parser_class:
                     results.pop(key)
             # run normal REs:
             for R in group.re:
-                check_matches(
-                    R,
-                    list(R["REGEX"].finditer(self.DATATEXT[start:end])),
-                    results,
-                    start,
-                )
+                normal_matches = list(R["REGEX"].finditer(self.DATATEXT[start:end]))
+                check_matches(R, normal_matches, results, start)
             # run recursion:
             for child_group in group.children:
                 run_re(child_group, results, start, end)
@@ -2600,11 +2621,11 @@ class _parser_class:
             group = self.groups[group_index]
             # get results for groups with global only outputs:
             if group.outputs == []:
-                unsort_rslts.append(run_re(group, results={}))
+                unsort_rslts.append(run_re(group, results=defaultdict(list)))
             # get results for groups with group specific results:
             else:
                 # form a tuple of ({results}, [group.outputs],)
-                grps_unsort_rslts.append((run_re(group, results={}), group.outputs))
+                grps_unsort_rslts.append((run_re(group, results=defaultdict(list)), group.outputs))
         # update groups runs (group default values) with global variables
         self.update_groups_runs(self._ttp_["global_vars"])
         # update groups runs (group default values) with group specific/local variables
