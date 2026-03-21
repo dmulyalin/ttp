@@ -1,0 +1,12 @@
+<template name="nested1">
+
+<macro>
+def form_name(data):
+    return f"FOOBAR_{data.upper()}"
+</macro>
+
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name | macro("form_name") }}
+</group>
+</template>

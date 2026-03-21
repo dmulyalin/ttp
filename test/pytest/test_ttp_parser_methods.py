@@ -1021,6 +1021,33 @@ more_params:
     }
 
 
+def test_input_load_with_extend_and_nested_templates():
+    template = """
+<template name="top">
+<extend template="./assets/extend_vlan_with_named_template_tag1.txt"/>
+<extend template="./assets/extend_vlan_with_named_template_tag2.txt"/>
+</template>
+    """
+    parser = ttp(template=template)
+    load = parser.get_input_load()
+    pprint.pprint(load)
+    assert load == {'nested1': {}, 'nested2': {}}
+
+def test_input_load_with_extend_and_nested_templates_with_inputs():
+    template = """
+<template name="top">
+<extend template="./assets/extend_nested_template_with_default_input.txt"/>
+<extend template="./assets/extend_nested_template_with_named_inputs.txt"/>
+</template>
+    """
+    parser = ttp(template=template)
+    load = parser.get_input_load()
+    pprint.pprint(load)
+    assert load == {'nested1': {'Default_Input': {'commands': ['show run']}},
+ 'nested11': {'input_1': {'commands': ['show run']},
+              'input_2': {'commands': ['show version']}}}
+
+
 def test_default_behaviour_with_named_templates():
     """
     This templates testthat datacorrectly added to all templates if

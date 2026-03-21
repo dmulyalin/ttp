@@ -1,0 +1,15 @@
+<template name="nested11">
+
+<input name="input_1">
+commands = ["show run"]
+</input>
+
+<input name="input_2">
+commands = ["show version"]
+</input>
+
+<group name="vlans.{{ vlan }}">
+vlan {{ vlan }}
+ name {{ name }}
+</group>
+</template>

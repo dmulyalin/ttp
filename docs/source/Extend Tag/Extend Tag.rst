@@ -5,6 +5,8 @@ Extend tag allows to extend template with content of other templates. Parent tem
 tags of extended template and process them as if they were inserted in place of the ``extend`` tag
 definition.
 
+Extended template can contain ``template`` tag but only will be loaded if template has name attribute.
+
 Extend tag can be nested within groups as well, but in that case only ``group`` and ``extend`` tags loaded from
 extended template, other tags (lookup, vars, input, output) are ignored. Nested extend only supports `groups`_ filter.
 

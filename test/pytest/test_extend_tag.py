@@ -116,6 +116,42 @@ vlan 910
 # test_extend_tag_from_file_with_template_tag()
 
 
+def test_extend_tag_from_file_with_template_tag_multiple():
+    template = """
+<template name="top">
+<extend template="./assets/extend_vlan_with_named_template_tag1.txt"/>
+<extend template="./assets/extend_vlan_with_named_template_tag2.txt"/>
+</template>
+    """
+    data1 = """
+vlan 1234
+ name some_vlan
+!
+vlan 910
+ name one_more
+!
+    """
+    data2 = """
+vlan 200
+ name some_vlan1
+!
+vlan 100
+ name one_more1
+!
+    """
+    parser = ttp(template=template)
+    parser.add_input(data=data1, template_name="nested1")
+    parser.add_input(data=data2, template_name="nested2")
+    parser.parse()
+    res = parser.result(structure="dictionary")
+    pprint.pprint(res)
+    assert res == {'nested1': [{'vlans': {'1234': {'name': 'FOOBAR_SOME_VLAN'},
+                        '910': {'name': 'FOOBAR_ONE_MORE'}}}],
+ 'nested2': [{'vlans': {'100': {'name': 'one_more1'},
+                        '200': {'name': 'some_vlan1'}}}]}
+
+
+
 def test_extend_tag_from_file_wrong_path():
     """
         template="./assets/extend_vlan.txt" content is:
