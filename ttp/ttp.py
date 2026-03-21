@@ -1352,7 +1352,9 @@ class _template_class:
                     template_ET.text += extend_ET[0].text
                     template_ET.remove(child)
                 # add nested named templates
-                elif top and extend_ET.tag == "template" and extend_ET.attrib.get("name"):
+                elif (
+                    top and extend_ET.tag == "template" and extend_ET.attrib.get("name")
+                ):
                     template_ET[index : index + 1] = ET.XML(
                         "<template>\n{}\n</template>".format(template_content)
                     )
