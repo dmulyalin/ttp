@@ -1,9 +1,9 @@
 Groups
 ======
 
-Groups are the core component of ttp together with match variables. Group is a collection of regular expressions derived from template, groups denoted using XML group tag (<g>, <grp>, <group>) and can be nested to form hierarchy. Parsing results for each group combined into a single datum - dictionary, that dictionary merged with bigger set of results data.
+Groups are a core component of TTP, together with match variables. A group is a collection of regular expressions derived from a template. Groups are denoted using the XML group tag (``<g>``, ``<grp>``, or ``<group>``) and can be nested to form a hierarchy. Parsing results for each group are combined into a single datum — a dictionary — which is then merged with the broader results data.
 
-As ttp was developed primarily for parsing semi-structured configuration data of various network elements, groups concept stems from the fact that majority of configuration data can be divided in distinctive pieces of information, each of which can denote particular property or feature configured on device, moreover, it is not uncommon that these pieces of information can be broken down into even smaller pieces of repetitive data. TTP helps to combine regular expressions in groups for the sake of parsing small, repetitive pieces of text data.
+As TTP was developed primarily for parsing semi-structured configuration data from networking devices, the groups concept reflects that most configuration data can be divided into distinct pieces of information, each representing a particular property or feature, further broken down into smaller repetitive data. TTP groups combine regular expressions for parsing these small, repetitive pieces of text.
 
 For example, this is how industry standard CLI configuration data for interfaces might look like::
 

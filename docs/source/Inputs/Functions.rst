@@ -24,7 +24,7 @@ functions attribute
 
 * functionN - name of the input function together with it's attributes
 
-This attribute allow to define a sequence of function, the main advantage of using string of functions against defining functions directly in the input tag is the fact that functions order will be honored, otherwise functionality is the same.
+This attribute defines a sequence of functions to run. The main advantage over specifying functions directly in the input tag is that function order is guaranteed. Functionality is otherwise identical.
 
 .. warning:: pipe '|' symbol must be used to separate function names, not comma
 
@@ -34,7 +34,7 @@ macro
 
 * nameN - comma separated string of macro functions names that should be used to run input data through. The sequence is *preserved* and macros executed in specified order, in other words macro named name2 will run after macro name1.
 
-Macro brings Python language capabilities to input data processing and validation during TTP module execution, as it allows to run custom python functions. Macro functions referenced by their name in input tag macro definitions.
+Macro brings Python language capabilities to input data processing and validation. It allows running custom Python functions referenced by name in the input tag.
 
 Macro function must accept only one attribute to hold input data text.
 
@@ -50,7 +50,7 @@ extract_commands
 
 Purpose of this function is for each network device command string TTP can extract associated data from input text, so that input groups will only process data they designed to parse
 
-..note:: to be able to successfully extract show commands output, text data should contain device hostname together with command itself. ``gethostname`` function will be called on data to extract hostname
+.. note:: To successfully extract show command output, the text data must contain the device hostname together with the command itself. The ``gethostname`` function is called on the data to extract the hostname.
 
 **Example**
 

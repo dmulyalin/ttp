@@ -1,7 +1,7 @@
 CLI tool
 ========
 
-TTP comes with simple CLI tool that takes path to data, path to template and produces parsing results. Results can be represented in one of formats supported by CLI tool - yaml, json, raw or pprint, results will be printer to screen. Alternatively, format can be specified using template output tags and printed to screen or returned to file using returners.
+TTP comes with a simple CLI tool that takes a path to data and a path to a template, and produces parsing results. Results can be represented in one of the formats supported by the CLI tool — yaml, json, raw, or pprint — and printed to screen. Alternatively, the format can be specified using template output tags and printed to screen or saved to a file using returners.
 
 Sample usage::
 
@@ -20,7 +20,7 @@ Sample usage::
 * ``-l, --logging`` Logging level - "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 * ``-lf, --log-file`` OS path to file where to write logs instead of printing them to terminal
 * ``-T, --Timing`` Print simple timing information to screen about time spent on parsing data
-* ``s,  --structure`` Final results structure - 'list', 'dictionary' or 'flat_list'
+* ``-s,  --structure`` Final results structure - 'list', 'dictionary' or 'flat_list'
 * ``-v,  --vars`` JSON string containing variables to add to TTP object
 * ``--one`` Forcefully run parsing using single process
 * ``--multi`` Forcefully run parsing in multiple processes

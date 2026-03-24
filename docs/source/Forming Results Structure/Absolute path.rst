@@ -1,7 +1,7 @@
 Absolute path
 =============
 
-By default TTP treats name attribute as a relative path, relative to parent groups, expanding path to full (absolute) path for each and every group.
+By default, TTP treats the ``name`` attribute as a relative path, relative to parent groups, expanding it to the full (absolute) path for each group.
 
 For instance for below template::
 
@@ -25,7 +25,7 @@ For instance for below template::
     <group name="VRFs">
      address-family {{ afi }} vrf {{ vrf }}
       <group name="neighbors**.{{ neighbor }}**" method="table">
-      neighbor {{ neighbor }} route-policy {{ ingreass_rpl }} in
+      neighbor {{ neighbor }} route-policy {{ ingress_rpl }} in
       </group>
     </group>
 
@@ -57,10 +57,10 @@ Results structure for above template will look like::
                             "afi": "ipv4",
                             "neighbors": {
                                 "10.100.100.212": {
-                                    "ingreass_rpl": "DENY_ALL"
+                                    "ingress_rpl": "DENY_ALL"
                                 },
                                 "10.227.147.122": {
-                                    "ingreass_rpl": "DENY_ALL"
+                                    "ingress_rpl": "DENY_ALL"
                                 }
                             },
                             "vrf": "VRF1"
@@ -69,10 +69,10 @@ Results structure for above template will look like::
                             "afi": "ipv4",
                             "neighbors": {
                                 "10.61.254.67": {
-                                    "ingreass_rpl": "DENY_ALL"
+                                    "ingress_rpl": "DENY_ALL"
                                 },
                                 "10.61.254.68": {
-                                    "ingreass_rpl": "DENY_ALL"
+                                    "ingress_rpl": "DENY_ALL"
                                 }
                             },
                             "vrf": "VRF2"
@@ -110,7 +110,7 @@ Example Template::
     <group name="VRFs">
      address-family {{ afi }} vrf {{ vrf }}
       <group name="/neighbors**.{{ neighbor }}**" method="table">
-      neighbor {{ neighbor }} route-policy {{ ingreass_rpl }} in
+      neighbor {{ neighbor }} route-policy {{ ingress_rpl }} in
       </group>
     </group>
 
@@ -136,16 +136,16 @@ In above template, note the name of this child group - `name="/neighbors**.{{ ne
                 },
                 "neighbors": {
                     "10.100.100.212": {
-                        "ingreass_rpl": "DENY_ALL"
+                        "ingress_rpl": "DENY_ALL"
                     },
                     "10.227.147.122": {
-                        "ingreass_rpl": "DENY_ALL"
+                        "ingress_rpl": "DENY_ALL"
                     },
                     "10.61.254.67": {
-                        "ingreass_rpl": "DENY_ALL"
+                        "ingress_rpl": "DENY_ALL"
                     },
                     "10.61.254.68": {
-                        "ingreass_rpl": "DENY_ALL"
+                        "ingress_rpl": "DENY_ALL"
                     }
                 }
             }

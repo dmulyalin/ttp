@@ -128,7 +128,7 @@ def lazy_import_functions():
                 continue
             try:
                 module_file = open("{}/{}".format(root, f), mode="r", encoding="utf-8")
-            except:
+            except Exception as e:
                 # in some versions of python open() does not support encoding
                 module_file = open("{}/{}".format(root, f), mode="r")
             node = ast.parse(module_file.read())
@@ -273,13 +273,11 @@ class ttp:
         # form a list of ((type, url|text,), input_name, groups,) tuples
         data_items = self._ttp_["utils"]["load_files"](path=data, read=False)
         if data_items:
-            [
-                template.update_input(
-                    data=data_items, input_name=input_name, groups=groups
-                )
-                for template in self._templates
-                if template.name == template_name or template_name == "_all_"
-            ]
+            for template in self._templates:
+                if template.name == template_name or template_name == "_all_":
+                    template.update_input(
+                        data=data_items, input_name=input_name, groups=groups
+                    )
 
     def set_input(
         self,
@@ -395,7 +393,8 @@ class ttp:
             text_data=text_data, include=include, load=load, key=key
         )
         self.lookups.update({name: lookup_data})
-        [template.add_lookup({name: lookup_data}) for template in self._templates]
+        for template in self._templates:
+            template.add_lookup({name: lookup_data})
 
     def add_vars(self, vars):
         """Method to add variables to ttp and its templates to reference during parsing
@@ -406,7 +405,8 @@ class ttp:
         """
         if isinstance(vars, dict):
             self.vars.update(vars)
-            [template.add_vars(vars) for template in self._templates]
+            for template in self._templates:
+                template.add_vars(vars)
 
     def parse(self, one=False, multi=False):
         """Method to parse data with templates.
@@ -419,10 +419,10 @@ class ttp:
         By default one and multi set to False and  TTP will run parsing following below rules:
 
             1. if one or multi set to True run in one or multi process
-            2. if overall data size is less then 5Mbyte, use single process
-            3. if overall data size is more then 5Mbytes, use multiprocess
+            2. if overall data size is less than 5Mbyte, use single process
+            3. if overall data size is more than 5Mbytes, use multiprocess
 
-        In addition to 3 TTP will check if number of input data items more then 1, if so
+        In addition to 3 TTP will check if number of input data items more than 1, if so
         multiple processes will be used and one process otherwise.
         """
         # add self.__data to templates and get file count and size:
@@ -444,7 +444,8 @@ class ttp:
         else:
             self.__parse_in_one_process()
         # run outputters defined in templates:
-        [template.run_outputs() for template in self._templates]
+        for template in self._templates:
+            template.run_outputs()
 
     def __parse_in_multiprocess(self):
         """Method to parse data in bulk by parsing each data item
@@ -471,7 +472,8 @@ class ttp:
                 )
                 for i in range(num_processes)
             ]
-            [w.start() for w in workers]
+            for w in workers:
+                w.start()
 
             for input_name, input_obj in template.inputs.items():
                 for datum in input_obj.data:
@@ -482,7 +484,8 @@ class ttp:
                     }
                     tasks.put(task_dict)
                     num_jobs += 1
-            [tasks.put(None) for i in range(num_processes)]
+            for i in range(num_processes):
+                tasks.put(None)
 
             # wait for all tasks to complete
             tasks.join()
@@ -671,7 +674,7 @@ class ttp:
         be returned by this method.
 
         Primary use case is to specify parameters within TTP input that can be
-        used by other applications/scrips.
+        used by other applications/scripts.
 
         **Returns**
 
@@ -702,13 +705,12 @@ class ttp:
         templates = [templates] if isinstance(templates, str) else templates
         # clear results
         if templates:
-            [
-                t_obj.results.clear()
-                for t_obj in self._templates
-                if t_obj.name in templates
-            ]
+            for t_obj in self._templates:
+                if t_obj.name in templates:
+                    t_obj.results.clear()
         else:
-            [t_obj.results.clear() for t_obj in self._templates]
+            for t_obj in self._templates:
+                t_obj.results.clear()
 
     def add_function(self, fun, scope, name=None, add_ttp=False):
         """Method to add custom function in ``_ttp_`` dictionary.
@@ -859,7 +861,7 @@ class _worker(Process):
         # run tasks
         while True:
             next_task = self.task_queue.get()
-            # check for dead pill to stop process
+            # check for poison pill to stop process
             if next_task is None:
                 self.task_queue.task_done()
                 break
@@ -904,7 +906,7 @@ class _template_class:
         ttp_macro = ttp_macro or {}
         self.PATHCHAR = "."  # character to separate path items, like ntp.clock.time, '.' is pathChar here
         self.vars = {  # dictionary to store template variables
-            "_vars_to_results_": {},  # to indicate variables and patch where they should be saved in results
+            "_vars_to_results_": {},  # to indicate variables and path where they should be saved in results
             # _vars_to_results_ is a dict of {pathN:[var_key1, var_keyN]} data
             "_var_functions_": {},  # dictionary to keep variables with functions such as getters
         }
@@ -955,10 +957,14 @@ class _template_class:
 
         if log.isEnabledFor(logging.DEBUG):
             self.debug()
-            [template_obj.debug for template_obj in self.templates]
-            [input.debug() for input in self.inputs.values()]
-            [group.debug() for group in self.groups]
-            [output_obj.debug() for output_obj in self.outputs]
+            for template_obj in self.templates:
+                template_obj.debug()
+            for input in self.inputs.values():
+                input.debug()
+            for group in self.groups:
+                group.debug()
+            for output_obj in self.outputs:
+                output_obj.debug()
 
     def debug(self):
         from pprint import pformat
@@ -973,13 +979,15 @@ class _template_class:
     def add_lookup(self, data):
         """Method to load lookup data"""
         self.lookups.update(data)
-        [template.add_lookup(data) for template in self.templates]
+        for template in self.templates:
+            template.add_lookup(data)
 
     def add_vars(self, data):
         """Method to update vars with given data"""
         if isinstance(data, dict):
             self.vars.update(data)
-            [template.add_vars(data) for template in self.templates]
+            for template in self.templates:
+                template.add_vars(data)
 
     def run_outputs(self):
         """Method to run template outputs with template results"""
@@ -1019,7 +1027,8 @@ class _template_class:
             if var_value in self._ttp_["variable"]:
                 self.vars["_var_functions_"][var_name] = var_value
         # remove _var_functions_ from self.vars
-        [self.vars.pop(var_name) for var_name in self.vars["_var_functions_"].keys()]
+        for var_name in self.vars["_var_functions_"].keys():
+            self.vars.pop(var_name)
 
     def update_input(
         self, element=None, data=None, input_name="Default_Input", groups=None
@@ -1250,10 +1259,10 @@ class _template_class:
         """
         Method to filter tags of extended template using name attribute
 
-        :param extend_ET: (obj) ET.XML object of extended template
-        :param child: (obj) ET.XML object of extend data
+        :param extend_template: (obj) ET.XML object of extended template
+        :param extend_tag: (obj) ET.XML object of extend data
         :param top: (bool) indicator if extend tag is at the top or nested
-        :return: list of EX.XML objects that passed filtering
+        :return: list of ET.XML objects that passed filtering
         """
         # check if no filters given at all - return straight away
         if top and len(extend_tag.attrib) == 1:
@@ -1380,7 +1389,7 @@ class _template_class:
         Method to construct XML etree out of template text reconstructing
         it if required
 
-        :param template_text: (str) TTp Template string
+        :param template_text: (str) TTP Template string
         :return: ET.XML object with top tag set to <template>
         """
         try:
@@ -1657,18 +1666,18 @@ class _group_class:
             path (list): list containing results tree path, have to copy it otherwise
                 it got overridden by recursion
             defaults (dict): contains group variables' default values
-            runs (dict): to sotre modified defaults during parsing run
+            runs (dict): to store modified defaults during parsing run
             default (str): group all variables' default value if no more specific default value given
             inputs (list): list of inputs names this group should be used for
             outputs (list): list of outputs to run for this group
             funcs (list): list of functions to run against group results
             method (str): indicate type of the group - [group | table]
-            start_re (list): contains list of group start regular epressions
+            start_re (list): contains list of group start regular expressions
             end_re (list): contains list of group end regular expressions
             children (list): contains child group objects
             vars (dict): variables dictionary from template class
             grp_index (int): unique index of the group
-            name (str): dot separate path string representing group result location within results tree
+            name (str): dot separated path string representing group result location within results tree
             group_id (tuple): unique ID of the group, tuple of (self.name, self.grp_index,)
         """
         self._ttp_ = _ttp_
@@ -1794,7 +1803,7 @@ class _group_class:
                 extract_function(attr_name, attributes)
 
     def get_regexes(self, data, tail=False):
-        varaibles_matches = []  # list of dictionaries
+        variables_matches = []  # list of dictionaries
         regexes = []
 
         for line in data.splitlines():
@@ -1812,8 +1821,8 @@ class _group_class:
                     "group.get_regexes: variable not found in line: '{}'".format(line)
                 )
                 continue
-            varaibles_matches.append({"variables": match, "line": line})
-        for i in varaibles_matches:
+            variables_matches.append({"variables": match, "line": line})
+        for i in variables_matches:
             regex = ""
             variables = {}
             action = "add"
@@ -2404,7 +2413,7 @@ class _parser_class:
                 break
 
     def update_groups_runs(self, D):
-        """Method to update groups runs dictionaries with new values deirved
+        """Method to update groups runs dictionaries with new values derived
         during parsing, can be called from 'record' variable functions
         """
         for G in self.groups:
@@ -2417,7 +2426,7 @@ class _parser_class:
                 result = self._ttp_["variable"][VARvalue](self.DATATEXT, self.DATANAME)
                 if result:
                     self.vars.update({VARname: result})
-            except:
+            except Exception as e:
                 log.error(
                     "ttp_parser.run_var_functions: '{}' variable function failed".format(
                         VARvalue
@@ -3036,7 +3045,7 @@ class _results_class:
 
     def reconstruct_last_element(self, result_data, result_path):
         """
-        Method to retrieve last element value, make a copy of it and nerge with
+        Method to retrieve last element value, make a copy of it and merge with
         current results. This is to reconstruct group results for processing in
         a case where we have tail matches.
         """
@@ -3205,7 +3214,7 @@ class _results_class:
         Method to form dynamic path transforming it into a list of tuples,
         where each tuple first element is a path item value and second
         element is a number of asterisks, need to keep asterisks count
-        separatefrom path item value becasue match result value can end
+        separate from path item value because match result value can end
         with asterisk - issue #97
         """
         for index, path_item in enumerate(path):
@@ -3402,7 +3411,7 @@ class _outputter_class:
         :param data: (dict or list) data to run outputter for
         :param macro: (dict) dictionary of macro functions
         """
-        marco = macro or {}
+        macro = macro or {}
         self._ttp_["output_object"] = self
         if macro:
             self._ttp_["macro"] = macro
@@ -3641,7 +3650,7 @@ def cli_tool():
     OUT_TEMPLATE = args.OUT_TEMPLATE
     VARS = args.VARS
 
-    supporrted_cli_tool_outputters = ["json", "yaml", "raw", "pprint", ""]
+    supported_cli_tool_outputters = ["json", "yaml", "raw", "pprint", ""]
 
     def timing(message):
         if TIMING:
@@ -3705,10 +3714,10 @@ def cli_tool():
             OUT_TEMPLATE = []
         else:
             OUT_TEMPLATE = [i.strip() for i in OUT_TEMPLATE.split(",")]
-        if not OUTPUTTER.lower() in supporrted_cli_tool_outputters:
+        if not OUTPUTTER.lower() in supported_cli_tool_outputters:
             log.error(
                 "ttp.cli: unsupported outputter '{}', supported: {}, will use 'json' outputter".format(
-                    OUTPUTTER, ", ".join(supporrted_cli_tool_outputters)
+                    OUTPUTTER, ", ".join(supported_cli_tool_outputters)
                 )
             )
             OUTPUTTER = "json"

@@ -1,9 +1,9 @@
 Inputs
 =======
 
-Inputs can be used to specify data location and how it should be loaded or filtered. Inputs can be attached to groups for parsing, for instance this particular input data should be parsed by this set of groups only. That can help to increase the overall performance as only data belonging to particular group will be parsed.
+Inputs define data locations and how data should be loaded or filtered. Inputs can be attached to specific groups so that only data from a given input is parsed by those groups, which can improve overall performance.
 
-.. note:: Order of inputs preserved as internally they represented using OrderedDict object, that can be useful if data produced by first input needs to bused by other inputs.
+.. note:: Input order is preserved because inputs are internally represented using an ``OrderedDict``. This is useful when data produced by one input needs to be used by subsequent inputs.
 
 Assuming we have this folders structure to store data that needs to be parsed::
 
@@ -49,9 +49,9 @@ Where content::
     interface Vlan230
       ip address 10.11.15.130/25
 
-Template below uses inputs in such a way that for "data-1" folder only files that have ".txt" extension will be parsed by group "interfaces1", for input named "dataset-2" only files with names matching "sw\-\d.*" regular expression will be parsed by "interfaces2" group. In addition, base path provided that will be appended to each url within *url* input parameter. Tag text for input "dataset-1" structured using YAML representation, while "dataset-2" uses python language definition.
+The template below uses inputs so that only files with a ``.txt`` extension in "data-1" are parsed by group "interfaces1", and only files matching ``sw\-\d.*`` in "dataset-2" are parsed by "interfaces2". A base path is provided and prepended to each URL in the *url* input parameter. Input "dataset-1" is defined in YAML, while "dataset-2" uses Python syntax.
 
-As a result of inputs filtering, only "sw-1.txt" will be processed by "dataset-1" input because it is the only file that has ".txt" extension, only  "sw-2.txt" will be processed by input "dataset-2" because "sw3.txt" not matched by "sw\-\d.*" regular expression.
+As a result of input filtering, only ``sw-1.txt`` is processed by "dataset-1" because it is the only file with a ``.txt`` extension, and only ``sw-2.txt`` is processed by "dataset-2" because ``sw3.txt`` does not match the ``sw\-\d.*`` regular expression.
 
 Template::
 

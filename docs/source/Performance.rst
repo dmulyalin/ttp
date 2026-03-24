@@ -1,16 +1,16 @@
 Performance
 ===========
 
-TTP has performance of approximately 211 lines per millisecond on Intel Core i5-3320M CPU @ 2.6GHz (CPU End-of-Life July 2014) if running in multiprocess mode, dataset of 3,262,464 lines can be parsed in under 16 seconds best case and under 22 seconds worst case. Multiprocessing mode approximately 30-40% faster compared to running in single process, the difference is more significant the more data has to be parsed.
+TTP achieves approximately 211 lines per millisecond on an Intel Core i5-3320M CPU @ 2.6GHz (CPU End-of-Life July 2014) in multiprocess mode. A dataset of 3,262,464 lines can be parsed in under 16 seconds (best case) and under 22 seconds (worst case). Multiprocessing mode is approximately 30–40% faster than single-process mode; the difference grows with dataset size.
 
-When TTP ready to parse data it goes through decision logic to determine parsing mode following below rules:
+When TTP is ready to parse data, it determines the parsing mode using the following rules:
 
 * run in single process if ``one=True`` was set for TTP parse method
 * run in multiprocess if ``multi=True`` was set for TTP parse method
-* run in single process if overall size of loaded data less then 5MByte
-* run in multiprocess if overall size of loaded data more then 5MByte and at least two datums loaded
+* run in single process if overall size of loaded data is less than 5 MB
+* run in multiprocess if overall size of loaded data is more than 5 MB and at least two data items are loaded
 
-In multiprocessing mode, TTP starts one process per each CPU core on the system and forms a queue of work, there each item contains data for single input datum. For instance we have a folder with 100 files to process, TTP forms queue of 100 chunks of work, each chunk containing text data from single file, in multiprocessing mode that work distributed across several cores in such a way that as long as chunk of work finished by the process it picks up another chunk, without waiting for other processes to finish.
+In multiprocessing mode, TTP starts one process per CPU core and forms a work queue where each item contains data for a single input. For example, with a folder of 100 files, TTP creates 100 work chunks, each containing text data from one file. Work is distributed across cores so that as soon as a process finishes a chunk, it picks up the next one without waiting for other processes.
 
 Multiprocessing mode restrictions
 ---------------------------------

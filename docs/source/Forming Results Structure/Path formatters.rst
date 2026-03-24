@@ -3,7 +3,7 @@
 Path formatters
 ===============
 
-By default ttp assumes that all the *path items* must be joined into a dictionary structure, in other words group name "item1.item2.item3" will be transformed into nested dictionary::
+By default, TTP treats all *path items* as dictionary keys, so a group name ``"item1.item2.item3"`` becomes a nested dictionary::
 
     {"item1":
 	 {"item2":
@@ -12,7 +12,7 @@ By default ttp assumes that all the *path items* must be joined into a dictionar
       }
     }
 
-That structure will be populated with results as parsing progresses, but in case if for "item3" more than single result datum needs to be saved, ttp will transform "item3" child to list and save further results by appending them to that list. That process happens automatically but can be influenced using *path formatters*.
+That structure is populated with results as parsing progresses. When more than one result datum needs to be saved for ``"item3"``, TTP automatically converts the ``"item3"`` child to a list and appends further results. This process is automatic but can be influenced using *path formatters*.
 
 Supported path formatters \* and \*\* for group *name* attribute can be used following below rules:
 

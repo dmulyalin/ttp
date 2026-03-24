@@ -1,36 +1,36 @@
 Overview
 =========
 
-TTP is a Python module that allows relatively fast performance parsing of semi-structured text data using templates. TTP was developed to enable programmatic access to data produced by CLI of networking devices, but, it can be used to parse any semi-structured text that contains distinctive repetition patterns.
+TTP is a Python module for fast parsing of semi-structured text data using templates. It was developed to enable programmatic access to CLI output from networking devices, but can be used to parse any semi-structured text with distinctive repetition patterns.
 
-In the simplest case ttp takes two files as an input - data that needs to be parsed and parsing template, returning results structure with extracted information.
+In the simplest case, TTP takes two inputs — data to parse and a parsing template — and returns a structure with the extracted information.
 
-Same data can be parsed by several templates producing results accordingly, templates are easy to create and users encouraged to write their own ttp templates.
+The same data can be parsed by multiple templates. Templates are easy to create, and users are encouraged to write their own.
 
 Motivation
 ----------
 
-While networking devices continue to develop API capabilities, there is a big footprint of legacy and not-so devices in the field, these devices are lacking of any well developed API to retrieve structured data, the closest they can get is SNMP and CLI text output. Moreover, even if some devices have API capable of representing their configuration or state data in the format that can be consumed programmatically, in certain cases, the amount of work that needs to be done to make use of these capabilities outweighs the benefits or value of produced results.
+While networking devices continue to add API capabilities, many legacy and limited devices still lack well-developed APIs for structured data retrieval — the closest they offer is SNMP and CLI text output. Even where APIs exist, the effort to use them can outweigh the value of the results.
 
-There are a number of tools available to parse text data, but, author of TTP believes that parsing data is only part of the work flow, where the ultimate goal is to make use of the actual data.
+There are tools available to parse text data, but the author of TTP believes that parsing is only part of the workflow — the ultimate goal is to act on the data.
 
-Say we have configuration files and we want to create a report of all IP addresses configured on devices together with VRFs and interface descriptions, report should have csv format. To do that we have (1) collect data from various inputs and maybe sort and prepare it, (2) parse that data, (3) format it in certain way and (4) save it somewhere or pass to other program(s). TTP has built-in capabilities to address all of these steps to produce desired outcome.
+Say we have configuration files and want to produce a CSV report of all IP addresses configured on devices, along with their VRFs and interface descriptions. To do that we need to: (1) collect data from various inputs and prepare it, (2) parse that data, (3) format it appropriately, and (4) save it or pass it to other programs. TTP has built-in capabilities to address all of these steps.
 
 Core Functionality
 ------------------
 
 TTP has a number of systems built into it:
 
-* Groups system - help to define results hierarchy and data processing functions with filtering
-* Parsing system - uses regular expressions derived out of templates to parse and process data
-* Input system - used to define various input data sources, help to retrieve data, prepare it and map to the groups for parsing
-* Output system - allows to format parsing results and return them to certain destinations
-* Macro - inline Python code that can be used to process results and extend TTP functionality, having access to _ttp_ dictionary containing all groups, match, inputs, outputs functions
-* Lookup tables - helps to enrich results with additional information or reference results across different templates or groups to combine them
-* Template variables - variables store, accessible during template execution for caching or retrieving values
-* Template tags - to define several independent templates within single file together with results forming mode
-* Extend tags - helps to extend template with other templates to facilitate re-use of templates
-* CLI tool - allows to run templates directly from command line
-* Lazy loader system - TTP only imports function it uses within the templates, that significantly decreases start time
-* Multiprocessing system - controls the start and data exchange between several Python processes to increase parsing performance
-* Logging system - helps to troubleshoot and debug TTP
+* Groups system - defines results hierarchy and data processing functions with filtering
+* Parsing system - uses regular expressions derived from templates to parse and process data
+* Input system - defines input data sources, retrieves data, prepares it, and maps it to groups for parsing
+* Output system - formats parsing results and delivers them to configured destinations
+* Macro - inline Python code to process results and extend TTP functionality with access to the ``_ttp_`` dictionary containing all groups, match, input, and output functions
+* Lookup tables - enriches results with additional information or combines results across templates and groups
+* Template variables - variable store accessible during template execution for caching or retrieving values
+* Template tags - defines multiple independent templates within a single file along with a results forming mode
+* Extend tags - extends a template with content from other templates to facilitate re-use
+* CLI tool - runs templates directly from the command line
+* Lazy loader system - imports only functions used by the template, significantly reducing startup time
+* Multiprocessing system - manages multiple Python processes to increase parsing performance
+* Logging system - aids troubleshooting and debugging

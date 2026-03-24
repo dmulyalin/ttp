@@ -1,7 +1,7 @@
 How to parse show commands output
 =================================
 
-Show commands output parsing with TTP is the same as parsing any text data that contains repetitive patterns and require a certain level of familiarity with tools built into TTP to not only parse but also process match results.
+Show command output parsing with TTP is the same as parsing any text with repetitive patterns. It requires some familiarity with TTP built-in tools to both parse and process match results.
 
 As a use case let's consider parsing "show cdp neighbors detail" command output of Cisco IOS device, source data::
 

@@ -1,7 +1,7 @@
 How to parse hierarchical configuration data
 ============================================
 
-TTP can use simple templates that does not contain much hierarchy (same as the data that parsed by them), but what to do if we want to extract information from below text::
+TTP can use simple templates with no hierarchy, but when extracting information from deeply structured text, nested groups are required.
 
     router bgp 12.34
      address-family ipv4 unicast
@@ -34,7 +34,7 @@ TTP can use simple templates that does not contain much hierarchy (same as the d
         route-policy PASS-ALL in
         route-policy PASS-ALL out
 
-In such a case we have to use ttp groups to define nested, hierarchical structure, sample template might look like this::
+In such a case, nested TTP groups must be used to define the hierarchical structure. A sample template might look like this::
 
     <group name="bgp_cfg">
     router bgp {{ ASN }}

@@ -3,7 +3,7 @@
 Forming Results Structure
 =========================
 
-TTP supports variety of techniques to influence results structure. Majority of them revolving around group name attribute, which represents dot separated path of keys within results structure - that is generally helps for results within given template. Other methods can influence results representation across several templates.
+TTP supports a variety of techniques to influence results structure. Most revolve around the group ``name`` attribute, which represents a dot-separated path of keys within the results structure. Other methods can influence results representation across multiple templates.
 
 .. toctree::
    :maxdepth: 2
@@ -30,4 +30,4 @@ Templates support :ref:`Template Tag/Template Tag:results` attribute that can he
 TTP object results structure
 ----------------------------
 
-TTP object ``result`` method have support for ``structure`` keyword, allowing to combine results across several templates in either a list or dictionary manner.
+TTP object ``result`` method supports the ``structure`` keyword, allowing results from multiple templates to be combined into either a list or a dictionary.

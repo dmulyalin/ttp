@@ -8,21 +8,21 @@ Collection of answers to frequently asked questions.
 Why does TTP return a nested list of lists of lists?
 ----------------------------------------------
 
-By default, TTP accounts for the most general case: where a TTP object is assumed to have several templates.
-Each template produces its own results, which gives the first level of lists.
+By default, TTP accounts for the most general case: a TTP object may have several templates.
+Each template produces its own results, giving the first level of nesting.
 
-Within each template, several inputs can be defined (whereby input = string/text to parse).
-Results for each input are parsed independently and then aggregated into a list.
-This gives the second level of lists.
+Within each template, multiple inputs can be defined (each input is a string/text to parse).
+Results for each input are parsed independently and aggregated into a list,
+giving the second level of nesting.
 
-If a template does not have any groups, or has groups without a ``name`` attribute, its results
-will produce a list of items on a per-input basis. This gives the third level of lists.
+If a template has no groups, or has groups without a ``name`` attribute, its results
+are a list of items on a per-input basis, giving the third level of nesting.
 
-This is the default, generalized behaviour that (so far) works for all cases, as items always can be
-appended to the list.
+This is the default, generalized behavior that works for all cases, as items can always be
+appended to a list.
 
-Reference :ref:`results_structure` documentation on how to produce results suitable for your case
-using TTP built-in techniques. Otherwise, Python results post-processing may also prove useful.
+See the :ref:`results_structure` documentation for techniques to produce results suited to your use case.
+Python post-processing of results is also an option.
 
 How do I add comments in TTP templates?
 -------------------------------------
@@ -66,8 +66,7 @@ Starting with TTP 0.7.0 double hash ## comments can be indented.
 How do I make TTP always return a list, even if there is only one matched item?
 -----------------------------------------------------------------
 
-Please refer to :ref:`path_formatters` for details on how
-to enforce the results structure with a list or dictionary.
+See :ref:`path_formatters` for details on enforcing a list or dictionary result structure.
 
 The :ref:`results_structure` documentation may also be of use.
 
@@ -75,16 +74,16 @@ The :ref:`results_structure` documentation may also be of use.
 How do I match several variations of slightly changing output?
 ------------------------------------------------------------
 
-It is recommended to use the API wherever possible. Parsing semi-structured text for varying output
-can be "fun", and may produce fragile results.
+Using the API is recommended where possible. Parsing semi-structured text with varying output
+can be tricky and may produce fragile results.
 
-In most cases, TTP transforms templates into regular expressions. If your data changes,
-so should your template. Some potential solutions for matching varying output include:
+TTP transforms templates into regular expressions. If your data changes,
+so should your template. Potential solutions for matching varying output include:
 
-* using several ``_start_`` lines in a template
-* setting a group's ``method`` attribute to ``table``
-* using the ``ignore`` indicator to ignore portions of the input data
-* add additional regular expressions to match and ignore varying data.
+* use multiple ``_start_`` lines in a group
+* set the group's ``method`` attribute to ``table``
+* use the ``ignore`` indicator to skip portions of the input data
+* add additional regular expressions to match and discard varying data
 
 Consider this data, which displays the many output variations for a single command::
 
@@ -210,7 +209,7 @@ Template::
     <group>
     interface {{ interface }}
      description {{ description }}
-     switchport mode {{ mode }
+     switchport mode {{ mode }}
      {{ remaining_config | _line_ | joinmatches }}
     ! {{ _end_ }}
     </group>

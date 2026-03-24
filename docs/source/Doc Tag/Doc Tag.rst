@@ -1,10 +1,10 @@
 Doc Tag
 =======
 
-Doc tag allows to add any notes or documentation to TTP template. In addition content of all ``doc`` tags
-assigned to ``__doc__`` attribute of the template objects within TTP parser object.
+The ``<doc>`` tag adds notes or documentation to a TTP template. The content of all ``<doc>`` tags
+is assigned to the ``__doc__`` attribute of template objects within the TTP parser object.
 
-.. warning:: Doc tag cannot contain ``<`` and ``>`` characters, have to use escape sequences instead - ``&lt`` and ``&gt``
+.. warning:: The doc tag cannot contain ``<`` and ``>`` characters; use escape sequences instead — ``&lt;`` and ``&gt;``
 
 Single template can contain as many ``<doc>`` tags as required at the top level of the document.
 
@@ -40,6 +40,6 @@ In this template ``<doc>`` tag helps to document information about the template 
     </input>
 
     <group method="table" to_int="age">
-    {{ protocol }} {{ ip | IP }} {{ age | replace("-", "-1") }} {{ mac | mac_eui }} {{ type | let("interface", "Uncknown") }}
+    {{ protocol }} {{ ip | IP }} {{ age | replace("-", "-1") }} {{ mac | mac_eui }} {{ type | let("interface", "Unknown") }}
     {{ protocol }} {{ ip | IP }} {{ age | replace("-", "-1") }} {{ mac | mac_eui }} {{ type }} {{ interface | resuball("short_interface_names") }}
     </group>

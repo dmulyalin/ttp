@@ -1,7 +1,7 @@
 TTP Internals
 =============
 
-This is to describe how TTP internals works, mainly to serve as a reference for the Author and other developers.
+This describes how TTP internals work, primarily as a reference for the author and other developers.
 
 Lazy loading system
 -------------------
@@ -19,7 +19,7 @@ The way how lazy loader works is quite simple, work flow is:
 
 Implications of above process are:
 
-1. To add new function to TTP, ones need to create .py file and place it in appropriate directory
+1. To add a new function to TTP, one needs to create a ``.py`` file and place it in the appropriate directory.
 2. The more files TTP need to scan the slower it will load, hence it make sense to combine functions of similar functionality in single file
 3. All functions in single file will be imported on first call to any of the functions
 4. Starting with version 0.7.0, usage of ``_ttp_`` dictionary cache improves TTP import performance by about 50ms

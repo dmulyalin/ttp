@@ -1,9 +1,9 @@
 Template Variables
 ==================
 
-TTP supports definition of arbitrary variables using dedicated xml tags <v>, <vars> or <variables>. Withing these tags variables can be defined in various formats and loaded using one of supported loaders. Variables can also be defined in external text files and loaded using *include* attribute.
+TTP supports definition of arbitrary variables using dedicated XML tags ``<v>``, ``<vars>``, or ``<variables>``. Within these tags, variables can be defined in various formats and loaded using one of the supported loaders. Variables can also be defined in external text files and loaded via the *include* attribute.
 
-Various values can be recorded in template variables before, during or after parsing. That additional data can be added to results, used for dynamic path constructions.
+Values can be recorded in template variables before, during, or after parsing. This additional data can be added to results or used for dynamic path constructions.
 
 Inputs reference
 -------------------

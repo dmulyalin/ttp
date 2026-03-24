@@ -33,7 +33,7 @@ is_equal
 ------------------------------------------------------------
 ``functions="is_equal"``
 
-Function is_equal load output tag text data into python structure (list, dictionary etc.) using given loader and performs comparison with parsing results. is equal returns a dictionary of three elements::
+``is_equal`` loads the output tag text data into a Python structure (list, dictionary, etc.) using the given loader and compares it with parsing results. It returns a dictionary of three elements::
 
     {
         "is_equal": true|false,
@@ -41,7 +41,7 @@ Function is_equal load output tag text data into python structure (list, diction
         "output_name": "name of the output"
     }
 
-This function use-cases are various tests or compliance checks, one can construct a set of template groups to produce results, these results can be compared with predefined structures to check if they are matching, based on comparison a conclusion can be made such as whether or not source data satisfies certain criteria.
+This function's use cases include compliance checks and tests — construct template groups to produce results, compare them with expected structures, and draw conclusions about whether the source data satisfies given criteria.
 
 **Example**
 
@@ -110,7 +110,7 @@ This functions help to flatten dictionary data by converting it to list e.g. if 
 
     {"Fa0" : {"admin": "administratively down"}, "Ge0/1": {"access_vlan": "24"}}
 
-and key_name="interface", dit_to_list function will return this list::
+and key_name="interface", ``dict_to_list`` will return this list::
 
     [ {"admin": "administratively down", "interface": "Fa0"},
       {"access_vlan": "24", "interface": "Ge0/1"} ]
@@ -245,7 +245,7 @@ macro
 ------------------------------------------------------------
 ``macro="func_name"`` or ``functions="macro('func_name1') | macro('func_name2')"``
 
-Output macro function allows to process whole results using custom function(s) defined within <macro> tag.
+The output macro function processes the full results using custom functions defined within the ``<macro>`` tag.
 
 **Example**
 
@@ -320,7 +320,7 @@ deepdiff
 * ``mode`` - string, ``bulk`` (default) or ``iterate`` modes supported to modify comparison behavior
 * ``kwargs`` - any arguments supported by deepdiff DeepDiff object, such as ignore_order or verbose_level
 
-**Prerequisites:** Python `deepdiff library <https://pypi.org/project/deepdiff/>`_  need to be installed.
+**Prerequisites:** Python `deepdiff library <https://pypi.org/project/deepdiff/>`_ must be installed.
 
 This function takes overall parsing results or results for specified input and compares them with data before sourced either from template, another input results or template variable.
 
@@ -498,7 +498,7 @@ validate
 ------------------------------------------------------------------------------
 ``validate="schema, result="valid", add_fields="", info="", errors="", allow_unknown=True"``
 
-**Prerequisites** `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
+**Prerequisites:** `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ must be installed.
 
 Function to validate parsing results using Cerberus library.
 
@@ -638,7 +638,7 @@ validate_yangson
 ``validate_yangson="yang_mod_dir, yang_mod_lib=None, validation_scope='all', content_type='all', to_xml=False"``
 
 **Prerequisites**
-* `yangson library <https://github.com/CZ-NIC/yangson>`_ need to be installed on the system.
+* `yangson library <https://github.com/CZ-NIC/yangson>`_ must be installed.
 * optional, YANG JSON library file could be generated using yangson github repository ``tools/python/mkylib.py`` script
 
 Function to validate parsing results using YANG modules with the help of yangson library.

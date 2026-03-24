@@ -32,31 +32,31 @@ TTP supports a number of output formatters.
 
 Formatters can accept various attributes to supply additional information or modify behavior.
 
-In general case formatters take python structured data - dictionary, list, list of dictionaries etc. - as an input, format that data in certain way and return new representation of results.
+In general, formatters take Python structured data — a dictionary, list, list of dictionaries, etc. — format it, and return a new representation of the results.
 
 raw
 ******************************************************************************
 
-If format is raw, no formatting will be applied and native python structure will be returned, results will not be converted to string.
+If format is ``raw``, no formatting is applied and the native Python structure is returned; results are not converted to a string.
 
 yaml
 ******************************************************************************
 
-**Prerequisites**: Python PyYAML library need to be installed
+**Prerequisites**: PyYAML library must be installed
 
-This formatter will run results through PyYAML module to produce YAML structured results.
+This formatter passes results through PyYAML to produce YAML-structured output.
 
 JSON
 ******************************************************************************
 
-This formatter will run results through Python built-in JSON module ``dumps`` method to produce `JSON (JavaScript Object Notation) <http://json.org>` structured results.
+This formatter passes results through Python's built-in ``json.dumps()`` to produce `JSON (JavaScript Object Notation) <http://json.org>`_ structured results.
 
 .. note:: json.dumps() will have these additional attributes set ``sort_keys=True, indent=4, separators=(',', ': ')``
 
 pprint
 ******************************************************************************
 
-As the name implies, python built-in pprint module will be used to structure python data in a more readable.
+Python's built-in ``pprint`` module is used to format results in a more human-readable layout.
 
 table
 ******************************************************************************
@@ -181,7 +181,7 @@ Above template produces this structure::
 csv
 ******************************************************************************
 
-This formatter takes parsing result as an input, transforms it in list of lists using table formatter and emits csv structured table.
+This formatter takes parsing results as input, transforms them into a list of lists using the table formatter, and emits a CSV-structured table.
 
 **Supported formatter arguments**
 
@@ -221,7 +221,7 @@ Results::
 tabulate
 ******************************************************************************
 
-**Prerequisites:** `tabulate module <https://pypi.org/project/tabulate/>`_ need to be installed on the system.
+**Prerequisites:** `tabulate module <https://pypi.org/project/tabulate/>`_ must be installed.
 
 Tabulate formatter uses python tabulate module to transform and emit results in a plain-text table.
 
@@ -275,9 +275,9 @@ Results printed to terminal screen::
 jinja2
 ******************************************************************************
 
-**Prerequisites:** `Jinja2 module <https://palletsprojects.com/p/jinja/>`_  need to be installed on the system
+**Prerequisites:** `Jinja2 module <https://palletsprojects.com/p/jinja/>`_ must be installed.
 
-This formatter allow to render parsing results with jinja2 template. Jinja2 template should be enclosed in output tag text data. Jinja2 templates can help to produce any text output out of parsing results.
+This formatter renders parsing results with a Jinja2 template. The Jinja2 template must be enclosed within the output tag text. Jinja2 templates can produce any text output from parsing results.
 
 Within jinja2, the whole parsing results passed in `_data_` variable, that variable can be referenced in template accordingly.
 
@@ -341,7 +341,7 @@ Results::
 excel
 ******************************************************************************
 
-**Prerequisites:** `openpyxl module <https://openpyxl.readthedocs.io/en/stable/#>`_ need to be installed on the system
+**Prerequisites:** `openpyxl module <https://openpyxl.readthedocs.io/en/stable/#>`_ must be installed.
 
 This formatter takes table structure defined in output tag text and transforms parsing results into table on a per tab basis using `table`_ formatter, as a results all attributes supported by table formatter can be used in excel formatter as well.
 
@@ -423,7 +423,7 @@ TTP will produce excel table with two tabs using results from different groups. 
 N2G
 ******************************************************************************
 
-**Prerequisites:** `N2G module <https://pypi.org/project/N2G/>`_ need to be installed on the system
+**Prerequisites:** `N2G module <https://pypi.org/project/N2G/>`_ must be installed.
 
 N2G takes structured data and transforms it into xml format supported by a number of diagram editors.
 

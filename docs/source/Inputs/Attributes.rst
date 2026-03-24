@@ -3,9 +3,9 @@ Attributes
 
 There are a number of attributes supported by input tag, these attributes help to define input behavior and how data should be loaded and parsed.
 
-Additionally input tag text payload can contain structured data, that data can be retrieved using ``get_input_load`` method. Input tag ``load`` attribute instructs how to load that data. For instance, if tag text structured in yaml format, yaml loader can be used to load it in Python data structure.
+Additionally, the input tag text payload can contain structured data retrievable via the ``get_input_load`` method. The input tag ``load`` attribute specifies how to load that data. For example, if the tag text is in YAML format, the yaml loader can parse it into a Python data structure.
 
-Attributes in input tag and attributes loaded from input tag text are combined in single structure if both are dictionaries, as a result, most of the attributes can be specified in either way.
+Attributes in the input tag and attributes loaded from the input tag text are combined into a single structure if both are dictionaries. As a result, most attributes can be specified in either location.
 
 .. list-table::
    :widths: 10 90
@@ -38,7 +38,7 @@ groups
 
 * groupN (optional) - comma separated string of group names that should be used to parse given input data. Default value is ``all``.
 
-TTP makes a list of groups for each input that should parse that input's data following these logic:
+TTP builds a list of groups for each input using the following logic:
 
 * if input's ``groups`` attribute is ``all`` - input data will be parsed by each group that does not has ``input`` attribute defined
 * if input's ``groups`` given and not ``all`` - only specified groups will parse this input's data. However, if group has ``input`` attribute defined, additional check done as per below note
@@ -49,7 +49,7 @@ load
 ------------------------------------------------------------------------
 ``load="loader_name"``
 
-* loader_name - name of the loader that should be used to load input tag text data, supported values are ``python, yaml, json or text``, if text used as a loader, text data within input tag itself used as an input data and parsed by a set of given groups or by all groups.
+* loader_name - name of the loader to use to load input tag text data. Supported values are ``python``, ``yaml``, ``json``, or ``text``. If ``text`` is used, the text data within the input tag itself is used as input data and parsed by the configured groups.
 
 **Example**
 

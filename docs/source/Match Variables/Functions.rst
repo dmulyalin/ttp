@@ -74,7 +74,7 @@ Action functions act upon match result to transform into desired state.
    * - `to_ip`_
      - transforms result to python ipaddress module IPvXAddress or IPvXInterface object
    * - `to_list`_
-     - creates empty list nd appends match result to it
+     - creates an empty list and appends the match result to it
    * - `to_net`_
      - transforms result to python ipaddress module IPvXNetwork object
    * - `to_str`_
@@ -635,7 +635,7 @@ set
 
 * var_set_value (mandatory) - string to set as a value for variable, can be a name of template variable.
 
-Not all configuration statements have variables or values associated with them, but can serve as an indicator if particular feature disabled or enabled, to match such a cases *set* function can be used. This function allows to assign "var_set_value" to match variable, "var_set_value" considered to be a reference to template variable name, if no template variable with "var_set_value" found, "var_set_value" itself will be assigned to match variable.
+Not all configuration statements have associated variables or values — some simply indicate whether a feature is enabled or disabled. The ``set`` function handles such cases. It assigns ``var_set_value`` to the match variable; ``var_set_value`` is first checked as a template variable name, and if no such variable exists, the value itself is assigned.
 
 It is also possible to use *set* function to introduce arbitrary key-value pairs in match result if set function used without any text in front of it.
 
@@ -1005,7 +1005,7 @@ lookup
 * template - dot-separated path to template results to use for lookup
 * add_field - default is False, can be set to string that will indicate name of the new field
 
-Lookup function takes match result value and performs lookup on that value in lookup data structure. Lookup data is a dictionary where keys checked if they are equal to math result.
+``lookup`` takes the match result value and performs a lookup in the lookup data structure — a dictionary where keys are compared against the match result.
 
 If lookup was unsuccessful no changes introduces to match result, if it was successful we have two option on what to do with found values:
 * if add_field is False - match result replaced with found values
@@ -1299,7 +1299,7 @@ rlookup
 * name(mandatory) - rlookup table name and dot-separated path to data within which to perform search
 * add_field(optional) - default is False, can be set to string that will indicate name of the new field
 
-This function searches rlookup table keys in match value. rlookup table is a dictionary data where keys checked if they are equal to math result.
+``rlookup`` searches rlookup table keys in the match value. The rlookup table is a dictionary where keys are checked against the match result.
 
 If lookup was unsuccessful no changes introduces to match result, if it was successful we have two options:
 * if add_field is False - match Result replaced with found values
@@ -1518,7 +1518,7 @@ This function need valid IPv4 or IPv6 address as an input to perform lookup agai
 
 **Prerequisites**
 
-Relies on Python `geoip2 <https://pypi.org/project/geoip2/>`_ module, hence it need to be installed on the system.
+Relies on Python `geoip2 <https://pypi.org/project/geoip2/>`_ module, which must be installed.
 
 **Example**
 
@@ -1774,7 +1774,7 @@ macro
 
 * macro_name(mandatory) - name of macro function to pass match result through
 
-Macro brings Python language capabilities to match results processing and validation during ttp module execution, as it allows to run custom functions against match results. Macro functions referenced by their name in match variable definitions or as a group *macro* attribute.
+Macro brings Python language capabilities to match result processing and validation. It allows running custom functions against match results. Macro functions are referenced by name in match variable definitions or in a group ``macro`` attribute.
 
 .. warning:: macro uses python ``exec`` function to parse code payload without imposing any restrictions, hence it is dangerous to run templates from untrusted sources as they can have macro defined in them that can be used to execute any arbitrary code on the system.
 
@@ -2200,7 +2200,7 @@ cidr_match
 
 * ``prefix`` - IPv4 or IPv6 prefix string, for instance '10.0.0.0/16' or name of <vars> tag variable.
 
-This function allows to convert provided prefix in ipaddress IPNetwork object and convert match_result into IPInterface
+This function converts the provided prefix to an ``ipaddress.IPNetwork`` object and converts the match result to an ``IPInterface``.
 object, after that, cidr_match will run *overlaps* check to see if provided prefix and match result ip address overlapping,
 returning True if so and False otherwise, allowing to filter match results based on that.
 
@@ -2431,7 +2431,7 @@ sformat
 
 * value - string to format with match result or name of variable for from <vars> tag.
 
-sformat allows to embed match result within arbitrary string using syntaxes supported by python built-in format function.
+``sformat`` embeds the match result within an arbitrary string using Python built-in ``format`` syntax.
 
 **Example**
 
@@ -2620,12 +2620,6 @@ to_float
 ``{{ name | to_float }}``
 
 This function tries to convert integer expressed as int (e.g. 2) or as a string (e,f, "45") to python integer of float type, e.g. 2 will be converted to 2.0
-
-to_unicode
-------------------------------------------------------------------------------
-``{{ name | to_unicode }}``
-
-If python2 used to run TTP script, this function will try to convert match variable value to unicode string, e.g. string "abc" will become u"abc"
 
 default
 ------------------------------------------------------------------------------

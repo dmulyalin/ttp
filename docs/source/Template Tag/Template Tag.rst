@@ -1,13 +1,13 @@
 Template Tag
 ============
 
-TTP templates support <template> tag to define several templates within single file. Each template processed separately, no data shared between templates, but results of one template can be used by lookup functions in another template.
+TTP templates support the ``<template>`` tag to define multiple templates within a single file. Each template is processed independently — no data is shared between templates — but the results of one template can be used by lookup functions in another.
 
 Only two levels of hierarchy supported - top template tag and a number of child template tags within it, further template tags nested within children are ignored.
 
-First use case for this functionality stems from the fact that templates executed in sequence, meaning it is possible to use results produced by one template in next template(s), for instance first template can produce lookup table text file and other template will rely on.
+The first use case for this is that templates execute in sequence, so it is possible to use results produced by one template in subsequent templates — for example, the first template can produce a lookup table file that the next template then references.
 
-Another use case is templates grouping under single definition to simplify loading - instead of adding each template to TTP object, all of them can be loaded in one go.
+Another use case is grouping templates under a single file to simplify loading: instead of adding each template to the TTP object individually, all of them can be loaded at once.
 
 For instance::
 
@@ -153,7 +153,7 @@ base_path
 ******************************************************************************
 ``base_path="/os/base/path/to/data/"``
 
-This attributes allows to specify base OS file system path to the location of data folders, folders with actual data can be detailed further using relative path in inputs' url attribute.
+Specifies the base OS file system path to data folders. Individual inputs can refine this further using a relative path in their ``url`` attribute.
 
 **Example**
 
@@ -192,10 +192,10 @@ results
 ******************************************************************************
 ``results="per_template|per_input"``
 
-Template results attribute allows to influence the logic used to combine template results, options are:
+The ``results`` attribute controls how template results are combined. Options are:
 
-    * per_input - default, allows to combine results on a per input basis. For instance, if we have two text files with data that needs to be parsed, first file will be parsed by a set of groups associated with this template, combining results in a structure, that will be appended to the list of overall template results. Same will happen with next file. As a result, for this particular template two result items will be produced, one for each file.
-    * per_template - allows to combine results on a per template basis. For instance, if we have two text files with data that needs to be parsed, first file will be parsed by a set of groups associated with this template, combining results in a structure, that structure will be used by TTP to merge with results produced by next file. As a result, for this particular template single results item will be produced, that item will contain merged results for all inputs' files/datum.
+    * per_input - default; combines results per input. Each input file is parsed independently, and its result is appended to the overall template results list. Two input files produce two result items.
+    * per_template - combines results across all inputs into a single structure. Each parsed input is merged with the previous results, so the template ultimately produces one result item containing data from all input files.
 
 Main use case for per_template behavior is to combine results across all the inputs and produce structure that will be more flat and might be easier to work with in certain situations.
 
@@ -307,4 +307,4 @@ pathchar
 
 At the moment this argument behavior is not fully implemented/tested, hence refrain from using it.
 
-pathchar allows to specify character to use to separate path items for groups name attribute, by default it is dot character.
+``pathchar`` specifies the character used to separate path items in the group ``name`` attribute. The default is a dot (``.``).

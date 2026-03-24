@@ -1,16 +1,16 @@
 Dynamic Path
 ============
 
-Above are examples of static path, where all the path items are known and predefined beforehand, however, ttp supports dynamic path formation using match variable results for certain match variable names, i.e we have match variable name set to *interface* and correspondent match result would be Gi0/1, it is possible to use Gi0/1 as a path item.
+The examples above use static paths where all path items are known in advance. TTP also supports dynamic path formation using match variable results. For example, if a match variable is named *interface* and the matched value is ``Gi0/1``, then ``Gi0/1`` can be used as a path item.
 
-Search for dynamic path item value happens using below sequence:
+The search for a dynamic path item value follows this sequence:
 
-* *First* - group match results searched for path item value,
-* *Second* - upper group results cache (latest values) used,
-* *Third* - template variables searched for path item value,
-* *Last* - group results discarded as invalid
+* *First* - the current group match results are searched for the path item value
+* *Second* - the parent group results cache (latest values) is used
+* *Third* - template variables are searched for the path item value
+* *Last* - if not found, the group results are discarded as invalid
 
-Dynamic path items specified in group *name* attribute using "*{{ item_name }}*" format, there "*{{ item_name }}*" dynamically replaced with value found using above sequence.
+Dynamic path items are specified in the group ``name`` attribute using the ``{{ item_name }}`` format.
 
 **Example-1**
 
@@ -62,7 +62,7 @@ Result::
         }
     ]
 
-Because each path item is a string, and each item produced by spilling name attributes using '.' dot character, it is possible to produce dynamic path there portions of path item will be dynamically substituted.
+Because each path item is a string produced by splitting the name attribute on ``'.'``, it is possible to embed dynamic substitutions within a portion of a path item.
 
 
 Data::

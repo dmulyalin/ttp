@@ -1,13 +1,13 @@
 Anonymous group
 ===============
 
-If no nested dictionary functionality required or results structure needs to be kept as flat as possible, templates without <group> tag can be used - so called *non hierarchical templates*.
+When no nested dictionary hierarchy is required, or results should be kept as flat as possible, templates without a ``<group>`` tag can be used — so-called *non-hierarchical templates*.
 
-Top <group> tag can also lack of name attribute, making at anonymous group - group without a name.
+A top-level ``<group>`` tag can also omit the ``name`` attribute, making it an anonymous group.
 
-In both cases above, TTP will automatically reconstruct <group> tag name attribute making it equal to ``_anonymous_*`` value, note ``*`` path formatter, that is to make sure that anonymous group results will **always be a list**.
+In both cases, TTP automatically sets the group name to ``_anonymous_*`` (note the ``*`` path formatter), which ensures that anonymous group results are **always a list**.
 
-At the end ``_anonymous_`` group results merged with the rest of groups' results. Because of how results combined, template that has anonymous groups will always produce a list results structure.
+Anonymous group results are merged with the rest of the groups' results at the end. Any template with anonymous groups always produces a list result structure.
 
 .. note::
 

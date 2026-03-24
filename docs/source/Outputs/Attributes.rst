@@ -30,9 +30,9 @@ Name of the output, optional attribute, can be used to reference it in groups :r
 
 description
 ******************************************************************************
-``name="desription_string"``
+``description="description_string"``
 
-desription_string, optional string that contains output description or notes, can serve documentation purposes.
+Optional string containing output description or notes; serves documentation purposes.
 
 load
 ******************************************************************************
@@ -50,13 +50,13 @@ Supported loaders:
 
 returner
 ******************************************************************************
-``returner=returner_name"``
+``returner="returner_name"``
 
 Name of the returner to use to return results.
 
 format
 ******************************************************************************
-``format=formatter_name"``
+``format="formatter_name"``
 
 Name of the formatter to use to format results.
 

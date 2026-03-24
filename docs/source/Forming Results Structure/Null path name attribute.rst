@@ -1,11 +1,11 @@
 Null path name attribute
 ========================
 
-It is possible to specify null path as a name, null path looks like ``name="_"`` or null path can be used as a first item in the path - ``name="_.nextlevel"``.
+A null path can be specified as a name: ``name="_"``, or as the first item in a path: ``name="_.nextlevel"``.
 
-Special handling implemented for null path - TTP will merge results with parent for group with null path, as a result null path ``_`` will not appear in results.
+TTP merges results from a null-path group into its parent, so ``_`` does not appear in the final results.
 
-One of the use cases for this feature is to create a group that will behave like a normal group in terms of results forming and processing, but will merge with parent in the process of saving into overall results.
+This is useful for creating a group that processes results normally but merges them flat into the parent, avoiding an extra level of nesting.
 
 **Example**
 

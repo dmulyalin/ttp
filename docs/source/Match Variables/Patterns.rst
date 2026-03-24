@@ -12,7 +12,7 @@ By convention, regex patterns written in upper case, but it is not a hard requir
    * - Name
      - Description
    * - `re`_
-     - allows to specify regular expression to use for match variable
+     - specifies the regular expression to use for the match variable
    * - `WORD`_
      - matches single word
    * - `PHRASE`_
@@ -184,7 +184,7 @@ ORPHRASE
 ------------------------------------------------------------------------------
 ``{{ name | ORPHRASE }}``
 
-In many cases data that needs to be extracted can be either a single word or a phrase, the most prominent example - various descriptions, such as interface descriptions, BGP peers descriptions etc. ORPHRASE allows to match and extract such a data.
+In many cases the data to extract can be either a single word or a phrase — the most common example being interface or BGP peer descriptions. ORPHRASE matches and extracts either form.
 
 **Example**
 

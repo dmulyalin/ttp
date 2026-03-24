@@ -22,7 +22,7 @@ TTP has `file`_, `terminal`_ and `self`_ returners. The purpose of returner is t
 self
 -------------------------------------
 
-Default returner, data processed by output returned back to ttp for further processing, that way outputs can be chained to produce required results. Another use case is when ttp used as a module, results can be formatted retrieved out of ttp object.
+Default returner. Data processed by the output is returned back to TTP for further processing, allowing outputs to be chained. When TTP is used as a module, formatted results can be retrieved from the TTP object.
 
 file
 -------------------------------------

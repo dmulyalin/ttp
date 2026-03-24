@@ -1,7 +1,7 @@
 How to parse text tables
 ========================
 
-Parsing text tables is fairly simple as long as they are regular - meaning there are repetitive patterns can be found in text. For instance this text::
+Parsing text tables is straightforward as long as the table is regular — meaning there are repetitive patterns in the text. For instance, this text::
 
     Protocol  Address     Age (min)  Hardware Addr   Type   Interface
     Internet  10.12.13.1        98   0950.5785.5cd1  ARPA   FastEthernet2.13
@@ -12,7 +12,7 @@ is a table and is easy to parse with TTP using this single pattern::
 
     Internet  {{ ip | IP }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
 
-``IP`` and ``DIGIT`` are regular expression formatters, indicating that special regexes need to be use to match ip and age variables. If we add additional entries in above text, that are different from existing ones, we will have to add more patterns in template and combine them in a group. For instance this text::
+``IP`` and ``DIGIT`` are built-in regex patterns matching IP addresses and integers respectively. If the table has additional rows in varying formats, add more patterns to the group. For instance:
 
     Protocol  Address     Age (min)  Hardware Addr   Type   Interface
     Internet  10.12.13.1        98   0950.5785.5cd1  ARPA   FastEthernet2.13
@@ -21,7 +21,7 @@ is a table and is easy to parse with TTP using this single pattern::
     Internet  10.12.14.5       -     0950.5C8A.5d42  ARPA   GigabitEthernet3
     Internet  10.12.15.6       164   0950.5C8A.5e43  ARPA   GigabitEthernet4.21  *
 
-would require two additional patterns to match all the lines::
+would require two additional patterns to match all lines::
 
     <group name="table_data">
     Internet  {{ ip | IP | _start_ }}  {{ age | DIGIT }}   {{ mac }}  ARPA   {{ interface }}
@@ -36,7 +36,7 @@ We also have to use _start_ indicator, as each line is a complete match and on e
     Internet  {{ ip | IP }}  {{ age }}   {{ mac }}  ARPA   {{ interface }}  *
     </group>
 
-Excluding DIGIT regex formatters will still allow to match all digits but will match hyphen symbol as well, in addition to that, TTP groups tag has ``method`` attribute, this attribute makes every pattern in a group to be group start regex without the need to specify _start_ explicitly. Parsing text table data with above template will produce these results::
+Excluding the DIGIT regex formatter still matches all digits but also matches the hyphen character. In addition, the TTP groups tag has a ``method`` attribute that makes every pattern in a group a group start regex without needing to specify ``_start_`` explicitly. Parsing text table data with the above template produces these results::
 
     [   [   {   'table_data': [   {   'age': '98',
                                       'interface': 'FastEthernet2.13',

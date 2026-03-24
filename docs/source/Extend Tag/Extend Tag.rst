@@ -1,11 +1,11 @@
 Extend Tag
 ==========
 
-Extend tag allows to extend template with content of other templates. Parent template will load **all**
-tags of extended template and process them as if they were inserted in place of the ``extend`` tag
-definition.
+The ``<extend>`` tag extends a template with content from other templates. The parent template loads **all**
+tags of the extended template and processes them as if they were inserted in place of the ``extend`` tag.
 
-Extended template can contain ``template`` tag but only will be loaded if template has name attribute.
+Extended template can contain multiple ``template`` tags but they will be loaded into parent template
+as individual templates only if they have ``name`` attribute set.
 
 Extend tag can be nested within groups as well, but in that case only ``group`` and ``extend`` tags loaded from
 extended template, other tags (lookup, vars, input, output) are ignored. Nested extend only supports `groups`_ filter.
@@ -167,7 +167,7 @@ Results::
 
 **Example-3**
 
-This example demonstrates how to use ``extend`` tag withing groups.
+This example demonstrates how to use the ``extend`` tag within groups.
 
 Sample data::
 
@@ -230,31 +230,31 @@ inputs
 ------
 ``inputs="name1, name2, .. , nameN"``
 
-This filter allows to form a comma separated list of input tags to load from extended template, identified by input tag name attribute.
+This filter specifies a comma-separated list of input tag names to load from the extended template.
 
 groups
 ------
 ``groups="name1, name2, .. , nameN"`` or ``groups="1, 5, .. , N"``
 
-This filter allows to form a comma separated list of groups to load from extended template, identified by group tag name attribute or group index. Group indexes counted from top group starting from 0.
+This filter specifies a comma-separated list of groups to load from the extended template, identified by group tag name attribute or group index. Group indexes are counted from the top group starting at 0.
 
 vars
 ----
 ``vars="name1, name2, .. , nameN"``
 
-This filter allows to form a comma separated list of template variable tags to load from extended template, identified by variables tag name attribute.
+This filter specifies a comma-separated list of template variable tags to load from the extended template.
 
 lookups
 -------
 ``lookups="name1, name2, .. , nameN"``
 
-This filter allows to form a comma separated list of lookup tags to load from extended template, identified by lookup tag name attribute.
+This filter specifies a comma-separated list of lookup tags to load from the extended template.
 
 outputs
 -------
 ``outputs="name1, name2, .. , nameN"``
 
-This filter allows to form a comma separated list of output tags to load from extended template, identified by output tag name attribute.
+This filter specifies a comma-separated list of output tags to load from the extended template.
 
 macro
 -----

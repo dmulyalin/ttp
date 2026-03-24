@@ -1,17 +1,17 @@
 Outputs
 =======
 
-Outputs system allows to process parsing results, format them in certain way and return results to various destination. For instance, using yaml formatter results can take a form of YAML syntax and using file returner these results can be saved into file.
+The outputs system processes parsing results, formats them, and delivers them to configured destinations. For example, using the yaml formatter, results can be formatted as YAML, and using the file returner, they can be saved to a file.
 
-Outputs can be chained, say results after passing through first outputter will serve as an input for next outputter. That allows to implement complex processing logic of results produced by ttp.
+Outputs can be chained: the result of the first outputter becomes the input for the next, enabling complex processing pipelines.
 
-The opposite way would be that each output defined in template will work with parsing results, transform them in different way and return to different destinations. An example of such a behavior might be the case when first outputter form csv table and saves it onto the file, while second outputter will render results with Jinja2 template and print them to the screen.
+Alternatively, each output defined in the template can independently transform results and deliver them to different destinations. For example, one outputter may produce a CSV file while another renders results with a Jinja2 template and prints them to screen.
 
-In addition two types of outputter exists - template specific and group specific. Template specific outputs will process template overall results, while group-specific will work with results of this particular group only.
+Two types of outputters exist: template-specific and group-specific. Template-specific outputs process the overall template results; group-specific outputs process only the results of a particular group.
 
-There is a set of function available in outputs to process/modify results further.
+A set of functions is available in outputs to further process or modify results.
 
-.. note:: If several outputs provided - they run sequentially in the order defined in template. Within single output, processing order is - functions run first, after that formatters, followed by returners.
+.. note:: If multiple outputs are defined, they run sequentially in the order specified in the template. Within a single output, the processing order is: functions first, then formatters, then returners.
 
 Outputs reference
 -------------------

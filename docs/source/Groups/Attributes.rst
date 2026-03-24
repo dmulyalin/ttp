@@ -1,7 +1,7 @@
 Attributes
 ==========
 
-Each group tag (<g>, <grp>, <group>) can have a number of attributes, they used during module execution to provide desired results. Attributes can be mandatory or optional. Each attribute is a string of data formatted in certain way.
+Each group tag (``<g>``, ``<grp>``, ``<group>``) can have a number of attributes used during parsing to shape results. Attributes can be mandatory or optional. Each attribute is a string formatted in a specific way.
 
 .. list-table:: group attributes
    :widths: 10 90
@@ -24,7 +24,7 @@ name
 ------------------------------------------------------------------------------
 ``name="path_string"``
 
-* path_string (optional) - dot separated string that indicates group results placement in results structure.
+* path_string (optional) - dot-separated string that indicates the group results placement in the results structure.
 
 More on name attribute: Group Name Attribute
 
@@ -32,11 +32,11 @@ input
 ------------------------------------------------------------------------------
 ``input="input1, input2, ... inputN"``
 
-* inputN (optional) - comma separated string that contains name(s) of the input tag(s) that should be used to source data for this group, alternatively input string value can reference Operating System fully qualified or relative path to location of text file(s) that should be parsed by this group. OS relative path should be accompanied with template base_path attribute, that attribute will be perpended to group input to form fully qualified path.
+* inputN (optional) - comma-separated string containing the name(s) of input tag(s) to use as data sources for this group. Alternatively, the value can be an OS fully qualified or relative path to text file(s) to parse. A relative path should be accompanied by the template ``base_path`` attribute, which will be prepended to the group input path to form the fully qualified path.
 
 Input attribute of the group considered to be more specific in case if group name referenced in input :ref:`Inputs/Attributes:groups` attribute, as a result several groups can share same name, but reference different inputs with different set of data to be parsed.
 
-.. note:: Input attributed only supported at top group, nested groups input attributes are ignored.
+.. note:: The input attribute is only supported on top-level groups; nested group input attributes are ignored.
 
 **Example-1**
 
@@ -178,11 +178,11 @@ Template::
     <group name="uptime**">
     device-hostame uptime is {{ uptime | PHRASE }}
     <group name="software">
-     software version {{ version | default("uncknown") }}
+     software version {{ version | default("unknown") }}
     </group>
     </group>
 
-    <group name="domain" default="Uncknown">
+    <group name="domain" default="Unknown">
     Default domain is {{ fqdn }}
     </group>
 
@@ -192,19 +192,19 @@ Result::
         [
             {
                 "domain": {
-                    "fqdn": "Uncknown"
+                    "fqdn": "Unknown"
                 },
                 "uptime": {
                     "uptime": "27 weeks, 3 days, 10 hours, 46 minutes, 10 seconds",
                     "software": {
-                        "version": "uncknown"
+                        "version": "unknown"
                     }
                 }
             }
         ]
     ]
 
-In above example in input there is no data to match by group ``domain``, this group default values were saved in results. Same is for child group ``software`` - no data to match in input, hence default values appears in results, because match variable ``software`` is start RE.
+In the above example, there is no data in the input to match the ``domain`` group, so its default values are saved in results. The same is true for the child group ``software`` — no data to match, so default values appear in results, because the match variable ``software`` is the start RE.
 
 **Example-3**
 
@@ -271,7 +271,7 @@ method
 
 * value (optional) - [group | table] default is *group*. If method it *group* only first regular expression in group considered as group-start-re, in addition template lines that contain *_start_* indicator also used as group-start-re.
 
-On the other hand, if method set to *table* each and every regular expression in the group considered as group-start-re, that is very useful if semi-table data structure parsed, and we have several variations of row.
+When method is set to *table*, every regular expression in the group is treated as a group-start-re. This is very useful for semi-tabular data with multiple row variations.
 
 **Example**
 

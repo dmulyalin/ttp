@@ -1,7 +1,7 @@
 Group Name Attribute
 ====================
 
-Group attribute *name* used to uniquely identify group and its results within results structure. This attribute is a dot separated string, there is every dot represents a next level in hierarchy. This string is split into **path items** using dot character and converted into nested hierarchy of dictionaries and/or lists.
+The group ``name`` attribute uniquely identifies a group and places its results within the results structure. It is a dot-separated string where each dot represents the next level of hierarchy. The string is split into **path items** using the dot character and converted into a nested hierarchy of dictionaries and/or lists.
 
 Consider a group with this name attribute value::
 
@@ -39,4 +39,4 @@ This result will be produced::
         }
     ]
 
-Name attribute allows to from arbitrary (from practical perspective) depth structure in deterministic fashion, enabling further programmatic consumption of produced results.
+The name attribute enables forming an arbitrary-depth structure in a deterministic way, facilitating programmatic consumption of results.

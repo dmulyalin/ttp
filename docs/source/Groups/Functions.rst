@@ -165,7 +165,7 @@ macro
 
 * nameN - comma separated string of macro functions names that should be used to run group results through. The sequence is *preserved* and macros executed in specified order, in other words macro named name2 will run after macro name1.
 
-Macro brings Python language capabilities to group results processing and validation during TTP module execution, as it allows to run custom python functions. Macro functions referenced by their name in group tag definitions.
+Macro brings Python language capabilities to group results processing and validation. It allows running custom Python functions referenced by name in the group tag definition.
 
 Macro function must accept only one attribute to hold group match results.
 
@@ -263,11 +263,11 @@ functions or chain
 
 ``chain`` and ``functions`` attributes are doing exactly the same, just two different names to reference same functionality, hence can be used interchangeably.
 
-The advantages of using string or list of functions versus defining them directly in the group tag are:
+The advantages of using a string or list of functions versus defining them directly in the group tag are:
 
-* it allows to define sequence of functions to run group results through and that order will be honored
-* chain of functions can also reference template variable that contains string or list of functions strings, that allows to reuse same chain across several groups
-* improved readability as multiple functions definitions can go to template variable
+* functions run in the specified order
+* a chain can reference a template variable containing a pipe-separated string or list of functions, enabling reuse across multiple groups
+* improved readability, as multiple function definitions can be placed in a template variable
 
 For instance we have two below group definitions:
 
@@ -449,7 +449,7 @@ to_ip
 * ip_key - name of the key that contains IP address string
 * mask_key - name of the key that contains mask string
 
-This functions can help to construct ipaddress IpAddress object out of ip_key and mask_key values, on success this function will return ipaddress object assigned to ip_key.
+This function constructs an ``ipaddress.IPvXInterface`` if match contains ``/`` or ``ipaddress.IPv4Address`` object from ``ip_key`` and ``mask_key`` values. On success, the ipaddress object is assigned to ``ip_key``.
 
 **Example**
 
@@ -506,7 +506,7 @@ exclude
 
 * variableN - name of the variable on presence of which to invalidate/exclude group results
 
-This function allows to invalidate group match results based on the fact that **any** of the given variable names/keys are present.
+This function invalidates group match results if **any** of the given variable names/keys are present.
 
 **Example**
 
@@ -551,7 +551,7 @@ excludeall
 
 * variable - name of the variable on presence of which to invalidate/exclude group results
 
-excludeall allows to invalidate group results based on the fact that **all** of the given variable names/keys are present in match results.
+``excludeall`` invalidates group results if **all** of the given variable names/keys are present in match results.
 
 del
 ------------------------------------------------------------------------------
@@ -667,7 +667,7 @@ itemize
 * key - mandatory, name of the key to use create a list of items from
 * path - optional, by default path taken from group name attribute, dot separated string of there to save a list of itemized items within results tree
 
-This function allows to take single result item from group match results and place it into the list at specified path.
+This function takes a single result item from group match results and places it into a list at the specified path.
 
 Motivation behind this function is to be able to create a list of items out of group match results. For instance produce a list of all IP addresses configured on device or VRFs or OSPF processes without the need to iterate over parsing results to extract items in question.
 
@@ -719,7 +719,7 @@ cerberus
 * ``allow_unknown`` - bool, default is True, if set to False, Cerberus will invalidate match results with keys that are not defined in schema
 * ``add_errors`` - bool, default is False, if set to True, Cerberus validation errors will be added to results under "validation_errors" key
 
-**Prerequisites** `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
+**Prerequisites**: `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ must be installed.
 
 This function uses `Cerberus validation engine <https://docs.python-cerberus.org/en/stable/>`_ to validate group results, returning ``True`` if validation succeeded and ``False`` otherwise.
 
@@ -1601,7 +1601,7 @@ validate
 ------------------------------------------------------------------------------
 ``validate="schema, result='valid', info='', errors='', allow_unknown=True"``
 
-**Prerequisites** `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ need to be installed on the system.
+**Prerequisites**: `Cerberus library <https://docs.python-cerberus.org/en/stable/>`_ must be installed.
 
 Function to add validation results produced by Cerberus library to parsing results. Primary use case - compliance validation and testing.
 

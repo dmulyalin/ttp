@@ -1,7 +1,7 @@
 Lookup Tables
 =============
 
-Lookups tag allows to define a lookup table that will be transformed into lookup dictionary, dictionary that can be used to lookup values to include them into parsing results. Lookup table can be called from match variable using *lookup* function.
+The ``<lookup>`` tag defines a lookup table that TTP transforms into a dictionary. This dictionary can be used to look up values and include them in parsing results via the match variable ``lookup`` function.
 
 .. list-table:: lookup tag attributes
    :widths: 10 90

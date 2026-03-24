@@ -9,7 +9,7 @@ Or download code from GitHub, unzip, navigate to folder and run::
 
     python setup.py install or python -m pip install .
 
-Or install GIT and run installation of latest source code from GitHub master brunch::
+Or install Git and run installation of latest source code from the GitHub master branch::
 
     python -m pip install git+https://github.com/dmulyalin/ttp
 

@@ -1,7 +1,7 @@
 Macro Tag
 =========
 
-TTP has a number of built-in function for various systems - function for groups, functions for outputs, functions for variables and functions for match variables. To extend this functionality even further, TTP allows to define custom functions using <macro> tags.
+TTP has a number of built-in functions for various systems — match variables, groups, outputs, and inputs. To extend this functionality, TTP allows defining custom functions using ``<macro>`` tags.
 
 Macro is a python code within <macro> tag text. This code can contain a number of function definitions, these functions can be referenced within TTP templates.
 
